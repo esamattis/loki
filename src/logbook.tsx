@@ -17,6 +17,9 @@ async function renderLogbook(c: AppRequestContext) {
         .select({
             uuid: jumps.uuid,
             jumpNumber: jumps.jumpNumber,
+            exitAltitude: jumps.exitAltitude,
+            openingAltitude: jumps.openingAltitude,
+            freefallTime: jumps.freefallTime,
             description: jumps.description,
             locationName: locations.name,
             aircraftName: aircrafts.name,
@@ -87,6 +90,11 @@ async function renderLogbook(c: AppRequestContext) {
                                     <span className="ml-3 text-sm text-gray-600">
                                         {jump.locationName} /{" "}
                                         {jump.aircraftName}
+                                    </span>
+                                    <span className="mt-1 block text-sm text-gray-600">
+                                        Exit {jump.exitAltitude} m / Opening{" "}
+                                        {jump.openingAltitude} m / Freefall{" "}
+                                        {jump.freefallTime} s
                                     </span>
                                     {jump.description && (
                                         <span className="mt-1 block text-sm text-gray-600">

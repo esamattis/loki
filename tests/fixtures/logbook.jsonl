@@ -2,5 +2,5 @@
 {"type":"gear","name":"Navigator 260","previousCount":42,"description":"Main canopy"}
 {"type":"jumpType","name":"Formation skydiving","previousCount":18,"description":"Four-way training"}
 {"type":"location","name":"Skydive Example","previousCount":300,"description":"Home drop zone"}
-{"type":"jump","jumpNumber":301,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Imported training jump"}
-{"type":"jump","jumpNumber":302,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Second imported jump"}
+{"type":"jump","jumpNumber":301,"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Imported training jump"}
+{"type":"jump","jumpNumber":302,"exitAltitude":3500,"openingAltitude":900,"freefallTime":48,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Second imported jump"}

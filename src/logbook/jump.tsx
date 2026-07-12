@@ -30,6 +30,9 @@ interface JumpFormValues {
     locationUuid?: string;
     aircraftUuid?: string;
     jumpNumber?: string;
+    exitAltitude?: string;
+    openingAltitude?: string;
+    freefallTime?: string;
     description?: string;
     gearUuids?: string[];
     jumpTypeUuids?: string[];
@@ -42,6 +45,18 @@ const JumpSchema = z.object({
         .number()
         .int("Jump number must be a whole number")
         .positive("Jump number must be positive"),
+    exitAltitude: z.coerce
+        .number()
+        .int("Exit altitude must be a whole number")
+        .positive("Exit altitude must be positive"),
+    openingAltitude: z.coerce
+        .number()
+        .int("Opening altitude must be a whole number")
+        .min(0, "Opening altitude cannot be negative"),
+    freefallTime: z.coerce
+        .number()
+        .int("Freefall time must be a whole number")
+        .min(0, "Freefall time cannot be negative"),
     description: z.string().trim().max(2_000).optional(),
     gearUuids: z.array(z.string()).default([]),
     jumpTypeUuids: z.array(z.string()).default([]),
@@ -76,6 +91,27 @@ function JumpForm(props: {
                     min="1"
                     required
                     value={values.jumpNumber ?? ""}
+                />
+                <NumberInput
+                    name="exitAltitude"
+                    label="Exit altitude (m)"
+                    min="1"
+                    required
+                    value={values.exitAltitude ?? ""}
+                />
+                <NumberInput
+                    name="openingAltitude"
+                    label="Opening altitude (m)"
+                    min="0"
+                    required
+                    value={values.openingAltitude ?? ""}
+                />
+                <NumberInput
+                    name="freefallTime"
+                    label="Freefall time (s)"
+                    min="0"
+                    required
+                    value={values.freefallTime ?? ""}
                 />
                 <Select
                     name="locationUuid"
@@ -220,6 +256,9 @@ function getJumpFormValues(formData: FormData): JumpFormValues {
         locationUuid: getValue("locationUuid"),
         aircraftUuid: getValue("aircraftUuid"),
         jumpNumber: getValue("jumpNumber"),
+        exitAltitude: getValue("exitAltitude"),
+        openingAltitude: getValue("openingAltitude"),
+        freefallTime: getValue("freefallTime"),
         description: getValue("description"),
         gearUuids: formData
             .getAll("gearUuids")
@@ -272,6 +311,9 @@ async function renderNewJump(c: AppRequestContext) {
                 ...values,
                 locationUuid: jump.locationUuid,
                 aircraftUuid: jump.aircraftUuid,
+                exitAltitude: String(jump.exitAltitude),
+                openingAltitude: String(jump.openingAltitude),
+                freefallTime: String(jump.freefallTime),
                 description: jump.description ?? undefined,
                 gearUuids: gearRows.map((item) => item.gearUuid),
                 jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),
@@ -344,6 +386,9 @@ async function handleNewJump(c: AppRequestContext) {
             locationUuid: result.data.locationUuid,
             aircraftUuid: result.data.aircraftUuid,
             jumpNumber: result.data.jumpNumber,
+            exitAltitude: result.data.exitAltitude,
+            openingAltitude: result.data.openingAltitude,
+            freefallTime: result.data.freefallTime,
             description: result.data.description || null,
         }),
         ...result.data.gearUuids.map((gearUuid) =>
@@ -384,6 +429,9 @@ async function renderEditJump(c: AppRequestContext) {
                 locationUuid: jump.locationUuid,
                 aircraftUuid: jump.aircraftUuid,
                 jumpNumber: String(jump.jumpNumber),
+                exitAltitude: String(jump.exitAltitude),
+                openingAltitude: String(jump.openingAltitude),
+                freefallTime: String(jump.freefallTime),
                 description: jump.description ?? undefined,
                 gearUuids: gearRows.map((item) => item.gearUuid),
                 jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),
@@ -456,6 +504,9 @@ async function handleEditJump(c: AppRequestContext) {
                 locationUuid: result.data.locationUuid,
                 aircraftUuid: result.data.aircraftUuid,
                 jumpNumber: result.data.jumpNumber,
+                exitAltitude: result.data.exitAltitude,
+                openingAltitude: result.data.openingAltitude,
+                freefallTime: result.data.freefallTime,
                 description: result.data.description || null,
             })
             .where(eq(jumps.uuid, uuid)),

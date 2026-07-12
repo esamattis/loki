@@ -69,6 +69,9 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     const exportContents = await readFile(exportPath, "utf8");
     expect(exportContents).not.toMatch(/uuid/i);
     expect(exportContents).toContain('"gear":["Navigator 260"]');
+    expect(exportContents).toContain(
+        '"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55',
+    );
     await page.getByRole("button", { name: "Log out" }).click();
     await registerUser(page, "second-skydiver");
 
@@ -89,6 +92,13 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
         "Edited after import",
     );
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "4000",
+    );
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
+        "1000",
+    );
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("55");
     await expect(
         page.getByRole("checkbox", { name: "Navigator 260" }),
     ).toBeChecked();

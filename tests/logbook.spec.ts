@@ -53,6 +53,9 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
     await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
     await page.locator('select[name="locationUuid"]').selectOption({
         label: "Skydive Test Center",
     });
@@ -70,12 +73,22 @@ test("a skydiver can register and record their first jump", async ({
         "Skydive Test Center / Cessna 182",
     );
     await expect(page.getByText("First test jump")).toBeVisible();
+    await expect(
+        page.getByText("Exit 4000 m / Opening 1000 m / Freefall 55 s"),
+    ).toBeVisible();
 
     await page.getByRole("link", { name: /Jump #1/ }).click();
     await page.getByRole("link", { name: "Copy to new" }).click();
 
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?from=/);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("2");
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "4000",
+    );
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
+        "1000",
+    );
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("55");
     await expect(page.locator('select[name="locationUuid"]')).toHaveValue(/.+/);
     await expect(page.locator('select[name="aircraftUuid"]')).toHaveValue(/.+/);
     await expect(
@@ -99,6 +112,13 @@ test("a skydiver can register and record their first jump", async ({
 
     await expect(page).toHaveURL("/logbook/jumps/new");
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("3");
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "4000",
+    );
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
+        "1000",
+    );
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("55");
     await expect(page.locator('select[name="locationUuid"]')).toHaveValue(/.+/);
     await expect(page.locator('select[name="aircraftUuid"]')).toHaveValue(/.+/);
     await expect(

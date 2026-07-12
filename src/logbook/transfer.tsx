@@ -33,6 +33,18 @@ const ImportRecordSchema = z.discriminatedUnion("type", [
             .number()
             .int("Jump number must be a whole number")
             .positive("Jump number must be positive"),
+        exitAltitude: z.coerce
+            .number()
+            .int("Exit altitude must be a whole number")
+            .positive("Exit altitude must be positive"),
+        openingAltitude: z.coerce
+            .number()
+            .int("Opening altitude must be a whole number")
+            .min(0, "Opening altitude cannot be negative"),
+        freefallTime: z.coerce
+            .number()
+            .int("Freefall time must be a whole number")
+            .min(0, "Freefall time cannot be negative"),
         location: z.string().trim().min(1, "Location is required"),
         aircraft: z.string().trim().min(1, "Aircraft is required"),
         gear: z.array(z.string().trim().min(1)).default([]),
@@ -136,17 +148,20 @@ function TransferPage(props: { errors?: string[]; notice?: string }) {
 {"type":"gear","name":"Navigator 260","previousCount":42,"description":"Main canopy"}
 {"type":"jumpType","name":"Formation skydiving","previousCount":18,"description":"Four-way training"}
 {"type":"location","name":"Skydive Example","previousCount":300,"description":"Home drop zone"}
-{"type":"jump","jumpNumber":301,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Training jump"}`}</code>
+{"type":"jump","jumpNumber":301,"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Training jump"}`}</code>
                             </pre>
                             <p>
                                 Resource records require <code>type</code>,{" "}
                                 <code>name</code>, and{" "}
                                 <code>previousCount</code>. Jump records require{" "}
                                 <code>type</code>, <code>jumpNumber</code>,{" "}
-                                <code>location</code>, and <code>aircraft</code>
-                                . Descriptions may be omitted or{" "}
-                                <code>null</code>, and <code>gear</code> and{" "}
-                                <code>jumpTypes</code> may be omitted or empty.
+                                <code>exitAltitude</code>,{" "}
+                                <code>openingAltitude</code>,{" "}
+                                <code>freefallTime</code>, <code>location</code>
+                                , and <code>aircraft</code>. Descriptions may be
+                                omitted or <code>null</code>, and{" "}
+                                <code>gear</code> and <code>jumpTypes</code> may
+                                be omitted or empty.
                             </p>
                             <p>
                                 Re-importing a jump with the same jump number
@@ -357,6 +372,9 @@ async function importRecords(c: AppRequestContext, records: ImportRecord[]) {
         const jumpValues = {
             locationUuid,
             aircraftUuid,
+            exitAltitude: record.exitAltitude,
+            openingAltitude: record.openingAltitude,
+            freefallTime: record.freefallTime,
             description: record.description || null,
         };
         if (existingJumpUuid) {
@@ -453,6 +471,9 @@ async function exportLogbook(c: AppRequestContext) {
                 .select({
                     uuid: jumps.uuid,
                     jumpNumber: jumps.jumpNumber,
+                    exitAltitude: jumps.exitAltitude,
+                    openingAltitude: jumps.openingAltitude,
+                    freefallTime: jumps.freefallTime,
                     description: jumps.description,
                     location: locations.name,
                     aircraft: aircrafts.name,
@@ -525,6 +546,9 @@ async function exportLogbook(c: AppRequestContext) {
         ...jumpRows.map((row) => ({
             type: "jump",
             jumpNumber: row.jumpNumber,
+            exitAltitude: row.exitAltitude,
+            openingAltitude: row.openingAltitude,
+            freefallTime: row.freefallTime,
             location: row.location,
             aircraft: row.aircraft,
             gear: gearByJump.get(row.uuid) ?? [],
