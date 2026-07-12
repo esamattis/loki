@@ -84,4 +84,21 @@ test("a skydiver can register and record their first jump", async ({ page }) => 
     await expect(page.getByRole("link", { name: /Jump #2/ })).toContainText(
         "Skydive Test Center / Cessna 182",
     );
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+
+    await expect(page).toHaveURL("/logbook/jumps/new");
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("3");
+    await expect(page.locator('select[name="locationUuid"]')).toHaveValue(
+        /.+/,
+    );
+    await expect(page.locator('select[name="aircraftUuid"]')).toHaveValue(
+        /.+/,
+    );
+    await expect(page.getByRole("checkbox", { name: "Main canopy" })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "Freefly" })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "Tracking" })).toBeChecked();
+    await expect(page.locator('textarea[name="description"]')).toHaveValue(
+        "First test jump",
+    );
 });

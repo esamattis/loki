@@ -234,7 +234,7 @@ async function renderNewJump(c: AppRequestContext) {
     const userUuid = getAppContext(c).getUser().uuid;
     const { from } = routes.jumpNew.query(c);
     const latestJump = await db
-        .select({ jumpNumber: jumps.jumpNumber })
+        .select({ uuid: jumps.uuid, jumpNumber: jumps.jumpNumber })
         .from(jumps)
         .where(eq(jumps.userUuid, userUuid))
         .orderBy(desc(jumps.jumpNumber))
@@ -244,11 +244,17 @@ async function renderNewJump(c: AppRequestContext) {
     let values: JumpFormValues = {
         jumpNumber: String((latestJump?.jumpNumber ?? 0) + 1),
     };
-    if (from) {
+    const sourceJumpUuid = from ?? latestJump?.uuid;
+    if (sourceJumpUuid) {
         const jump = await db
             .select()
             .from(jumps)
-            .where(and(eq(jumps.uuid, from), eq(jumps.userUuid, userUuid)))
+            .where(
+                and(
+                    eq(jumps.uuid, sourceJumpUuid),
+                    eq(jumps.userUuid, userUuid),
+                ),
+            )
             .get();
         if (jump) {
             const [gearRows, jumpTypeRows] = await Promise.all([
