@@ -35,6 +35,7 @@ export function Input(props: {
 }
 
 export function NumberInput(props: {
+    id?: string;
     name: string;
     label: string;
     min?: string;
@@ -49,6 +50,7 @@ export function NumberInput(props: {
         <label className={clsx(labelClassName, props.className)}>
             {props.label}
             <input
+                id={props.id}
                 name={props.name}
                 type="number"
                 min={props.min}

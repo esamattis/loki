@@ -1,7 +1,12 @@
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod/v4";
 import { useId } from "hono/jsx";
-import { app, getAppContext, type AppRequestContext } from "../app";
+import {
+    app,
+    getAppContext,
+    useAppContext,
+    type AppRequestContext,
+} from "../app";
 import {
     Checkbox,
     FormActions,
@@ -88,6 +93,122 @@ const JumpSchema = z.object({
     jumpTypeUuids: z.array(z.string()).default([]),
 });
 
+function AvgSpeed(props: {
+    altitudeUnits: "meters" | "feet";
+    speedUnits: "kilometers-per-hour" | "meters-per-second";
+    values: JumpFormValues;
+}) {
+    const exitAltitudeId = useId();
+    const openingAltitudeId = useId();
+    const freefallTimeId = useId();
+    const avgSpeedId = useId();
+
+    return (
+        <>
+            <NumberInput
+                id={exitAltitudeId}
+                name="exitAltitude"
+                label={`Exit altitude (${altitudeUnitLabel(props.altitudeUnits)})`}
+                min="1"
+                required
+                value={props.values.exitAltitude ?? ""}
+            />
+            <NumberInput
+                id={openingAltitudeId}
+                name="openingAltitude"
+                label={`Opening altitude (${altitudeUnitLabel(props.altitudeUnits)})`}
+                min="0"
+                required
+                value={props.values.openingAltitude ?? ""}
+            />
+            <NumberInput
+                id={freefallTimeId}
+                name="freefallTime"
+                label="Freefall time (s)"
+                min="0"
+                required
+                value={props.values.freefallTime ?? ""}
+            />
+            <div
+                id={avgSpeedId}
+                aria-live="polite"
+                className="flex flex-col justify-end text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+                Avg speed: —
+            </div>
+            <Script
+                $deps={[$assertElement]}
+                $args={[
+                    exitAltitudeId,
+                    openingAltitudeId,
+                    freefallTimeId,
+                    avgSpeedId,
+                    props.altitudeUnits,
+                    props.speedUnits,
+                ]}
+                $exec={(
+                    exitAltitudeId,
+                    openingAltitudeId,
+                    freefallTimeId,
+                    avgSpeedId,
+                    altitudeUnits,
+                    speedUnits,
+                ) => {
+                    const exitAltitude =
+                        document.getElementById(exitAltitudeId);
+                    const openingAltitude =
+                        document.getElementById(openingAltitudeId);
+                    const freefallTime =
+                        document.getElementById(freefallTimeId);
+                    const avgSpeed = document.getElementById(avgSpeedId);
+                    $assertElement(exitAltitude, HTMLInputElement);
+                    $assertElement(openingAltitude, HTMLInputElement);
+                    $assertElement(freefallTime, HTMLInputElement);
+                    $assertElement(avgSpeed, HTMLDivElement);
+
+                    function updateAvgSpeed() {
+                        $assertElement(exitAltitude, HTMLInputElement);
+                        $assertElement(openingAltitude, HTMLInputElement);
+                        $assertElement(freefallTime, HTMLInputElement);
+                        $assertElement(avgSpeed, HTMLDivElement);
+                        const exit = Number(exitAltitude.value);
+                        const opening = Number(openingAltitude.value);
+                        const time = Number(freefallTime.value);
+                        if (
+                            !Number.isFinite(exit) ||
+                            !Number.isFinite(opening) ||
+                            !Number.isFinite(time) ||
+                            time <= 0
+                        ) {
+                            avgSpeed.textContent = "Avg speed: —";
+                            return;
+                        }
+
+                        const metersPerSecond =
+                            (Math.max(0, exit - opening) *
+                                (altitudeUnits === "feet" ? 0.3048 : 1)) /
+                            time;
+                        const formatted =
+                            speedUnits === "meters-per-second"
+                                ? `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`
+                                : `${Math.round(metersPerSecond * 3.6)} km/h`;
+                        avgSpeed.textContent = `Avg speed: ${formatted}`;
+                    }
+
+                    for (const input of [
+                        exitAltitude,
+                        openingAltitude,
+                        freefallTime,
+                    ]) {
+                        input.addEventListener("input", updateAvgSpeed);
+                    }
+                    updateAvgSpeed();
+                }}
+            />
+        </>
+    );
+}
+
 function JumpForm(props: {
     values?: JumpFormValues;
     locations: Resource[];
@@ -96,9 +217,9 @@ function JumpForm(props: {
     jumpTypes: Resource[];
     errors?: string[];
     submitLabel: string;
-    altitudeUnits: "meters" | "feet";
 }) {
     const values = props.values ?? {};
+    const options = useAppContext().getUser().options;
     const selectedGear = new Set(values.gearUuids ?? []);
     const selectedJumpTypes = new Set(values.jumpTypeUuids ?? []);
 
@@ -126,26 +247,10 @@ function JumpForm(props: {
                     required
                     value={values.jumpNumber ?? ""}
                 />
-                <NumberInput
-                    name="exitAltitude"
-                    label={`Exit altitude (${altitudeUnitLabel(props.altitudeUnits)})`}
-                    min="1"
-                    required
-                    value={values.exitAltitude ?? ""}
-                />
-                <NumberInput
-                    name="openingAltitude"
-                    label={`Opening altitude (${altitudeUnitLabel(props.altitudeUnits)})`}
-                    min="0"
-                    required
-                    value={values.openingAltitude ?? ""}
-                />
-                <NumberInput
-                    name="freefallTime"
-                    label="Freefall time (s)"
-                    min="0"
-                    required
-                    value={values.freefallTime ?? ""}
+                <AvgSpeed
+                    altitudeUnits={options.altitudeUnits}
+                    speedUnits={options.speedUnits}
+                    values={values}
                 />
                 <Select name="locationUuid" label="Location" required>
                     <option value="" disabled selected={!values.locationUuid}>
@@ -335,7 +440,6 @@ function JumpFormPage(props: {
     resources: Awaited<ReturnType<typeof getJumpFormResources>>;
     copyHref?: string;
     canDelete?: boolean;
-    altitudeUnits: "meters" | "feet";
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -343,7 +447,6 @@ function JumpFormPage(props: {
                 values={props.values}
                 errors={props.errors}
                 submitLabel={props.submitLabel}
-                altitudeUnits={props.altitudeUnits}
                 {...props.resources}
             />
             {props.copyHref && (
@@ -407,7 +510,8 @@ function getJumpFormValues(formData: FormData): JumpFormValues {
 async function renderNewJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const options = getAppContext(c).getUser().options;
+    const altitudeUnits = options.altitudeUnits;
     const { from } = routes.jumpNew.query(c);
     const latestJump = await db
         .select({ uuid: jumps.uuid, jumpNumber: jumps.jumpNumber })
@@ -470,7 +574,6 @@ async function renderNewJump(c: AppRequestContext) {
             submitLabel="Add jump"
             values={values}
             resources={await getJumpFormResources(c)}
-            altitudeUnits={altitudeUnits}
         />,
     );
 }
@@ -482,7 +585,6 @@ async function handleNewJump(c: AppRequestContext) {
     const resources = await getJumpFormResources(c);
 
     if (!result.success) {
-        const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
         return c.render(
             <JumpFormPage
                 title="Add jump"
@@ -490,13 +592,13 @@ async function handleNewJump(c: AppRequestContext) {
                 errors={result.error.issues.map((issue) => issue.message)}
                 values={raw}
                 resources={resources}
-                altitudeUnits={altitudeUnits}
             />,
         );
     }
 
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const options = getAppContext(c).getUser().options;
+    const altitudeUnits = options.altitudeUnits;
     const ownsResources =
         resources.locations.some(
             (item) => item.uuid === result.data.locationUuid,
@@ -520,7 +622,6 @@ async function handleNewJump(c: AppRequestContext) {
                 ]}
                 values={raw}
                 resources={resources}
-                altitudeUnits={altitudeUnits}
             />,
         );
     }
@@ -559,7 +660,8 @@ async function handleNewJump(c: AppRequestContext) {
 async function renderEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const options = getAppContext(c).getUser().options;
+    const altitudeUnits = options.altitudeUnits;
     const { uuid } = routes.jumpEdit.params(c);
     if (!uuid) {
         return c.notFound();
@@ -605,7 +707,6 @@ async function renderEditJump(c: AppRequestContext) {
             resources={await getJumpFormResources(c)}
             copyHref={routes.jumpNew({}, { from: jump.uuid })}
             canDelete
-            altitudeUnits={altitudeUnits}
         />,
     );
 }
@@ -613,7 +714,8 @@ async function renderEditJump(c: AppRequestContext) {
 async function handleEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const options = getAppContext(c).getUser().options;
+    const altitudeUnits = options.altitudeUnits;
     const { uuid } = routes.jumpEdit.params(c);
     if (!uuid) {
         return c.notFound();
@@ -644,7 +746,6 @@ async function handleEditJump(c: AppRequestContext) {
         submitLabel: "Save jump",
         values: raw,
         resources,
-        altitudeUnits,
     };
     if (!result.success) {
         return c.render(
