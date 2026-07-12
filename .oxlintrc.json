@@ -13,6 +13,14 @@
                 "skipBlankLines": true
             }
         ],
+        "max-lines": [
+            "error",
+            {
+                "max": 800,
+                "skipComments": true,
+                "skipBlankLines": true
+            }
+        ],
         "typescript/consistent-type-assertions": [
             "error",
             {
