@@ -19,7 +19,7 @@ export default defineConfig({
     ],
     webServer: {
         command:
-            "PLAYWRIGHT_TEST=1 node scripts/reset-playwright-state.ts && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0000_sloppy_terror.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0001_complete_lake.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0002_absent_angel.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0003_sweet_ghost_rider.sql && PLAYWRIGHT_TEST=1 vite --host 127.0.0.1 --port 8788 --strictPort",
+            "PLAYWRIGHT_TEST=1 node scripts/reset-playwright-state.ts && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0000_sloppy_terror.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0001_complete_lake.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0002_absent_angel.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0003_sweet_ghost_rider.sql && PLAYWRIGHT_TEST=1 wrangler d1 execute DB --local --persist-to .playwright/state --file drizzle/0004_lazy_nekra.sql && PLAYWRIGHT_TEST=1 vite --host 127.0.0.1 --port 8788 --strictPort",
         url: "http://127.0.0.1:8788",
         reuseExistingServer: false,
     },

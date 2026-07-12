@@ -27,6 +27,7 @@ export const locations = sqliteTable("locations", {
     name: text("name").notNull(),
     previousJumpCount: integer("previous_jump_count").notNull().default(0),
     description: text("description"),
+    archived: integer("archived", { mode: "boolean" }).notNull().default(false),
 });
 
 export const aircrafts = sqliteTable("aircrafts", {
@@ -39,6 +40,7 @@ export const aircrafts = sqliteTable("aircrafts", {
     name: text("name").notNull(),
     previousJumpCount: integer("previous_jump_count").notNull().default(0),
     description: text("description"),
+    archived: integer("archived", { mode: "boolean" }).notNull().default(false),
 });
 
 export const gear = sqliteTable("gear", {
@@ -51,6 +53,7 @@ export const gear = sqliteTable("gear", {
     name: text("name").notNull(),
     previousUsageCount: integer("previous_usage_count").notNull().default(0),
     description: text("description"),
+    archived: integer("archived", { mode: "boolean" }).notNull().default(false),
 });
 
 export const jumpTypes = sqliteTable("jump_types", {
@@ -63,6 +66,7 @@ export const jumpTypes = sqliteTable("jump_types", {
     name: text("name").notNull(),
     previousUsageCount: integer("previous_usage_count").notNull().default(0),
     description: text("description"),
+    archived: integer("archived", { mode: "boolean" }).notNull().default(false),
 });
 
 export const jumps = sqliteTable(

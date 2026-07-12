@@ -29,6 +29,13 @@
             "when": 1783866545766,
             "tag": "0003_sweet_ghost_rider",
             "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "6",
+            "when": 1783870376169,
+            "tag": "0004_lazy_nekra",
+            "breakpoints": true
         }
     ]
 }

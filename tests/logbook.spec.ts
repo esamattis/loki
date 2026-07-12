@@ -259,4 +259,87 @@ test("a skydiver can register and record their first jump", async ({
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
         "Updated aircraft",
     );
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage gear" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Main canopy updated" })
+        .getByRole("button", { name: "Archive" })
+        .click();
+    await expect(
+        page
+            .getByRole("listitem")
+            .filter({ hasText: "Main canopy updated" })
+            .getByText("Archived", { exact: true }),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage jump types" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Freefly updated" })
+        .getByRole("button", { name: "Archive" })
+        .click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Tracking updated" })
+        .getByRole("button", { name: "Archive" })
+        .click();
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage locations" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Skydive Updated Center" })
+        .getByRole("button", { name: "Archive" })
+        .click();
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage aircraft" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Cessna 206" })
+        .getByRole("button", { name: "Archive" })
+        .click();
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await expect(
+        page.getByText("Freefly updated", { exact: true }),
+    ).toHaveCount(0);
+    await expect(
+        page.getByText("Tracking updated", { exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(
+        page.getByRole("option", { name: "Skydive Updated Center" }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("option", { name: "Cessna 206" })).toHaveCount(
+        0,
+    );
+    await expect(
+        page.getByRole("checkbox", { name: "Main canopy updated" }),
+    ).toHaveCount(0);
+    await expect(
+        page.getByRole("checkbox", { name: "Freefly updated" }),
+    ).toHaveCount(0);
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage gear" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Main canopy updated" })
+        .getByRole("button", { name: "Unarchive" })
+        .click();
+
+    await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(
+        page.getByRole("checkbox", { name: "Main canopy updated" }),
+    ).toBeVisible();
 });

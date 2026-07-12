@@ -137,7 +137,14 @@ async function renderJumpTypeList(c: AppRequestContext) {
                     {rows.map((item) => (
                         <li className="flex items-center justify-between gap-4 p-5">
                             <div>
-                                <p className="font-semibold">{item.name}</p>
+                                <p className="font-semibold">
+                                    {item.name}
+                                    {item.archived && (
+                                        <span className="ml-2 text-sm font-normal text-gray-500">
+                                            Archived
+                                        </span>
+                                    )}
+                                </p>
                                 <p className="text-sm text-gray-600">
                                     Previous uses: {item.previousUsageCount}
                                 </p>
@@ -147,12 +154,41 @@ async function renderJumpTypeList(c: AppRequestContext) {
                                     </p>
                                 )}
                             </div>
-                            <a
-                                href={routes.jumpTypeEdit({ uuid: item.uuid })}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Edit
-                            </a>
+                            <div className="flex gap-3">
+                                <a
+                                    href={routes.jumpTypeEdit({
+                                        uuid: item.uuid,
+                                    })}
+                                    className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Edit
+                                </a>
+                                <form
+                                    method="post"
+                                    action={routes.jumpTypeEdit({
+                                        uuid: item.uuid,
+                                    })}
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="toggleArchive"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="archived"
+                                        value={String(!item.archived)}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                        {item.archived
+                                            ? "Unarchive"
+                                            : "Archive"}
+                                    </button>
+                                </form>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -196,7 +232,19 @@ async function handleEditJumpType(c: AppRequestContext) {
     if (!uuid) {
         return c.notFound();
     }
-    const values = getJumpTypeFormValues(await c.req.formData());
+    const formData = await c.req.formData();
+    if (formData.get("action") === "toggleArchive") {
+        const update = await db
+            .update(jumpTypes)
+            .set({ archived: formData.get("archived") === "true" })
+            .where(
+                and(eq(jumpTypes.uuid, uuid), eq(jumpTypes.userUuid, userUuid)),
+            )
+            .returning({ uuid: jumpTypes.uuid })
+            .get();
+        return update ? c.redirect(routes.jumpTypeList({})) : c.notFound();
+    }
+    const values = getJumpTypeFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     const formProps = {
         title: "Edit jump type",

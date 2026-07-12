@@ -191,22 +191,39 @@ async function getJumpFormResources(c: AppRequestContext) {
             db
                 .select({ uuid: locations.uuid, name: locations.name })
                 .from(locations)
-                .where(eq(locations.userUuid, userUuid))
+                .where(
+                    and(
+                        eq(locations.userUuid, userUuid),
+                        eq(locations.archived, false),
+                    ),
+                )
                 .orderBy(locations.name),
             db
                 .select({ uuid: aircrafts.uuid, name: aircrafts.name })
                 .from(aircrafts)
-                .where(eq(aircrafts.userUuid, userUuid))
+                .where(
+                    and(
+                        eq(aircrafts.userUuid, userUuid),
+                        eq(aircrafts.archived, false),
+                    ),
+                )
                 .orderBy(aircrafts.name),
             db
                 .select({ uuid: gear.uuid, name: gear.name })
                 .from(gear)
-                .where(eq(gear.userUuid, userUuid))
+                .where(
+                    and(eq(gear.userUuid, userUuid), eq(gear.archived, false)),
+                )
                 .orderBy(gear.name),
             db
                 .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
                 .from(jumpTypes)
-                .where(eq(jumpTypes.userUuid, userUuid))
+                .where(
+                    and(
+                        eq(jumpTypes.userUuid, userUuid),
+                        eq(jumpTypes.archived, false),
+                    ),
+                )
                 .orderBy(jumpTypes.name),
         ]);
 

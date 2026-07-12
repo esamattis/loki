@@ -137,7 +137,14 @@ async function renderLocationList(c: AppRequestContext) {
                     {rows.map((location) => (
                         <li className="flex items-center justify-between gap-4 p-5">
                             <div>
-                                <p className="font-semibold">{location.name}</p>
+                                <p className="font-semibold">
+                                    {location.name}
+                                    {location.archived && (
+                                        <span className="ml-2 text-sm font-normal text-gray-500">
+                                            Archived
+                                        </span>
+                                    )}
+                                </p>
                                 <p className="text-sm text-gray-600">
                                     Previous jumps: {location.previousJumpCount}
                                 </p>
@@ -147,14 +154,41 @@ async function renderLocationList(c: AppRequestContext) {
                                     </p>
                                 )}
                             </div>
-                            <a
-                                href={routes.locationEdit({
-                                    uuid: location.uuid,
-                                })}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Edit
-                            </a>
+                            <div className="flex gap-3">
+                                <a
+                                    href={routes.locationEdit({
+                                        uuid: location.uuid,
+                                    })}
+                                    className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Edit
+                                </a>
+                                <form
+                                    method="post"
+                                    action={routes.locationEdit({
+                                        uuid: location.uuid,
+                                    })}
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="toggleArchive"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="archived"
+                                        value={String(!location.archived)}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                        {location.archived
+                                            ? "Unarchive"
+                                            : "Archive"}
+                                    </button>
+                                </form>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -198,7 +232,19 @@ async function handleEditLocation(c: AppRequestContext) {
     if (!uuid) {
         return c.notFound();
     }
-    const values = getLocationFormValues(await c.req.formData());
+    const formData = await c.req.formData();
+    if (formData.get("action") === "toggleArchive") {
+        const update = await db
+            .update(locations)
+            .set({ archived: formData.get("archived") === "true" })
+            .where(
+                and(eq(locations.uuid, uuid), eq(locations.userUuid, userUuid)),
+            )
+            .returning({ uuid: locations.uuid })
+            .get();
+        return update ? c.redirect(routes.locationList({})) : c.notFound();
+    }
+    const values = getLocationFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     const formProps = {
         title: "Edit location",

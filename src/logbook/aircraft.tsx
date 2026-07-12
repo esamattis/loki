@@ -137,7 +137,14 @@ async function renderAircraftList(c: AppRequestContext) {
                     {rows.map((aircraft) => (
                         <li className="flex items-center justify-between gap-4 p-5">
                             <div>
-                                <p className="font-semibold">{aircraft.name}</p>
+                                <p className="font-semibold">
+                                    {aircraft.name}
+                                    {aircraft.archived && (
+                                        <span className="ml-2 text-sm font-normal text-gray-500">
+                                            Archived
+                                        </span>
+                                    )}
+                                </p>
                                 <p className="text-sm text-gray-600">
                                     Previous jumps: {aircraft.previousJumpCount}
                                 </p>
@@ -147,14 +154,41 @@ async function renderAircraftList(c: AppRequestContext) {
                                     </p>
                                 )}
                             </div>
-                            <a
-                                href={routes.aircraftEdit({
-                                    uuid: aircraft.uuid,
-                                })}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Edit
-                            </a>
+                            <div className="flex gap-3">
+                                <a
+                                    href={routes.aircraftEdit({
+                                        uuid: aircraft.uuid,
+                                    })}
+                                    className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                >
+                                    Edit
+                                </a>
+                                <form
+                                    method="post"
+                                    action={routes.aircraftEdit({
+                                        uuid: aircraft.uuid,
+                                    })}
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="toggleArchive"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="archived"
+                                        value={String(!aircraft.archived)}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                        {aircraft.archived
+                                            ? "Unarchive"
+                                            : "Archive"}
+                                    </button>
+                                </form>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -198,7 +232,19 @@ async function handleEditAircraft(c: AppRequestContext) {
     if (!uuid) {
         return c.notFound();
     }
-    const values = getAircraftFormValues(await c.req.formData());
+    const formData = await c.req.formData();
+    if (formData.get("action") === "toggleArchive") {
+        const update = await db
+            .update(aircrafts)
+            .set({ archived: formData.get("archived") === "true" })
+            .where(
+                and(eq(aircrafts.uuid, uuid), eq(aircrafts.userUuid, userUuid)),
+            )
+            .returning({ uuid: aircrafts.uuid })
+            .get();
+        return update ? c.redirect(routes.aircraftList({})) : c.notFound();
+    }
+    const values = getAircraftFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     const formProps = {
         title: "Edit aircraft",
