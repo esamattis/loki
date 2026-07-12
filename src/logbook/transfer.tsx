@@ -254,6 +254,9 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
         needsUnknownLocation ||= !locationId;
         needsUnknownAircraft ||= !aircraftId;
         const description = xmlString(record, "notes");
+        const cutaway = xmlString(record, "cutaway");
+        const descriptionWithCutaway =
+            cutaway === "true" ? `\nCUTAWAY!${description ?? ""}` : description;
         jumps.push({
             type: "jump",
             jumpNumber,
@@ -279,7 +282,9 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
                 errors,
                 jumpNumber,
             ),
-            ...(description ? { description } : {}),
+            ...(descriptionWithCutaway
+                ? { description: descriptionWithCutaway }
+                : {}),
         });
     }
     if (errors.length > 0) {
