@@ -9,7 +9,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/migrate-local.ts",
-    "db:reset": "rm -rf .wrangler && $npm_execpath run db:migrate",
+    "db:reset": "rm -rf .wrangler && $npm_execpath run db:migrate && node scripts/insert-dev-user.ts",
     "db:dev-user": "node scripts/insert-dev-user.ts",
     "db:list-users": "node scripts/list-users.ts",
     "test:e2e": "playwright test",
