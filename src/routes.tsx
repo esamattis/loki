@@ -12,7 +12,9 @@ export const logbookJumps = route("/logbook/__jumps");
 export const logbookTransfer = route("/logbook/transfer");
 export const logbookExport = route("/logbook/export");
 export const logbookStatistics = route("/logbook/statistics");
-export const logbookDetailedStatistics = route("/logbook/statistics/detailed");
+export const logbookDetailedStatistics = route(
+    "/logbook/statistics/detailed",
+).query<{ year?: number }>();
 export const jumpNew = route("/logbook/jumps/new").query<{ from?: string }>();
 export const jumpEdit = route("/logbook/jumps/:uuid");
 export const aircraftList = route("/logbook/aircrafts");

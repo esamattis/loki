@@ -1,4 +1,5 @@
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
+import clsx from "clsx";
 import { app, getAppContext, type AppRequestContext } from "../app";
 import * as routes from "../routes";
 import {
@@ -34,7 +35,122 @@ function compareStatisticsItems(
     return countDifference || first.name.localeCompare(second.name);
 }
 
-function StatisticsSection(props: { title: string; items: StatisticsItem[] }) {
+function YearNavigationBar(props: {
+    year: number | undefined;
+    availableYears: number[];
+    previousYear: number | undefined;
+    nextYear: number | undefined;
+}) {
+    const allYearsHref = routes.logbookDetailedStatistics({}, {});
+    const sortedAscending = [...props.availableYears].sort((a, b) => a - b);
+
+    function linkClass(active: boolean): string {
+        return clsx(
+            "inline-flex items-center justify-center rounded-lg border px-3 py-1.5 text-sm font-medium transition",
+            active
+                ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+        );
+    }
+
+    return (
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-sm text-slate-600">
+                    {props.year === undefined ? (
+                        <span>
+                            Showing{" "}
+                            <span className="font-semibold text-slate-900">
+                                all years
+                            </span>
+                        </span>
+                    ) : (
+                        <span>
+                            Showing{" "}
+                            <span className="font-semibold text-slate-900">
+                                {props.year}
+                            </span>
+                        </span>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <a
+                        href={
+                            props.previousYear !== undefined
+                                ? routes.logbookDetailedStatistics(
+                                      {},
+                                      {
+                                          year: props.previousYear,
+                                      },
+                                  )
+                                : undefined
+                        }
+                        aria-disabled={props.previousYear === undefined}
+                        className={clsx(
+                            "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition",
+                            props.previousYear === undefined
+                                ? "pointer-events-none border-slate-100 bg-slate-50 text-slate-300"
+                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                        )}
+                    >
+                        ← {props.previousYear ?? "—"}
+                    </a>
+                    <a
+                        href={
+                            props.nextYear !== undefined
+                                ? routes.logbookDetailedStatistics(
+                                      {},
+                                      {
+                                          year: props.nextYear,
+                                      },
+                                  )
+                                : undefined
+                        }
+                        aria-disabled={props.nextYear === undefined}
+                        className={clsx(
+                            "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition",
+                            props.nextYear === undefined
+                                ? "pointer-events-none border-slate-100 bg-slate-50 text-slate-300"
+                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                        )}
+                    >
+                        {props.nextYear ?? "—"} →
+                    </a>
+                    <a
+                        href={allYearsHref}
+                        className={linkClass(props.year === undefined)}
+                    >
+                        All years
+                    </a>
+                </div>
+            </div>
+            {sortedAscending.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                    {sortedAscending.map((availableYear) => (
+                        <a
+                            key={availableYear}
+                            href={routes.logbookDetailedStatistics(
+                                {},
+                                {
+                                    year: availableYear,
+                                },
+                            )}
+                            className={linkClass(props.year === availableYear)}
+                        >
+                            {availableYear}
+                        </a>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function StatisticsSection(props: {
+    title: string;
+    items: StatisticsItem[];
+    filteredByYear: boolean;
+}) {
     return (
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="flex items-baseline justify-between gap-4 border-b border-slate-200 px-5 py-4">
@@ -61,20 +177,26 @@ function StatisticsSection(props: { title: string; items: StatisticsItem[] }) {
                                     scope="col"
                                     className="px-5 py-3 text-right"
                                 >
-                                    Recorded
+                                    {props.filteredByYear
+                                        ? "Jumps"
+                                        : "Recorded"}
                                 </th>
-                                <th
-                                    scope="col"
-                                    className="px-5 py-3 text-right"
-                                >
-                                    Previous
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-5 py-3 text-right"
-                                >
-                                    Total jumps
-                                </th>
+                                {!props.filteredByYear && (
+                                    <>
+                                        <th
+                                            scope="col"
+                                            className="px-5 py-3 text-right"
+                                        >
+                                            Previous
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            className="px-5 py-3 text-right"
+                                        >
+                                            Total jumps
+                                        </th>
+                                    </>
+                                )}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -98,16 +220,20 @@ function StatisticsSection(props: { title: string; items: StatisticsItem[] }) {
                                             "en-US",
                                         )}
                                     </td>
-                                    <td className="px-5 py-3.5 text-right tabular-nums text-slate-600">
-                                        {item.previousJumpCount.toLocaleString(
-                                            "en-US",
-                                        )}
-                                    </td>
-                                    <td className="px-5 py-3.5 text-right font-semibold tabular-nums text-slate-900">
-                                        {getTotalJumpCount(item).toLocaleString(
-                                            "en-US",
-                                        )}
-                                    </td>
+                                    {!props.filteredByYear && (
+                                        <>
+                                            <td className="px-5 py-3.5 text-right tabular-nums text-slate-600">
+                                                {item.previousJumpCount.toLocaleString(
+                                                    "en-US",
+                                                )}
+                                            </td>
+                                            <td className="px-5 py-3.5 text-right font-semibold tabular-nums text-slate-900">
+                                                {getTotalJumpCount(
+                                                    item,
+                                                ).toLocaleString("en-US")}
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>
@@ -133,10 +259,49 @@ function toStatisticsItems(
         .sort(compareStatisticsItems);
 }
 
-async function renderDetailedStatistics(c: AppRequestContext) {
+function parseYear(value: unknown): number | undefined {
+    if (value === undefined || value === null || value === "") {
+        return undefined;
+    }
+    const year = Number(value);
+    if (!Number.isInteger(year) || year < 1 || year > 9999) {
+        return undefined;
+    }
+    return year;
+}
+
+interface DetailedStatisticsResult {
+    locationRows: StatisticsItemRow[];
+    aircraftRows: StatisticsItemRow[];
+    gearRows: StatisticsItemRow[];
+    jumpTypeRows: StatisticsItemRow[];
+    years: number[];
+}
+
+interface StatisticsItemRow {
+    uuid: string;
+    name: string;
+    archived: boolean;
+    previousJumpCount: number;
+    recordedJumpCount: number;
+}
+
+async function fetchDetailedStatistics(
+    c: AppRequestContext,
+    year: number | undefined,
+): Promise<DetailedStatisticsResult> {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const [locationRows, aircraftRows, gearRows, jumpTypeRows] =
+    const yearCondition = year
+        ? and(
+              gte(jumps.jumpDate, `${year}-01-01`),
+              lt(jumps.jumpDate, `${year + 1}-01-01`),
+          )
+        : undefined;
+    const joinCondition = (base: ReturnType<typeof and>) =>
+        yearCondition ? and(base, yearCondition) : base;
+
+    const [locationRows, aircraftRows, gearRows, jumpTypeRows, yearRows] =
         await Promise.all([
             db
                 .select({
@@ -149,9 +314,11 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 .from(locations)
                 .leftJoin(
                     jumps,
-                    and(
-                        eq(locations.uuid, jumps.locationUuid),
-                        eq(jumps.userUuid, userUuid),
+                    joinCondition(
+                        and(
+                            eq(locations.uuid, jumps.locationUuid),
+                            eq(jumps.userUuid, userUuid),
+                        ),
                     ),
                 )
                 .where(eq(locations.userUuid, userUuid))
@@ -168,9 +335,11 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 .from(aircrafts)
                 .leftJoin(
                     jumps,
-                    and(
-                        eq(aircrafts.uuid, jumps.aircraftUuid),
-                        eq(jumps.userUuid, userUuid),
+                    joinCondition(
+                        and(
+                            eq(aircrafts.uuid, jumps.aircraftUuid),
+                            eq(jumps.userUuid, userUuid),
+                        ),
                     ),
                 )
                 .where(eq(aircrafts.userUuid, userUuid))
@@ -188,9 +357,11 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 .leftJoin(jumpsToGear, eq(gear.uuid, jumpsToGear.gearUuid))
                 .leftJoin(
                     jumps,
-                    and(
-                        eq(jumpsToGear.jumpUuid, jumps.uuid),
-                        eq(jumps.userUuid, userUuid),
+                    joinCondition(
+                        and(
+                            eq(jumpsToGear.jumpUuid, jumps.uuid),
+                            eq(jumps.userUuid, userUuid),
+                        ),
                     ),
                 )
                 .where(eq(gear.userUuid, userUuid))
@@ -211,15 +382,44 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 )
                 .leftJoin(
                     jumps,
-                    and(
-                        eq(jumpsToJumpTypes.jumpUuid, jumps.uuid),
-                        eq(jumps.userUuid, userUuid),
+                    joinCondition(
+                        and(
+                            eq(jumpsToJumpTypes.jumpUuid, jumps.uuid),
+                            eq(jumps.userUuid, userUuid),
+                        ),
                     ),
                 )
                 .where(eq(jumpTypes.userUuid, userUuid))
                 .groupBy(jumpTypes.uuid)
                 .orderBy(asc(jumpTypes.name)),
+            db
+                .select({ year: sql<string>`substr(${jumps.jumpDate}, 1, 4)` })
+                .from(jumps)
+                .where(eq(jumps.userUuid, userUuid))
+                .groupBy(sql`substr(${jumps.jumpDate}, 1, 4)`)
+                .orderBy(sql`substr(${jumps.jumpDate}, 1, 4) desc`),
         ]);
+
+    const years = yearRows
+        .map((row) => Number(row.year))
+        .filter((y): y is number => Number.isInteger(y) && y > 0)
+        .sort((a, b) => b - a);
+
+    return { locationRows, aircraftRows, gearRows, jumpTypeRows, years };
+}
+
+async function renderDetailedStatistics(c: AppRequestContext) {
+    const { year: rawYear } = routes.logbookDetailedStatistics.query(c);
+    const year = parseYear(rawYear);
+    const filteredByYear = year !== undefined;
+
+    const {
+        locationRows,
+        aircraftRows,
+        gearRows,
+        jumpTypeRows,
+        years: availableYears,
+    } = await fetchDetailedStatistics(c, year);
 
     const locationsWithCounts = toStatisticsItems(locationRows, (uuid) =>
         routes.locationEdit({ uuid }),
@@ -234,25 +434,48 @@ async function renderDetailedStatistics(c: AppRequestContext) {
         routes.jumpTypeEdit({ uuid }),
     );
 
+    const previousYear =
+        year !== undefined && availableYears.includes(year)
+            ? availableYears.find((y) => y < year)
+            : undefined;
+    const nextYear =
+        year !== undefined && availableYears.includes(year)
+            ? [...availableYears].sort((a, b) => a - b).find((y) => y > year)
+            : undefined;
+
     return c.render(
         <LogbookPage title="Detailed statistics">
+            <YearNavigationBar
+                year={year}
+                availableYears={availableYears}
+                previousYear={previousYear}
+                nextYear={nextYear}
+            />
             <p className="text-sm text-slate-500">
-                Recorded jumps are combined with each item&apos;s previous
-                count.
+                {filteredByYear
+                    ? `Showing recorded jumps for ${year}. Previous counts are excluded while a year is selected.`
+                    : "Recorded jumps are combined with each item's previous count."}
             </p>
             <div className="space-y-6">
                 <StatisticsSection
                     title="Locations"
                     items={locationsWithCounts}
+                    filteredByYear={filteredByYear}
                 />
                 <StatisticsSection
                     title="Aircraft"
                     items={aircraftWithCounts}
+                    filteredByYear={filteredByYear}
                 />
-                <StatisticsSection title="Gear" items={gearWithCounts} />
+                <StatisticsSection
+                    title="Gear"
+                    items={gearWithCounts}
+                    filteredByYear={filteredByYear}
+                />
                 <StatisticsSection
                     title="Jump types"
                     items={jumpTypesWithCounts}
+                    filteredByYear={filteredByYear}
                 />
             </div>
         </LogbookPage>,

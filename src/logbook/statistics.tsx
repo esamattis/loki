@@ -110,7 +110,7 @@ async function renderStatistics(c: AppRequestContext) {
                 />
             </dl>
             <a
-                href={routes.logbookDetailedStatistics({})}
+                href={routes.logbookDetailedStatistics({}, {})}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
             >
                 View detailed statistics
