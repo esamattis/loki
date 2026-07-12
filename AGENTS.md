@@ -59,6 +59,14 @@ All functions starting with dollar sign `$` are and should be designed so they c
 
 Always write user interface text in English language.
 
+## Tests
+
+Always after every change run
+
+```
+pn test
+```
+
 ## Route Helpers
 
 Use the route helper functions from routes.tsx for type-safe routing. Follow these patterns:
