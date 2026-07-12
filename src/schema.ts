@@ -52,6 +52,18 @@ export const gear = sqliteTable("gear", {
   description: text("description"),
 });
 
+export const jumpTypes = sqliteTable("jump_types", {
+  uuid: text("uuid")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userUuid: text("user_uuid")
+    .references(() => users.uuid, { onDelete: "cascade" })
+    .notNull(),
+  name: text("name").notNull(),
+  previousUsageCount: integer("previous_usage_count").notNull().default(0),
+  description: text("description"),
+});
+
 export const jumps = sqliteTable("jumps", {
   uuid: text("uuid")
     .primaryKey()
@@ -84,9 +96,25 @@ export const jumpsToGear = sqliteTable(
   }),
 );
 
+export const jumpsToJumpTypes = sqliteTable(
+  "jumps_to_jump_types",
+  {
+    jumpUuid: text("jump_uuid")
+      .references(() => jumps.uuid, { onDelete: "cascade" })
+      .notNull(),
+    jumpTypeUuid: text("jump_type_uuid")
+      .references(() => jumpTypes.uuid, { onDelete: "cascade" })
+      .notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.jumpUuid, t.jumpTypeUuid] }),
+  }),
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   jumps: many(jumps),
   gear: many(gear),
+  jumpTypes: many(jumpTypes),
   locations: many(locations),
   aircrafts: many(aircrafts),
 }));
@@ -106,6 +134,14 @@ export const gearRelations = relations(gear, ({ one, many }) => ({
   jumps: many(jumpsToGear),
 }));
 
+export const jumpTypesRelations = relations(jumpTypes, ({ one, many }) => ({
+  user: one(users, {
+    fields: [jumpTypes.userUuid],
+    references: [users.uuid],
+  }),
+  jumps: many(jumpsToJumpTypes),
+}));
+
 export const jumpsRelations = relations(jumps, ({ one, many }) => ({
   user: one(users, { fields: [jumps.userUuid], references: [users.uuid] }),
   location: one(locations, {
@@ -117,6 +153,7 @@ export const jumpsRelations = relations(jumps, ({ one, many }) => ({
     references: [aircrafts.uuid],
   }),
   gears: many(jumpsToGear),
+  jumpTypes: many(jumpsToJumpTypes),
 }));
 
 export const jumpsToGearRelations = relations(jumpsToGear, ({ one }) => ({
@@ -129,3 +166,17 @@ export const jumpsToGearRelations = relations(jumpsToGear, ({ one }) => ({
     references: [gear.uuid],
   }),
 }));
+
+export const jumpsToJumpTypesRelations = relations(
+  jumpsToJumpTypes,
+  ({ one }) => ({
+    jump: one(jumps, {
+      fields: [jumpsToJumpTypes.jumpUuid],
+      references: [jumps.uuid],
+    }),
+    jumpType: one(jumpTypes, {
+      fields: [jumpsToJumpTypes.jumpTypeUuid],
+      references: [jumpTypes.uuid],
+    }),
+  }),
+);

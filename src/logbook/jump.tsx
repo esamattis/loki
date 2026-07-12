@@ -10,7 +10,15 @@ import {
 } from "../components/form";
 import { ErrorList } from "../components/feedback";
 import * as routes from "../routes";
-import { aircrafts, gear, jumps, jumpsToGear, locations } from "../schema";
+import {
+    aircrafts,
+    gear,
+    jumps,
+    jumpsToGear,
+    jumpsToJumpTypes,
+    jumpTypes,
+    locations,
+} from "../schema";
 import { LogbookPage } from "./layout";
 
 interface Resource {
@@ -24,6 +32,7 @@ interface JumpFormValues {
     jumpNumber?: string;
     description?: string;
     gearUuids?: string[];
+    jumpTypeUuids?: string[];
 }
 
 const JumpSchema = z.object({
@@ -35,6 +44,7 @@ const JumpSchema = z.object({
         .positive("Jump number must be positive"),
     description: z.string().trim().max(2_000).optional(),
     gearUuids: z.array(z.string()).default([]),
+    jumpTypeUuids: z.array(z.string()).default([]),
 });
 
 function JumpForm(props: {
@@ -42,11 +52,13 @@ function JumpForm(props: {
     locations: Resource[];
     aircrafts: Resource[];
     gear: Resource[];
+    jumpTypes: Resource[];
     errors?: string[];
     submitLabel: string;
 }) {
     const values = props.values ?? {};
     const selectedGear = new Set(values.gearUuids ?? []);
+    const selectedJumpTypes = new Set(values.jumpTypeUuids ?? []);
 
     return (
         <form
@@ -107,6 +119,21 @@ function JumpForm(props: {
                     ))}
                 </div>
             </fieldset>
+            <fieldset>
+                <legend className="text-sm font-medium text-gray-700">
+                    Jump types
+                </legend>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {props.jumpTypes.map((item) => (
+                        <Checkbox
+                            name="jumpTypeUuids"
+                            value={item.uuid}
+                            label={item.name}
+                            checked={selectedJumpTypes.has(item.uuid)}
+                        />
+                    ))}
+                </div>
+            </fieldset>
             <Textarea
                 name="description"
                 label="Notes"
@@ -123,7 +150,7 @@ function JumpForm(props: {
 async function getJumpFormResources(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const [locationRows, aircraftRows, gearRows] = await Promise.all([
+    const [locationRows, aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
         db
             .select({ uuid: locations.uuid, name: locations.name })
             .from(locations)
@@ -139,9 +166,19 @@ async function getJumpFormResources(c: AppRequestContext) {
             .from(gear)
             .where(eq(gear.userUuid, userUuid))
             .orderBy(gear.name),
+        db
+            .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
+            .from(jumpTypes)
+            .where(eq(jumpTypes.userUuid, userUuid))
+            .orderBy(jumpTypes.name),
     ]);
 
-    return { locations: locationRows, aircrafts: aircraftRows, gear: gearRows };
+    return {
+        locations: locationRows,
+        aircrafts: aircraftRows,
+        gear: gearRows,
+        jumpTypes: jumpTypeRows,
+    };
 }
 
 function JumpFormPage(props: {
@@ -176,6 +213,9 @@ function getJumpFormValues(formData: FormData): JumpFormValues {
         description: getValue("description"),
         gearUuids: formData
             .getAll("gearUuids")
+            .filter((value): value is string => typeof value === "string"),
+        jumpTypeUuids: formData
+            .getAll("jumpTypeUuids")
             .filter((value): value is string => typeof value === "string"),
     };
 }
@@ -229,6 +269,9 @@ async function handleNewJump(c: AppRequestContext) {
         ) &&
         result.data.gearUuids.every((uuid) =>
             resources.gear.some((item) => item.uuid === uuid),
+        ) &&
+        result.data.jumpTypeUuids.every((uuid) =>
+            resources.jumpTypes.some((item) => item.uuid === uuid),
         );
     if (!ownsResources) {
         return c.render(
@@ -236,7 +279,7 @@ async function handleNewJump(c: AppRequestContext) {
                 title="Add jump"
                 submitLabel="Add jump"
                 errors={[
-                    "Choose locations, aircraft, and gear from your logbook",
+                    "Choose locations, aircraft, gear, and jump types from your logbook",
                 ]}
                 values={raw}
                 resources={resources}
@@ -258,6 +301,9 @@ async function handleNewJump(c: AppRequestContext) {
         ...result.data.gearUuids.map((gearUuid) =>
             db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
         ),
+        ...result.data.jumpTypeUuids.map((jumpTypeUuid) =>
+            db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
+        ),
     ]);
     return c.redirect(routes.logbook({}));
 }
@@ -278,6 +324,10 @@ async function renderEditJump(c: AppRequestContext) {
         .select({ gearUuid: jumpsToGear.gearUuid })
         .from(jumpsToGear)
         .where(eq(jumpsToGear.jumpUuid, uuid));
+    const jumpTypeRows = await db
+        .select({ jumpTypeUuid: jumpsToJumpTypes.jumpTypeUuid })
+        .from(jumpsToJumpTypes)
+        .where(eq(jumpsToJumpTypes.jumpUuid, uuid));
     return c.render(
         <JumpFormPage
             title={`Edit jump #${jump.jumpNumber}`}
@@ -288,6 +338,7 @@ async function renderEditJump(c: AppRequestContext) {
                 jumpNumber: String(jump.jumpNumber),
                 description: jump.description ?? undefined,
                 gearUuids: gearRows.map((item) => item.gearUuid),
+                jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),
             }}
             resources={await getJumpFormResources(c)}
         />,
@@ -334,13 +385,16 @@ async function handleEditJump(c: AppRequestContext) {
         ) &&
         result.data.gearUuids.every((gearUuid) =>
             resources.gear.some((item) => item.uuid === gearUuid),
+        ) &&
+        result.data.jumpTypeUuids.every((jumpTypeUuid) =>
+            resources.jumpTypes.some((item) => item.uuid === jumpTypeUuid),
         );
     if (!ownsResources) {
         return c.render(
             <JumpFormPage
                 {...formProps}
                 errors={[
-                    "Choose locations, aircraft, and gear from your logbook",
+                    "Choose locations, aircraft, gear, and jump types from your logbook",
                 ]}
             />,
         );
@@ -357,8 +411,14 @@ async function handleEditJump(c: AppRequestContext) {
             })
             .where(eq(jumps.uuid, uuid)),
         db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, uuid)),
+        db
+            .delete(jumpsToJumpTypes)
+            .where(eq(jumpsToJumpTypes.jumpUuid, uuid)),
         ...result.data.gearUuids.map((gearUuid) =>
             db.insert(jumpsToGear).values({ jumpUuid: uuid, gearUuid }),
+        ),
+        ...result.data.jumpTypeUuids.map((jumpTypeUuid) =>
+            db.insert(jumpsToJumpTypes).values({ jumpUuid: uuid, jumpTypeUuid }),
         ),
     ]);
     return c.redirect(routes.logbook({}));

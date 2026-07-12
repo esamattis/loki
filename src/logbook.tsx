@@ -6,6 +6,7 @@ import { LogbookPage } from "./logbook/layout";
 import "./logbook/aircraft";
 import "./logbook/gear";
 import "./logbook/jump";
+import "./logbook/jump-type";
 import "./logbook/location";
 
 async function renderLogbook(c: AppRequestContext) {
@@ -45,6 +46,12 @@ async function renderLogbook(c: AppRequestContext) {
                     className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
                 >
                     Add gear
+                </a>
+                <a
+                    href={routes.jumpTypeNew({})}
+                    className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                >
+                    Add jump type
                 </a>
                 <a
                     href={routes.locationNew({})}
