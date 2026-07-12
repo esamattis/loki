@@ -552,9 +552,11 @@ async function getLogbookJumps(
 
 async function getLogbookStats(c: AppRequestContext, filters: LogbookFilters) {
     const db = getAppContext(c).db;
+    const previousJumpCount =
+        getAppContext(c).getUser().options.previousJumpCount;
     const [stats] = await db
         .select({
-            totalJumps: sql<number>`count(*)`,
+            totalJumps: sql<number>`count(*) + ${previousJumpCount}`,
             totalFreefallMeters: sql<number>`coalesce(sum(max(${jumps.exitAltitude} - ${jumps.openingAltitude}, 0)), 0)`,
             totalFreefallTime: sql<number>`coalesce(sum(${jumps.freefallTime}), 0)`,
             activeJumpYears: sql<number>`count(distinct substr(${jumps.jumpDate}, 1, 4))`,

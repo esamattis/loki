@@ -363,10 +363,13 @@ async function fetchTotalJumps(
     db: ReturnType<typeof getAppContext>["db"],
     userUuid: string,
     yearCondition: ReturnType<typeof and> | undefined,
+    previousJumpCount: number,
 ): Promise<number> {
     const [row] = await db
         .select({
-            totalJumps: sql<number>`count(*)`,
+            totalJumps: sql<number>`count(*) + ${
+                yearCondition ? 0 : previousJumpCount
+            }`,
         })
         .from(jumps)
         .where(
@@ -384,7 +387,8 @@ async function fetchDetailedStatistics(
     year: number | undefined,
 ): Promise<DetailedStatisticsResult> {
     const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const user = getAppContext(c).getUser();
+    const userUuid = user.uuid;
     const yearCondition = year
         ? and(
               gte(jumps.jumpDate, `${year}-01-01`),
@@ -570,7 +574,12 @@ async function fetchDetailedStatistics(
         .filter((y): y is number => Number.isInteger(y) && y > 0)
         .sort((a, b) => b - a);
 
-    const totalJumps = await fetchTotalJumps(db, userUuid, yearCondition);
+    const totalJumps = await fetchTotalJumps(
+        db,
+        userUuid,
+        yearCondition,
+        user.options.previousJumpCount,
+    );
 
     return {
         locationRows,
@@ -682,7 +691,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             <p className="text-sm text-slate-500 dark:text-slate-400">
                 {filteredByYear
                     ? `Showing jumps recorded in ${year}.`
-                    : "Total jumps combine recorded jumps with each item's previous count."}
+                    : "Total jumps include jumps recorded before this logbook."}
             </p>
             <SummaryCard
                 label="Total jumps"

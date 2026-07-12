@@ -3,6 +3,7 @@ import { z } from "zod/v4";
 export const DEFAULT_USER_OPTIONS = {
     altitudeUnits: "meters",
     speedUnits: "kilometers-per-hour",
+    previousJumpCount: 0,
 } as const;
 
 export const UserOptionsSchema = z.object({
@@ -10,6 +11,7 @@ export const UserOptionsSchema = z.object({
     speedUnits: z
         .enum(["kilometers-per-hour", "meters-per-second"])
         .default("kilometers-per-hour"),
+    previousJumpCount: z.coerce.number().int().nonnegative().default(0),
 });
 
 export type UserOptions = z.output<typeof UserOptionsSchema>;

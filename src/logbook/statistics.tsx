@@ -182,7 +182,8 @@ function YearlyJumpsHistogram(props: {
 }
 
 async function renderStatistics(c: AppRequestContext) {
-    const userUuid = getAppContext(c).getUser().uuid;
+    const user = getAppContext(c).getUser();
+    const userUuid = user.uuid;
     const startOfCurrentYear = getStartOfCurrentYear();
     const startOfCurrentMonth = getStartOfCurrentMonth();
     const startOfPreviousMonth = getStartOfPreviousMonth();
@@ -190,7 +191,7 @@ async function renderStatistics(c: AppRequestContext) {
     const [[stats], yearlyRows] = await Promise.all([
         getAppContext(c)
             .db.select({
-                totalJumps: sql<number>`count(*)`,
+                totalJumps: sql<number>`count(*) + ${user.options.previousJumpCount}`,
                 currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
                 lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
                 lastMonthJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfPreviousMonth} and ${jumps.jumpDate} < ${startOfCurrentMonth} then 1 else 0 end), 0)`,

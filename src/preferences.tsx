@@ -1,7 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod/v4";
 import { app, getAppContext, type AppRequestContext } from "./app";
-import { Input, Select, FormActions } from "./components/form";
+import { Input, NumberInput, Select, FormActions } from "./components/form";
 import { ErrorList } from "./components/feedback";
 import { hashPassword, Password } from "./login";
 import { UserOptionsSchema, type UserOptions } from "./options";
@@ -21,6 +21,7 @@ const PreferencesSchema = z
         confirmPassword: z.string(),
         altitudeUnits: UserOptionsSchema.shape.altitudeUnits,
         speedUnits: UserOptionsSchema.shape.speedUnits,
+        previousJumpCount: UserOptionsSchema.shape.previousJumpCount,
     })
     .superRefine((data, ctx) => {
         const changingPassword =
@@ -54,6 +55,28 @@ interface PreferencesFormValues {
     displayName: string;
     email: string;
     options: UserOptions;
+}
+
+function JumpHistorySection(props: { options: UserOptions }) {
+    return (
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Jump history
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Include jumps completed before this logbook in overall
+                    totals.
+                </p>
+            </div>
+            <NumberInput
+                name="previousJumpCount"
+                label="Previous jumps outside this logbook"
+                min="0"
+                value={String(props.options.previousJumpCount)}
+            />
+        </section>
+    );
 }
 
 function PreferencesForm(props: {
@@ -93,6 +116,7 @@ function PreferencesForm(props: {
                     />
                 </div>
             </section>
+            <JumpHistorySection options={props.values.options} />
             <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
                 <div>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -243,6 +267,7 @@ async function handlePreferences(c: AppRequestContext) {
     const options = UserOptionsSchema.parse({
         altitudeUnits: result.data.altitudeUnits,
         speedUnits: result.data.speedUnits,
+        previousJumpCount: result.data.previousJumpCount,
     });
     await ctx.db
         .update(users)
