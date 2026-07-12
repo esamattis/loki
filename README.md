@@ -3,8 +3,8 @@
 Install dependencies and start the local development server:
 
 ```sh
-pnpm install
-pnpm dev
+pn install
+pn dev
 ```
 
 ## End-to-end tests
@@ -12,7 +12,7 @@ pnpm dev
 Run the Playwright end-to-end test suite:
 
 ```sh
-pnpm test:e2e
+pn test:e2e
 ```
 
 Tests start the application on `127.0.0.1:8788` and reset the isolated local D1
@@ -28,20 +28,20 @@ by Git and can be removed to reset local database state.
 Generate a Drizzle migration after changing the schema:
 
 ```sh
-pnpm db:generate
+pn db:generate
 ```
 
 Initialize or update the local D1 database with Drizzle migrations:
 
 ```sh
-pnpm db:migrate
+pn db:migrate
 ```
 
 Insert or update the development user. This command initializes the database
 when needed.
 
 ```sh
-pnpm db:dev-user
+pn db:dev-user
 ```
 
 The development user credentials are `developer` and `developer123`.
@@ -50,7 +50,7 @@ List users in the local database. This command initializes the database when
 needed.
 
 ```sh
-pnpm db:list-users
+pn db:list-users
 ```
 
 ## Cloudflare
@@ -58,11 +58,11 @@ pnpm db:list-users
 Generate or update TypeScript types for Cloudflare bindings:
 
 ```sh
-pnpm cf-typegen
+pn cf-typegen
 ```
 
 Deploy the application:
 
 ```sh
-pnpm deploy
+pn deploy
 ```
