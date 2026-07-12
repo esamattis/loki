@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { app, getAppContext, type AppRequestContext } from "./app";
-import { users } from "./schema";
+import { jumpTypes, users } from "./schema";
 import { z } from "zod/v4";
 import clsx from "clsx";
 import { AuthFormShell } from "./components/auth";
@@ -15,6 +15,15 @@ export { hashPassword } from "./auth";
 
 const SESSION_COOKIE_NAME = "session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+const DEFAULT_JUMP_TYPES = [
+    "Cutaway",
+    "FS",
+    "Static Line",
+    "Wingsuit",
+    "Freefly",
+    "AFF",
+];
 
 export function Password(props: {
     name: string;
@@ -384,6 +393,25 @@ async function handleRegister(c: AppRequestContext) {
                 email={email}
             />,
         );
+    }
+
+    const existingJumpTypes = await db
+        .select({ uuid: jumpTypes.uuid })
+        .from(jumpTypes)
+        .where(eq(jumpTypes.userUuid, newUser.uuid))
+        .limit(1)
+        .get();
+
+    if (!existingJumpTypes) {
+        await db
+            .insert(jumpTypes)
+            .values(
+                DEFAULT_JUMP_TYPES.map((name) => ({
+                    userUuid: newUser.uuid,
+                    name,
+                })),
+            )
+            .run();
     }
 
     setSessionCookie(c, newUser.uuid);

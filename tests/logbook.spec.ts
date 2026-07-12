@@ -81,11 +81,17 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Manage jump types" }).click();
-    await page.getByRole("link", { name: "Add jump type" }).click();
-    await page.locator('input[name="name"]').fill("Freefly");
-    await page.locator('input[name="previousCount"]').fill("8");
-    await page.getByRole("button", { name: "Add jump type" }).click();
     await expect(page).toHaveURL("/logbook/jump-types");
+    for (const name of [
+        "Cutaway",
+        "FS",
+        "Static Line",
+        "Wingsuit",
+        "Freefly",
+        "AFF",
+    ]) {
+        await expect(page.getByText(name, { exact: true })).toBeVisible();
+    }
 
     await page.getByRole("link", { name: "Add jump type" }).click();
     await page.locator('input[name="name"]').fill("Tracking");
