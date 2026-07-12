@@ -13,6 +13,19 @@ import {
 } from "../schema";
 import { LogbookPage } from "./layout";
 
+function SummaryCard(props: { label: string; value: string }) {
+    return (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {props.label}
+            </dt>
+            <dd className="mt-2 text-3xl font-bold tracking-tight text-slate-900 tabular-nums dark:text-slate-100">
+                {props.value}
+            </dd>
+        </div>
+    );
+}
+
 interface StatisticsItem {
     uuid: string;
     name: string;
@@ -261,6 +274,7 @@ interface DetailedStatisticsResult {
     gearRows: StatisticsItemRow[];
     jumpTypeRows: StatisticsItemRow[];
     years: number[];
+    totalJumps: number;
 }
 
 interface StatisticsItemRow {
@@ -269,6 +283,24 @@ interface StatisticsItemRow {
     archived: boolean;
     previousJumpCount: number;
     recordedJumpCount: number;
+}
+
+async function fetchTotalJumps(
+    db: ReturnType<typeof getAppContext>["db"],
+    userUuid: string,
+    yearCondition: ReturnType<typeof and> | undefined,
+): Promise<number> {
+    const [row] = await db
+        .select({
+            totalJumps: sql<number>`count(*)`,
+        })
+        .from(jumps)
+        .where(
+            yearCondition
+                ? and(eq(jumps.userUuid, userUuid), yearCondition)
+                : eq(jumps.userUuid, userUuid),
+        );
+    return row?.totalJumps ?? 0;
 }
 
 async function fetchDetailedStatistics(
@@ -390,7 +422,16 @@ async function fetchDetailedStatistics(
         .filter((y): y is number => Number.isInteger(y) && y > 0)
         .sort((a, b) => b - a);
 
-    return { locationRows, aircraftRows, gearRows, jumpTypeRows, years };
+    const totalJumps = await fetchTotalJumps(db, userUuid, yearCondition);
+
+    return {
+        locationRows,
+        aircraftRows,
+        gearRows,
+        jumpTypeRows,
+        years,
+        totalJumps,
+    };
 }
 
 async function renderDetailedStatistics(c: AppRequestContext) {
@@ -404,6 +445,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
         gearRows,
         jumpTypeRows,
         years: availableYears,
+        totalJumps,
     } = await fetchDetailedStatistics(c, year);
 
     const locationsWithCounts = toStatisticsItems(locationRows, (uuid) =>
@@ -447,6 +489,10 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                     ? `Showing jumps recorded in ${year}.`
                     : "Total jumps combine recorded jumps with each item's previous count."}
             </p>
+            <SummaryCard
+                label="Total jumps"
+                value={totalJumps.toLocaleString("en-US")}
+            />
             <div className="space-y-6">
                 <StatisticsSection
                     title="Locations"
