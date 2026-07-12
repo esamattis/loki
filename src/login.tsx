@@ -24,9 +24,9 @@ function bytesToBase64(bytes: Uint8Array): string {
     return btoa(binary);
 }
 
-function base64ToBytes(base64: string): Uint8Array {
+function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
     const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
+    const bytes = new Uint8Array(new ArrayBuffer(binary.length));
     for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i);
     }
@@ -35,7 +35,7 @@ function base64ToBytes(base64: string): Uint8Array {
 
 async function derivePasswordHash(
     password: string,
-    salt: Uint8Array,
+    salt: Uint8Array<ArrayBuffer>,
     iterations: number,
 ): Promise<string> {
     const encoder = new TextEncoder();
@@ -49,7 +49,7 @@ async function derivePasswordHash(
     const derived = await crypto.subtle.deriveBits(
         {
             name: "PBKDF2",
-            salt: salt as Uint8Array<ArrayBuffer>,
+            salt,
             iterations,
             hash: "SHA-256",
         },
@@ -60,7 +60,7 @@ async function derivePasswordHash(
 }
 
 async function hashPassword(password: string): Promise<string> {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const salt = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(16)));
     const hash = await derivePasswordHash(password, salt, PBKDF2_ITERATIONS);
     return `${PBKDF2_ITERATIONS}:${bytesToBase64(salt)}:${hash}`;
 }
@@ -313,12 +313,19 @@ async function renderLoginForm(c: AppRequestContext) {
 
 app.get(routes.login.route, renderLoginForm);
 
+function formDataToStrings(formData: FormData): Record<string, string> {
+    const values: Record<string, string> = {};
+    for (const [key, value] of formData.entries()) {
+        if (typeof value === "string") {
+            values[key] = value;
+        }
+    }
+    return values;
+}
+
 async function handleLogin(c: AppRequestContext) {
     const formData = await c.req.formData();
-    const raw = Object.fromEntries(formData.entries()) as Record<
-        string,
-        string | undefined
-    >;
+    const raw = formDataToStrings(formData);
     const result = LoginFormSchema.safeParse(raw);
 
     if (!result.success) {
@@ -382,10 +389,7 @@ app.get(routes.register.route, renderRegisterForm);
 
 async function handleRegister(c: AppRequestContext) {
     const formData = await c.req.formData();
-    const raw = Object.fromEntries(formData.entries()) as Record<
-        string,
-        string | undefined
-    >;
+    const raw = formDataToStrings(formData);
     const result = RegisterFormSchema.safeParse(raw);
 
     if (!result.success) {

@@ -19,7 +19,7 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 async function hashPassword(value: string): Promise<string> {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const salt = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(16)));
     const keyMaterial = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(value),
@@ -30,7 +30,7 @@ async function hashPassword(value: string): Promise<string> {
     const derived = await crypto.subtle.deriveBits(
         {
             name: "PBKDF2",
-            salt: salt as Uint8Array<ArrayBuffer>,
+            salt,
             iterations: pbkdf2Iterations,
             hash: "SHA-256",
         },
