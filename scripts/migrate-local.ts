@@ -6,6 +6,9 @@ async function main(): Promise<void> {
     const platform = await getPlatformProxy<CloudflareBindings>({
         configPath: "wrangler.jsonc",
         remoteBindings: false,
+        persist: process.env.PLAYWRIGHT_TEST
+            ? { path: ".playwright/state" }
+            : undefined,
     });
 
     try {
