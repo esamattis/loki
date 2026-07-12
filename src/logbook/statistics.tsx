@@ -146,6 +146,7 @@ function YearlyJumpsHistogram(props: {
                 })}
             </div>
             <Script
+                $deps={[$assertElement]}
                 $args={[toggleId, containerId]}
                 $exec={(toggleId, containerId) => {
                     const toggle = document.getElementById(toggleId);
