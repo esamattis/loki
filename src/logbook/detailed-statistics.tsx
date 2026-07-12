@@ -182,20 +182,12 @@ function StatisticsSection(props: {
                                         : "Recorded"}
                                 </th>
                                 {!props.filteredByYear && (
-                                    <>
-                                        <th
-                                            scope="col"
-                                            className="px-5 py-3 text-right"
-                                        >
-                                            Previous
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            className="px-5 py-3 text-right"
-                                        >
-                                            Total jumps
-                                        </th>
-                                    </>
+                                    <th
+                                        scope="col"
+                                        className="px-5 py-3 text-right"
+                                    >
+                                        Total jumps
+                                    </th>
                                 )}
                             </tr>
                         </thead>
@@ -221,18 +213,11 @@ function StatisticsSection(props: {
                                         )}
                                     </td>
                                     {!props.filteredByYear && (
-                                        <>
-                                            <td className="px-5 py-3.5 text-right tabular-nums text-slate-600 dark:text-slate-400">
-                                                {item.previousJumpCount.toLocaleString(
-                                                    "en-US",
-                                                )}
-                                            </td>
-                                            <td className="px-5 py-3.5 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                                                {getTotalJumpCount(
-                                                    item,
-                                                ).toLocaleString("en-US")}
-                                            </td>
-                                        </>
+                                        <td className="px-5 py-3.5 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                                            {getTotalJumpCount(
+                                                item,
+                                            ).toLocaleString("en-US")}
+                                        </td>
                                     )}
                                 </tr>
                             ))}
@@ -445,6 +430,12 @@ async function renderDetailedStatistics(c: AppRequestContext) {
 
     return c.render(
         <LogbookPage title="Detailed statistics">
+            <a
+                href={routes.logbookStatistics({})}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+            >
+                ← Back to statistics
+            </a>
             <YearNavigationBar
                 year={year}
                 availableYears={availableYears}
@@ -453,8 +444,8 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             />
             <p className="text-sm text-slate-500 dark:text-slate-400">
                 {filteredByYear
-                    ? `Showing recorded jumps for ${year}. Previous counts are excluded while a year is selected.`
-                    : "Recorded jumps are combined with each item's previous count."}
+                    ? `Showing jumps recorded in ${year}.`
+                    : "Total jumps combine recorded jumps with each item's previous count."}
             </p>
             <div className="space-y-6">
                 <StatisticsSection

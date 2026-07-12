@@ -27,7 +27,7 @@ async function openManageLogbook(page: Page) {
     await page.getByRole("button", { name: "Manage logbook" }).click();
 }
 
-test("statistics show recorded and previous jump counts for every item", async ({
+test("statistics show recorded and total jump counts for every item", async ({
     page,
 }) => {
     await registerUser(page, "statistics-skydiver");
@@ -69,9 +69,6 @@ test("statistics show recorded and previous jump counts for every item", async (
     await expect(
         page.getByRole("row").filter({ hasText: "Skydive Example" }),
     ).toContainText("2");
-    await expect(
-        page.getByRole("row").filter({ hasText: "Skydive Example" }),
-    ).toContainText("300");
     await expect(
         page.getByRole("row").filter({ hasText: "Skydive Example" }),
     ).toContainText("302");
