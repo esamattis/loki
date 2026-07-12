@@ -10,6 +10,7 @@ import {
     jumpsToJumpTypes,
     locations,
 } from "./schema";
+import { Details } from "./components/ui";
 import { LogbookPage } from "./logbook/layout";
 import { formatAltitude, type UserOptions } from "./options";
 import "./logbook/aircraft";
@@ -285,6 +286,22 @@ function filterResourceUuids(
     );
 }
 
+function JumpFiltersSummary(props: { hasFilters: boolean }) {
+    return (
+        <>
+            Filter jumps
+            {props.hasFilters && (
+                <a
+                    href={routes.logbook({})}
+                    className="ml-auto text-sm font-normal text-indigo-600 hover:underline"
+                >
+                    Clear filters
+                </a>
+            )}
+        </>
+    );
+}
+
 function JumpFilters(props: {
     filters: LogbookFilters;
     locations: LogbookResource[];
@@ -300,35 +317,12 @@ function JumpFilters(props: {
         selectedJumpTypes.size > 0;
 
     return (
-        <details
+        <Details
             open={hasFilters}
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            summary={<JumpFiltersSummary hasFilters={hasFilters} />}
+            summaryClassName="font-semibold text-slate-900"
         >
-            <summary className="flex cursor-pointer list-none items-center gap-2 font-semibold text-slate-900 marker:hidden">
-                <svg
-                    aria-hidden="true"
-                    className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-90"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M9 5l7 7-7 7"
-                    />
-                </svg>
-                Filter jumps
-                {hasFilters && (
-                    <a
-                        href={routes.logbook({})}
-                        className="ml-auto text-sm font-normal text-indigo-600 hover:underline"
-                    >
-                        Clear filters
-                    </a>
-                )}
-            </summary>
             <form
                 action={routes.logbook({})}
                 method="get"
@@ -411,7 +405,7 @@ function JumpFilters(props: {
                     </button>
                 </div>
             </form>
-        </details>
+        </Details>
     );
 }
 

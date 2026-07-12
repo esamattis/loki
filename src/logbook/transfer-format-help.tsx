@@ -5,6 +5,7 @@ const JSONL_EXAMPLE = `{"type":"aircraft","name":"Twin Otter","previousCount":12
 {"type":"jump","jumpNumber":301,"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Training jump"}`;
 
 import { useId } from "hono/jsx";
+import { Code, Details } from "../components/ui";
 import { Script } from "../components/helpers";
 import * as routes from "../routes";
 import { $assertElement } from "../utils";
@@ -14,21 +15,23 @@ export function ExportCurlHelp() {
     const id = useId();
     const exportPath = routes.logbookExport({});
     return (
-        <details className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-            <summary className="list-none marker:hidden cursor-pointer font-medium text-slate-900">
-                Download with curl
-            </summary>
+        <Details
+            summary="Download with curl"
+            className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700"
+            summaryClassName="font-medium text-slate-900"
+        >
             <div className="mt-3 space-y-3">
                 <p>
                     The export endpoint also accepts HTTP Basic authentication,
                     so you can download your logbook from the command line with
                     curl. Use your username (or email) and account password:
                 </p>
-                <pre className="overflow-x-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100">
-                    <code id={id} data-export-path={exportPath}>
-                        {`curl -OJ -u USERNAME:password ${exportPath}`}
-                    </code>
-                </pre>
+                <Code
+                    codeId={id}
+                    codeProps={{ "data-export-path": exportPath }}
+                >
+                    {`curl -OJ -u USERNAME:password ${exportPath}`}
+                </Code>
                 <p className="text-xs text-slate-500">
                     The <code>-OJ</code> flags save the file using the name from
                     the response <code>Content-Disposition</code> header (
@@ -50,16 +53,17 @@ export function ExportCurlHelp() {
                     }}
                 />
             </div>
-        </details>
+        </Details>
     );
 }
 
 export function TransferFormatHelp() {
     return (
-        <details className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-            <summary className="cursor-pointer font-medium text-slate-900 marker:hidden list-none">
-                Export file format
-            </summary>
+        <Details
+            summary="Export file format"
+            className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700"
+            summaryClassName="font-medium text-slate-900"
+        >
             <div className="mt-3 space-y-3">
                 <p>
                     Export files use JSON Lines: one JSON object per line.
@@ -84,6 +88,6 @@ export function TransferFormatHelp() {
                 </p>
                 <p>Re-importing a jump with the same jump number updates it.</p>
             </div>
-        </details>
+        </Details>
     );
 }
