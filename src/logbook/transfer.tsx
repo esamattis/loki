@@ -14,6 +14,21 @@ import {
 } from "../schema";
 import { TransferPage } from "./transfer-page";
 
+function isValidJumpDate(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return false;
+    }
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return (
+        !Number.isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === value
+    );
+}
+
+function getToday(): string {
+    return new Date().toISOString().slice(0, 10);
+}
+
 const NamedResourceSchema = z.object({
     name: z.string().trim().min(1, "Name is required"),
     previousCount: z.coerce
@@ -34,6 +49,10 @@ const ImportRecordSchema = z.discriminatedUnion("type", [
             .number()
             .int("Jump number must be a whole number")
             .positive("Jump number must be positive"),
+        jumpDate: z
+            .string()
+            .refine(isValidJumpDate, "Jump date must be valid")
+            .optional(),
         exitAltitude: z.coerce
             .number()
             .int("Exit altitude must be a whole number")
@@ -551,6 +570,7 @@ class ImportState {
             exitAltitude: record.exitAltitude,
             openingAltitude: record.openingAltitude,
             freefallTime: record.freefallTime,
+            jumpDate: record.jumpDate ?? getToday(),
             description: record.description || null,
         };
         if (existingJumpUuid) {
@@ -714,6 +734,7 @@ async function exportLogbook(c: AppRequestContext) {
                 .select({
                     uuid: jumps.uuid,
                     jumpNumber: jumps.jumpNumber,
+                    jumpDate: jumps.jumpDate,
                     exitAltitude: jumps.exitAltitude,
                     openingAltitude: jumps.openingAltitude,
                     freefallTime: jumps.freefallTime,
@@ -789,6 +810,7 @@ async function exportLogbook(c: AppRequestContext) {
         ...jumpRows.map((row) => ({
             type: "jump",
             jumpNumber: row.jumpNumber,
+            jumpDate: row.jumpDate,
             exitAltitude: row.exitAltitude,
             openingAltitude: row.openingAltitude,
             freefallTime: row.freefallTime,

@@ -87,6 +87,7 @@ export const jumps = sqliteTable(
             .references(() => aircrafts.uuid, { onDelete: "cascade" })
             .notNull(),
         jumpNumber: integer("jump_number").notNull(),
+        jumpDate: text("jump_date").notNull(),
         exitAltitude: integer("exit_altitude").notNull().default(0),
         openingAltitude: integer("opening_altitude").notNull().default(0),
         freefallTime: integer("freefall_time").notNull().default(0),

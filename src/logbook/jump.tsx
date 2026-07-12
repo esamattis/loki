@@ -4,6 +4,7 @@ import { app, getAppContext, type AppRequestContext } from "../app";
 import {
     Checkbox,
     FormActions,
+    Input,
     NumberInput,
     Select,
     Textarea,
@@ -35,12 +36,28 @@ interface JumpFormValues {
     locationUuid?: string;
     aircraftUuid?: string;
     jumpNumber?: string;
+    jumpDate?: string;
     exitAltitude?: string;
     openingAltitude?: string;
     freefallTime?: string;
     description?: string;
     gearUuids?: string[];
     jumpTypeUuids?: string[];
+}
+
+function isValidJumpDate(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return false;
+    }
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return (
+        !Number.isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === value
+    );
+}
+
+function getToday(): string {
+    return new Date().toISOString().slice(0, 10);
 }
 
 const JumpSchema = z.object({
@@ -50,6 +67,7 @@ const JumpSchema = z.object({
         .number()
         .int("Jump number must be a whole number")
         .positive("Jump number must be positive"),
+    jumpDate: z.string().refine(isValidJumpDate, "Jump date must be valid"),
     exitAltitude: z.coerce
         .number()
         .int("Exit altitude must be a whole number")
@@ -91,6 +109,13 @@ function JumpForm(props: {
                 className="border-red-300 bg-red-50 text-red-800"
             />
             <div className="grid gap-5 sm:grid-cols-2">
+                <Input
+                    name="jumpDate"
+                    label="Jump date"
+                    type="date"
+                    required
+                    value={values.jumpDate ?? getToday()}
+                />
                 <NumberInput
                     name="jumpNumber"
                     label="Jump number"
@@ -295,6 +320,7 @@ function getJumpFormValues(formData: FormData): JumpFormValues {
         locationUuid: getValue("locationUuid"),
         aircraftUuid: getValue("aircraftUuid"),
         jumpNumber: getValue("jumpNumber"),
+        jumpDate: getValue("jumpDate"),
         exitAltitude: getValue("exitAltitude"),
         openingAltitude: getValue("openingAltitude"),
         freefallTime: getValue("freefallTime"),
@@ -323,6 +349,7 @@ async function renderNewJump(c: AppRequestContext) {
 
     let values: JumpFormValues = {
         jumpNumber: String((latestJump?.jumpNumber ?? 0) + 1),
+        jumpDate: getToday(),
     };
     const sourceJumpUuid = from ?? latestJump?.uuid;
     if (sourceJumpUuid) {
@@ -437,6 +464,7 @@ async function handleNewJump(c: AppRequestContext) {
             locationUuid: result.data.locationUuid,
             aircraftUuid: result.data.aircraftUuid,
             jumpNumber: result.data.jumpNumber,
+            jumpDate: result.data.jumpDate,
             exitAltitude: altitudeToMeters(
                 result.data.exitAltitude,
                 altitudeUnits,
@@ -490,6 +518,7 @@ async function renderEditJump(c: AppRequestContext) {
                 locationUuid: jump.locationUuid,
                 aircraftUuid: jump.aircraftUuid,
                 jumpNumber: String(jump.jumpNumber),
+                jumpDate: jump.jumpDate,
                 exitAltitude: altitudeInputValue(
                     jump.exitAltitude,
                     altitudeUnits,
@@ -577,6 +606,7 @@ async function handleEditJump(c: AppRequestContext) {
                 locationUuid: result.data.locationUuid,
                 aircraftUuid: result.data.aircraftUuid,
                 jumpNumber: result.data.jumpNumber,
+                jumpDate: result.data.jumpDate,
                 exitAltitude: altitudeToMeters(
                     result.data.exitAltitude,
                     altitudeUnits,
