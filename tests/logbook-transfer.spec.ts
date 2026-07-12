@@ -3,6 +3,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.jsonl");
+const xmlFixturePath = path.join(
+    import.meta.dirname,
+    "fixtures/skydiving-logbook.xml",
+);
 
 async function registerUser(page: Page, username: string) {
     await page.goto("/register");
@@ -114,4 +118,24 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     await expect(
         page.getByRole("checkbox", { name: "Formation skydiving" }),
     ).toBeChecked();
+});
+
+test("a Skydiving Logbook XML file can be imported", async ({ page }) => {
+    await registerUser(page, "xml-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles(xmlFixturePath);
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 1 jump")).toBeVisible();
+
+    await page.getByRole("link", { name: /xml-skydiver's logbook/ }).click();
+    await expect(page.getByRole("link", { name: /Jump #401/ })).toContainText(
+        "Skydive XML / Caravan",
+    );
+    await page.getByRole("link", { name: /Jump #401/ }).click();
+    await expect(page.locator('textarea[name="description"]')).toHaveValue(
+        "Imported from XML",
+    );
+    await expect(page.getByRole("checkbox", { name: "XML Rig" })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "Freefly" })).toBeChecked();
 });

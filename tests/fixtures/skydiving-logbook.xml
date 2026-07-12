@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skydiving_logbook>
+    <locations>
+        <location><id>location-1</id><name>Skydive XML</name><previous_jump_count>300</previous_jump_count></location>
+    </locations>
+    <aircrafts>
+        <aircraft><id>aircraft-1</id><name>Caravan</name><previous_jump_count>120</previous_jump_count></aircraft>
+    </aircrafts>
+    <rigs>
+        <rig><id>rig-1</id><name>XML Rig</name><previous_jump_count>42</previous_jump_count></rig>
+    </rigs>
+    <skydive_types>
+        <skydive_type><id>type-1</id><name>Freefly</name><previous_jump_count>18</previous_jump_count></skydive_type>
+    </skydive_types>
+    <log_entries>
+        <log_entry>
+            <jump_number>401</jump_number><exit_altitude>4000</exit_altitude><deployment_altitude>1000</deployment_altitude><freefall_time>55</freefall_time><location_id>location-1</location_id><aircraft_id>aircraft-1</aircraft_id><rigs><rig_id>rig-1</rig_id></rigs><skydive_type_id>type-1</skydive_type_id><notes>Imported from XML</notes>
+        </log_entry>
+    </log_entries>
+</skydiving_logbook>

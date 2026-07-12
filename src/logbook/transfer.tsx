@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { XMLParser } from "fast-xml-parser";
 import { z } from "zod/v4";
 import { app, getAppContext, type AppRequestContext } from "../app";
 import * as routes from "../routes";
@@ -90,6 +91,216 @@ function resourceMap(rows: NamedResource[]): Map<string, string> {
     return new Map(rows.map((row) => [normalizeName(row.name), row.uuid]));
 }
 
+interface XmlCatalog {
+    records: Exclude<ImportRecord, { type: "jump" }>[];
+    namesById: Map<string, string>;
+}
+
+function xmlObject(value: unknown, label: string): Record<string, unknown> {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new Error(`${label} is missing or invalid`);
+    }
+    return Object.fromEntries(Object.entries(value));
+}
+
+function xmlItems(value: unknown): unknown[] {
+    return value === undefined ? [] : Array.isArray(value) ? value : [value];
+}
+
+function xmlString(record: Record<string, unknown>, field: string) {
+    const value = record[field];
+    return typeof value === "string" ? value.trim() || undefined : undefined;
+}
+
+function requiredXmlString(record: Record<string, unknown>, field: string) {
+    const value = xmlString(record, field);
+    if (!value) {
+        throw new Error(`Missing ${field}`);
+    }
+    return value;
+}
+
+function xmlNumber(
+    record: Record<string, unknown>,
+    field: string,
+    minimum: number,
+) {
+    const value = Number(xmlString(record, field));
+    if (!Number.isInteger(value) || value < minimum) {
+        throw new Error(
+            `${field} must be a whole number of at least ${minimum}`,
+        );
+    }
+    return value;
+}
+
+function createXmlCatalog(
+    value: unknown,
+    itemName: string,
+    type: ResourceType,
+): XmlCatalog {
+    const records: Exclude<ImportRecord, { type: "jump" }>[] = [];
+    const namesById = new Map<string, string>();
+    const names = new Set<string>();
+    for (const item of xmlItems(xmlObject(value, itemName)[itemName])) {
+        const record = xmlObject(item, itemName);
+        const id = requiredXmlString(record, "id");
+        const name = requiredXmlString(record, "name");
+        namesById.set(id, name);
+        if (!names.has(name)) {
+            records.push({
+                type,
+                name,
+                previousCount: xmlString(record, "previous_jump_count")
+                    ? xmlNumber(record, "previous_jump_count", 0)
+                    : 0,
+            });
+            names.add(name);
+        }
+    }
+    return { records, namesById };
+}
+
+function resolveXmlNames(
+    ids: string[],
+    catalog: XmlCatalog,
+    resourceName: string,
+    errors: string[],
+    jumpNumber: number,
+): string[] {
+    return ids.flatMap((id) => {
+        const name = catalog.namesById.get(id);
+        if (name) {
+            return [name];
+        }
+        errors.push(
+            `Jump #${jumpNumber}: unknown ${resourceName} ID ${JSON.stringify(id)}`,
+        );
+        return [];
+    });
+}
+
+function xmlRigIds(record: Record<string, unknown>): string[] {
+    if (record.rigs === undefined) {
+        return [];
+    }
+    return xmlItems(xmlObject(record.rigs, "rigs").rig_id).flatMap((value) =>
+        typeof value === "string" && value.trim() ? [value.trim()] : [],
+    );
+}
+
+function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
+    const parser = new XMLParser({ parseTagValue: false, trimValues: false });
+    const parsed = xmlObject(parser.parse(xml), "XML document");
+    const logbook = xmlObject(parsed.skydiving_logbook, "skydiving_logbook");
+    const locations = createXmlCatalog(
+        logbook.locations,
+        "location",
+        "location",
+    );
+    const aircraft = createXmlCatalog(
+        logbook.aircrafts,
+        "aircraft",
+        "aircraft",
+    );
+    const gearCatalog = createXmlCatalog(logbook.rigs, "rig", "gear");
+    const jumpTypes = createXmlCatalog(
+        logbook.skydive_types,
+        "skydive_type",
+        "jumpType",
+    );
+    const jumps: Extract<ImportRecord, { type: "jump" }>[] = [];
+    const errors: string[] = [];
+    let needsUnknownLocation = false;
+    let needsUnknownAircraft = false;
+    for (const item of xmlItems(
+        xmlObject(logbook.log_entries, "log_entries").log_entry,
+    )) {
+        const record = xmlObject(item, "log_entry");
+        const jumpNumber = xmlNumber(record, "jump_number", 1);
+        const locationId = xmlString(record, "location_id");
+        const aircraftId = xmlString(record, "aircraft_id");
+        const location = locationId
+            ? resolveXmlNames(
+                  [locationId],
+                  locations,
+                  "location",
+                  errors,
+                  jumpNumber,
+              )[0]
+            : "Unknown location";
+        const aircraftName = aircraftId
+            ? resolveXmlNames(
+                  [aircraftId],
+                  aircraft,
+                  "aircraft",
+                  errors,
+                  jumpNumber,
+              )[0]
+            : "Unknown aircraft";
+        if (!location || !aircraftName) {
+            continue;
+        }
+        needsUnknownLocation ||= !locationId;
+        needsUnknownAircraft ||= !aircraftId;
+        const description = xmlString(record, "notes");
+        jumps.push({
+            type: "jump",
+            jumpNumber,
+            exitAltitude: xmlNumber(record, "exit_altitude", 1),
+            openingAltitude: xmlNumber(record, "deployment_altitude", 0),
+            freefallTime: xmlNumber(record, "freefall_time", 0),
+            location,
+            aircraft: aircraftName,
+            gear: resolveXmlNames(
+                xmlRigIds(record),
+                gearCatalog,
+                "rig",
+                errors,
+                jumpNumber,
+            ),
+            jumpTypes: resolveXmlNames(
+                xmlString(record, "skydive_type_id")
+                    ? [requiredXmlString(record, "skydive_type_id")]
+                    : [],
+                jumpTypes,
+                "skydive type",
+                errors,
+                jumpNumber,
+            ),
+            ...(description ? { description } : {}),
+        });
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("\n"));
+    }
+    return [
+        ...aircraft.records,
+        ...(needsUnknownAircraft
+            ? [
+                  {
+                      type: "aircraft" as const,
+                      name: "Unknown aircraft",
+                      previousCount: 0,
+                  },
+              ]
+            : []),
+        ...gearCatalog.records,
+        ...jumpTypes.records,
+        ...locations.records,
+        ...(needsUnknownLocation
+            ? [
+                  {
+                      type: "location" as const,
+                      name: "Unknown location",
+                      previousCount: 0,
+                  },
+              ]
+            : []),
+        ...jumps,
+    ];
+}
+
 /** Renders the logbook import and export page. */
 function TransferPage(props: { errors?: string[]; notice?: string }) {
     return (
@@ -115,8 +326,9 @@ function TransferPage(props: { errors?: string[]; notice?: string }) {
                         Import
                     </h2>
                     <p className="mt-1 text-sm text-gray-600">
-                        Import a JSON Lines file. Existing gear, locations,
-                        aircraft, and jump types are matched by name.
+                        Import a JSON Lines or Skydiving Logbook XML file.
+                        Existing gear, locations, aircraft, and jump types are
+                        matched by name.
                     </p>
                     {props.notice && (
                         <p className="mt-3 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800">
@@ -136,11 +348,11 @@ function TransferPage(props: { errors?: string[]; notice?: string }) {
                         className="mt-4 flex flex-wrap items-end gap-3"
                     >
                         <label className="block text-sm font-medium text-gray-700">
-                            JSONL file
+                            Logbook file
                             <input
                                 type="file"
                                 name="file"
-                                accept=".jsonl,application/x-ndjson,application/json"
+                                accept=".jsonl,.xml,application/x-ndjson,application/json,application/xml,text/xml"
                                 required
                                 className="mt-1 block w-full cursor-pointer rounded-md border border-gray-300 bg-white text-sm text-gray-700 file:mr-3 file:cursor-pointer file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-blue-700"
                             />
@@ -198,13 +410,40 @@ function TransferPage(props: { errors?: string[]; notice?: string }) {
     );
 }
 
-/** Reads and validates JSON Lines import records from an uploaded file. */
+/** Reads and validates JSON Lines or Skydiving Logbook XML import records. */
 async function readImportRecords(
     file: File,
 ): Promise<{ errors: string[] } | { records: ImportRecord[] }> {
-    const lines = (await file.text())
-        .split(/\r?\n/)
-        .filter((line) => line.trim());
+    const content = await file.text();
+    if (content.trimStart().startsWith("<")) {
+        let values: unknown[];
+        try {
+            values = parseSkydivingLogbookXml(content);
+        } catch (error) {
+            return {
+                errors: [
+                    error instanceof Error
+                        ? error.message
+                        : "Invalid Skydiving Logbook XML",
+                ],
+            };
+        }
+        const records: ImportRecord[] = [];
+        const errors: string[] = [];
+        for (const [index, value] of values.entries()) {
+            const result = ImportRecordSchema.safeParse(value);
+            if (result.success) {
+                records.push(result.data);
+            } else {
+                errors.push(
+                    `XML record ${index + 1}: ${result.error.issues.map((issue) => issue.message).join(", ")}`,
+                );
+            }
+        }
+        return errors.length > 0 ? { errors } : { records };
+    }
+
+    const lines = content.split(/\r?\n/).filter((line) => line.trim());
     if (lines.length === 0) {
         return { errors: ["The import file is empty"] };
     }
@@ -446,7 +685,7 @@ async function handleTransfer(c: AppRequestContext) {
     const file = formData.get("file");
     if (!(file instanceof File)) {
         return c.render(
-            <TransferPage errors={["Choose a JSONL file to import"]} />,
+            <TransferPage errors={["Choose a logbook file to import"]} />,
         );
     }
     const result = await readImportRecords(file);
