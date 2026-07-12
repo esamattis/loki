@@ -667,11 +667,35 @@ async function renderLogbook(c: AppRequestContext) {
     return c.render(
         <LogbookPage title="Jump Logbook">
             {stats.totalJumps > 0 && (
-                <LogbookStats
-                    totalJumps={stats.totalJumps}
-                    totalFreefallMeters={stats.totalFreefallMeters}
-                    options={options}
-                />
+                <>
+                    <div className="flex justify-end">
+                        <a
+                            href={routes.logbookStatistics({})}
+                            className="inline-flex items-center gap-1 text-sm text-slate-500 transition hover:text-indigo-600"
+                        >
+                            View statistics
+                            <svg
+                                aria-hidden="true"
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                    <LogbookStats
+                        totalJumps={stats.totalJumps}
+                        totalFreefallMeters={stats.totalFreefallMeters}
+                        options={options}
+                    />
+                </>
             )}
             <JumpFilters
                 filters={filters}
