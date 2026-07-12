@@ -9,15 +9,17 @@ function djb2Checksum(input: string): number {
     return Math.abs(hash);
 }
 
-const nameCache = new WeakMap<(...args: any[]) => any, string>();
+type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
 
-function getGlobalName(fn: (...args: any[]) => any): string {
+const nameCache = new WeakMap<ClientFunction, string>();
+
+function getGlobalName(fn: ClientFunction): string {
     const cachedName = nameCache.get(fn);
     if (cachedName) {
         return cachedName;
     }
 
-    const fnName = (fn as any).displayName || fn.name;
+    const fnName = fn.displayName || fn.name;
     const checksum = djb2Checksum(fn.toString()).toString(16);
     const name = fnName ? `__${fnName}_${checksum}` : `__${checksum}`;
     nameCache.set(fn, name);
@@ -25,8 +27,8 @@ function getGlobalName(fn: (...args: any[]) => any): string {
 }
 
 export function Script<T extends readonly unknown[] = []>(props: {
-    $exec: (...args: T) => void;
-    $deps?: ((...args: any[]) => void)[];
+    $exec: ((...args: T) => void) & { displayName?: string };
+    $deps?: ClientFunction[];
     $args?: T;
 }) {
     const jsDupCache = useAppContext().jsDupCache;
@@ -162,10 +164,6 @@ type ExtractRouteParams<T extends string> =
           ? { [K in Param]: string | number }
           : { __empty?: never } | undefined | null;
 
-type StringifyValues<T> = {
-    [K in keyof T]: string;
-};
-
 export function route<T extends string>(route: T) {
     function to(params: ExtractRouteParams<T>): string;
     function to<Q extends Record<string, any>>(
@@ -176,14 +174,16 @@ export function route<T extends string>(route: T) {
         params: ExtractRouteParams<T>,
         queryParams?: Q,
     ): string {
-        const paramsAny = params as Record<string, string>;
         let url = route.replace(/:(\w+)/g, (_, key) => {
-            if (paramsAny[key] === undefined) {
+            const value = Object.entries(params ?? {}).find(
+                ([paramName]) => paramName === key,
+            )?.[1];
+            if (value === undefined) {
                 throw new Error(
                     `Route parameter "${key}" is required but not provided. Required in route: ${route}`,
                 );
             }
-            return encodeURIComponent(paramsAny[key]);
+            return encodeURIComponent(String(value));
         });
 
         if (queryParams) {
@@ -211,26 +211,16 @@ export function route<T extends string>(route: T) {
         };
 
         queryWrapped.route = route;
-        queryWrapped.params = (
-            c: AppRequestContext,
-        ): StringifyValues<ExtractRouteParams<T>> => {
-            return c.req.param() as any;
-        };
+        queryWrapped.params = (c: AppRequestContext) => c.req.param();
 
         // get query params
-        queryWrapped.query = (c: AppRequestContext): Partial<Q> => {
-            return c.req.query() as any;
-        };
+        queryWrapped.query = (c: AppRequestContext) => c.req.query();
 
         return queryWrapped;
     }
 
     to.route = route;
-    to.params = (
-        c: AppRequestContext,
-    ): StringifyValues<ExtractRouteParams<T>> => {
-        return c.req.param() as any;
-    };
+    to.params = (c: AppRequestContext) => c.req.param();
 
     to.query = query;
 
