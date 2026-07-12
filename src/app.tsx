@@ -19,7 +19,6 @@ export interface AppContext {
     requestContext: AppRequestContext;
     cssDupCache: Set<string>;
     jsDupCache: Set<(...args: any[]) => any>;
-    queryCache: Map<string, unknown>;
     url(): URL;
 }
 
@@ -39,22 +38,6 @@ export interface Env {
     Variables: Variables;
 }
 
-function cachedExec<T>(
-    c: AppContext,
-    key: string,
-    fn: (c: AppContext) => T,
-): Promise<T> {
-    const cache = c.queryCache;
-
-    if (cache.has(key)) {
-        return Promise.resolve(cache.get(key) as T);
-    }
-
-    const result = fn(c);
-    cache.set(key, result);
-    return Promise.resolve(result);
-}
-
 interface CachedFunction<T> {
     (c: AppContext): Promise<T>;
     clear: (c: AppContext) => void;
@@ -65,13 +48,21 @@ interface CachedFunction<T> {
  * If the function is called again with the same key, it will return the cached result.
  **/
 export function cached<T>(
-    key: string,
+    _key: string,
     fn: (c: AppContext) => Promise<T>,
 ): CachedFunction<T> {
-    const cachedFn = async (c: AppContext) => cachedExec(c, key, fn);
+    const results = new WeakMap<AppContext, Promise<T>>();
+    const cachedFn = async (c: AppContext) => {
+        let result = results.get(c);
+        if (!result) {
+            result = fn(c);
+            results.set(c, result);
+        }
+        return result;
+    };
 
     cachedFn.clear = (c: AppContext) => {
-        c.queryCache.delete(key);
+        results.delete(c);
     };
 
     return cachedFn;
@@ -128,7 +119,6 @@ async function setAppContextMiddleware(
         requestContext: c,
         cssDupCache: new Set(),
         jsDupCache: new Set(),
-        queryCache: new Map(),
         url() {
             const host = c.req.header("host");
             if (host) {
