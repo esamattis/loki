@@ -1,9 +1,11 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { app, getAppContext, type AppRequestContext } from "./app";
 import * as routes from "./routes";
 import {
     aircrafts,
+    gear,
     jumps,
+    jumpsToGear,
     jumpTypes,
     jumpsToJumpTypes,
     locations,
@@ -259,10 +261,219 @@ function JumpCard(props: {
     );
 }
 
-async function renderLogbook(c: AppRequestContext) {
+interface LogbookResource {
+    uuid: string;
+    name: string;
+}
+
+interface LogbookFilters {
+    locationUuids: string[];
+    gearUuids: string[];
+    jumpTypeUuids: string[];
+}
+
+function filterResourceUuids(
+    query: URLSearchParams,
+    name: string,
+    resources: LogbookResource[],
+): string[] {
+    const resourceUuids = new Set(resources.map((resource) => resource.uuid));
+    return [...new Set(query.getAll(name))].filter((uuid) =>
+        resourceUuids.has(uuid),
+    );
+}
+
+function JumpFilters(props: {
+    filters: LogbookFilters;
+    locations: LogbookResource[];
+    gear: LogbookResource[];
+    jumpTypes: LogbookResource[];
+}) {
+    const selectedLocations = new Set(props.filters.locationUuids);
+    const selectedGear = new Set(props.filters.gearUuids);
+    const selectedJumpTypes = new Set(props.filters.jumpTypeUuids);
+    const hasFilters =
+        selectedLocations.size > 0 ||
+        selectedGear.size > 0 ||
+        selectedJumpTypes.size > 0;
+
+    return (
+        <details
+            open={hasFilters}
+            className="rounded-lg bg-white p-5 shadow-sm"
+        >
+            <summary className="cursor-pointer font-semibold text-gray-900">
+                Filter jumps
+            </summary>
+            <form
+                action={routes.logbook({})}
+                method="get"
+                className="mt-5 space-y-5"
+            >
+                <fieldset>
+                    <legend className="text-sm font-medium text-gray-700">
+                        Locations
+                    </legend>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {props.locations.map((location) => (
+                            <label className="flex items-center gap-2 rounded border border-gray-200 px-3 py-2 text-sm">
+                                <input
+                                    name="locationUuids"
+                                    type="checkbox"
+                                    value={location.uuid}
+                                    checked={selectedLocations.has(
+                                        location.uuid,
+                                    )}
+                                />
+                                {location.name}
+                            </label>
+                        ))}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend className="text-sm font-medium text-gray-700">
+                        Gear
+                    </legend>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {props.gear.map((item) => (
+                            <label className="flex items-center gap-2 rounded border border-gray-200 px-3 py-2 text-sm">
+                                <input
+                                    name="gearUuids"
+                                    type="checkbox"
+                                    value={item.uuid}
+                                    checked={selectedGear.has(item.uuid)}
+                                />
+                                {item.name}
+                            </label>
+                        ))}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend className="text-sm font-medium text-gray-700">
+                        Jump types
+                    </legend>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        {props.jumpTypes.map((item) => (
+                            <label className="flex items-center gap-2 rounded border border-gray-200 px-3 py-2 text-sm">
+                                <input
+                                    name="jumpTypeUuids"
+                                    type="checkbox"
+                                    value={item.uuid}
+                                    checked={selectedJumpTypes.has(item.uuid)}
+                                />
+                                {item.name}
+                            </label>
+                        ))}
+                    </div>
+                </fieldset>
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        type="submit"
+                        className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+                    >
+                        Apply filters
+                    </button>
+                    {hasFilters && (
+                        <a
+                            href={routes.logbook({})}
+                            className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Clear filters
+                        </a>
+                    )}
+                </div>
+            </form>
+        </details>
+    );
+}
+
+async function getLogbookFilterResources(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const jumpRows = await db
+    const [locationRows, gearItems, jumpTypeRows] = await Promise.all([
+        db
+            .select({ uuid: locations.uuid, name: locations.name })
+            .from(locations)
+            .where(eq(locations.userUuid, userUuid))
+            .orderBy(locations.name),
+        db
+            .select({ uuid: gear.uuid, name: gear.name })
+            .from(gear)
+            .where(eq(gear.userUuid, userUuid))
+            .orderBy(gear.name),
+        db
+            .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
+            .from(jumpTypes)
+            .where(eq(jumpTypes.userUuid, userUuid))
+            .orderBy(jumpTypes.name),
+    ]);
+
+    return {
+        locations: locationRows,
+        gear: gearItems,
+        jumpTypes: jumpTypeRows,
+    };
+}
+
+function getLogbookFilters(
+    c: AppRequestContext,
+    resources: Awaited<ReturnType<typeof getLogbookFilterResources>>,
+): LogbookFilters {
+    const query = new URL(c.req.url).searchParams;
+    return {
+        locationUuids: filterResourceUuids(
+            query,
+            "locationUuids",
+            resources.locations,
+        ),
+        gearUuids: filterResourceUuids(query, "gearUuids", resources.gear),
+        jumpTypeUuids: filterResourceUuids(
+            query,
+            "jumpTypeUuids",
+            resources.jumpTypes,
+        ),
+    };
+}
+
+async function getLogbookJumps(c: AppRequestContext, filters: LogbookFilters) {
+    const db = getAppContext(c).db;
+    const userUuid = getAppContext(c).getUser().uuid;
+    const conditions = [
+        eq(jumps.userUuid, userUuid),
+        ...(filters.locationUuids.length > 0
+            ? [inArray(jumps.locationUuid, filters.locationUuids)]
+            : []),
+        ...(filters.gearUuids.length > 0
+            ? [
+                  inArray(
+                      jumps.uuid,
+                      db
+                          .select({ jumpUuid: jumpsToGear.jumpUuid })
+                          .from(jumpsToGear)
+                          .where(
+                              inArray(jumpsToGear.gearUuid, filters.gearUuids),
+                          ),
+                  ),
+              ]
+            : []),
+        ...(filters.jumpTypeUuids.length > 0
+            ? [
+                  inArray(
+                      jumps.uuid,
+                      db
+                          .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
+                          .from(jumpsToJumpTypes)
+                          .where(
+                              inArray(
+                                  jumpsToJumpTypes.jumpTypeUuid,
+                                  filters.jumpTypeUuids,
+                              ),
+                          ),
+                  ),
+              ]
+            : []),
+    ];
+    return db
         .select({
             uuid: jumps.uuid,
             jumpNumber: jumps.jumpNumber,
@@ -276,10 +487,14 @@ async function renderLogbook(c: AppRequestContext) {
         .from(jumps)
         .innerJoin(locations, eq(jumps.locationUuid, locations.uuid))
         .innerJoin(aircrafts, eq(jumps.aircraftUuid, aircrafts.uuid))
-        .where(eq(jumps.userUuid, userUuid))
+        .where(and(...conditions))
         .orderBy(desc(jumps.jumpNumber));
+}
 
-    const jumpTypeRows = await db
+async function getJumpTypesByJump(c: AppRequestContext) {
+    const db = getAppContext(c).db;
+    const userUuid = getAppContext(c).getUser().uuid;
+    const rows = await db
         .select({
             jumpUuid: jumpsToJumpTypes.jumpUuid,
             name: jumpTypes.name,
@@ -291,12 +506,21 @@ async function renderLogbook(c: AppRequestContext) {
         .orderBy(jumpTypes.name);
 
     const jumpTypesByJump = new Map<string, string[]>();
-    for (const row of jumpTypeRows) {
+    for (const row of rows) {
         const list = jumpTypesByJump.get(row.jumpUuid) ?? [];
         list.push(row.name);
         jumpTypesByJump.set(row.jumpUuid, list);
     }
+    return jumpTypesByJump;
+}
 
+function getOverallAvgSpeed(
+    jumpRows: {
+        exitAltitude: number;
+        openingAltitude: number;
+        freefallTime: number;
+    }[],
+): number | null {
     let totalFreefallDistance = 0;
     let totalFreefallTime = 0;
     for (const jump of jumpRows) {
@@ -305,10 +529,19 @@ async function renderLogbook(c: AppRequestContext) {
             totalFreefallTime += jump.freefallTime;
         }
     }
-    const overallAvgSpeed =
-        totalFreefallTime > 0
-            ? totalFreefallDistance / totalFreefallTime
-            : null;
+    return totalFreefallTime > 0
+        ? totalFreefallDistance / totalFreefallTime
+        : null;
+}
+
+async function renderLogbook(c: AppRequestContext) {
+    const resources = await getLogbookFilterResources(c);
+    const filters = getLogbookFilters(c, resources);
+    const [jumpRows, jumpTypesByJump] = await Promise.all([
+        getLogbookJumps(c, filters),
+        getJumpTypesByJump(c),
+    ]);
+    const overallAvgSpeed = getOverallAvgSpeed(jumpRows);
 
     return c.render(
         <LogbookPage title="Jump Logbook">
@@ -321,6 +554,12 @@ async function renderLogbook(c: AppRequestContext) {
                 </a>
                 <LogbookManagementMenu />
             </nav>
+            <JumpFilters
+                filters={filters}
+                locations={resources.locations}
+                gear={resources.gear}
+                jumpTypes={resources.jumpTypes}
+            />
             {jumpRows.length > 0 && (
                 <LogbookStats
                     totalJumps={jumpRows.length}
@@ -332,7 +571,13 @@ async function renderLogbook(c: AppRequestContext) {
                     Jumps
                 </h2>
                 {jumpRows.length === 0 ? (
-                    <p className="p-5 text-gray-600">No jumps yet.</p>
+                    <p className="p-5 text-gray-600">
+                        {filters.locationUuids.length > 0 ||
+                        filters.gearUuids.length > 0 ||
+                        filters.jumpTypeUuids.length > 0
+                            ? "No jumps match the selected filters."
+                            : "No jumps yet."}
+                    </p>
                 ) : (
                     <ul className="divide-y divide-gray-200">
                         {jumpRows.map((jump) => (

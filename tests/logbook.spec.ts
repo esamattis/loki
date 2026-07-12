@@ -94,6 +94,14 @@ test("a skydiver can register and record their first jump", async ({
         page.getByRole("link", { name: /Jump #1/ }).getByText("Tracking"),
     ).toBeVisible();
 
+    await page.getByText("Filter jumps", { exact: true }).click();
+    await page.getByRole("checkbox", { name: "Freefly" }).check();
+    await page.getByRole("checkbox", { name: "Tracking" }).check();
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).toHaveURL(/\/logbook\?jumpTypeUuids=/);
+    await expect(page.getByRole("link", { name: /Jump #1/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Jump #2/ })).toHaveCount(0);
+
     await page.getByRole("link", { name: /Jump #1/ }).click();
     await page.getByRole("link", { name: "Copy to new" }).click();
 
