@@ -40,3 +40,5 @@ lerna-debug.log*
 /playwright/.cache/
 /playwright/.auth/
 /.playwright/
+skydiving_logbook.xml
+output.jsonl

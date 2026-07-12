@@ -12,6 +12,7 @@
         "db:reset": "rm -rf .wrangler && $npm_execpath run db:migrate && node scripts/insert-dev-user.ts",
         "db:dev-user": "node scripts/insert-dev-user.ts",
         "db:list-users": "node scripts/list-users.ts",
+        "convert:skydiving-logbook": "node scripts/convert-skydiving-logbook.ts",
         "test:e2e": "playwright test",
         "test:tsc": "tsc --noEmit",
         "prettier-write": "prettier --write .",
@@ -26,6 +27,7 @@
         "clsx": "^2.1.1",
         "dotenv": "^17.4.2",
         "drizzle-orm": "^0.45.2",
+        "fast-xml-parser": "^5.10.0",
         "hono": "^4.12.27",
         "tailwindcss": "^4.3.2",
         "zod": "^4.4.3"
