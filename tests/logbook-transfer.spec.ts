@@ -124,6 +124,58 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     ).toBeChecked();
 });
 
+test("clearing all previous data replaces the entire logbook during import", async ({
+    page,
+}) => {
+    await registerUser(page, "clear-all-import-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles(fixturePath);
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 2 jumps")).toBeVisible();
+
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "replacement-logbook.jsonl",
+        mimeType: "application/x-ndjson",
+        buffer: Buffer.from(
+            JSON.stringify({
+                type: "jump",
+                jumpNumber: 1,
+                exitAltitude: 3000,
+                openingAltitude: 800,
+                freefallTime: 45,
+                location: "Replacement drop zone",
+                aircraft: "Replacement aircraft",
+                gear: ["Replacement gear"],
+                jumpTypes: ["Replacement jump type"],
+            }),
+        ),
+    });
+    await page
+        .getByRole("checkbox", { name: "Clear all previous data" })
+        .check();
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 1 jump")).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("link", { name: "Export logbook" }).click();
+    const download = await downloadPromise;
+    const exportPath = await download.path();
+    if (!exportPath) {
+        throw new Error("The export download has no file path");
+    }
+    const exportContents = await readFile(exportPath, "utf8");
+    expect(exportContents).toContain('"jumpNumber":1');
+    expect(exportContents).toContain('"name":"Replacement gear"');
+    expect(exportContents).toContain('"name":"Replacement jump type"');
+    expect(exportContents).toContain('"name":"Replacement drop zone"');
+    expect(exportContents).toContain('"name":"Replacement aircraft"');
+    expect(exportContents).not.toContain("Twin Otter");
+    expect(exportContents).not.toContain("Navigator 260");
+    expect(exportContents).not.toContain("Formation skydiving");
+    expect(exportContents).not.toContain("Skydive Example");
+});
+
 test("a Skydiving Logbook XML file can be imported", async ({ page }) => {
     await registerUser(page, "xml-skydiver");
     await openManageLogbook(page);

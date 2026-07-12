@@ -69,20 +69,8 @@ type ResourceType = Exclude<ImportRecord["type"], "jump">;
 /** The application's Drizzle database client. */
 type ImportDatabase = ReturnType<typeof getAppContext>["db"];
 
-/** A queued database operation that can be executed. */
-type ImportQuery = {
-    description: string;
-    run(): Promise<unknown>;
-};
-
-/** Mutable state accumulated while preparing an import. */
-interface ImportState {
-    db: ImportDatabase;
-    userUuid: string;
-    resources: Record<ResourceType, Map<string, string>>;
-    jumpUuids: Map<number, string>;
-    queries: ImportQuery[];
-}
+/** A queued database operation included in the atomic D1 import batch. */
+type ImportQuery = Parameters<ImportDatabase["batch"]>[0][number];
 
 /** Normalizes a resource name for case-insensitive matching. */
 function normalizeName(name: string): string {
@@ -364,260 +352,293 @@ async function readImportRecords(
     return errors.length > 0 ? { errors } : { records };
 }
 
-/** Loads existing user resources and initializes the import query queue. */
-async function createImportState(
-    db: ImportDatabase,
-    userUuid: string,
-): Promise<ImportState> {
-    const [aircraftRows, gearRows, jumpRows, jumpTypeRows, locationRows] =
-        await Promise.all([
-            db
-                .select({ uuid: aircrafts.uuid, name: aircrafts.name })
-                .from(aircrafts)
-                .where(eq(aircrafts.userUuid, userUuid)),
-            db
-                .select({ uuid: gear.uuid, name: gear.name })
-                .from(gear)
-                .where(eq(gear.userUuid, userUuid)),
-            db
-                .select({ uuid: jumps.uuid, jumpNumber: jumps.jumpNumber })
-                .from(jumps)
-                .where(eq(jumps.userUuid, userUuid)),
-            db
-                .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
-                .from(jumpTypes)
-                .where(eq(jumpTypes.userUuid, userUuid)),
-            db
-                .select({ uuid: locations.uuid, name: locations.name })
-                .from(locations)
-                .where(eq(locations.userUuid, userUuid)),
-        ]);
-    return {
-        db,
-        userUuid,
-        resources: {
-            aircraft: resourceMap(aircraftRows),
-            gear: resourceMap(gearRows),
-            jumpType: resourceMap(jumpTypeRows),
-            location: resourceMap(locationRows),
-        },
-        jumpUuids: new Map(
-            jumpRows.map((jump) => [jump.jumpNumber, jump.uuid]),
-        ),
-        queries: [],
-    };
+/** Mutable state and queued operations for one logbook import. */
+class ImportState {
+    readonly queries: ImportQuery[] = [];
+
+    private constructor(
+        readonly db: ImportDatabase,
+        readonly userUuid: string,
+        readonly resources: Record<ResourceType, Map<string, string>>,
+        readonly jumpUuids: Map<number, string>,
+    ) {}
+
+    /** Loads existing user resources for an import. */
+    static async create(
+        db: ImportDatabase,
+        userUuid: string,
+        clearAll: boolean,
+    ): Promise<ImportState> {
+        if (clearAll) {
+            return new ImportState(
+                db,
+                userUuid,
+                {
+                    aircraft: new Map(),
+                    gear: new Map(),
+                    jumpType: new Map(),
+                    location: new Map(),
+                },
+                new Map(),
+            );
+        }
+
+        const [aircraftRows, gearRows, jumpRows, jumpTypeRows, locationRows] =
+            await Promise.all([
+                db
+                    .select({ uuid: aircrafts.uuid, name: aircrafts.name })
+                    .from(aircrafts)
+                    .where(eq(aircrafts.userUuid, userUuid)),
+                db
+                    .select({ uuid: gear.uuid, name: gear.name })
+                    .from(gear)
+                    .where(eq(gear.userUuid, userUuid)),
+                db
+                    .select({ uuid: jumps.uuid, jumpNumber: jumps.jumpNumber })
+                    .from(jumps)
+                    .where(eq(jumps.userUuid, userUuid)),
+                db
+                    .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
+                    .from(jumpTypes)
+                    .where(eq(jumpTypes.userUuid, userUuid)),
+                db
+                    .select({ uuid: locations.uuid, name: locations.name })
+                    .from(locations)
+                    .where(eq(locations.userUuid, userUuid)),
+            ]);
+        return new ImportState(
+            db,
+            userUuid,
+            {
+                aircraft: resourceMap(aircraftRows),
+                gear: resourceMap(gearRows),
+                jumpType: resourceMap(jumpTypeRows),
+                location: resourceMap(locationRows),
+            },
+            new Map(jumpRows.map((jump) => [jump.jumpNumber, jump.uuid])),
+        );
+    }
+
+    /** Adds a database query to the atomic import batch. */
+    queueQuery(query: ImportQuery) {
+        this.queries.push(query);
+    }
+
+    /** Queues deletion of all logbook data belonging to the importing user. */
+    clearAllData() {
+        this.queueQuery(
+            this.db.delete(jumps).where(eq(jumps.userUuid, this.userUuid)),
+        );
+        this.queueQuery(
+            this.db.delete(gear).where(eq(gear.userUuid, this.userUuid)),
+        );
+        this.queueQuery(
+            this.db
+                .delete(jumpTypes)
+                .where(eq(jumpTypes.userUuid, this.userUuid)),
+        );
+        this.queueQuery(
+            this.db
+                .delete(locations)
+                .where(eq(locations.userUuid, this.userUuid)),
+        );
+        this.queueQuery(
+            this.db
+                .delete(aircrafts)
+                .where(eq(aircrafts.userUuid, this.userUuid)),
+        );
+    }
+
+    /** Queues insertion of a resource and records its UUID for later references. */
+    queueResource(
+        type: ResourceType,
+        name: string,
+        previousCount: number,
+        description: string | null | undefined,
+    ): string {
+        const uuid = crypto.randomUUID();
+        this.resources[type].set(normalizeName(name), uuid);
+        if (type === "aircraft") {
+            this.queueQuery(
+                this.db.insert(aircrafts).values({
+                    uuid,
+                    userUuid: this.userUuid,
+                    name,
+                    previousJumpCount: previousCount,
+                    description: description || null,
+                }),
+            );
+        } else if (type === "gear") {
+            this.queueQuery(
+                this.db.insert(gear).values({
+                    uuid,
+                    userUuid: this.userUuid,
+                    name,
+                    previousUsageCount: previousCount,
+                    description: description || null,
+                }),
+            );
+        } else if (type === "jumpType") {
+            this.queueQuery(
+                this.db.insert(jumpTypes).values({
+                    uuid,
+                    userUuid: this.userUuid,
+                    name,
+                    previousUsageCount: previousCount,
+                    description: description || null,
+                }),
+            );
+        } else {
+            this.queueQuery(
+                this.db.insert(locations).values({
+                    uuid,
+                    userUuid: this.userUuid,
+                    name,
+                    previousJumpCount: previousCount,
+                    description: description || null,
+                }),
+            );
+        }
+        return uuid;
+    }
+
+    /** Queues explicitly listed resources that are not already present. */
+    queueListedResources(records: ImportRecord[]) {
+        for (const record of records) {
+            if (record.type === "jump") {
+                continue;
+            }
+            if (this.resources[record.type].has(normalizeName(record.name))) {
+                continue;
+            }
+            this.queueResource(
+                record.type,
+                record.name,
+                record.previousCount,
+                record.description,
+            );
+        }
+    }
+
+    /** Queues a jump upsert along with its resource and relation changes. */
+    queueJump(record: Extract<ImportRecord, { type: "jump" }>) {
+        const existingJumpUuid = this.jumpUuids.get(record.jumpNumber);
+        const jumpUuid = existingJumpUuid ?? crypto.randomUUID();
+        this.jumpUuids.set(record.jumpNumber, jumpUuid);
+        const locationUuid =
+            this.resources.location.get(normalizeName(record.location)) ??
+            this.queueResource("location", record.location, 0, null);
+        const aircraftUuid =
+            this.resources.aircraft.get(normalizeName(record.aircraft)) ??
+            this.queueResource("aircraft", record.aircraft, 0, null);
+        const gearByUuid = new Map<string, string>();
+        for (const name of record.gear) {
+            const gearUuid =
+                this.resources.gear.get(normalizeName(name)) ??
+                this.queueResource("gear", name, 0, null);
+            gearByUuid.set(gearUuid, name);
+        }
+        const jumpTypeByUuid = new Map<string, string>();
+        for (const name of record.jumpTypes) {
+            const jumpTypeUuid =
+                this.resources.jumpType.get(normalizeName(name)) ??
+                this.queueResource("jumpType", name, 0, null);
+            jumpTypeByUuid.set(jumpTypeUuid, name);
+        }
+        const jumpValues = {
+            locationUuid,
+            aircraftUuid,
+            exitAltitude: record.exitAltitude,
+            openingAltitude: record.openingAltitude,
+            freefallTime: record.freefallTime,
+            description: record.description || null,
+        };
+        if (existingJumpUuid) {
+            this.queueQuery(
+                this.db
+                    .update(jumps)
+                    .set(jumpValues)
+                    .where(eq(jumps.uuid, jumpUuid)),
+            );
+            this.queueQuery(
+                this.db
+                    .delete(jumpsToGear)
+                    .where(eq(jumpsToGear.jumpUuid, jumpUuid)),
+            );
+            this.queueQuery(
+                this.db
+                    .delete(jumpsToJumpTypes)
+                    .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
+            );
+        } else {
+            this.queueQuery(
+                this.db.insert(jumps).values({
+                    uuid: jumpUuid,
+                    userUuid: this.userUuid,
+                    jumpNumber: record.jumpNumber,
+                    ...jumpValues,
+                }),
+            );
+        }
+        for (const gearUuid of gearByUuid.keys()) {
+            this.queueQuery(
+                this.db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
+            );
+        }
+        for (const jumpTypeUuid of jumpTypeByUuid.keys()) {
+            this.queueQuery(
+                this.db
+                    .insert(jumpsToJumpTypes)
+                    .values({ jumpUuid, jumpTypeUuid }),
+            );
+        }
+    }
+
+    /** Queues all jump records and returns their count. */
+    queueJumps(records: ImportRecord[]): number {
+        let importedJumps = 0;
+        for (const record of records) {
+            if (record.type !== "jump") {
+                continue;
+            }
+            this.queueJump(record);
+            importedJumps++;
+        }
+        return importedJumps;
+    }
 }
 
-/** Adds a database query with a user-facing description if it fails. */
-function queueQuery(
-    state: ImportState,
-    description: string,
-    query: { run(): Promise<unknown> },
+/** Imports validated records for the current user in one atomic D1 batch. */
+async function importRecords(
+    c: AppRequestContext,
+    records: ImportRecord[],
+    clearAll: boolean,
 ) {
-    state.queries.push({ description, run: () => query.run() });
-}
-
-/** Queues insertion of a resource and records its UUID for later references. */
-function queueResource(
-    state: ImportState,
-    type: ResourceType,
-    name: string,
-    previousCount: number,
-    description: string | null | undefined,
-): string {
-    const uuid = crypto.randomUUID();
-    state.resources[type].set(normalizeName(name), uuid);
-    if (type === "aircraft") {
-        queueQuery(
-            state,
-            `creating aircraft ${JSON.stringify(name)}`,
-            state.db.insert(aircrafts).values({
-                uuid,
-                userUuid: state.userUuid,
-                name,
-                previousJumpCount: previousCount,
-                description: description || null,
-            }),
-        );
-    } else if (type === "gear") {
-        queueQuery(
-            state,
-            `creating gear ${JSON.stringify(name)}`,
-            state.db.insert(gear).values({
-                uuid,
-                userUuid: state.userUuid,
-                name,
-                previousUsageCount: previousCount,
-                description: description || null,
-            }),
-        );
-    } else if (type === "jumpType") {
-        queueQuery(
-            state,
-            `creating jump type ${JSON.stringify(name)}`,
-            state.db.insert(jumpTypes).values({
-                uuid,
-                userUuid: state.userUuid,
-                name,
-                previousUsageCount: previousCount,
-                description: description || null,
-            }),
-        );
-    } else {
-        queueQuery(
-            state,
-            `creating location ${JSON.stringify(name)}`,
-            state.db.insert(locations).values({
-                uuid,
-                userUuid: state.userUuid,
-                name,
-                previousJumpCount: previousCount,
-                description: description || null,
-            }),
-        );
-    }
-    return uuid;
-}
-
-/** Queues explicitly listed resources that are not already present. */
-function queueListedResources(records: ImportRecord[], state: ImportState) {
-    for (const record of records) {
-        if (record.type === "jump") {
-            continue;
-        }
-        if (state.resources[record.type].has(normalizeName(record.name))) {
-            continue;
-        }
-        queueResource(
-            state,
-            record.type,
-            record.name,
-            record.previousCount,
-            record.description,
-        );
-    }
-}
-
-/** Queues a jump upsert along with its resource and relation changes. */
-function queueJump(
-    record: Extract<ImportRecord, { type: "jump" }>,
-    state: ImportState,
-) {
-    const existingJumpUuid = state.jumpUuids.get(record.jumpNumber);
-    const jumpUuid = existingJumpUuid ?? crypto.randomUUID();
-    state.jumpUuids.set(record.jumpNumber, jumpUuid);
-    const locationUuid =
-        state.resources.location.get(normalizeName(record.location)) ??
-        queueResource(state, "location", record.location, 0, null);
-    const aircraftUuid =
-        state.resources.aircraft.get(normalizeName(record.aircraft)) ??
-        queueResource(state, "aircraft", record.aircraft, 0, null);
-    const gearByUuid = new Map<string, string>();
-    for (const name of record.gear) {
-        const gearUuid =
-            state.resources.gear.get(normalizeName(name)) ??
-            queueResource(state, "gear", name, 0, null);
-        gearByUuid.set(gearUuid, name);
-    }
-    const jumpTypeByUuid = new Map<string, string>();
-    for (const name of record.jumpTypes) {
-        const jumpTypeUuid =
-            state.resources.jumpType.get(normalizeName(name)) ??
-            queueResource(state, "jumpType", name, 0, null);
-        jumpTypeByUuid.set(jumpTypeUuid, name);
-    }
-    const jumpValues = {
-        locationUuid,
-        aircraftUuid,
-        exitAltitude: record.exitAltitude,
-        openingAltitude: record.openingAltitude,
-        freefallTime: record.freefallTime,
-        description: record.description || null,
-    };
-    if (existingJumpUuid) {
-        queueQuery(
-            state,
-            `updating jump #${record.jumpNumber}`,
-            state.db
-                .update(jumps)
-                .set(jumpValues)
-                .where(eq(jumps.uuid, jumpUuid)),
-        );
-        queueQuery(
-            state,
-            `replacing gear on jump #${record.jumpNumber}`,
-            state.db
-                .delete(jumpsToGear)
-                .where(eq(jumpsToGear.jumpUuid, jumpUuid)),
-        );
-        queueQuery(
-            state,
-            `replacing jump types on jump #${record.jumpNumber}`,
-            state.db
-                .delete(jumpsToJumpTypes)
-                .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
-        );
-    } else {
-        queueQuery(
-            state,
-            `creating jump #${record.jumpNumber}`,
-            state.db.insert(jumps).values({
-                uuid: jumpUuid,
-                userUuid: state.userUuid,
-                jumpNumber: record.jumpNumber,
-                ...jumpValues,
-            }),
-        );
-    }
-    for (const [gearUuid, gearName] of gearByUuid) {
-        queueQuery(
-            state,
-            `linking gear ${JSON.stringify(gearName)} to jump #${record.jumpNumber}`,
-            state.db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
-        );
-    }
-    for (const [jumpTypeUuid, jumpTypeName] of jumpTypeByUuid) {
-        queueQuery(
-            state,
-            `linking jump type ${JSON.stringify(jumpTypeName)} to jump #${record.jumpNumber}`,
-            state.db
-                .insert(jumpsToJumpTypes)
-                .values({ jumpUuid, jumpTypeUuid }),
-        );
-    }
-}
-
-/** Queues all jump records and returns their count. */
-function queueJumps(records: ImportRecord[], state: ImportState): number {
-    let importedJumps = 0;
-    for (const record of records) {
-        if (record.type !== "jump") {
-            continue;
-        }
-        queueJump(record, state);
-        importedJumps++;
-    }
-    return importedJumps;
-}
-
-/** Imports validated records for the current user. */
-async function importRecords(c: AppRequestContext, records: ImportRecord[]) {
     const context = getAppContext(c);
-    const state = await createImportState(context.db, context.getUser().uuid);
-    queueListedResources(records, state);
-    const importedJumps = queueJumps(records, state);
-    for (const query of state.queries) {
-        try {
-            await query.run();
-        } catch (error) {
-            console.error(
-                `Logbook import failed while ${query.description}`,
-                error,
-            );
-            throw new Error(
-                `Could not complete the import while ${query.description}. The import may be partially complete.`,
-            );
-        }
+    const state = await ImportState.create(
+        context.db,
+        context.getUser().uuid,
+        clearAll,
+    );
+    if (clearAll) {
+        state.clearAllData();
+    }
+    state.queueListedResources(records);
+    const importedJumps = state.queueJumps(records);
+    const [firstQuery, ...remainingQueries] = state.queries;
+    if (!firstQuery) {
+        return importedJumps;
+    }
+    try {
+        await context.db.batch([firstQuery, ...remainingQueries]);
+    } catch (error) {
+        console.error(
+            "Logbook import failed; all changes were rolled back",
+            error,
+        );
+        throw new Error(
+            "Could not complete the import. All changes were rolled back.",
+        );
     }
     return importedJumps;
 }
@@ -625,18 +646,24 @@ async function importRecords(c: AppRequestContext, records: ImportRecord[]) {
 /** Handles an uploaded logbook import file. */
 async function handleTransfer(c: AppRequestContext) {
     const formData = await c.req.formData();
+    const clearAll = formData.get("clearAll") === "true";
     const file = formData.get("file");
     if (!(file instanceof File)) {
         return c.render(
-            <TransferPage errors={["Choose a logbook file to import"]} />,
+            <TransferPage
+                errors={["Choose a logbook file to import"]}
+                clearAll={clearAll}
+            />,
         );
     }
     const result = await readImportRecords(file);
     if ("errors" in result) {
-        return c.render(<TransferPage errors={result.errors} />);
+        return c.render(
+            <TransferPage errors={result.errors} clearAll={clearAll} />,
+        );
     }
     try {
-        const importedJumps = await importRecords(c, result.records);
+        const importedJumps = await importRecords(c, result.records, clearAll);
         return c.render(
             <TransferPage
                 notice={`Imported ${importedJumps} ${importedJumps === 1 ? "jump" : "jumps"}`}
@@ -648,8 +675,9 @@ async function handleTransfer(c: AppRequestContext) {
                 errors={[
                     error instanceof Error
                         ? error.message
-                        : "Could not complete the import. The import may be partially complete.",
+                        : "Could not complete the import. All changes were rolled back.",
                 ]}
+                clearAll={clearAll}
             />,
         );
     }

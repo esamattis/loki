@@ -1,9 +1,16 @@
+import { Checkbox } from "../components/form";
 import * as routes from "../routes";
 import { LogbookPage } from "./layout";
 import { ExportCurlHelp, TransferFormatHelp } from "./transfer-format-help";
 
+interface TransferPageProps {
+    errors?: string[];
+    notice?: string;
+    clearAll?: boolean;
+}
+
 /** Renders the logbook import and export page. */
-export function TransferPage(props: { errors?: string[]; notice?: string }) {
+export function TransferPage(props: TransferPageProps) {
     return (
         <LogbookPage title="Import or export logbook">
             <section className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -91,24 +98,38 @@ export function TransferPage(props: { errors?: string[]; notice?: string }) {
                     <form
                         method="post"
                         encType="multipart/form-data"
-                        className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end"
+                        className="mt-5 space-y-4"
                     >
-                        <label className="block flex-1 text-sm font-medium text-slate-700">
-                            Logbook file
-                            <input
-                                type="file"
-                                name="file"
-                                accept=".jsonl,.xml,application/x-ndjson,application/json,application/xml,text/xml"
-                                required
-                                className="mt-1.5 block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700"
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+                            <label className="block flex-1 text-sm font-medium text-slate-700">
+                                Logbook file
+                                <input
+                                    type="file"
+                                    name="file"
+                                    accept=".jsonl,.xml,application/x-ndjson,application/json,application/xml,text/xml"
+                                    required
+                                    className="mt-1.5 block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700"
+                                />
+                            </label>
+                            <button
+                                type="submit"
+                                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                            >
+                                Import logbook
+                            </button>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Checkbox
+                                name="clearAll"
+                                value="true"
+                                label="Clear all previous data"
+                                checked={props.clearAll}
                             />
-                        </label>
-                        <button
-                            type="submit"
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                        >
-                            Import logbook
-                        </button>
+                            <p className="text-sm text-slate-500">
+                                Removes all existing jumps, gear, locations,
+                                aircraft, and jump types before importing.
+                            </p>
+                        </div>
                     </form>
                     <TransferFormatHelp />
                 </div>
