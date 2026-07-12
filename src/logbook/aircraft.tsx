@@ -167,6 +167,9 @@ async function renderEditAircraft(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.aircraftEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const aircraft = await db
         .select()
         .from(aircrafts)
@@ -192,6 +195,9 @@ async function handleEditAircraft(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.aircraftEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const values = getAircraftFormValues(await c.req.formData());
     const result = ResourceSchema.safeParse(values);
     const formProps = {

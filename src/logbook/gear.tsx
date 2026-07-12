@@ -165,6 +165,9 @@ async function renderEditGear(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.gearEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const item = await db
         .select()
         .from(gear)
@@ -190,6 +193,9 @@ async function handleEditGear(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.gearEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const values = getGearFormValues(await c.req.formData());
     const result = ResourceSchema.safeParse(values);
     const formProps = {

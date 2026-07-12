@@ -167,6 +167,9 @@ async function renderEditLocation(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.locationEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const location = await db
         .select()
         .from(locations)
@@ -192,6 +195,9 @@ async function handleEditLocation(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.locationEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const values = getLocationFormValues(await c.req.formData());
     const result = ResourceSchema.safeParse(values);
     const formProps = {

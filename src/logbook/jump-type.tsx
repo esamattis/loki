@@ -165,6 +165,9 @@ async function renderEditJumpType(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.jumpTypeEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const item = await db
         .select()
         .from(jumpTypes)
@@ -190,6 +193,9 @@ async function handleEditJumpType(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.jumpTypeEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const values = getJumpTypeFormValues(await c.req.formData());
     const result = ResourceSchema.safeParse(values);
     const formProps = {

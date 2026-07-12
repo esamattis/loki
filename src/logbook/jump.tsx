@@ -405,6 +405,9 @@ async function renderEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.jumpEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const jump = await db
         .select()
         .from(jumps)
@@ -446,6 +449,9 @@ async function handleEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.jumpEdit.params(c);
+    if (!uuid) {
+        return c.notFound();
+    }
     const existing = await db
         .select({ uuid: jumps.uuid })
         .from(jumps)
