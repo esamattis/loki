@@ -137,8 +137,20 @@ function jumpAvgSpeed(jump: {
 }
 
 function formatSpeed(metersPerSecond: number): string {
-    const kmh = Math.round(metersPerSecond * 3.6 * 10) / 10;
+    const kmh = Math.round(metersPerSecond * 3.6);
     return `${kmh} km/h`;
+}
+
+function formatDuration(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes === 0) {
+        return `${seconds} s`;
+    }
+    if (seconds === 0) {
+        return `${minutes} min`;
+    }
+    return `${minutes} min ${seconds} s`;
 }
 
 function LogbookStats(props: { totalJumps: number; avgSpeed: number | null }) {
@@ -214,7 +226,7 @@ function JumpCard(props: {
                     />
                     <JumpStat
                         label="Freefall"
-                        value={`${props.freefallTime} s`}
+                        value={formatDuration(props.freefallTime)}
                     />
                     <JumpStat
                         label="Avg speed"
