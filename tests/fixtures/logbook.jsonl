@@ -1,0 +1,6 @@
+{"type":"aircraft","name":"Twin Otter","previousCount":120,"description":"Fast turbine aircraft"}
+{"type":"gear","name":"Navigator 260","previousCount":42,"description":"Main canopy"}
+{"type":"jumpType","name":"Formation skydiving","previousCount":18,"description":"Four-way training"}
+{"type":"location","name":"Skydive Example","previousCount":300,"description":"Home drop zone"}
+{"type":"jump","jumpNumber":301,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Imported training jump"}
+{"type":"jump","jumpNumber":302,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Second imported jump"}
