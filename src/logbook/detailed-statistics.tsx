@@ -450,16 +450,16 @@ async function renderDetailedStatistics(c: AppRequestContext) {
 
     const locationsWithCounts = toStatisticsItems(locationRows, (uuid) =>
         routes.locationEdit({ uuid }),
-    );
+    ).filter((item) => getTotalJumpCount(item) > 0);
     const aircraftWithCounts = toStatisticsItems(aircraftRows, (uuid) =>
         routes.aircraftEdit({ uuid }),
-    );
+    ).filter((item) => getTotalJumpCount(item) > 0);
     const gearWithCounts = toStatisticsItems(gearRows, (uuid) =>
         routes.gearEdit({ uuid }),
-    );
+    ).filter((item) => getTotalJumpCount(item) > 0);
     const jumpTypesWithCounts = toStatisticsItems(jumpTypeRows, (uuid) =>
         routes.jumpTypeEdit({ uuid }),
-    );
+    ).filter((item) => getTotalJumpCount(item) > 0);
 
     const previousYear =
         year !== undefined && availableYears.includes(year)
