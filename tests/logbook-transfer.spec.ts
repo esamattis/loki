@@ -467,8 +467,8 @@ test("the logbook can be exported with curl and HTTP Basic auth", async ({
     });
     expect(csvResponse.status()).toBe(200);
     expect(csvResponse.headers()["content-type"]).toContain("text/csv");
-    expect(csvResponse.headers()["content-disposition"]).toContain(
-        'filename="jump-logbook.csv"',
+    expect(csvResponse.headers()["content-disposition"]).toMatch(
+        /^attachment; filename="logbook-curl-skydiver-\d{4}-\d{2}-\d{2}T\d{6}Z\.csv"$/,
     );
     const csvBody = await csvResponse.text();
     expect(csvBody).toContain(CSV_HEADER);

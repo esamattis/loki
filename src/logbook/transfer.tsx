@@ -931,11 +931,30 @@ function formatExportCsv(records: ExportRecord[]): string {
     );
 }
 
+/** Converts a display name into a filesystem-safe slug for export filenames. */
+function slugifyDisplayName(value: string): string {
+    const slug = value
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    return slug || "user";
+}
+
+/** Builds `logbook-{slug}-{datetime}.csv` for Content-Disposition. */
+function buildExportFilename(displayName: string, date = new Date()): string {
+    const slug = slugifyDisplayName(displayName);
+    const datetime = date.toISOString().slice(0, 19).replace(/:/g, "") + "Z";
+    return `logbook-${slug}-${datetime}.csv`;
+}
+
 /** Exports the current user's logbook as a CSV download. */
 async function exportLogbook(c: AppRequestContext) {
     const ctx = getAppContext(c);
     const db = ctx.db;
-    const userUuid = ctx.getUser().uuid;
+    const user = ctx.getUser();
+    const userUuid = user.uuid;
     const [aircraftRows, gearRows, jumpTypeRows, locationRows, jumpRows] =
         await Promise.all([
             db
@@ -1049,8 +1068,9 @@ async function exportLogbook(c: AppRequestContext) {
             description: row.description,
         })),
     ];
+    const filename = buildExportFilename(user.getDisplayName());
     return c.body(formatExportCsv(records), 200, {
-        "Content-Disposition": 'attachment; filename="jump-logbook.csv"',
+        "Content-Disposition": `attachment; filename="${filename}"`,
         "Content-Type": "text/csv; charset=utf-8",
     });
 }

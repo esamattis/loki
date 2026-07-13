@@ -38,11 +38,12 @@ export function ExportCurlHelp() {
                 </Code>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                     The <code>-OJ</code> flags save the file using the name from
-                    the response <code>Content-Disposition</code> header (
-                    <code>jump-logbook.csv</code>). Replace{" "}
-                    <code>&lt;password&gt;</code> with your account password.
-                    Without valid credentials the endpoint responds with HTTP
-                    401.
+                    the response <code>Content-Disposition</code> header (for
+                    example{" "}
+                    <code>logbook-your-name-2026-07-13T143022Z.csv</code>).
+                    Replace <code>&lt;password&gt;</code> with your account
+                    password. Without valid credentials the endpoint responds
+                    with HTTP 401.
                 </p>
                 <Script
                     $deps={[$assertElement]}
