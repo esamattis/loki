@@ -299,12 +299,7 @@ export async function getRecentJumpsForItem(
         })
         .from(jumpsToJumpTypes)
         .innerJoin(jumpTypes, eq(jumpsToJumpTypes.jumpTypeUuid, jumpTypes.uuid))
-        .where(
-            and(
-                inArray(jumpsToJumpTypes.jumpUuid, jumpUuids),
-                eq(jumpTypes.archived, false),
-            ),
-        )
+        .where(inArray(jumpsToJumpTypes.jumpUuid, jumpUuids))
         .orderBy(jumpTypes.name);
 
     const jumpTypesByJump = new Map<string, string[]>();

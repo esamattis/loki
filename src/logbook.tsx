@@ -252,27 +252,17 @@ async function getLogbookFilterResources(c: AppRequestContext) {
         db
             .select({ uuid: locations.uuid, name: locations.name })
             .from(locations)
-            .where(
-                and(
-                    eq(locations.userUuid, userUuid),
-                    eq(locations.archived, false),
-                ),
-            )
+            .where(eq(locations.userUuid, userUuid))
             .orderBy(locations.name),
         db
             .select({ uuid: gear.uuid, name: gear.name })
             .from(gear)
-            .where(and(eq(gear.userUuid, userUuid), eq(gear.archived, false)))
+            .where(eq(gear.userUuid, userUuid))
             .orderBy(gear.name),
         db
             .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
             .from(jumpTypes)
-            .where(
-                and(
-                    eq(jumpTypes.userUuid, userUuid),
-                    eq(jumpTypes.archived, false),
-                ),
-            )
+            .where(eq(jumpTypes.userUuid, userUuid))
             .orderBy(jumpTypes.name),
     ]);
 
@@ -430,12 +420,7 @@ async function getJumpTypesByJump(c: AppRequestContext, jumpUuids: string[]) {
         })
         .from(jumpsToJumpTypes)
         .innerJoin(jumpTypes, eq(jumpsToJumpTypes.jumpTypeUuid, jumpTypes.uuid))
-        .where(
-            and(
-                inArray(jumpsToJumpTypes.jumpUuid, jumpUuids),
-                eq(jumpTypes.archived, false),
-            ),
-        )
+        .where(inArray(jumpsToJumpTypes.jumpUuid, jumpUuids))
         .orderBy(jumpTypes.name);
 
     const jumpTypesByJump = new Map<string, string[]>();

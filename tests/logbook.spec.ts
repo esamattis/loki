@@ -382,10 +382,10 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
     await expect(
         page.getByText("Freefly updated", { exact: true }),
-    ).toHaveCount(0);
+    ).not.toHaveCount(0);
     await expect(
         page.getByText("Tracking updated", { exact: true }),
-    ).toHaveCount(0);
+    ).not.toHaveCount(0);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
     await expect(
         page.getByRole("option", { name: "Skydive Updated Center" }),
