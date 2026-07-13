@@ -788,3 +788,33 @@ test("freefall time estimate respects feet altitude units", async ({
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("45");
     await expect(page.getByText("Avg speed: 240 km/h")).toBeVisible();
 });
+
+test("freefall time can be estimated with custom speed", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("estimate-custom-speed");
+    await page.locator('input[name="displayName"]').fill("Custom Speed Jumper");
+    await page
+        .locator('input[name="email"]')
+        .fill("estimate-custom-speed@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await page.getByLabel("Custom speed (km/h)").fill("120");
+    await page.getByRole("button", { name: "Use custom speed" }).click();
+    // 3000 m at 120 km/h = 33.3 m/s → 90 s
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("90");
+    await expect(page.getByText("Avg speed: 120 km/h")).toBeVisible();
+
+    await page.reload();
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await expect(page.getByLabel("Custom speed (km/h)")).toHaveValue("120");
+});

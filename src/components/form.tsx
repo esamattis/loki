@@ -41,7 +41,7 @@ export function Input(props: {
 
 export function NumberInput(props: {
     id?: string;
-    name: string;
+    name?: string;
     label: string;
     min?: string;
     required?: boolean;
@@ -50,12 +50,15 @@ export function NumberInput(props: {
     defaultValue?: string;
     className?: string;
     inputClassName?: string;
+    persist?: string;
 }) {
+    const generatedId = useId();
+    const id = props.id ?? generatedId;
     return (
         <label className={clsx(labelClassName, props.className)}>
             {props.label}
             <input
-                id={props.id}
+                id={id}
                 name={props.name}
                 type="number"
                 min={props.min}
@@ -65,6 +68,24 @@ export function NumberInput(props: {
                 defaultValue={props.defaultValue}
                 className={clsx(controlClassName, props.inputClassName)}
             />
+            {props.persist ? (
+                <Script
+                    $deps={[$assertElement]}
+                    $args={[id, props.persist]}
+                    $exec={(id, persistKey) => {
+                        const input = document.getElementById(id);
+                        $assertElement(input, HTMLInputElement);
+                        const storageKey = `number-input-persist:${persistKey}`;
+                        const stored = sessionStorage.getItem(storageKey);
+                        if (stored !== null) {
+                            input.value = stored;
+                        }
+                        input.addEventListener("input", () => {
+                            sessionStorage.setItem(storageKey, input.value);
+                        });
+                    }}
+                />
+            ) : null}
         </label>
     );
 }

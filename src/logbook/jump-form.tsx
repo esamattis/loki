@@ -56,6 +56,8 @@ function FreefallEstimateScript(props: {
     openingAltitudeId: string;
     freefallTimeId: string;
     estimateDialogId: string;
+    customSpeedId: string;
+    customSpeedButtonId: string;
     altitudeUnits: "meters" | "feet";
 }) {
     return (
@@ -66,6 +68,8 @@ function FreefallEstimateScript(props: {
                 props.openingAltitudeId,
                 props.freefallTimeId,
                 props.estimateDialogId,
+                props.customSpeedId,
+                props.customSpeedButtonId,
                 props.altitudeUnits,
             ]}
             $exec={(
@@ -73,6 +77,8 @@ function FreefallEstimateScript(props: {
                 openingAltitudeId,
                 freefallTimeId,
                 estimateDialogId,
+                customSpeedId,
+                customSpeedButtonId,
                 altitudeUnits,
             ) => {
                 const exitAltitude = document.getElementById(exitAltitudeId);
@@ -81,10 +87,15 @@ function FreefallEstimateScript(props: {
                 const freefallTime = document.getElementById(freefallTimeId);
                 const estimateDialog =
                     document.getElementById(estimateDialogId);
+                const customSpeed = document.getElementById(customSpeedId);
+                const customSpeedButton =
+                    document.getElementById(customSpeedButtonId);
                 $assertElement(exitAltitude, HTMLInputElement);
                 $assertElement(openingAltitude, HTMLInputElement);
                 $assertElement(freefallTime, HTMLInputElement);
                 $assertElement(estimateDialog, HTMLDialogElement);
+                $assertElement(customSpeed, HTMLInputElement);
+                $assertElement(customSpeedButton, HTMLButtonElement);
 
                 function estimateFreefallTime(speedKmh: number) {
                     $assertElement(exitAltitude, HTMLInputElement);
@@ -127,6 +138,11 @@ function FreefallEstimateScript(props: {
                     estimateFreefallTime(speedKmh);
                     estimateDialog.close();
                 });
+
+                customSpeedButton.addEventListener("click", () => {
+                    estimateFreefallTime(Number(customSpeed.value));
+                    estimateDialog.close();
+                });
             }}
         />
     );
@@ -141,6 +157,8 @@ function FreefallTimeField(props: {
 }) {
     const estimateButtonId = useId();
     const estimateDialogId = useId();
+    const customSpeedId = useId();
+    const customSpeedButtonId = useId();
 
     return (
         <div>
@@ -196,6 +214,22 @@ function FreefallTimeField(props: {
                     >
                         Wingsuit · 80 km/h
                     </button>
+                    <div className="mt-2 space-y-2 border-t border-slate-200 pt-3 dark:border-slate-700">
+                        <NumberInput
+                            id={customSpeedId}
+                            label="Custom speed (km/h)"
+                            min="1"
+                            defaultValue="180"
+                            persist="freefall-speed-estimate"
+                        />
+                        <button
+                            id={customSpeedButtonId}
+                            type="button"
+                            className={DIALOG_OPTION_CLASS}
+                        >
+                            Use custom speed
+                        </button>
+                    </div>
                 </div>
             </Dialog>
             <FreefallEstimateScript
@@ -203,6 +237,8 @@ function FreefallTimeField(props: {
                 openingAltitudeId={props.openingAltitudeId}
                 freefallTimeId={props.freefallTimeId}
                 estimateDialogId={estimateDialogId}
+                customSpeedId={customSpeedId}
+                customSpeedButtonId={customSpeedButtonId}
                 altitudeUnits={props.altitudeUnits}
             />
         </div>
