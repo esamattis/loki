@@ -1,10 +1,12 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output } from "ai";
 import { and, eq } from "drizzle-orm";
+import { useId } from "hono/jsx";
 import { z } from "zod";
 import { app, getAppContext, type AppRequestContext } from "../app";
 import { ErrorList } from "../components/feedback";
 import { FormActions, Textarea } from "../components/form";
+import { Script } from "../components/helpers";
 import {
     DEFAULT_JUMP_IMAGE_PROMPT,
     altitudeUnitLabel,
@@ -12,6 +14,7 @@ import {
 } from "../options";
 import * as routes from "../routes";
 import { aircrafts, gear, jumpTypes, locations } from "../schema";
+import { $assertElement } from "../utils";
 import { LogbookPage } from "./layout";
 
 const JumpImageDataSchema = z.object({
@@ -184,11 +187,291 @@ function buildResourceHint(label: string, items: { name: string }[]): string {
     return `${label}: ${items.map((item) => item.name).join(", ")}`;
 }
 
+const JUMP_IMAGE_MAX_DIMENSION = 2048;
+const JUMP_IMAGE_TARGET_BYTES = 2 * 1024 * 1024;
+const JUMP_IMAGE_DB_NAME = "hypyt-jump-from-image";
+const JUMP_IMAGE_STORE = "images";
+const JUMP_IMAGE_KEY = "draft";
+
+function $saveJumpImageDraft(
+    file: File,
+    dbName: string,
+    storeName: string,
+    storageKey: string,
+): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(storeName)) {
+                db.createObjectStore(storeName);
+            }
+        };
+        request.onerror = () =>
+            reject(request.error ?? new Error("Failed to open IndexedDB"));
+        request.onsuccess = () => {
+            const db = request.result;
+            const tx = db.transaction(storeName, "readwrite");
+            tx.objectStore(storeName).put(
+                {
+                    blob: file,
+                    name: file.name,
+                    type: file.type,
+                    lastModified: file.lastModified,
+                },
+                storageKey,
+            );
+            tx.oncomplete = () => {
+                db.close();
+                resolve();
+            };
+            tx.onerror = () => {
+                db.close();
+                reject(tx.error ?? new Error("Failed to save image draft"));
+            };
+        };
+    });
+}
+
+function $loadJumpImageDraft(
+    dbName: string,
+    storeName: string,
+    storageKey: string,
+): Promise<File | null> {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(storeName)) {
+                db.createObjectStore(storeName);
+            }
+        };
+        request.onerror = () =>
+            reject(request.error ?? new Error("Failed to open IndexedDB"));
+        request.onsuccess = () => {
+            const db = request.result;
+            const tx = db.transaction(storeName, "readonly");
+            const getRequest = tx.objectStore(storeName).get(storageKey);
+            getRequest.onsuccess = () => {
+                db.close();
+                const record = getRequest.result;
+                if (
+                    record == null ||
+                    typeof record !== "object" ||
+                    !(record.blob instanceof Blob)
+                ) {
+                    resolve(null);
+                    return;
+                }
+                const name =
+                    typeof record.name === "string"
+                        ? record.name
+                        : "jump-image.jpg";
+                const type =
+                    typeof record.type === "string"
+                        ? record.type
+                        : record.blob.type || "image/jpeg";
+                const lastModified =
+                    typeof record.lastModified === "number"
+                        ? record.lastModified
+                        : Date.now();
+                resolve(
+                    new File([record.blob], name || "jump-image.jpg", {
+                        type: type || "image/jpeg",
+                        lastModified,
+                    }),
+                );
+            };
+            getRequest.onerror = () => {
+                db.close();
+                reject(
+                    getRequest.error ?? new Error("Failed to load image draft"),
+                );
+            };
+        };
+    });
+}
+
+async function $resizeJumpImageIfNeeded(
+    file: File,
+    maxDimension: number,
+    targetBytes: number,
+): Promise<File> {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const element = new Image();
+        element.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve(element);
+        };
+        element.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Failed to load image for preview"));
+        };
+        element.src = url;
+    });
+
+    const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
+    const needsResize = longestSide > maxDimension || file.size > targetBytes;
+    if (!needsResize) {
+        return file;
+    }
+
+    let width = image.naturalWidth;
+    let height = image.naturalHeight;
+    if (longestSide > maxDimension) {
+        const scale = maxDimension / longestSide;
+        width = Math.max(1, Math.round(width * scale));
+        height = Math.max(1, Math.round(height * scale));
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) {
+        return file;
+    }
+    context.drawImage(image, 0, 0, width, height);
+
+    const outputType =
+        file.type === "image/png" || file.type === "image/webp"
+            ? file.type
+            : "image/jpeg";
+
+    async function encode(quality: number): Promise<Blob> {
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) {
+                        reject(new Error("Failed to encode image"));
+                        return;
+                    }
+                    resolve(blob);
+                },
+                outputType,
+                quality,
+            );
+        });
+    }
+
+    let quality = 0.92;
+    let blob = await encode(quality);
+    while (blob.size > targetBytes && quality > 0.5) {
+        quality -= 0.1;
+        blob = await encode(quality);
+    }
+
+    const baseName = file.name.replace(/\.[^.]+$/, "") || "jump-image";
+    const extension =
+        outputType === "image/png"
+            ? "png"
+            : outputType === "image/webp"
+              ? "webp"
+              : "jpg";
+    return new File([blob], `${baseName}.${extension}`, {
+        type: outputType,
+        lastModified: Date.now(),
+    });
+}
+
+function $formatJumpImageBytes(bytes: number): string {
+    if (bytes < 1024) {
+        return `${bytes} B`;
+    }
+    if (bytes < 1024 * 1024) {
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function $initJumpImageInput(
+    inputId: string,
+    previewId: string,
+    metaId: string,
+    maxDimension: number,
+    targetBytes: number,
+    dbName: string,
+    storeName: string,
+    storageKey: string,
+) {
+    const inputEl = document.getElementById(inputId);
+    const previewEl = document.getElementById(previewId);
+    const metaEl = document.getElementById(metaId);
+    $assertElement(inputEl, HTMLInputElement);
+    $assertElement(previewEl, HTMLImageElement);
+    $assertElement(metaEl, HTMLElement);
+    const input: HTMLInputElement = inputEl;
+    const preview: HTMLImageElement = previewEl;
+    const meta: HTMLElement = metaEl;
+
+    let previewUrl: string | null = null;
+
+    function setInputFile(file: File) {
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        input.files = transfer.files;
+    }
+
+    function showPreview(file: File) {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+        previewUrl = URL.createObjectURL(file);
+        preview.src = previewUrl;
+        preview.classList.remove("hidden");
+        meta.textContent = `${file.name} · ${$formatJumpImageBytes(file.size)}`;
+        meta.classList.remove("hidden");
+    }
+
+    async function applyFile(file: File) {
+        const processed = await $resizeJumpImageIfNeeded(
+            file,
+            maxDimension,
+            targetBytes,
+        );
+        setInputFile(processed);
+        showPreview(processed);
+        try {
+            await $saveJumpImageDraft(processed, dbName, storeName, storageKey);
+        } catch {
+            // Storage is best-effort; form still works without restore.
+        }
+    }
+
+    input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        if (!file) {
+            return;
+        }
+        void applyFile(file).catch(() => {
+            meta.textContent = "Could not process the selected image.";
+            meta.classList.remove("hidden");
+        });
+    });
+
+    void $loadJumpImageDraft(dbName, storeName, storageKey)
+        .then((file) => {
+            if (!file || input.files?.length) {
+                return;
+            }
+            setInputFile(file);
+            showPreview(file);
+        })
+        .catch(() => {
+            // Ignore restore failures.
+        });
+}
+
 function JumpFromImagePage(props: {
     errors?: string[];
     hasApiKey: boolean;
     prompt: string;
 }) {
+    const inputId = useId();
+    const previewId = useId();
+    const metaId = useId();
+
     return (
         <LogbookPage title="Add jump from image">
             <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -223,16 +506,51 @@ function JumpFromImagePage(props: {
                     encType="multipart/form-data"
                     className="space-y-5"
                 >
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Jump image
+                    <div className="space-y-2">
+                        <label
+                            htmlFor={inputId}
+                            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                        >
+                            Jump image
+                        </label>
                         <input
+                            id={inputId}
                             type="file"
                             name="image"
                             accept="image/jpeg,image/png,image/webp,image/gif"
                             required
-                            className="mt-1.5 block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
+                            className="block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
                         />
-                    </label>
+                        <img
+                            id={previewId}
+                            alt="Selected jump image preview"
+                            className="hidden max-h-80 w-full rounded-lg border border-slate-200 object-contain dark:border-slate-700"
+                        />
+                        <p
+                            id={metaId}
+                            className="hidden text-sm text-slate-500 dark:text-slate-400"
+                        />
+                        <Script
+                            $deps={[
+                                $assertElement,
+                                $saveJumpImageDraft,
+                                $loadJumpImageDraft,
+                                $resizeJumpImageIfNeeded,
+                                $formatJumpImageBytes,
+                            ]}
+                            $args={[
+                                inputId,
+                                previewId,
+                                metaId,
+                                JUMP_IMAGE_MAX_DIMENSION,
+                                JUMP_IMAGE_TARGET_BYTES,
+                                JUMP_IMAGE_DB_NAME,
+                                JUMP_IMAGE_STORE,
+                                JUMP_IMAGE_KEY,
+                            ]}
+                            $exec={$initJumpImageInput}
+                        />
+                    </div>
                     <div className="space-y-1.5">
                         <Textarea
                             name="prompt"
