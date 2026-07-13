@@ -5,6 +5,11 @@ import { ErrorList } from "../components/feedback";
 import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
 import { jumpTypes } from "../schema";
+import {
+    getRecentJumpsForItem,
+    RecentJumpsSection,
+    type JumpListItem,
+} from "./jump-list";
 import { LogbookPage } from "./layout";
 import { ResourceSchema } from "./resource";
 
@@ -63,6 +68,7 @@ function JumpTypeFormPage(props: {
     values?: JumpTypeFormValues;
     errors?: string[];
     canDelete?: boolean;
+    recentJumps?: JumpListItem[];
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -75,6 +81,13 @@ function JumpTypeFormPage(props: {
                 <DangerZone>
                     <ConfirmDeleteButton label="Delete jump type" />
                 </DangerZone>
+            )}
+            {props.recentJumps !== undefined && (
+                <RecentJumpsSection
+                    title="Recent jumps of this type"
+                    jumps={props.recentJumps}
+                    emptyMessage="No jumps use this jump type yet."
+                />
             )}
         </LogbookPage>
     );
@@ -239,6 +252,13 @@ async function renderEditJumpType(c: AppRequestContext) {
     if (!item) {
         return c.notFound();
     }
+    const recentJumps = await getRecentJumpsForItem(
+        c,
+        userUuid,
+        getAppContext(c).getUser().options,
+        item.uuid,
+        "jumpType",
+    );
     return c.render(
         <JumpTypeFormPage
             title="Edit jump type"
@@ -249,6 +269,7 @@ async function renderEditJumpType(c: AppRequestContext) {
                 description: item.description ?? undefined,
             }}
             canDelete
+            recentJumps={recentJumps}
         />,
     );
 }
@@ -290,9 +311,17 @@ async function handleEditJumpType(c: AppRequestContext) {
         values,
     };
     if (!result.success) {
+        const recentJumps = await getRecentJumpsForItem(
+            c,
+            userUuid,
+            getAppContext(c).getUser().options,
+            uuid,
+            "jumpType",
+        );
         return c.render(
             <JumpTypeFormPage
                 {...formProps}
+                recentJumps={recentJumps}
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );

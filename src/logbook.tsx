@@ -12,8 +12,14 @@ import {
 } from "./schema";
 import { Details } from "./components/ui";
 import { LogbookPage } from "./logbook/layout";
+import {
+    formatDistance,
+    formatDuration,
+    JumpCard,
+    type JumpListItem,
+} from "./logbook/jump-list";
 import { JumpSearch } from "./logbook/search";
-import { formatAltitude, type UserOptions } from "./options";
+import { type UserOptions } from "./options";
 import "./logbook/aircraft";
 import "./logbook/detailed-statistics";
 import "./logbook/gear";
@@ -22,66 +28,6 @@ import "./logbook/jump-type";
 import "./logbook/location";
 import "./logbook/statistics";
 import "./logbook/transfer";
-function jumpFreefallDistance(jump: {
-    exitAltitude: number;
-    openingAltitude: number;
-}): number {
-    return Math.max(0, jump.exitAltitude - jump.openingAltitude);
-}
-
-function jumpAvgSpeed(jump: {
-    exitAltitude: number;
-    openingAltitude: number;
-    freefallTime: number;
-}): number | null {
-    if (jump.freefallTime <= 0) {
-        return null;
-    }
-    return jumpFreefallDistance(jump) / jump.freefallTime;
-}
-
-function formatSpeed(
-    metersPerSecond: number,
-    units: UserOptions["speedUnits"],
-): string {
-    if (units === "meters-per-second") {
-        return `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`;
-    }
-    const kmh = Math.round(metersPerSecond * 3.6);
-    return `${kmh} km/h`;
-}
-
-function formatDistance(
-    meters: number,
-    units: UserOptions["altitudeUnits"],
-): string {
-    if (units === "feet") {
-        const feet = Math.round(meters / 0.3048);
-        return `${feet.toLocaleString("en-US")} ft`;
-    }
-    const kilometers = meters / 1000;
-    const formatted = kilometers.toFixed(1).replace(/\.0$/, "");
-    return `${formatted} km`;
-}
-
-function formatDuration(totalSeconds: number): string {
-    const days = Math.floor(totalSeconds / 86_400);
-    const hours = Math.floor((totalSeconds % 86_400) / 3_600);
-    const minutes = Math.floor((totalSeconds % 3_600) / 60);
-    const seconds = totalSeconds % 60;
-    const parts = [];
-    if (days > 0) {
-        parts.push(`${days} d`);
-    }
-    if (hours > 0 || days > 0) {
-        parts.push(`${hours} h`);
-    }
-    if (minutes > 0 || hours > 0 || days > 0) {
-        parts.push(`${minutes} min`);
-    }
-    parts.push(`${seconds} s`);
-    return parts.join(" ");
-}
 
 function LogbookStatsCard(props: { label: string; value: string | number }) {
     return (
@@ -125,111 +71,6 @@ function LogbookStats(props: {
                 value={props.activeJumpYears}
             />
         </section>
-    );
-}
-
-function JumpStat(props: { label: string; value: string }) {
-    return (
-        <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                {props.label}
-            </dt>
-            <dd className="mt-0.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {props.value}
-            </dd>
-        </div>
-    );
-}
-
-interface LogbookJump {
-    uuid: string;
-    jumpNumber: number;
-    jumpDate: string;
-    locationName: string;
-    aircraftName: string;
-    exitAltitude: number;
-    openingAltitude: number;
-    freefallTime: number;
-    description: string | null;
-    jumpTypes: string[];
-    options: UserOptions;
-}
-
-function JumpCard(props: LogbookJump) {
-    const avgSpeed = jumpAvgSpeed(props);
-
-    return (
-        <li>
-            <a
-                href={routes.jumpEdit({ uuid: props.uuid })}
-                className="block rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30 dark:focus-visible:ring-indigo-400/50"
-            >
-                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                    <div className="flex items-center gap-3">
-                        <span className="flex min-w-9 items-center justify-center rounded-xl bg-indigo-100 px-2 py-1.5 text-sm font-bold text-indigo-700 tabular-nums dark:bg-indigo-900/40 dark:text-indigo-300">
-                            #{props.jumpNumber}
-                        </span>
-                        <time
-                            dateTime={props.jumpDate}
-                            className="text-sm text-slate-500 tabular-nums dark:text-slate-400"
-                        >
-                            {props.jumpDate}
-                        </time>
-                        <span className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                            {props.locationName} / {props.aircraftName}
-                        </span>
-                    </div>
-                    {props.jumpTypes.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                            {props.jumpTypes.map((name) => (
-                                <span
-                                    key={name}
-                                    className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-indigo-200/60 dark:bg-indigo-900/30 dark:text-indigo-300 dark:ring-indigo-700/50"
-                                >
-                                    {name}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <JumpStat
-                        label="Exit"
-                        value={formatAltitude(
-                            props.exitAltitude,
-                            props.options.altitudeUnits,
-                        )}
-                    />
-                    <JumpStat
-                        label="Opening"
-                        value={formatAltitude(
-                            props.openingAltitude,
-                            props.options.altitudeUnits,
-                        )}
-                    />
-                    <JumpStat
-                        label="Freefall"
-                        value={formatDuration(props.freefallTime)}
-                    />
-                    <JumpStat
-                        label="Avg speed"
-                        value={
-                            avgSpeed === null
-                                ? "—"
-                                : formatSpeed(
-                                      avgSpeed,
-                                      props.options.speedUnits,
-                                  )
-                        }
-                    />
-                </dl>
-                {props.description && (
-                    <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
-                        {props.description}
-                    </p>
-                )}
-            </a>
-        </li>
     );
 }
 
@@ -611,7 +452,7 @@ async function getJumpTypesByJump(c: AppRequestContext, jumpUuids: string[]) {
     return jumpTypesByJump;
 }
 
-function JumpList(props: { jumps: LogbookJump[]; filters: LogbookFilters }) {
+function JumpList(props: { jumps: JumpListItem[]; filters: LogbookFilters }) {
     const hasMoreJumps = props.jumps.length > JUMPS_PER_PAGE;
     const visibleJumps = props.jumps.slice(0, JUMPS_PER_PAGE);
     const lastVisibleJump = visibleJumps.at(-1);
@@ -619,7 +460,7 @@ function JumpList(props: { jumps: LogbookJump[]; filters: LogbookFilters }) {
     return (
         <>
             {visibleJumps.map((jump) => (
-                <JumpCard {...jump} />
+                <JumpCard {...jump} key={jump.uuid} />
             ))}
             {hasMoreJumps && lastVisibleJump && (
                 <li

@@ -5,6 +5,11 @@ import { ErrorList } from "../components/feedback";
 import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
 import { aircrafts, jumps } from "../schema";
+import {
+    getRecentJumpsForItem,
+    RecentJumpsSection,
+    type JumpListItem,
+} from "./jump-list";
 import { LogbookPage } from "./layout";
 import { ResourceSchema } from "./resource";
 
@@ -64,6 +69,7 @@ function AircraftFormPage(props: {
     errors?: string[];
     canDelete?: boolean;
     deleteError?: string;
+    recentJumps?: JumpListItem[];
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -82,6 +88,13 @@ function AircraftFormPage(props: {
                     )}
                     <ConfirmDeleteButton label="Delete aircraft" />
                 </DangerZone>
+            )}
+            {props.recentJumps !== undefined && (
+                <RecentJumpsSection
+                    title="Recent jumps with this aircraft"
+                    jumps={props.recentJumps}
+                    emptyMessage="No jumps use this aircraft yet."
+                />
             )}
         </LogbookPage>
     );
@@ -247,6 +260,13 @@ async function renderEditAircraft(c: AppRequestContext, deleteError?: string) {
     if (!aircraft) {
         return c.notFound();
     }
+    const recentJumps = await getRecentJumpsForItem(
+        c,
+        userUuid,
+        getAppContext(c).getUser().options,
+        aircraft.uuid,
+        "aircraft",
+    );
     return c.render(
         <AircraftFormPage
             title="Edit aircraft"
@@ -258,6 +278,7 @@ async function renderEditAircraft(c: AppRequestContext, deleteError?: string) {
             }}
             canDelete
             deleteError={deleteError}
+            recentJumps={recentJumps}
         />,
     );
 }
@@ -311,9 +332,17 @@ async function handleEditAircraft(c: AppRequestContext) {
         values,
     };
     if (!result.success) {
+        const recentJumps = await getRecentJumpsForItem(
+            c,
+            userUuid,
+            getAppContext(c).getUser().options,
+            uuid,
+            "aircraft",
+        );
         return c.render(
             <AircraftFormPage
                 {...formProps}
+                recentJumps={recentJumps}
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );

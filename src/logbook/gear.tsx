@@ -5,6 +5,11 @@ import { ErrorList } from "../components/feedback";
 import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
 import { gear, jumpsToGear, jumpsToJumpTypes, jumpTypes } from "../schema";
+import {
+    getRecentJumpsForItem,
+    RecentJumpsSection,
+    type JumpListItem,
+} from "./jump-list";
 import { LogbookPage } from "./layout";
 import { ResourceSchema } from "./resource";
 
@@ -63,6 +68,7 @@ function GearFormPage(props: {
     values?: GearFormValues;
     errors?: string[];
     canDelete?: boolean;
+    recentJumps?: JumpListItem[];
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -75,6 +81,13 @@ function GearFormPage(props: {
                 <DangerZone>
                     <ConfirmDeleteButton label="Delete gear" />
                 </DangerZone>
+            )}
+            {props.recentJumps !== undefined && (
+                <RecentJumpsSection
+                    title="Recent jumps with this gear"
+                    jumps={props.recentJumps}
+                    emptyMessage="No jumps use this gear yet."
+                />
             )}
         </LogbookPage>
     );
@@ -255,6 +268,13 @@ async function renderEditGear(c: AppRequestContext) {
     if (!item) {
         return c.notFound();
     }
+    const recentJumps = await getRecentJumpsForItem(
+        c,
+        userUuid,
+        getAppContext(c).getUser().options,
+        item.uuid,
+        "gear",
+    );
     return c.render(
         <GearFormPage
             title="Edit gear"
@@ -265,6 +285,7 @@ async function renderEditGear(c: AppRequestContext) {
                 description: item.description ?? undefined,
             }}
             canDelete
+            recentJumps={recentJumps}
         />,
     );
 }
@@ -334,9 +355,17 @@ async function handleEditGear(c: AppRequestContext) {
         values,
     };
     if (!result.success) {
+        const recentJumps = await getRecentJumpsForItem(
+            c,
+            userUuid,
+            getAppContext(c).getUser().options,
+            uuid,
+            "gear",
+        );
         return c.render(
             <GearFormPage
                 {...formProps}
+                recentJumps={recentJumps}
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );
