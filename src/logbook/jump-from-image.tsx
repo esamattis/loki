@@ -303,8 +303,8 @@ async function extractJumpDataFromImage(options: {
                 content: [
                     { type: "text", text: userText },
                     {
-                        type: "image",
-                        image: options.image,
+                        type: "file",
+                        data: options.image,
                         mediaType: options.mediaType,
                     },
                 ],
