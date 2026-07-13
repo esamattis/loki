@@ -16,6 +16,7 @@ import {
     Textarea,
 } from "../components/form";
 import { ErrorList } from "../components/feedback";
+import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import { Script } from "../components/helpers";
 import { $assertElement } from "../utils";
 import * as routes from "../routes";
@@ -366,64 +367,6 @@ async function getJumpFormResources(c: AppRequestContext) {
     };
 }
 
-function DeleteJumpButton() {
-    const buttonId = useId();
-    return (
-        <form method="post" className="flex">
-            <input type="hidden" name="action" value="delete" />
-            <button
-                id={buttonId}
-                type="submit"
-                className="inline-flex items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-2.5 font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/40 dark:border-red-800 dark:bg-slate-900 dark:text-red-400 dark:hover:bg-red-950/40 dark:focus:ring-red-400/40"
-            >
-                Delete jump
-            </button>
-            <Script
-                $deps={[$assertElement]}
-                $args={[buttonId]}
-                $exec={(buttonId) => {
-                    const button = document.getElementById(buttonId);
-                    $assertElement(button, HTMLButtonElement);
-                    let state: "idle" | "ready" = "idle";
-                    let timer: ReturnType<typeof setInterval> | null = null;
-                    button.addEventListener("click", (event) => {
-                        if (state === "ready") {
-                            return;
-                        }
-                        event.preventDefault();
-                        state = "ready";
-                        button.disabled = true;
-                        button.classList.add(
-                            "opacity-50",
-                            "cursor-not-allowed",
-                            "border-red-500",
-                            "bg-red-100",
-                            "dark:bg-red-950/60",
-                        );
-                        let count = 3;
-                        button.textContent = `Confirm delete (${count}s)`;
-                        timer = setInterval(() => {
-                            count -= 1;
-                            if (count <= 0) {
-                                if (timer) clearInterval(timer);
-                                timer = null;
-                                button.disabled = false;
-                                button.classList.remove(
-                                    "opacity-50",
-                                    "cursor-not-allowed",
-                                );
-                                button.textContent = "Confirm delete";
-                                return;
-                            }
-                            button.textContent = `Confirm delete (${count}s)`;
-                        }, 1000);
-                    });
-                }}
-            />
-        </form>
-    );
-}
-
 function JumpFormPage(props: {
     title: string;
     submitLabel: string;
@@ -464,12 +407,9 @@ function JumpFormPage(props: {
                 </a>
             )}
             {props.canDelete && (
-                <div className="mt-6 rounded-2xl border border-red-200 bg-red-50/50 p-5 dark:border-red-900/60 dark:bg-red-950/20">
-                    <p className="mb-3 text-sm font-medium text-red-700 dark:text-red-300">
-                        Danger zone
-                    </p>
-                    <DeleteJumpButton />
-                </div>
+                <DangerZone>
+                    <ConfirmDeleteButton label="Delete jump" />
+                </DangerZone>
             )}
         </LogbookPage>
     );

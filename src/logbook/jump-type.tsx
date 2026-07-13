@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { getAppContext, app, type AppRequestContext } from "../app";
 import { FormActions, Input, NumberInput, Textarea } from "../components/form";
 import { ErrorList } from "../components/feedback";
+import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
 import { jumpTypes } from "../schema";
 import { LogbookPage } from "./layout";
@@ -61,6 +62,7 @@ function JumpTypeFormPage(props: {
     submitLabel: string;
     values?: JumpTypeFormValues;
     errors?: string[];
+    canDelete?: boolean;
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -69,6 +71,11 @@ function JumpTypeFormPage(props: {
                 errors={props.errors}
                 submitLabel={props.submitLabel}
             />
+            {props.canDelete && (
+                <DangerZone>
+                    <ConfirmDeleteButton label="Delete jump type" />
+                </DangerZone>
+            )}
         </LogbookPage>
     );
 }
@@ -241,6 +248,7 @@ async function renderEditJumpType(c: AppRequestContext) {
                 previousCount: String(item.previousUsageCount),
                 description: item.description ?? undefined,
             }}
+            canDelete
         />,
     );
 }
@@ -253,6 +261,16 @@ async function handleEditJumpType(c: AppRequestContext) {
         return c.notFound();
     }
     const formData = await c.req.formData();
+    if (formData.get("action") === "delete") {
+        const deleted = await db
+            .delete(jumpTypes)
+            .where(
+                and(eq(jumpTypes.uuid, uuid), eq(jumpTypes.userUuid, userUuid)),
+            )
+            .returning({ uuid: jumpTypes.uuid })
+            .get();
+        return deleted ? c.redirect(routes.jumpTypeList({})) : c.notFound();
+    }
     if (formData.get("action") === "toggleArchive") {
         const update = await db
             .update(jumpTypes)

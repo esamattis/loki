@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { getAppContext, app, type AppRequestContext } from "../app";
 import { FormActions, Input, NumberInput, Textarea } from "../components/form";
 import { ErrorList } from "../components/feedback";
+import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
 import { gear, jumpsToGear, jumpsToJumpTypes, jumpTypes } from "../schema";
 import { LogbookPage } from "./layout";
@@ -61,6 +62,7 @@ function GearFormPage(props: {
     submitLabel: string;
     values?: GearFormValues;
     errors?: string[];
+    canDelete?: boolean;
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -69,6 +71,11 @@ function GearFormPage(props: {
                 errors={props.errors}
                 submitLabel={props.submitLabel}
             />
+            {props.canDelete && (
+                <DangerZone>
+                    <ConfirmDeleteButton label="Delete gear" />
+                </DangerZone>
+            )}
         </LogbookPage>
     );
 }
@@ -257,6 +264,7 @@ async function renderEditGear(c: AppRequestContext) {
                 previousCount: String(item.previousUsageCount),
                 description: item.description ?? undefined,
             }}
+            canDelete
         />,
     );
 }
@@ -269,6 +277,14 @@ async function handleEditGear(c: AppRequestContext) {
         return c.notFound();
     }
     const formData = await c.req.formData();
+    if (formData.get("action") === "delete") {
+        const deleted = await db
+            .delete(gear)
+            .where(and(eq(gear.uuid, uuid), eq(gear.userUuid, userUuid)))
+            .returning({ uuid: gear.uuid })
+            .get();
+        return deleted ? c.redirect(routes.gearList({})) : c.notFound();
+    }
     if (formData.get("action") === "toggleArchive") {
         const update = await db
             .update(gear)

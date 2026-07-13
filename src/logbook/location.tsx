@@ -2,8 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { getAppContext, app, type AppRequestContext } from "../app";
 import { FormActions, Input, NumberInput, Textarea } from "../components/form";
 import { ErrorList } from "../components/feedback";
+import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
-import { locations } from "../schema";
+import { jumps, locations } from "../schema";
 import { LogbookPage } from "./layout";
 import { ResourceSchema } from "./resource";
 
@@ -61,6 +62,8 @@ function LocationFormPage(props: {
     submitLabel: string;
     values?: LocationFormValues;
     errors?: string[];
+    canDelete?: boolean;
+    deleteError?: string;
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -69,6 +72,17 @@ function LocationFormPage(props: {
                 errors={props.errors}
                 submitLabel={props.submitLabel}
             />
+            {props.canDelete && (
+                <DangerZone>
+                    {props.deleteError && (
+                        <ErrorList
+                            errors={[props.deleteError]}
+                            className="mb-3 border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        />
+                    )}
+                    <ConfirmDeleteButton label="Delete location" />
+                </DangerZone>
+            )}
         </LogbookPage>
     );
 }
@@ -218,7 +232,7 @@ async function renderLocationList(c: AppRequestContext) {
     );
 }
 
-async function renderEditLocation(c: AppRequestContext) {
+async function renderEditLocation(c: AppRequestContext, deleteError?: string) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.locationEdit.params(c);
@@ -242,6 +256,8 @@ async function renderEditLocation(c: AppRequestContext) {
                 previousCount: String(location.previousJumpCount),
                 description: location.description ?? undefined,
             }}
+            canDelete
+            deleteError={deleteError}
         />,
     );
 }
@@ -254,6 +270,28 @@ async function handleEditLocation(c: AppRequestContext) {
         return c.notFound();
     }
     const formData = await c.req.formData();
+    if (formData.get("action") === "delete") {
+        const usedByJump = await db
+            .select({ uuid: jumps.uuid })
+            .from(jumps)
+            .where(eq(jumps.locationUuid, uuid))
+            .limit(1)
+            .get();
+        if (usedByJump) {
+            return renderEditLocation(
+                c,
+                "Cannot delete a location that is used by jumps. Archive it instead.",
+            );
+        }
+        const deleted = await db
+            .delete(locations)
+            .where(
+                and(eq(locations.uuid, uuid), eq(locations.userUuid, userUuid)),
+            )
+            .returning({ uuid: locations.uuid })
+            .get();
+        return deleted ? c.redirect(routes.locationList({})) : c.notFound();
+    }
     if (formData.get("action") === "toggleArchive") {
         const update = await db
             .update(locations)
@@ -303,5 +341,5 @@ app.get(routes.locationNew.route, (c) =>
     ),
 );
 app.post(routes.locationNew.route, handleNewLocation);
-app.get(routes.locationEdit.route, renderEditLocation);
+app.get(routes.locationEdit.route, (c) => renderEditLocation(c));
 app.post(routes.locationEdit.route, handleEditLocation);

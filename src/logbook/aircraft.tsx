@@ -2,8 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { getAppContext, app, type AppRequestContext } from "../app";
 import { FormActions, Input, NumberInput, Textarea } from "../components/form";
 import { ErrorList } from "../components/feedback";
+import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
-import { aircrafts } from "../schema";
+import { aircrafts, jumps } from "../schema";
 import { LogbookPage } from "./layout";
 import { ResourceSchema } from "./resource";
 
@@ -61,6 +62,8 @@ function AircraftFormPage(props: {
     submitLabel: string;
     values?: AircraftFormValues;
     errors?: string[];
+    canDelete?: boolean;
+    deleteError?: string;
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -69,6 +72,17 @@ function AircraftFormPage(props: {
                 errors={props.errors}
                 submitLabel={props.submitLabel}
             />
+            {props.canDelete && (
+                <DangerZone>
+                    {props.deleteError && (
+                        <ErrorList
+                            errors={[props.deleteError]}
+                            className="mb-3 border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        />
+                    )}
+                    <ConfirmDeleteButton label="Delete aircraft" />
+                </DangerZone>
+            )}
         </LogbookPage>
     );
 }
@@ -218,7 +232,7 @@ async function renderAircraftList(c: AppRequestContext) {
     );
 }
 
-async function renderEditAircraft(c: AppRequestContext) {
+async function renderEditAircraft(c: AppRequestContext, deleteError?: string) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.aircraftEdit.params(c);
@@ -242,6 +256,8 @@ async function renderEditAircraft(c: AppRequestContext) {
                 previousCount: String(aircraft.previousJumpCount),
                 description: aircraft.description ?? undefined,
             }}
+            canDelete
+            deleteError={deleteError}
         />,
     );
 }
@@ -254,6 +270,28 @@ async function handleEditAircraft(c: AppRequestContext) {
         return c.notFound();
     }
     const formData = await c.req.formData();
+    if (formData.get("action") === "delete") {
+        const usedByJump = await db
+            .select({ uuid: jumps.uuid })
+            .from(jumps)
+            .where(eq(jumps.aircraftUuid, uuid))
+            .limit(1)
+            .get();
+        if (usedByJump) {
+            return renderEditAircraft(
+                c,
+                "Cannot delete an aircraft that is used by jumps. Archive it instead.",
+            );
+        }
+        const deleted = await db
+            .delete(aircrafts)
+            .where(
+                and(eq(aircrafts.uuid, uuid), eq(aircrafts.userUuid, userUuid)),
+            )
+            .returning({ uuid: aircrafts.uuid })
+            .get();
+        return deleted ? c.redirect(routes.aircraftList({})) : c.notFound();
+    }
     if (formData.get("action") === "toggleArchive") {
         const update = await db
             .update(aircrafts)
@@ -303,5 +341,5 @@ app.get(routes.aircraftNew.route, (c) =>
     ),
 );
 app.post(routes.aircraftNew.route, handleNewAircraft);
-app.get(routes.aircraftEdit.route, renderEditAircraft);
+app.get(routes.aircraftEdit.route, (c) => renderEditAircraft(c));
 app.post(routes.aircraftEdit.route, handleEditAircraft);
