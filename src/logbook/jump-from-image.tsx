@@ -324,6 +324,7 @@ function JumpFromImagePage(props: {
                             name="model"
                             label="AI model"
                             defaultValue={props.model}
+                            persist="jump-from-image-model"
                         >
                             {JUMP_IMAGE_MODELS.map((model) => (
                                 <option
@@ -352,6 +353,7 @@ function JumpFromImagePage(props: {
                             label="Additional context"
                             rows={4}
                             defaultValue={props.additionalContext}
+                            persist="jump-from-image-additional-context"
                         />
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             Optional notes for this read only. Change the

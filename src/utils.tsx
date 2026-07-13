@@ -7,7 +7,7 @@ export function assertNotNullish<T>(
     }
 }
 
-export function $assertElement<T extends Element>(
+export function $assertElement<T>(
     node: any,
     el: new (...args: any[]) => T,
 ): asserts node is T {

@@ -1,4 +1,7 @@
 import clsx from "clsx";
+import { useId } from "hono/jsx";
+import { $assertElement } from "../utils";
+import { Script } from "./helpers";
 
 const labelClassName =
     "block text-sm font-medium text-slate-700 dark:text-slate-300";
@@ -73,12 +76,15 @@ export function Select(props: {
     defaultValue?: string;
     className?: string;
     selectClassName?: string;
+    persist?: string;
     children: any;
 }) {
+    const id = useId();
     return (
         <label className={clsx(labelClassName, props.className)}>
             {props.label}
             <select
+                id={id}
                 name={props.name}
                 required={props.required}
                 defaultValue={props.defaultValue}
@@ -96,6 +102,29 @@ export function Select(props: {
             >
                 {props.children}
             </select>
+            {props.persist ? (
+                <Script
+                    $deps={[$assertElement]}
+                    $args={[id, props.persist]}
+                    $exec={(id, persistKey) => {
+                        const select = document.getElementById(id);
+                        $assertElement(select, HTMLSelectElement);
+                        const storageKey = `select-persist:${persistKey}`;
+                        const stored = sessionStorage.getItem(storageKey);
+                        if (
+                            stored !== null &&
+                            Array.from(select.options).some(
+                                (option) => option.value === stored,
+                            )
+                        ) {
+                            select.value = stored;
+                        }
+                        select.addEventListener("change", () => {
+                            sessionStorage.setItem(storageKey, select.value);
+                        });
+                    }}
+                />
+            ) : null}
         </label>
     );
 }
@@ -107,11 +136,14 @@ export function Textarea(props: {
     defaultValue?: string;
     className?: string;
     textareaClassName?: string;
+    persist?: string;
 }) {
+    const id = useId();
     return (
         <label className={clsx(labelClassName, props.className)}>
             {props.label}
             <textarea
+                id={id}
                 name={props.name}
                 rows={props.rows ?? 4}
                 className={clsx(
@@ -122,6 +154,24 @@ export function Textarea(props: {
             >
                 {props.defaultValue}
             </textarea>
+            {props.persist ? (
+                <Script
+                    $deps={[$assertElement]}
+                    $args={[id, props.persist]}
+                    $exec={(id, persistKey) => {
+                        const textarea = document.getElementById(id);
+                        $assertElement(textarea, HTMLTextAreaElement);
+                        const storageKey = `textarea-persist:${persistKey}`;
+                        const stored = sessionStorage.getItem(storageKey);
+                        if (stored !== null) {
+                            textarea.value = stored;
+                        }
+                        textarea.addEventListener("input", () => {
+                            sessionStorage.setItem(storageKey, textarea.value);
+                        });
+                    }}
+                />
+            ) : null}
         </label>
     );
 }

@@ -138,3 +138,37 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         "From image mock",
     );
 });
+
+test("from image form persists model and additional context after reload", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("persist-image-skydiver");
+    await page
+        .locator('input[name="displayName"]')
+        .fill("Persist Image Skydiver");
+    await page
+        .locator('input[name="email"]')
+        .fill("persist-image@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.getByRole("link", { name: "From image", exact: true }).click();
+    await expect(page).toHaveURL("/logbook/jumps/new/from-image");
+
+    await page.locator('select[name="model"]').selectOption("gpt-4o-mini");
+    await page
+        .locator('textarea[name="additionalContext"]')
+        .fill("Remember this context across reload");
+
+    await page.reload();
+
+    await expect(page.locator('select[name="model"]')).toHaveValue(
+        "gpt-4o-mini",
+    );
+    await expect(
+        page.locator('textarea[name="additionalContext"]'),
+    ).toHaveValue("Remember this context across reload");
+});
