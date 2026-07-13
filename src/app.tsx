@@ -223,6 +223,15 @@ function $disableViewTransitionsInAutomation() {
     document.head.appendChild(style);
 }
 
+function $registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) {
+        return;
+    }
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+        // ignore registration failures
+    });
+}
+
 function errorHandler(err: Error, c: AppRequestContext) {
     return c.render(
         <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm ring-1 ring-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:ring-red-900/40">
@@ -284,8 +293,12 @@ const PUBLIC_ASSET_PREFIX = "/assets/";
 const PUBLIC_ROOT_ASSETS = new Set([
     "/favicon.ico",
     "/icon.png",
+    "/icon-192.png",
+    "/icon-512.png",
     "/apple-72x72.png",
     "/apple-144x144.png",
+    "/manifest.json",
+    "/sw.js",
 ]);
 
 function isPublicAssetPath(path: string) {
@@ -435,6 +448,8 @@ app.use(
                     />
                     <ViteClient />
                     <link rel="icon" href="/icon.png" />
+                    <link rel="manifest" href="/manifest.json" />
+                    <meta name="theme-color" content="#4f46e5" />
                     <link
                         rel="apple-touch-icon"
                         sizes="72x72"
@@ -448,6 +463,7 @@ app.use(
 
                     <title>{title}</title>
                     <Script $exec={$applyStoredTheme} />
+                    <Script $exec={$registerServiceWorker} />
                     <link href={routes.tailwindCss({})} rel="stylesheet" />
                     {/* After CSS so automation can override @view-transition. */}
                     <Script $exec={$disableViewTransitionsInAutomation} />
