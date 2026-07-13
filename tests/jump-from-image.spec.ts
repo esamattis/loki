@@ -47,6 +47,10 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
 
     await page.getByRole("link", { name: "From image", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
+    await expect(page.locator('textarea[name="prompt"]')).not.toHaveValue("");
+    await expect(
+        page.getByRole("main").getByRole("link", { name: "Preferences" }),
+    ).toBeVisible();
     await page
         .locator('input[name="image"]')
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));

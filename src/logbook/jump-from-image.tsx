@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { app, getAppContext, type AppRequestContext } from "../app";
 import { ErrorList } from "../components/feedback";
-import { FormActions } from "../components/form";
+import { FormActions, Textarea } from "../components/form";
 import {
     DEFAULT_JUMP_IMAGE_PROMPT,
     altitudeUnitLabel,
@@ -184,7 +184,11 @@ function buildResourceHint(label: string, items: { name: string }[]): string {
     return `${label}: ${items.map((item) => item.name).join(", ")}`;
 }
 
-function JumpFromImagePage(props: { errors?: string[]; hasApiKey: boolean }) {
+function JumpFromImagePage(props: {
+    errors?: string[];
+    hasApiKey: boolean;
+    prompt: string;
+}) {
     return (
         <LogbookPage title="Add jump from image">
             <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -229,6 +233,25 @@ function JumpFromImagePage(props: { errors?: string[]; hasApiKey: boolean }) {
                             className="mt-1.5 block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
                         />
                     </label>
+                    <div className="space-y-1.5">
+                        <Textarea
+                            name="prompt"
+                            label="Image reading prompt"
+                            rows={8}
+                            defaultValue={props.prompt}
+                        />
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Prefills from your saved prompt. Edit for this read,
+                            or change the default in{" "}
+                            <a
+                                href={routes.preferences({})}
+                                className="font-medium text-indigo-600 underline dark:text-indigo-400"
+                            >
+                                Preferences
+                            </a>
+                            .
+                        </p>
+                    </div>
                     <FormActions
                         submitLabel="Read image"
                         cancelHref={routes.logbook({})}
@@ -239,12 +262,21 @@ function JumpFromImagePage(props: { errors?: string[]; hasApiKey: boolean }) {
     );
 }
 
-function renderJumpFromImage(c: AppRequestContext, errors?: string[]) {
-    const hasApiKey = Boolean(
-        getAppContext(c).getUser().options.openaiApiKey.trim(),
-    );
+function renderJumpFromImage(
+    c: AppRequestContext,
+    options?: { errors?: string[]; prompt?: string },
+) {
+    const userOptions = getAppContext(c).getUser().options;
+    const hasApiKey = Boolean(userOptions.openaiApiKey.trim());
+    const prompt =
+        (options?.prompt ?? userOptions.jumpImagePrompt) ||
+        DEFAULT_JUMP_IMAGE_PROMPT;
     return c.render(
-        <JumpFromImagePage errors={errors} hasApiKey={hasApiKey} />,
+        <JumpFromImagePage
+            errors={options?.errors}
+            hasApiKey={hasApiKey}
+            prompt={prompt}
+        />,
     );
 }
 
@@ -357,27 +389,41 @@ function buildJumpNewQuery(
 async function handleJumpFromImage(c: AppRequestContext) {
     const options = getAppContext(c).getUser().options;
     const apiKey = options.openaiApiKey.trim();
+    const formData = await c.req.formData();
+    const promptField = formData.get("prompt");
+    const prompt =
+        typeof promptField === "string"
+            ? promptField.trim() || DEFAULT_JUMP_IMAGE_PROMPT
+            : options.jumpImagePrompt || DEFAULT_JUMP_IMAGE_PROMPT;
+
     if (!apiKey) {
-        return renderJumpFromImage(c, [
-            "Add an OpenAI API key in Preferences before reading an image.",
-        ]);
+        return renderJumpFromImage(c, {
+            errors: [
+                "Add an OpenAI API key in Preferences before reading an image.",
+            ],
+            prompt,
+        });
     }
 
-    const formData = await c.req.formData();
     const image = formData.get("image");
     if (!(image instanceof File) || image.size === 0) {
-        return renderJumpFromImage(c, ["Choose an image to upload."]);
+        return renderJumpFromImage(c, {
+            errors: ["Choose an image to upload."],
+            prompt,
+        });
     }
     if (image.size > MAX_IMAGE_BYTES) {
-        return renderJumpFromImage(c, [
-            "Image is too large. Maximum size is 8 MB.",
-        ]);
+        return renderJumpFromImage(c, {
+            errors: ["Image is too large. Maximum size is 8 MB."],
+            prompt,
+        });
     }
     const mediaType = image.type || "image/jpeg";
     if (!ALLOWED_IMAGE_TYPES.has(mediaType)) {
-        return renderJumpFromImage(c, [
-            "Unsupported image type. Use JPEG, PNG, WebP, or GIF.",
-        ]);
+        return renderJumpFromImage(c, {
+            errors: ["Unsupported image type. Use JPEG, PNG, WebP, or GIF."],
+            prompt,
+        });
     }
 
     const resources = await getJumpItemResources(c);
@@ -385,7 +431,7 @@ async function handleJumpFromImage(c: AppRequestContext) {
         const bytes = new Uint8Array(await image.arrayBuffer());
         const data = await extractJumpDataFromImage({
             apiKey,
-            prompt: options.jumpImagePrompt,
+            prompt,
             altitudeUnits: options.altitudeUnits,
             image: bytes,
             mediaType,
@@ -399,7 +445,7 @@ async function handleJumpFromImage(c: AppRequestContext) {
             error instanceof Error
                 ? error.message
                 : "Failed to read jump data from the image";
-        return renderJumpFromImage(c, [message]);
+        return renderJumpFromImage(c, { errors: [message], prompt });
     }
 }
 
