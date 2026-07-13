@@ -114,7 +114,10 @@ function YearlyJumpsHistogram(props: {
                     Show gap years
                 </label>
             </div>
-            <div id={containerId} className="mt-4 flex items-end gap-2">
+            <div
+                id={containerId}
+                className="mt-4 flex items-end gap-2 overflow-x-auto"
+            >
                 {fullData.map((entry) => {
                     const barHeight = Math.max(
                         2,
@@ -124,7 +127,7 @@ function YearlyJumpsHistogram(props: {
                         <div
                             key={entry.year}
                             className={clsx(
-                                "flex flex-1 flex-col items-center",
+                                "flex min-w-10 flex-1 flex-col items-center",
                                 entry.gap && "histogram-gap-year",
                             )}
                         >

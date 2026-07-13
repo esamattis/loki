@@ -173,6 +173,160 @@ function LogbookActions() {
     );
 }
 
+function ThemeIcon(props: { id: string; className: string; path: string }) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d={props.path}
+            />
+        </svg>
+    );
+}
+
+function $initThemeToggle(
+    buttonId: string,
+    lightIconId: string,
+    darkIconId: string,
+    systemIconId: string,
+) {
+    const buttonEl = document.getElementById(buttonId);
+    $assertElement(buttonEl, HTMLButtonElement);
+    const lightIconEl = document.getElementById(lightIconId);
+    $assertElement(lightIconEl, SVGSVGElement);
+    const darkIconEl = document.getElementById(darkIconId);
+    $assertElement(darkIconEl, SVGSVGElement);
+    const systemIconEl = document.getElementById(systemIconId);
+    $assertElement(systemIconEl, SVGSVGElement);
+    if (
+        !(buttonEl instanceof HTMLButtonElement) ||
+        !(lightIconEl instanceof SVGSVGElement) ||
+        !(darkIconEl instanceof SVGSVGElement) ||
+        !(systemIconEl instanceof SVGSVGElement)
+    ) {
+        return;
+    }
+    const button = buttonEl;
+    const lightIcon = lightIconEl;
+    const darkIcon = darkIconEl;
+    const systemIcon = systemIconEl;
+
+    function getStoredTheme(): "light" | "dark" | "system" {
+        try {
+            const value = localStorage.getItem("theme");
+            if (value === "light" || value === "dark" || value === "system") {
+                return value;
+            }
+        } catch {
+            // ignore
+        }
+        return "system";
+    }
+
+    function applyTheme(theme: "light" | "dark" | "system") {
+        const resolved =
+            theme === "system"
+                ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light"
+                : theme;
+        document.documentElement.classList.toggle("dark", resolved === "dark");
+        document.documentElement.style.colorScheme = resolved;
+    }
+
+    const labels = {
+        light: "Theme: Light. Click for dark",
+        dark: "Theme: Dark. Click for system",
+        system: "Theme: System. Click for light",
+    } as const;
+    const nextTheme = {
+        light: "dark",
+        dark: "system",
+        system: "light",
+    } as const;
+
+    function updateUi(theme: "light" | "dark" | "system") {
+        lightIcon.classList.toggle("hidden", theme !== "light");
+        darkIcon.classList.toggle("hidden", theme !== "dark");
+        systemIcon.classList.toggle("hidden", theme !== "system");
+        button.setAttribute("aria-label", labels[theme]);
+        button.title = labels[theme];
+    }
+
+    function setTheme(theme: "light" | "dark" | "system") {
+        try {
+            localStorage.setItem("theme", theme);
+        } catch {
+            // ignore
+        }
+        applyTheme(theme);
+        updateUi(theme);
+    }
+
+    updateUi(getStoredTheme());
+
+    button.addEventListener("click", () => {
+        setTheme(nextTheme[getStoredTheme()]);
+    });
+
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", () => {
+            if (getStoredTheme() === "system") {
+                applyTheme("system");
+            }
+        });
+}
+
+function ThemeToggle() {
+    const id = useId();
+    const lightIconId = `${id}-light`;
+    const darkIconId = `${id}-dark`;
+    const systemIconId = `${id}-system`;
+
+    return (
+        <>
+            <button
+                id={id}
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle theme"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40"
+            >
+                <ThemeIcon
+                    id={lightIconId}
+                    className="hidden h-4 w-4"
+                    path="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05 5.636 5.636M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+                <ThemeIcon
+                    id={darkIconId}
+                    className="hidden h-4 w-4"
+                    path="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+                />
+                <ThemeIcon
+                    id={systemIconId}
+                    className="h-4 w-4"
+                    path="M9.75 17h4.5m-8.25 2h12a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0018 5H6a1.5 1.5 0 00-1.5 1.5v11A1.5 1.5 0 006 19z"
+                />
+            </button>
+            <Script
+                $deps={[$assertElement]}
+                $args={[id, lightIconId, darkIconId, systemIconId]}
+                $exec={$initThemeToggle}
+            />
+        </>
+    );
+}
+
 export function LogbookPage(props: { title: string; children: any }) {
     const user = useAppContext().getUser();
 
@@ -221,6 +375,7 @@ export function LogbookPage(props: { title: string; children: any }) {
                             {user.getDisplayName()}'s logbook
                         </a>
                         <div className="ml-auto flex shrink-0 items-center gap-2">
+                            <ThemeToggle />
                             <a
                                 href={routes.preferences({})}
                                 aria-label="Preferences"

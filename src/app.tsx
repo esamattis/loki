@@ -133,6 +133,23 @@ function $restoreFormScrollPosition() {
     });
 }
 
+function $applyStoredTheme() {
+    try {
+        let theme = localStorage.getItem("theme");
+        if (theme !== "light" && theme !== "dark") {
+            theme = "system";
+        }
+        const isDark =
+            theme === "dark" ||
+            (theme === "system" &&
+                matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    } catch {
+        // ignore
+    }
+}
+
 function errorHandler(err: Error, c: AppRequestContext) {
     return c.render(
         <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm ring-1 ring-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:ring-red-900/40">
@@ -311,6 +328,7 @@ app.use(
                     />
 
                     <title>{title}</title>
+                    <Script $exec={$applyStoredTheme} />
                     <link href={routes.tailwindCss({})} rel="stylesheet" />
                     <script src={routes.htmxScript({})} type="module"></script>
                 </head>
