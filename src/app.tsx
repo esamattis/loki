@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { TrieRouter } from "hono/router/trie-router";
-import { eq } from "drizzle-orm";
+import { eq, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { jsxRenderer, useRequestContext } from "hono/jsx-renderer";
 import { deleteCookie, getCookie } from "hono/cookie";
@@ -246,6 +246,12 @@ async function authenticateMiddleware(
     }
 
     const ctx = getAppContext(c);
+
+    if (Math.random() < 0.1) {
+        const now = Math.floor(Date.now() / 1000);
+        await ctx.db.delete(sessions).where(lte(sessions.expiresAt, now)).run();
+    }
+
     const sessionToken = getCookie(c, SESSION_COOKIE_NAME);
 
     if (sessionToken) {
