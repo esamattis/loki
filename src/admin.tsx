@@ -1,12 +1,12 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { app, getAppContext, type AppRequestContext, type User } from "./app";
 import { FormActions, Input, NumberInput } from "./components/form";
 import { ErrorList } from "./components/feedback";
 import { LogbookPage } from "./logbook/layout";
-import { setSessionCookie } from "./login";
+import { createSession } from "./login";
 import * as routes from "./routes";
-import { invitations, users } from "./schema";
+import { invitations, sessions, users } from "./schema";
 
 function requireAdmin(c: AppRequestContext): User | null {
     const user = getAppContext(c).getUser();
@@ -192,6 +192,82 @@ function AdminUsersSection(props: {
     );
 }
 
+interface AdminSessionRow {
+    tokenHash: string;
+    username: string;
+    displayName: string | null;
+    createdAt: number;
+    expiresAt: number;
+}
+
+function formatUnixSeconds(seconds: number): string {
+    return new Date(seconds * 1000)
+        .toISOString()
+        .replace("T", " ")
+        .slice(0, 19);
+}
+
+function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
+    const now = Math.floor(Date.now() / 1000);
+    return (
+        <section className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                Sessions
+            </h2>
+            {props.sessions.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        No sessions yet.
+                    </p>
+                </div>
+            ) : (
+                <ul className="grid grid-cols-1 gap-3">
+                    {props.sessions.map((session) => {
+                        const expired = session.expiresAt <= now;
+                        return (
+                            <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                            {session.displayName ||
+                                                session.username}
+                                            {expired && (
+                                                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                    Expired
+                                                </span>
+                                            )}
+                                        </p>
+                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                            @{session.username}
+                                        </p>
+                                        <p className="mt-1 font-mono text-xs text-slate-400 dark:text-slate-500">
+                                            {session.tokenHash.slice(0, 12)}…
+                                        </p>
+                                    </div>
+                                    <div className="text-right text-sm text-slate-500 dark:text-slate-400">
+                                        <p>
+                                            Created{" "}
+                                            {formatUnixSeconds(
+                                                session.createdAt,
+                                            )}
+                                        </p>
+                                        <p className="mt-1">
+                                            Expires{" "}
+                                            {formatUnixSeconds(
+                                                session.expiresAt,
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </section>
+    );
+}
+
 function AdminInvitationsSection(props: { invitations: InvitationRow[] }) {
     return (
         <section className="space-y-4">
@@ -249,7 +325,7 @@ async function renderAdminPage(c: AppRequestContext) {
     }
 
     const db = getAppContext(c).db;
-    const [userRows, invitationRows] = await Promise.all([
+    const [userRows, invitationRows, sessionRows] = await Promise.all([
         db
             .select({
                 uuid: users.uuid,
@@ -269,11 +345,24 @@ async function renderAdminPage(c: AppRequestContext) {
             .from(invitations)
             .orderBy(asc(invitations.code))
             .all(),
+        db
+            .select({
+                tokenHash: sessions.tokenHash,
+                username: users.username,
+                displayName: users.displayName,
+                createdAt: sessions.createdAt,
+                expiresAt: sessions.expiresAt,
+            })
+            .from(sessions)
+            .innerJoin(users, eq(sessions.userUuid, users.uuid))
+            .orderBy(desc(sessions.createdAt))
+            .all(),
     ]);
 
     return c.render(
         <LogbookPage title="Admin">
             <AdminUsersSection users={userRows} currentUserUuid={admin.uuid} />
+            <AdminSessionsSection sessions={sessionRows} />
             <AdminInvitationsSection invitations={invitationRows} />
         </LogbookPage>,
     );
@@ -303,7 +392,7 @@ async function handleLoginAs(c: AppRequestContext) {
         return c.notFound();
     }
 
-    setSessionCookie(c, target.uuid);
+    await createSession(c, target.uuid);
     return c.redirect(routes.logbook({}));
 }
 

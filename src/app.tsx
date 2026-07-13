@@ -3,17 +3,19 @@ import { TrieRouter } from "hono/router/trie-router";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { jsxRenderer, useRequestContext } from "hono/jsx-renderer";
-import { getCookie } from "hono/cookie";
+import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
 import htmx from "htmx.org/dist/htmx.esm.js?raw";
 import tailwind from "./tailwind.css?inline";
 import { Script } from "./components/helpers";
-import { users } from "./schema";
+import { sessions, users } from "./schema";
 import * as routes from "./routes";
 import { parseUserOptions, type UserOptions } from "./options";
 import {
     findUserForAuth,
+    hashToken,
     parseBasicAuth,
+    SESSION_COOKIE_NAME,
     type AuthenticatedUser,
 } from "./auth";
 
@@ -244,10 +246,12 @@ async function authenticateMiddleware(
     }
 
     const ctx = getAppContext(c);
-    const sessionUuid = getCookie(c, "session");
+    const sessionToken = getCookie(c, SESSION_COOKIE_NAME);
 
-    if (sessionUuid) {
-        const userRow = await ctx.db
+    if (sessionToken) {
+        const tokenHash = await hashToken(sessionToken);
+        const now = Math.floor(Date.now() / 1000);
+        const row = await ctx.db
             .select({
                 uuid: users.uuid,
                 username: users.username,
@@ -255,14 +259,20 @@ async function authenticateMiddleware(
                 email: users.email,
                 options: users.options,
                 admin: users.admin,
+                expiresAt: sessions.expiresAt,
             })
-            .from(users)
-            .where(eq(users.uuid, sessionUuid))
+            .from(sessions)
+            .innerJoin(users, eq(sessions.userUuid, users.uuid))
+            .where(eq(sessions.tokenHash, tokenHash))
             .limit(1)
             .get();
 
-        if (userRow) {
+        if (row && row.expiresAt > now) {
+            const { expiresAt, ...userRow } = row;
+            void expiresAt;
             setAuthenticatedUser(ctx, userRow);
+        } else {
+            deleteCookie(c, SESSION_COOKIE_NAME);
         }
     }
 

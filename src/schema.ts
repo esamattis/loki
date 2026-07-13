@@ -137,6 +137,16 @@ export const jumpsToJumpTypes = sqliteTable(
     }),
 );
 
+export const sessions = sqliteTable("sessions", {
+    // SHA-256 hex of the raw token (never the raw token, never the user UUID)
+    tokenHash: text("token_hash").primaryKey(),
+    userUuid: text("user_uuid")
+        .references(() => users.uuid, { onDelete: "cascade" })
+        .notNull(),
+    createdAt: integer("created_at").notNull(), // unix seconds
+    expiresAt: integer("expires_at").notNull(), // unix seconds
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
     jumps: many(jumps),
     gear: many(gear),

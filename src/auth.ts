@@ -4,6 +4,10 @@ import { users } from "./schema";
 
 const PBKDF2_ITERATIONS = 100_000;
 const PBKDF2_KEYLEN_BITS = 256;
+const SESSION_TOKEN_BYTES = 32; // 256 bits
+
+export const SESSION_COOKIE_NAME = "session";
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 export interface AuthenticatedUser {
     uuid: string;
@@ -14,12 +18,32 @@ export interface AuthenticatedUser {
     admin: boolean;
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
+export function bytesToBase64(bytes: Uint8Array): string {
     let binary = "";
     for (const byte of bytes) {
         binary += String.fromCharCode(byte);
     }
     return btoa(binary);
+}
+
+export function generateSessionToken(): string {
+    const bytes = crypto.getRandomValues(
+        new Uint8Array(new ArrayBuffer(SESSION_TOKEN_BYTES)),
+    );
+    // base64url, no padding — cookie-safe
+    const b64 = bytesToBase64(bytes);
+    return b64.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+export async function hashToken(token: string): Promise<string> {
+    const data = new TextEncoder().encode(token);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    const bytes = new Uint8Array(digest);
+    let hex = "";
+    for (const byte of bytes) {
+        hex += byte.toString(16).padStart(2, "0");
+    }
+    return hex;
 }
 
 function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {

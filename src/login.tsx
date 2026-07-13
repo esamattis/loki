@@ -1,20 +1,24 @@
 import { and, eq, gt, sql } from "drizzle-orm";
-import { deleteCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { app, getAppContext, type AppRequestContext } from "./app";
-import { invitations, jumpTypes, users } from "./schema";
+import { invitations, jumpTypes, sessions, users } from "./schema";
 import { z } from "zod";
 import clsx from "clsx";
 import { AuthFormShell } from "./components/auth";
 import { Script } from "./components/helpers";
 import { useId } from "hono/jsx";
 import { $assertElement } from "./utils";
-import { findUserForAuth, hashPassword } from "./auth";
+import {
+    findUserForAuth,
+    generateSessionToken,
+    hashPassword,
+    hashToken,
+    SESSION_COOKIE_NAME,
+    SESSION_MAX_AGE,
+} from "./auth";
 import * as routes from "./routes";
 
 export { hashPassword } from "./auth";
-
-const SESSION_COOKIE_NAME = "session";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 const DEFAULT_JUMP_TYPES = [
     "Cutaway",
@@ -300,7 +304,7 @@ async function handleLogin(c: AppRequestContext) {
         );
     }
 
-    setSessionCookie(c, authUser.uuid);
+    await createSession(c, authUser.uuid);
 
     const redirectTo =
         back && back.startsWith("/") && back !== routes.login.route
@@ -470,27 +474,53 @@ async function handleRegister(c: AppRequestContext) {
             .run();
     }
 
-    setSessionCookie(c, newUser.uuid);
+    await createSession(c, newUser.uuid);
     return c.redirect(routes.logbook({}));
 }
 
 app.post(routes.register.route, handleRegister);
 
 async function handleLogout(c: AppRequestContext) {
-    deleteCookie(c, SESSION_COOKIE_NAME);
+    await destroySession(c);
     return c.redirect(routes.login({}));
 }
 
 app.post(routes.logout.route, handleLogout);
 
-export function setSessionCookie(
-    c: Parameters<typeof setCookie>[0],
-    uuid: string,
-) {
-    setCookie(c, SESSION_COOKIE_NAME, uuid, {
+export async function createSession(
+    c: AppRequestContext,
+    userUuid: string,
+): Promise<void> {
+    const token = generateSessionToken();
+    const tokenHash = await hashToken(token);
+    const now = Math.floor(Date.now() / 1000);
+
+    await getAppContext(c)
+        .db.insert(sessions)
+        .values({
+            tokenHash,
+            userUuid,
+            createdAt: now,
+            expiresAt: now + SESSION_MAX_AGE,
+        })
+        .run();
+
+    setCookie(c, SESSION_COOKIE_NAME, token, {
         httpOnly: true,
         secure: true,
         sameSite: "Strict",
         maxAge: SESSION_MAX_AGE,
     });
+}
+
+export async function destroySession(c: AppRequestContext): Promise<void> {
+    const token = getCookie(c, SESSION_COOKIE_NAME);
+    if (token) {
+        const tokenHash = await hashToken(token);
+        await getAppContext(c)
+            .db.delete(sessions)
+            .where(eq(sessions.tokenHash, tokenHash))
+            .run();
+    }
+    deleteCookie(c, SESSION_COOKIE_NAME);
 }
