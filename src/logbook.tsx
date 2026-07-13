@@ -22,6 +22,7 @@ import { JumpSearch } from "./logbook/search";
 import "./logbook/aircraft";
 import "./logbook/detailed-statistics";
 import "./logbook/gear";
+import "./logbook/jump-from-image";
 import "./logbook/jump";
 import "./logbook/jump-type";
 import "./logbook/location";

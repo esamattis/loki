@@ -1,10 +1,20 @@
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { app, getAppContext, type AppRequestContext } from "./app";
-import { Input, NumberInput, Select, FormActions } from "./components/form";
+import {
+    Input,
+    NumberInput,
+    Select,
+    FormActions,
+    Textarea,
+} from "./components/form";
 import { ErrorList } from "./components/feedback";
 import { hashPassword, Password } from "./login";
-import { UserOptionsSchema, type UserOptions } from "./options";
+import {
+    DEFAULT_JUMP_IMAGE_PROMPT,
+    UserOptionsSchema,
+    type UserOptions,
+} from "./options";
 import * as routes from "./routes";
 import { users } from "./schema";
 import { LogbookPage } from "./logbook/layout";
@@ -22,6 +32,8 @@ const PreferencesSchema = z
         altitudeUnits: UserOptionsSchema.shape.altitudeUnits,
         speedUnits: UserOptionsSchema.shape.speedUnits,
         previousJumpCount: UserOptionsSchema.shape.previousJumpCount,
+        openaiApiKey: z.string(),
+        jumpImagePrompt: z.string(),
     })
     .superRefine((data, ctx) => {
         const changingPassword =
@@ -79,6 +91,112 @@ function JumpHistorySection(props: { options: UserOptions }) {
     );
 }
 
+function UnitsSection(props: { options: UserOptions }) {
+    return (
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Units
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Choose how altitude and speed are displayed in your logbook.
+                </p>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+                <Select name="altitudeUnits" label="Altitude units">
+                    <option
+                        value="meters"
+                        selected={props.options.altitudeUnits === "meters"}
+                    >
+                        Meters (m)
+                    </option>
+                    <option
+                        value="feet"
+                        selected={props.options.altitudeUnits === "feet"}
+                    >
+                        Feet (ft)
+                    </option>
+                </Select>
+                <Select name="speedUnits" label="Speed units">
+                    <option
+                        value="kilometers-per-hour"
+                        selected={
+                            props.options.speedUnits === "kilometers-per-hour"
+                        }
+                    >
+                        Kilometers per hour (km/h)
+                    </option>
+                    <option
+                        value="meters-per-second"
+                        selected={
+                            props.options.speedUnits === "meters-per-second"
+                        }
+                    >
+                        Meters per second (m/s)
+                    </option>
+                </Select>
+            </div>
+        </section>
+    );
+}
+
+function JumpFromImageSection(props: { options: UserOptions }) {
+    return (
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Jump from image
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Configure OpenAI so you can create jumps from photos of
+                    logbook pages, altimeters, or freefall computers.
+                </p>
+            </div>
+            <Password
+                name="openaiApiKey"
+                label="OpenAI API key"
+                placeholder="sk-..."
+                value={props.options.openaiApiKey}
+            />
+            <Textarea
+                name="jumpImagePrompt"
+                label="Image reading prompt"
+                rows={8}
+                defaultValue={
+                    props.options.jumpImagePrompt || DEFAULT_JUMP_IMAGE_PROMPT
+                }
+            />
+        </section>
+    );
+}
+
+function PasswordSection() {
+    return (
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Password
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Leave these fields empty to keep your current password.
+                </p>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+                <Password
+                    name="password"
+                    label="New password"
+                    placeholder="Choose a new password"
+                />
+                <Password
+                    name="confirmPassword"
+                    label="Confirm new password"
+                    placeholder="Enter the new password again"
+                />
+            </div>
+        </section>
+    );
+}
+
 function PreferencesForm(props: {
     values: PreferencesFormValues;
     errors?: string[];
@@ -117,79 +235,9 @@ function PreferencesForm(props: {
                 </div>
             </section>
             <JumpHistorySection options={props.values.options} />
-            <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Units
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Choose how altitude and speed are displayed in your
-                        logbook.
-                    </p>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                    <Select name="altitudeUnits" label="Altitude units">
-                        <option
-                            value="meters"
-                            selected={
-                                props.values.options.altitudeUnits === "meters"
-                            }
-                        >
-                            Meters (m)
-                        </option>
-                        <option
-                            value="feet"
-                            selected={
-                                props.values.options.altitudeUnits === "feet"
-                            }
-                        >
-                            Feet (ft)
-                        </option>
-                    </Select>
-                    <Select name="speedUnits" label="Speed units">
-                        <option
-                            value="kilometers-per-hour"
-                            selected={
-                                props.values.options.speedUnits ===
-                                "kilometers-per-hour"
-                            }
-                        >
-                            Kilometers per hour (km/h)
-                        </option>
-                        <option
-                            value="meters-per-second"
-                            selected={
-                                props.values.options.speedUnits ===
-                                "meters-per-second"
-                            }
-                        >
-                            Meters per second (m/s)
-                        </option>
-                    </Select>
-                </div>
-            </section>
-            <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Password
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Leave these fields empty to keep your current password.
-                    </p>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                    <Password
-                        name="password"
-                        label="New password"
-                        placeholder="Choose a new password"
-                    />
-                    <Password
-                        name="confirmPassword"
-                        label="Confirm new password"
-                        placeholder="Enter the new password again"
-                    />
-                </div>
-            </section>
+            <UnitsSection options={props.values.options} />
+            <JumpFromImageSection options={props.values.options} />
+            <PasswordSection />
             <FormActions
                 submitLabel="Save preferences"
                 cancelHref={routes.logbook({})}
@@ -215,6 +263,20 @@ function getFormDataValues(formData: FormData): Record<string, string> {
         }
     }
     return values;
+}
+
+function optionsFromRawForm(
+    raw: Record<string, string>,
+    current: UserOptions,
+): UserOptions {
+    const partial = UserOptionsSchema.safeParse({
+        altitudeUnits: raw.altitudeUnits ?? current.altitudeUnits,
+        speedUnits: raw.speedUnits ?? current.speedUnits,
+        previousJumpCount: raw.previousJumpCount ?? current.previousJumpCount,
+        openaiApiKey: raw.openaiApiKey ?? current.openaiApiKey,
+        jumpImagePrompt: raw.jumpImagePrompt ?? current.jumpImagePrompt,
+    });
+    return partial.success ? partial.data : current;
 }
 
 function renderPreferences(
@@ -243,6 +305,7 @@ async function handlePreferences(c: AppRequestContext) {
     const values = getFormValues(c);
     values.displayName = raw.displayName ?? values.displayName;
     values.email = raw.email ?? values.email;
+    values.options = optionsFromRawForm(raw, values.options);
 
     if (!result.success) {
         return renderPreferences(c, values, getErrorMessages(result));
@@ -268,7 +331,11 @@ async function handlePreferences(c: AppRequestContext) {
         altitudeUnits: result.data.altitudeUnits,
         speedUnits: result.data.speedUnits,
         previousJumpCount: result.data.previousJumpCount,
+        openaiApiKey: result.data.openaiApiKey.trim(),
+        jumpImagePrompt:
+            result.data.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
     });
+    values.options = options;
     await ctx.db
         .update(users)
         .set({

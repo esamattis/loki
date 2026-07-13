@@ -8,6 +8,11 @@ export default defineConfig({
         emptyOutDir: false,
         ssr: "src/index.tsx",
     },
+    define: {
+        "process.env.PLAYWRIGHT_TEST": JSON.stringify(
+            process.env.PLAYWRIGHT_TEST ?? "",
+        ),
+    },
     plugins: [
         cloudflare({
             persistState: {

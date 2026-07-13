@@ -15,7 +15,20 @@ export const logbookStatistics = route("/logbook/statistics");
 export const logbookDetailedStatistics = route(
     "/logbook/statistics/detailed",
 ).query<{ year?: number }>();
-export const jumpNew = route("/logbook/jumps/new").query<{ from?: string }>();
+export const jumpNew = route("/logbook/jumps/new").query<{
+    from?: string;
+    jumpDate?: string;
+    jumpNumber?: string;
+    exitAltitude?: string;
+    openingAltitude?: string;
+    freefallTime?: string;
+    locationUuid?: string;
+    aircraftUuid?: string;
+    gearUuids?: string;
+    jumpTypeUuids?: string;
+    description?: string;
+}>();
+export const jumpFromImage = route("/logbook/jumps/new/from-image");
 export const jumpEdit = route("/logbook/jumps/:uuid");
 export const aircraftList = route("/logbook/aircrafts");
 export const aircraftNew = route("/logbook/aircrafts/new");
