@@ -1,6 +1,7 @@
 import type { LanguageModelUsage } from "ai";
 import { desc, eq, sql } from "drizzle-orm";
 import { getAppContext, type AppRequestContext } from "../app";
+import { JUMP_IMAGE_MODELS } from "../options";
 import { aiUsage } from "../schema";
 
 export type AiUsageRow = {
@@ -32,6 +33,15 @@ function formatUsageDateTime(unixSeconds: number): string {
         .toISOString()
         .replace("T", " ")
         .slice(0, 19);
+}
+
+function formatModelLabel(model: string): string {
+    for (const entry of JUMP_IMAGE_MODELS) {
+        if (entry.id === model) {
+            return entry.label;
+        }
+    }
+    return model;
 }
 
 export function AiUsageSummary(props: {
@@ -130,7 +140,7 @@ export function AiUsageSummary(props: {
                                         {row.title}
                                     </td>
                                     <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                                        {row.model}
+                                        {formatModelLabel(row.model)}
                                     </td>
                                     <td className="px-4 py-3 text-right tabular-nums text-slate-600 dark:text-slate-400">
                                         {formatTokenCount(row.inputTokens)}

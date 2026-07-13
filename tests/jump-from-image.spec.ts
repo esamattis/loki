@@ -151,7 +151,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         .filter({ hasText: "#42 · 2024-06-15 · Image Drop Zone · FS" });
     await expect(usageRow).toHaveCount(1);
     await expect(
-        usageRow.getByRole("cell", { name: "gpt-5.6-luna" }),
+        usageRow.getByRole("cell", { name: "GPT-5.6 Luna" }),
     ).toBeVisible();
     await expect(usageRow.getByRole("cell", { name: "1,200" })).toBeVisible();
     await expect(usageRow.getByRole("cell", { name: "180" })).toBeVisible();
