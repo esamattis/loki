@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { getAppContext, type AppRequestContext } from "../app";
+import { getAppContext, useAppContext, type AppRequestContext } from "../app";
 import { formatAltitude, type UserOptions } from "../options";
 import * as routes from "../routes";
 import {
@@ -11,7 +11,7 @@ import {
     locations,
 } from "../schema";
 
-export function formatDistance(
+function formatDistance(
     meters: number,
     units: UserOptions["altitudeUnits"],
 ): string {
@@ -22,6 +22,16 @@ export function formatDistance(
     const kilometers = meters / 1000;
     const formatted = kilometers.toFixed(1).replace(/\.0$/, "");
     return `${formatted} km`;
+}
+
+export function Distance(props: { meters: number }) {
+    const units = useAppContext().getUser().options.altitudeUnits;
+    return <>{formatDistance(props.meters, units)}</>;
+}
+
+export function Altitude(props: { meters: number }) {
+    const units = useAppContext().getUser().options.altitudeUnits;
+    return <>{formatAltitude(props.meters, units)}</>;
 }
 
 export function formatDuration(totalSeconds: number): string {
@@ -43,7 +53,7 @@ export function formatDuration(totalSeconds: number): string {
     return parts.join(" ");
 }
 
-export function formatSpeed(
+function formatSpeed(
     metersPerSecond: number,
     units: UserOptions["speedUnits"],
 ): string {
@@ -52,6 +62,11 @@ export function formatSpeed(
     }
     const kmh = Math.round(metersPerSecond * 3.6);
     return `${kmh} km/h`;
+}
+
+export function Speed(props: { metersPerSecond: number }) {
+    const units = useAppContext().getUser().options.speedUnits;
+    return <>{formatSpeed(props.metersPerSecond, units)}</>;
 }
 
 function jumpFreefallDistance(jump: {
@@ -72,6 +87,18 @@ function jumpAvgSpeed(jump: {
     return jumpFreefallDistance(jump) / jump.freefallTime;
 }
 
+export function JumpAvgSpeed(props: {
+    exitAltitude: number;
+    openingAltitude: number;
+    freefallTime: number;
+}) {
+    const avgSpeed = jumpAvgSpeed(props);
+    if (avgSpeed === null) {
+        return <>—</>;
+    }
+    return <Speed metersPerSecond={avgSpeed} />;
+}
+
 export interface JumpListItem {
     uuid: string;
     jumpNumber: number;
@@ -86,22 +113,20 @@ export interface JumpListItem {
     options: UserOptions;
 }
 
-function JumpStat(props: { label: string; value: string }) {
+function JumpStat(props: { label: string; children: any }) {
     return (
         <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 {props.label}
             </dt>
             <dd className="mt-0.5 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {props.value}
+                {props.children}
             </dd>
         </div>
     );
 }
 
 export function JumpCard(props: JumpListItem) {
-    const avgSpeed = jumpAvgSpeed(props);
-
     return (
         <li>
             <a
@@ -137,35 +162,22 @@ export function JumpCard(props: JumpListItem) {
                     )}
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <JumpStat
-                        label="Exit"
-                        value={formatAltitude(
-                            props.exitAltitude,
-                            props.options.altitudeUnits,
-                        )}
-                    />
-                    <JumpStat
-                        label="Opening"
-                        value={formatAltitude(
-                            props.openingAltitude,
-                            props.options.altitudeUnits,
-                        )}
-                    />
-                    <JumpStat
-                        label="Freefall"
-                        value={formatDuration(props.freefallTime)}
-                    />
-                    <JumpStat
-                        label="Avg speed"
-                        value={
-                            avgSpeed === null
-                                ? "—"
-                                : formatSpeed(
-                                      avgSpeed,
-                                      props.options.speedUnits,
-                                  )
-                        }
-                    />
+                    <JumpStat label="Exit">
+                        <Altitude meters={props.exitAltitude} />
+                    </JumpStat>
+                    <JumpStat label="Opening">
+                        <Altitude meters={props.openingAltitude} />
+                    </JumpStat>
+                    <JumpStat label="Freefall">
+                        {formatDuration(props.freefallTime)}
+                    </JumpStat>
+                    <JumpStat label="Avg speed">
+                        <JumpAvgSpeed
+                            exitAltitude={props.exitAltitude}
+                            openingAltitude={props.openingAltitude}
+                            freefallTime={props.freefallTime}
+                        />
+                    </JumpStat>
                 </dl>
                 {props.description && (
                     <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">

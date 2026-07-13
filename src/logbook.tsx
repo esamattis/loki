@@ -13,13 +13,12 @@ import {
 import { Details } from "./components/ui";
 import { LogbookPage } from "./logbook/layout";
 import {
-    formatDistance,
+    Distance,
     formatDuration,
     JumpCard,
     type JumpListItem,
 } from "./logbook/jump-list";
 import { JumpSearch } from "./logbook/search";
-import { type UserOptions } from "./options";
 import "./logbook/aircraft";
 import "./logbook/detailed-statistics";
 import "./logbook/gear";
@@ -29,7 +28,7 @@ import "./logbook/location";
 import "./logbook/statistics";
 import "./logbook/transfer";
 
-function LogbookStatsCard(props: { label: string; value: string | number }) {
+function LogbookStatsCard(props: { label: string; value: any }) {
     return (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/30">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -47,7 +46,6 @@ function LogbookStats(props: {
     totalFreefallMeters: number;
     totalFreefallTime: number;
     activeJumpYears: number;
-    options: UserOptions;
 }) {
     return (
         <section
@@ -57,10 +55,7 @@ function LogbookStats(props: {
             <LogbookStatsCard label="Total jumps" value={props.totalJumps} />
             <LogbookStatsCard
                 label="Total freefall"
-                value={formatDistance(
-                    props.totalFreefallMeters,
-                    props.options.altitudeUnits,
-                )}
+                value={<Distance meters={props.totalFreefallMeters} />}
             />
             <LogbookStatsCard
                 label="Total freefall time"
@@ -555,7 +550,6 @@ async function renderLogbook(c: AppRequestContext) {
                         totalFreefallMeters={stats.totalFreefallMeters}
                         totalFreefallTime={stats.totalFreefallTime}
                         activeJumpYears={stats.activeJumpYears}
-                        options={options}
                     />
                 </>
             )}
