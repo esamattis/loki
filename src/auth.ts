@@ -9,6 +9,33 @@ const SESSION_TOKEN_BYTES = 32; // 256 bits
 export const SESSION_COOKIE_NAME = "session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
+export const SESSION_COOKIE_OPTIONS = {
+    path: "/",
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+} as const;
+
+/** Relative same-origin path only; rejects protocol-relative and other open-redirect forms. */
+export function isSafeRedirectPath(path: string | undefined): path is string {
+    if (!path) {
+        return false;
+    }
+    if (!path.startsWith("/") || path.startsWith("//")) {
+        return false;
+    }
+    if (path.includes("\\") || path.includes("://")) {
+        return false;
+    }
+    for (let i = 0; i < path.length; i++) {
+        const code = path.charCodeAt(i);
+        if (code <= 0x1f || code === 0x7f) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export interface AuthenticatedUser {
     uuid: string;
     username: string;

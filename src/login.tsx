@@ -13,7 +13,9 @@ import {
     generateSessionToken,
     hashPassword,
     hashToken,
+    isSafeRedirectPath,
     SESSION_COOKIE_NAME,
+    SESSION_COOKIE_OPTIONS,
     SESSION_MAX_AGE,
 } from "./auth";
 import * as routes from "./routes";
@@ -307,7 +309,7 @@ async function handleLogin(c: AppRequestContext) {
     await createSession(c, authUser.uuid);
 
     const redirectTo =
-        back && back.startsWith("/") && back !== routes.login.route
+        isSafeRedirectPath(back) && back !== routes.login.route
             ? back
             : routes.logbook({});
     return c.redirect(redirectTo);
@@ -507,9 +509,7 @@ export async function createSession(
         .run();
 
     setCookie(c, SESSION_COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
+        ...SESSION_COOKIE_OPTIONS,
         maxAge: SESSION_MAX_AGE,
     });
 }
@@ -523,5 +523,5 @@ export async function destroySession(c: AppRequestContext): Promise<void> {
             .where(eq(sessions.tokenHash, tokenHash))
             .run();
     }
-    deleteCookie(c, SESSION_COOKIE_NAME);
+    deleteCookie(c, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
 }

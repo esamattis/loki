@@ -14,8 +14,10 @@ import { parseUserOptions, type UserOptions } from "./options";
 import {
     findUserForAuth,
     hashToken,
+    isSafeRedirectPath,
     parseBasicAuth,
     SESSION_COOKIE_NAME,
+    SESSION_COOKIE_OPTIONS,
     type AuthenticatedUser,
 } from "./auth";
 
@@ -199,10 +201,8 @@ async function setAppContextMiddleware(
         cssDupCache: new Set(),
         jsDupCache: new Set(),
         url() {
-            const host = c.req.header("host");
-            if (host) {
-                return new URL(c.req.url, `https://${host}`);
-            }
+            // Use the request URL as provided by the runtime (Cloudflare
+            // validates Host). Do not rebuild from the Host header.
             return new URL(c.req.url);
         },
     });
@@ -212,7 +212,17 @@ async function setAppContextMiddleware(
 app.use("*", setAppContextMiddleware);
 
 const PUBLIC_PATHS = [routes.login.route, routes.register.route];
-const STATIC_PATH_PATTERN = /\.(css|js|png|ico|json|webmanifest|svg|woff2?)$/;
+const PUBLIC_ASSET_PREFIX = "/assets/";
+const PUBLIC_ROOT_ASSETS = new Set([
+    "/favicon.ico",
+    "/icon.png",
+    "/apple-72x72.png",
+    "/apple-144x144.png",
+]);
+
+function isPublicAssetPath(path: string) {
+    return path.startsWith(PUBLIC_ASSET_PREFIX) || PUBLIC_ROOT_ASSETS.has(path);
+}
 
 function setAuthenticatedUser(ctx: AppContext, user: AuthenticatedUser) {
     ctx.user = {
@@ -241,7 +251,7 @@ async function authenticateMiddleware(
 ) {
     const path = c.req.path;
 
-    if (STATIC_PATH_PATTERN.test(path)) {
+    if (isPublicAssetPath(path)) {
         return next();
     }
 
@@ -287,7 +297,13 @@ async function authenticateMiddleware(
                     .run();
             }
         } else {
-            deleteCookie(c, SESSION_COOKIE_NAME);
+            if (row) {
+                await ctx.db
+                    .delete(sessions)
+                    .where(eq(sessions.tokenHash, tokenHash))
+                    .run();
+            }
+            deleteCookie(c, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
         }
     }
 
@@ -311,7 +327,10 @@ async function authenticateMiddleware(
             if (authorization) {
                 return basicAuthChallenge(c);
             }
-            return c.redirect(routes.login({}, { back: path }));
+            const loginUrl = isSafeRedirectPath(path)
+                ? routes.login({}, { back: path })
+                : routes.login({});
+            return c.redirect(loginUrl);
         }
     }
 
