@@ -513,3 +513,70 @@ test("gear can be converted to a jump type with its jump references", async ({
         page.getByRole("checkbox", { name: "Convertible gear" }),
     ).toBeChecked();
 });
+
+test("adding a jump with an existing jump number shows an error and link", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="username"]').fill("duplicate-jump-number");
+    await page.locator('input[name="displayName"]').fill("Duplicate Jumper");
+    await page
+        .locator('input[name="email"]')
+        .fill("duplicate-jump-number@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage locations" }).click();
+    await page.getByRole("link", { name: "Add location" }).click();
+    await page.locator('input[name="name"]').fill("Duplicate Drop Zone");
+    await page.getByRole("button", { name: "Add location" }).click();
+
+    await page
+        .getByRole("link", { name: /Duplicate Jumper's logbook/ })
+        .click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage aircraft" }).click();
+    await page.getByRole("link", { name: "Add aircraft" }).click();
+    await page.locator('input[name="name"]').fill("Duplicate Plane");
+    await page.getByRole("button", { name: "Add aircraft" }).click();
+
+    await page
+        .getByRole("link", { name: /Duplicate Jumper's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.locator('select[name="locationUuid"]').selectOption({
+        label: "Duplicate Drop Zone",
+    });
+    await page.locator('select[name="aircraftUuid"]').selectOption({
+        label: "Duplicate Plane",
+    });
+    await page.getByRole("button", { name: "Add jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("3500");
+    await page.locator('input[name="openingAltitude"]').fill("900");
+    await page.locator('input[name="freefallTime"]').fill("45");
+    await page.locator('select[name="locationUuid"]').selectOption({
+        label: "Duplicate Drop Zone",
+    });
+    await page.locator('select[name="aircraftUuid"]').selectOption({
+        label: "Duplicate Plane",
+    });
+    await page.getByRole("button", { name: "Add jump" }).click();
+
+    await expect(page).toHaveURL("/logbook/jumps/new");
+    await expect(
+        page.getByText("Jump number 1 is already used."),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "Open existing jump" }).click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("1");
+});
