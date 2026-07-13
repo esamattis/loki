@@ -147,7 +147,7 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Import or export" }).click();
     const downloadPromise = page.waitForEvent("download");
-    await page.getByRole("link", { name: "Export logbook" }).click();
+    await page.getByRole("button", { name: "Export logbook" }).click();
     const download = await downloadPromise;
     const exportPath = await download.path();
     if (!exportPath) {
@@ -229,7 +229,7 @@ test("clearing all previous data replaces the entire logbook during import", asy
     await expect(page.getByText("Imported 1 jump")).toBeVisible();
 
     const downloadPromise = page.waitForEvent("download");
-    await page.getByRole("link", { name: "Export logbook" }).click();
+    await page.getByRole("button", { name: "Export logbook" }).click();
     const download = await downloadPromise;
     const exportPath = await download.path();
     if (!exportPath) {
@@ -367,29 +367,60 @@ test("the logbook can be exported with curl and HTTP Basic auth", async ({
 
     await page.getByRole("button", { name: "Manage logbook" }).click();
     await page.getByRole("link", { name: "Import or export" }).click();
+    await expect(
+        page.getByText(/CSV can be opened in Excel, LibreOffice, Google Docs/i),
+    ).toBeVisible();
     await page.getByText("Download with curl").click();
-    const curlCommand = page.locator("code", { hasText: "curl -OJ" });
-    await expect(curlCommand).toContainText(
-        `curl -OJ -u USERNAME:password http://127.0.0.1:8788/logbook/export`,
-    );
+    await expect(
+        page.locator("code", {
+            hasText:
+                "curl -OJ -u curl-skydiver:<password> 'http://127.0.0.1:8788/logbook/export?format=jsonl'",
+        }),
+    ).toBeVisible();
+    await expect(
+        page.locator("code", {
+            hasText:
+                "curl -OJ -u curl-skydiver:<password> 'http://127.0.0.1:8788/logbook/export?format=csv'",
+        }),
+    ).toBeVisible();
 
-    const response = await request.get("/logbook/export", {
+    const jsonlResponse = await request.get("/logbook/export?format=jsonl", {
         headers: {
             Authorization: basicAuthHeader("curl-skydiver", "parachute"),
         },
     });
-    expect(response.status()).toBe(200);
-    expect(response.headers()["content-type"]).toContain(
+    expect(jsonlResponse.status()).toBe(200);
+    expect(jsonlResponse.headers()["content-type"]).toContain(
         "application/x-ndjson",
     );
-    expect(response.headers()["content-disposition"]).toContain(
+    expect(jsonlResponse.headers()["content-disposition"]).toContain(
         'filename="jump-logbook.jsonl"',
     );
-    const body = await response.text();
-    expect(body).toContain('"jumpNumber":301');
-    expect(body).toContain('"jumpNumber":302');
-    expect(body).toContain('"gear":["Navigator 260"]');
-    expect(body).not.toMatch(/uuid/i);
+    const jsonlBody = await jsonlResponse.text();
+    expect(jsonlBody).toContain('"jumpNumber":301');
+    expect(jsonlBody).toContain('"jumpNumber":302');
+    expect(jsonlBody).toContain('"gear":["Navigator 260"]');
+    expect(jsonlBody).not.toMatch(/uuid/i);
+
+    const csvResponse = await request.get("/logbook/export?format=csv", {
+        headers: {
+            Authorization: basicAuthHeader("curl-skydiver", "parachute"),
+        },
+    });
+    expect(csvResponse.status()).toBe(200);
+    expect(csvResponse.headers()["content-type"]).toContain("text/csv");
+    expect(csvResponse.headers()["content-disposition"]).toContain(
+        'filename="jump-logbook.csv"',
+    );
+    const csvBody = await csvResponse.text();
+    expect(csvBody).toContain(
+        "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
+    );
+    expect(csvBody).toContain("jump,");
+    expect(csvBody).toContain(",301,");
+    expect(csvBody).toContain(",302,");
+    expect(csvBody).toContain("Navigator 260");
+    expect(csvBody).not.toMatch(/uuid/i);
 });
 
 test("Basic auth works for protected routes", async ({ page, request }) => {

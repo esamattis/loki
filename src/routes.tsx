@@ -10,7 +10,9 @@ export const preferences = route("/preferences");
 export const logbook = route("/logbook");
 export const logbookJumps = route("/logbook/__jumps");
 export const logbookTransfer = route("/logbook/transfer");
-export const logbookExport = route("/logbook/export");
+export const logbookExport = route("/logbook/export").query<{
+    format?: "jsonl" | "csv";
+}>();
 export const logbookStatistics = route("/logbook/statistics");
 export const logbookDetailedStatistics = route(
     "/logbook/statistics/detailed",

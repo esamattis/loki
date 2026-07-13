@@ -336,7 +336,7 @@ export function Code(props: {
         <div className="relative">
             <pre
                 className={clsx(
-                    "overflow-x-auto rounded-lg bg-slate-900 p-3 pr-16 text-xs text-slate-100",
+                    "overflow-x-auto rounded-lg bg-black p-3 pr-16 text-xs text-slate-100",
                     props.className,
                 )}
             >

@@ -5,6 +5,7 @@ const JSONL_EXAMPLE = `{"type":"aircraft","name":"Twin Otter","previousCount":12
 {"type":"jump","jumpNumber":301,"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55,"location":"Skydive Example","aircraft":"Twin Otter","gear":["Navigator 260"],"jumpTypes":["Formation skydiving"],"description":"Training jump"}`;
 
 import { useId } from "hono/jsx";
+import { useAppContext } from "../app";
 import { Code, Details } from "../components/ui";
 import { Script } from "../components/helpers";
 import * as routes from "../routes";
@@ -12,8 +13,11 @@ import { $assertElement } from "../utils";
 
 /** Inline documentation for downloading the logbook export with curl over Basic auth. */
 export function ExportCurlHelp() {
-    const id = useId();
-    const exportPath = routes.logbookExport({});
+    const jsonlId = useId();
+    const csvId = useId();
+    const username = useAppContext().getUser().username;
+    const jsonlPath = routes.logbookExport({}, { format: "jsonl" });
+    const csvPath = routes.logbookExport({}, { format: "csv" });
     return (
         <Details
             summary="Download with curl"
@@ -24,32 +28,48 @@ export function ExportCurlHelp() {
                 <p>
                     The export endpoint also accepts HTTP Basic authentication,
                     so you can download your logbook from the command line with
-                    curl. Use your username (or email) and account password:
+                    curl. These commands are meant for automated backups. Use
+                    your username (or email) and account password:
+                </p>
+                <p className="font-medium text-slate-900 dark:text-slate-100">
+                    JSON Lines
                 </p>
                 <Code
-                    codeId={id}
-                    codeProps={{ "data-export-path": exportPath }}
+                    codeId={jsonlId}
+                    codeProps={{ "data-export-path": jsonlPath }}
                 >
-                    {`curl -OJ -u USERNAME:password ${exportPath}`}
+                    {`curl -OJ -u ${username}:<password> '${jsonlPath}'`}
+                </Code>
+                <p className="font-medium text-slate-900 dark:text-slate-100">
+                    CSV
+                </p>
+                <Code
+                    codeId={csvId}
+                    codeProps={{ "data-export-path": csvPath }}
+                >
+                    {`curl -OJ -u ${username}:<password> '${csvPath}'`}
                 </Code>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                     The <code>-OJ</code> flags save the file using the name from
                     the response <code>Content-Disposition</code> header (
-                    <code>jump-logbook.jsonl</code>). Replace{" "}
-                    <code>USERNAME</code> and <code>password</code> with your
-                    credentials. Without valid credentials the endpoint responds
-                    with HTTP 401.
+                    <code>jump-logbook.jsonl</code> or{" "}
+                    <code>jump-logbook.csv</code>). Replace{" "}
+                    <code>&lt;password&gt;</code> with your account password.
+                    Without valid credentials the endpoint responds with HTTP
+                    401.
                 </p>
                 <Script
                     $deps={[$assertElement]}
-                    $args={[id]}
-                    $exec={(id) => {
-                        const code = document.getElementById(id);
-                        $assertElement(code, HTMLElement);
-                        const exportPath =
-                            code.getAttribute("data-export-path") ?? "";
+                    $args={[jsonlId, csvId, username]}
+                    $exec={(jsonlId, csvId, username) => {
                         const origin = window.location.origin;
-                        code.textContent = `curl -OJ -u USERNAME:password ${origin}${exportPath}`;
+                        for (const id of [jsonlId, csvId]) {
+                            const code = document.getElementById(id);
+                            $assertElement(code, HTMLElement);
+                            const exportPath =
+                                code.getAttribute("data-export-path") ?? "";
+                            code.textContent = `curl -OJ -u ${username}:<password> '${origin}${exportPath}'`;
+                        }
                     }}
                 />
             </div>

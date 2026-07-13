@@ -728,11 +728,104 @@ async function handleTransfer(c: AppRequestContext) {
     }
 }
 
-/** Exports the current user's logbook as a JSON Lines download. */
+type ExportNamedResource = {
+    type: "aircraft" | "gear" | "jumpType" | "location";
+    name: string;
+    previousCount: number;
+    description: string | null;
+};
+
+type ExportJump = {
+    type: "jump";
+    jumpNumber: number;
+    jumpDate: string | null;
+    exitAltitude: number;
+    openingAltitude: number;
+    freefallTime: number;
+    location: string;
+    aircraft: string;
+    gear: string[];
+    jumpTypes: string[];
+    description: string | null;
+};
+
+type ExportRecord = ExportNamedResource | ExportJump;
+
+function escapeCsvField(value: string | number | null | undefined): string {
+    if (value === null || value === undefined) {
+        return "";
+    }
+    const text = String(value);
+    if (/[",\n\r]/.test(text)) {
+        return `"${text.replaceAll('"', '""')}"`;
+    }
+    return text;
+}
+
+function formatExportCsv(records: ExportRecord[]): string {
+    const headers = [
+        "type",
+        "name",
+        "previousCount",
+        "jumpNumber",
+        "jumpDate",
+        "exitAltitude",
+        "openingAltitude",
+        "freefallTime",
+        "location",
+        "aircraft",
+        "gear",
+        "jumpTypes",
+        "description",
+    ];
+    const rows = records.map((record) => {
+        if (record.type === "jump") {
+            return [
+                record.type,
+                "",
+                "",
+                record.jumpNumber,
+                record.jumpDate,
+                record.exitAltitude,
+                record.openingAltitude,
+                record.freefallTime,
+                record.location,
+                record.aircraft,
+                record.gear.join("; "),
+                record.jumpTypes.join("; "),
+                record.description,
+            ];
+        }
+        return [
+            record.type,
+            record.name,
+            record.previousCount,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            record.description,
+        ];
+    });
+    return (
+        [headers, ...rows]
+            .map((row) => row.map(escapeCsvField).join(","))
+            .join("\n") + "\n"
+    );
+}
+
+/** Exports the current user's logbook as a JSON Lines or CSV download. */
 async function exportLogbook(c: AppRequestContext) {
     const ctx = getAppContext(c);
     const db = ctx.db;
     const userUuid = ctx.getUser().uuid;
+    const formatParam = routes.logbookExport.query(c).format;
+    const format = formatParam === "csv" ? "csv" : "jsonl";
     const [aircraftRows, gearRows, jumpTypeRows, locationRows, jumpRows] =
         await Promise.all([
             db
@@ -807,33 +900,33 @@ async function exportLogbook(c: AppRequestContext) {
             row.name,
         ]);
     }
-    const records = [
+    const records: ExportRecord[] = [
         ...aircraftRows.map((row) => ({
-            type: "aircraft",
+            type: "aircraft" as const,
             name: row.name,
             previousCount: row.previousJumpCount,
             description: row.description,
         })),
         ...gearRows.map((row) => ({
-            type: "gear",
+            type: "gear" as const,
             name: row.name,
             previousCount: row.previousUsageCount,
             description: row.description,
         })),
         ...jumpTypeRows.map((row) => ({
-            type: "jumpType",
+            type: "jumpType" as const,
             name: row.name,
             previousCount: row.previousUsageCount,
             description: row.description,
         })),
         ...locationRows.map((row) => ({
-            type: "location",
+            type: "location" as const,
             name: row.name,
             previousCount: row.previousJumpCount,
             description: row.description,
         })),
         ...jumpRows.map((row) => ({
-            type: "jump",
+            type: "jump" as const,
             jumpNumber: row.jumpNumber,
             jumpDate: row.jumpDate,
             exitAltitude: row.exitAltitude,
@@ -846,6 +939,12 @@ async function exportLogbook(c: AppRequestContext) {
             description: row.description,
         })),
     ];
+    if (format === "csv") {
+        return c.body(formatExportCsv(records), 200, {
+            "Content-Disposition": 'attachment; filename="jump-logbook.csv"',
+            "Content-Type": "text/csv; charset=utf-8",
+        });
+    }
     return c.body(
         records.map((record) => JSON.stringify(record)).join("\n") + "\n",
         200,
