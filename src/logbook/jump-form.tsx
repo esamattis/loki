@@ -55,7 +55,7 @@ function FreefallEstimateDialog(props: { id: string }) {
     return (
         <dialog
             id={props.id}
-            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className="m-auto w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         >
             <div className="space-y-4 p-5">
                 <div className="flex items-start justify-between gap-3">
