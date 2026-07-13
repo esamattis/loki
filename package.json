@@ -13,6 +13,8 @@
         "db:migrate": "node scripts/migrate-local.ts",
         "db:migrate:sqlite": "node scripts/migrate-sqlite.ts",
         "db:migrate:remote": "node scripts/migrate-remote.ts",
+        "db:export:remote": "wrangler d1 export hypyt --remote --output \"backups/hypyt-$(date +%Y%m%d-%H%M%S).sql\"",
+        "db:import:remote": "wrangler d1 execute hypyt --remote --yes --file",
         "db:reset": "rm -rf .wrangler && $npm_execpath run db:migrate && node scripts/insert-dev-user.ts",
         "db:dev-user": "node scripts/insert-dev-user.ts",
         "db:dev-user:sqlite": "node scripts/insert-dev-user-sqlite.ts",
