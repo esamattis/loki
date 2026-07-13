@@ -4,7 +4,7 @@ import { FormActions, Input, NumberInput, Textarea } from "../components/form";
 import { ErrorList } from "../components/feedback";
 import { ConfirmDeleteButton, DangerZone } from "../components/ui";
 import * as routes from "../routes";
-import { jumpTypes } from "../schema";
+import { jumpTypes, jumpsToJumpTypes } from "../schema";
 import {
     getRecentJumpsForItem,
     RecentJumpsSection,
@@ -68,6 +68,7 @@ function JumpTypeFormPage(props: {
     values?: JumpTypeFormValues;
     errors?: string[];
     canDelete?: boolean;
+    deleteError?: string;
     recentJumps?: JumpListItem[];
 }) {
     return (
@@ -79,6 +80,12 @@ function JumpTypeFormPage(props: {
             />
             {props.canDelete && (
                 <DangerZone>
+                    {props.deleteError && (
+                        <ErrorList
+                            errors={[props.deleteError]}
+                            className="mb-3 border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        />
+                    )}
                     <ConfirmDeleteButton label="Delete jump type" />
                 </DangerZone>
             )}
@@ -237,7 +244,7 @@ async function renderJumpTypeList(c: AppRequestContext) {
     );
 }
 
-async function renderEditJumpType(c: AppRequestContext) {
+async function renderEditJumpType(c: AppRequestContext, deleteError?: string) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.jumpTypeEdit.params(c);
@@ -269,6 +276,7 @@ async function renderEditJumpType(c: AppRequestContext) {
                 description: item.description ?? undefined,
             }}
             canDelete
+            deleteError={deleteError}
             recentJumps={recentJumps}
         />,
     );
@@ -283,6 +291,18 @@ async function handleEditJumpType(c: AppRequestContext) {
     }
     const formData = await c.req.formData();
     if (formData.get("action") === "delete") {
+        const usedByJump = await db
+            .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
+            .from(jumpsToJumpTypes)
+            .where(eq(jumpsToJumpTypes.jumpTypeUuid, uuid))
+            .limit(1)
+            .get();
+        if (usedByJump) {
+            return renderEditJumpType(
+                c,
+                "Cannot delete a jump type that is used by jumps. Archive it instead.",
+            );
+        }
         const deleted = await db
             .delete(jumpTypes)
             .where(
@@ -349,5 +369,5 @@ app.get(routes.jumpTypeNew.route, (c) =>
     ),
 );
 app.post(routes.jumpTypeNew.route, handleNewJumpType);
-app.get(routes.jumpTypeEdit.route, renderEditJumpType);
+app.get(routes.jumpTypeEdit.route, (c) => renderEditJumpType(c));
 app.post(routes.jumpTypeEdit.route, handleEditJumpType);

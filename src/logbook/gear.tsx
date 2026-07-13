@@ -68,6 +68,7 @@ function GearFormPage(props: {
     values?: GearFormValues;
     errors?: string[];
     canDelete?: boolean;
+    deleteError?: string;
     recentJumps?: JumpListItem[];
 }) {
     return (
@@ -79,6 +80,12 @@ function GearFormPage(props: {
             />
             {props.canDelete && (
                 <DangerZone>
+                    {props.deleteError && (
+                        <ErrorList
+                            errors={[props.deleteError]}
+                            className="mb-3 border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        />
+                    )}
                     <ConfirmDeleteButton label="Delete gear" />
                 </DangerZone>
             )}
@@ -253,7 +260,7 @@ async function renderGearList(c: AppRequestContext) {
     );
 }
 
-async function renderEditGear(c: AppRequestContext) {
+async function renderEditGear(c: AppRequestContext, deleteError?: string) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
     const { uuid } = routes.gearEdit.params(c);
@@ -285,6 +292,7 @@ async function renderEditGear(c: AppRequestContext) {
                 description: item.description ?? undefined,
             }}
             canDelete
+            deleteError={deleteError}
             recentJumps={recentJumps}
         />,
     );
@@ -299,6 +307,18 @@ async function handleEditGear(c: AppRequestContext) {
     }
     const formData = await c.req.formData();
     if (formData.get("action") === "delete") {
+        const usedByJump = await db
+            .select({ jumpUuid: jumpsToGear.jumpUuid })
+            .from(jumpsToGear)
+            .where(eq(jumpsToGear.gearUuid, uuid))
+            .limit(1)
+            .get();
+        if (usedByJump) {
+            return renderEditGear(
+                c,
+                "Cannot delete gear that is used by jumps. Archive it instead.",
+            );
+        }
         const deleted = await db
             .delete(gear)
             .where(and(eq(gear.uuid, uuid), eq(gear.userUuid, userUuid)))
@@ -391,5 +411,5 @@ app.get(routes.gearNew.route, (c) =>
     c.render(<GearFormPage title="Add gear" submitLabel="Add gear" />),
 );
 app.post(routes.gearNew.route, handleNewGear);
-app.get(routes.gearEdit.route, renderEditGear);
+app.get(routes.gearEdit.route, (c) => renderEditGear(c));
 app.post(routes.gearEdit.route, handleEditGear);

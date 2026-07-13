@@ -209,6 +209,120 @@ test("aircraft can be deleted once no jumps use it", async ({ page }) => {
     await expect(page.getByText("Free Plane", { exact: true })).toHaveCount(0);
 });
 
+test("gear cannot be deleted while used by jumps", async ({ page }) => {
+    await registerUser(page, "guarded-gear-skydiver", "Guarded Gear Skydiver");
+    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await page
+        .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
+        .click();
+    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+
+    await page
+        .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
+        .click();
+    await addItem(page, "Manage gear", "Add gear", "Guarded Canopy");
+
+    await page
+        .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.locator('select[name="locationUuid"]').selectOption({
+        label: "Guarded DZ",
+    });
+    await page.locator('select[name="aircraftUuid"]').selectOption({
+        label: "Guarded Plane",
+    });
+    await page.getByLabel("Guarded Canopy").check();
+    await page.getByRole("button", { name: "Add jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage gear" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Guarded Canopy" })
+        .getByRole("link", { name: "Edit" })
+        .click();
+    await expect(page.getByText("Danger zone")).toBeVisible();
+
+    await confirmDelete(page, "Delete gear");
+
+    await expect(page).toHaveURL(/\/logbook\/gear\/[^/]+$/);
+    await expect(
+        page.getByText(
+            "Cannot delete gear that is used by jumps. Archive it instead.",
+        ),
+    ).toBeVisible();
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage gear" }).click();
+    await expect(
+        page.getByText("Guarded Canopy", { exact: true }),
+    ).toBeVisible();
+});
+
+test("jump types cannot be deleted while used by jumps", async ({ page }) => {
+    await registerUser(
+        page,
+        "guarded-jumptype-skydiver",
+        "Guarded Jump Type Skydiver",
+    );
+    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await page
+        .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
+        .click();
+    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+
+    await page
+        .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
+        .click();
+    await addItem(page, "Manage jump types", "Add jump type", "Guarded Type");
+
+    await page
+        .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.locator('select[name="locationUuid"]').selectOption({
+        label: "Guarded DZ",
+    });
+    await page.locator('select[name="aircraftUuid"]').selectOption({
+        label: "Guarded Plane",
+    });
+    await page.getByLabel("Guarded Type").check();
+    await page.getByRole("button", { name: "Add jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage jump types" }).click();
+    await page
+        .getByRole("listitem")
+        .filter({ hasText: "Guarded Type" })
+        .getByRole("link", { name: "Edit" })
+        .click();
+    await expect(page.getByText("Danger zone")).toBeVisible();
+
+    await confirmDelete(page, "Delete jump type");
+
+    await expect(page).toHaveURL(/\/logbook\/jump-types\/[^/]+$/);
+    await expect(
+        page.getByText(
+            "Cannot delete a jump type that is used by jumps. Archive it instead.",
+        ),
+    ).toBeVisible();
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage jump types" }).click();
+    await expect(page.getByText("Guarded Type", { exact: true })).toBeVisible();
+});
+
 test("locations cannot be deleted while used by jumps", async ({ page }) => {
     await registerUser(
         page,
