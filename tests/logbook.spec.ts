@@ -713,3 +713,39 @@ test("adding a jump with an existing jump number shows an error and link", async
     await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("1");
 });
+
+test("freefall time can be estimated from freefall type", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("estimate-freefall");
+    await page.locator('input[name="displayName"]').fill("Estimate Jumper");
+    await page
+        .locator('input[name="email"]')
+        .fill("estimate-freefall@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await expect(
+        page.getByRole("heading", { name: "Estimate freefall time" }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Belly · 180 km/h" }).click();
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("60");
+    await expect(page.getByText("Avg speed: 180 km/h")).toBeVisible();
+
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await page.getByRole("button", { name: "Freefly · 240 km/h" }).click();
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("45");
+    await expect(page.getByText("Avg speed: 240 km/h")).toBeVisible();
+
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await page.getByRole("button", { name: "Wingsuit · 80 km/h" }).click();
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("135");
+    await expect(page.getByText("Avg speed: 80 km/h")).toBeVisible();
+});

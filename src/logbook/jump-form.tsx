@@ -42,6 +42,217 @@ function getToday(): string {
     return new Date().toISOString().slice(0, 10);
 }
 
+const FIELD_BUTTON_CLASS =
+    "inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40";
+
+const FIELD_INPUT_CLASS =
+    "block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/30";
+
+const DIALOG_OPTION_CLASS =
+    "rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40";
+
+function FreefallEstimateDialog(props: { id: string }) {
+    return (
+        <dialog
+            id={props.id}
+            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        >
+            <div className="space-y-4 p-5">
+                <div className="flex items-start justify-between gap-3">
+                    <h2 className="text-base font-semibold">
+                        Estimate freefall time
+                    </h2>
+                    <button
+                        type="button"
+                        value="cancel"
+                        className="rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                    >
+                        Close
+                    </button>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Choose freefall type. Time is estimated from exit and
+                    opening altitude.
+                </p>
+                <div className="grid gap-2">
+                    <button
+                        type="button"
+                        data-speed-kmh="180"
+                        className={DIALOG_OPTION_CLASS}
+                    >
+                        Belly · 180 km/h
+                    </button>
+                    <button
+                        type="button"
+                        data-speed-kmh="240"
+                        className={DIALOG_OPTION_CLASS}
+                    >
+                        Freefly · 240 km/h
+                    </button>
+                    <button
+                        type="button"
+                        data-speed-kmh="80"
+                        className={DIALOG_OPTION_CLASS}
+                    >
+                        Wingsuit · 80 km/h
+                    </button>
+                </div>
+            </div>
+        </dialog>
+    );
+}
+
+function FreefallEstimateScript(props: {
+    exitAltitudeId: string;
+    openingAltitudeId: string;
+    freefallTimeId: string;
+    estimateButtonId: string;
+    estimateDialogId: string;
+    altitudeUnits: "meters" | "feet";
+}) {
+    return (
+        <Script
+            $deps={[$assertElement]}
+            $args={[
+                props.exitAltitudeId,
+                props.openingAltitudeId,
+                props.freefallTimeId,
+                props.estimateButtonId,
+                props.estimateDialogId,
+                props.altitudeUnits,
+            ]}
+            $exec={(
+                exitAltitudeId,
+                openingAltitudeId,
+                freefallTimeId,
+                estimateButtonId,
+                estimateDialogId,
+                altitudeUnits,
+            ) => {
+                const exitAltitude = document.getElementById(exitAltitudeId);
+                const openingAltitude =
+                    document.getElementById(openingAltitudeId);
+                const freefallTime = document.getElementById(freefallTimeId);
+                const estimateButton =
+                    document.getElementById(estimateButtonId);
+                const estimateDialog =
+                    document.getElementById(estimateDialogId);
+                $assertElement(exitAltitude, HTMLInputElement);
+                $assertElement(openingAltitude, HTMLInputElement);
+                $assertElement(freefallTime, HTMLInputElement);
+                $assertElement(estimateButton, HTMLButtonElement);
+                $assertElement(estimateDialog, HTMLDialogElement);
+
+                function estimateFreefallTime(speedKmh: number) {
+                    $assertElement(exitAltitude, HTMLInputElement);
+                    $assertElement(openingAltitude, HTMLInputElement);
+                    $assertElement(freefallTime, HTMLInputElement);
+                    const exit = Number(exitAltitude.value);
+                    const opening = Number(openingAltitude.value);
+                    if (
+                        !Number.isFinite(exit) ||
+                        !Number.isFinite(opening) ||
+                        !Number.isFinite(speedKmh) ||
+                        speedKmh <= 0
+                    ) {
+                        return;
+                    }
+                    const distanceMeters =
+                        Math.max(0, exit - opening) *
+                        (altitudeUnits === "feet" ? 0.3048 : 1);
+                    const metersPerSecond = speedKmh / 3.6;
+                    freefallTime.value = String(
+                        Math.round(distanceMeters / metersPerSecond),
+                    );
+                    freefallTime.dispatchEvent(
+                        new Event("input", { bubbles: true }),
+                    );
+                }
+
+                estimateButton.addEventListener("click", () => {
+                    estimateDialog.showModal();
+                });
+
+                estimateDialog.addEventListener("click", (event) => {
+                    const target = event.target;
+                    if (!(target instanceof Element)) {
+                        return;
+                    }
+                    if (target === estimateDialog) {
+                        estimateDialog.close();
+                        return;
+                    }
+                    if (
+                        target instanceof HTMLButtonElement &&
+                        target.value === "cancel"
+                    ) {
+                        estimateDialog.close();
+                        return;
+                    }
+                    const speedButton = target.closest("[data-speed-kmh]");
+                    if (!(speedButton instanceof HTMLButtonElement)) {
+                        return;
+                    }
+                    const speedKmh = Number(
+                        speedButton.getAttribute("data-speed-kmh"),
+                    );
+                    estimateFreefallTime(speedKmh);
+                    estimateDialog.close();
+                });
+            }}
+        />
+    );
+}
+
+function FreefallTimeField(props: {
+    freefallTimeId: string;
+    exitAltitudeId: string;
+    openingAltitudeId: string;
+    value: string;
+    altitudeUnits: "meters" | "feet";
+}) {
+    const estimateButtonId = useId();
+    const estimateDialogId = useId();
+
+    return (
+        <div>
+            <label
+                htmlFor={props.freefallTimeId}
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+                Freefall time (s)
+            </label>
+            <div className="mt-1.5 flex gap-2">
+                <input
+                    id={props.freefallTimeId}
+                    name="freefallTime"
+                    type="number"
+                    min="0"
+                    required
+                    value={props.value}
+                    className={FIELD_INPUT_CLASS}
+                />
+                <button
+                    id={estimateButtonId}
+                    type="button"
+                    className={FIELD_BUTTON_CLASS}
+                >
+                    Estimate
+                </button>
+            </div>
+            <FreefallEstimateDialog id={estimateDialogId} />
+            <FreefallEstimateScript
+                exitAltitudeId={props.exitAltitudeId}
+                openingAltitudeId={props.openingAltitudeId}
+                freefallTimeId={props.freefallTimeId}
+                estimateButtonId={estimateButtonId}
+                estimateDialogId={estimateDialogId}
+                altitudeUnits={props.altitudeUnits}
+            />
+        </div>
+    );
+}
+
 function AvgSpeed(props: { values: JumpFormValues }) {
     const options = useAppContext().getUser().options;
     const exitAltitudeId = useId();
@@ -67,13 +278,12 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 required
                 value={props.values.openingAltitude ?? ""}
             />
-            <NumberInput
-                id={freefallTimeId}
-                name="freefallTime"
-                label="Freefall time (s)"
-                min="0"
-                required
+            <FreefallTimeField
+                freefallTimeId={freefallTimeId}
+                exitAltitudeId={exitAltitudeId}
+                openingAltitudeId={openingAltitudeId}
                 value={props.values.freefallTime ?? ""}
+                altitudeUnits={options.altitudeUnits}
             />
             <div
                 id={avgSpeedId}
