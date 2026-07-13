@@ -85,6 +85,13 @@
             "when": 1783952943752,
             "tag": "0011_workable_sway",
             "breakpoints": true
+        },
+        {
+            "idx": 12,
+            "version": "6",
+            "when": 1783960141530,
+            "tag": "0012_dashing_wind_dancer",
+            "breakpoints": true
         }
     ]
 }

@@ -153,9 +153,10 @@ export const aiUsage = sqliteTable("ai_usage", {
     uuid: text("uuid")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    userUuid: text("user_uuid")
-        .references(() => users.uuid, { onDelete: "cascade" })
-        .notNull(),
+    // Nullable so account deletion can retain usage while scrubbing PII.
+    userUuid: text("user_uuid").references(() => users.uuid, {
+        onDelete: "set null",
+    }),
     model: text("model").notNull(),
     title: text("title").notNull(),
     createdAt: integer("created_at").notNull(), // unix seconds

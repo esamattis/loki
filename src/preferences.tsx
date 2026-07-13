@@ -9,7 +9,8 @@ import {
     Textarea,
 } from "./components/form";
 import { ErrorList } from "./components/feedback";
-import { hashPassword, Password } from "./login";
+import { ConfirmDeleteButton, DangerZone } from "./components/ui";
+import { destroySession, hashPassword, Password } from "./login";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,
@@ -18,7 +19,7 @@ import {
     type UserOptions,
 } from "./options";
 import * as routes from "./routes";
-import { users } from "./schema";
+import { aiUsage, users } from "./schema";
 import { LogbookPage } from "./logbook/layout";
 
 const PreferencesSchema = z
@@ -297,6 +298,18 @@ function optionsFromRawForm(
     return partial.success ? partial.data : current;
 }
 
+function DeleteAccountSection() {
+    return (
+        <DangerZone>
+            <p className="mb-3 text-sm text-red-700/90 dark:text-red-300/90">
+                Permanently delete your account and all logbook data. This
+                cannot be undone.
+            </p>
+            <ConfirmDeleteButton label="Delete account" />
+        </DangerZone>
+    );
+}
+
 function renderPreferences(
     c: AppRequestContext,
     values = getFormValues(c),
@@ -305,6 +318,7 @@ function renderPreferences(
     return c.render(
         <LogbookPage title="Preferences">
             <PreferencesForm values={values} errors={errors} />
+            <DeleteAccountSection />
         </LogbookPage>,
     );
 }
@@ -317,8 +331,29 @@ function getErrorMessages(result: { error: z.ZodError }): string[] {
     return result.error.issues.map((issue) => issue.message);
 }
 
+const DELETED_ACCOUNT_AI_USAGE_TITLE = "Deleted account";
+
+async function handleDeleteAccount(c: AppRequestContext) {
+    const ctx = getAppContext(c);
+    const user = ctx.getUser();
+    // Scrub AI usage titles before delete. ai_usage keeps rows (ON DELETE SET NULL);
+    // jumps, gear, jump types, locations, aircrafts, and sessions cascade-delete.
+    await ctx.db
+        .update(aiUsage)
+        .set({ title: DELETED_ACCOUNT_AI_USAGE_TITLE })
+        .where(eq(aiUsage.userUuid, user.uuid));
+    await ctx.db.delete(users).where(eq(users.uuid, user.uuid));
+    await destroySession(c);
+    return c.redirect(routes.login({}));
+}
+
 async function handlePreferences(c: AppRequestContext) {
-    const raw = getFormDataValues(await c.req.formData());
+    const formData = await c.req.formData();
+    if (formData.get("action") === "delete") {
+        return handleDeleteAccount(c);
+    }
+
+    const raw = getFormDataValues(formData);
     const result = PreferencesSchema.safeParse(raw);
     const values = getFormValues(c);
     values.displayName = raw.displayName ?? values.displayName;
