@@ -52,12 +52,6 @@ export function DropdownMenu(props: {
                     $assertElement(button, HTMLButtonElement);
                     const menu = document.getElementById(menuId);
                     $assertElement(menu, HTMLDivElement);
-                    if (
-                        !(button instanceof HTMLButtonElement) ||
-                        !(menu instanceof HTMLDivElement)
-                    ) {
-                        return;
-                    }
 
                     function setMenuOpen(
                         menuElement: HTMLDivElement,
@@ -235,7 +229,7 @@ export function ConfirmDangerButton(props: {
                 ) => {
                     const el = document.getElementById(buttonId);
                     $assertElement(el, HTMLButtonElement);
-                    const button: HTMLButtonElement = el;
+                    const button = el;
                     let state: "idle" | "ready" = "idle";
                     let timer: ReturnType<typeof setInterval> | null = null;
 

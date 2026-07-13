@@ -145,14 +145,6 @@ function $initThemeToggle(
     $assertElement(darkIconEl, SVGSVGElement);
     const systemIconEl = document.getElementById(systemIconId);
     $assertElement(systemIconEl, SVGSVGElement);
-    if (
-        !(buttonEl instanceof HTMLButtonElement) ||
-        !(lightIconEl instanceof SVGSVGElement) ||
-        !(darkIconEl instanceof SVGSVGElement) ||
-        !(systemIconEl instanceof SVGSVGElement)
-    ) {
-        return;
-    }
     const button = buttonEl;
     const lightIcon = lightIconEl;
     const darkIcon = darkIconEl;

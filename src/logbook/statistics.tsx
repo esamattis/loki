@@ -212,12 +212,6 @@ function YearlyJumpsHistogram(props: {
                     $assertElement(toggle, HTMLInputElement);
                     const container = document.getElementById(containerId);
                     $assertElement(container, HTMLDivElement);
-                    if (
-                        !(toggle instanceof HTMLInputElement) ||
-                        !(container instanceof HTMLDivElement)
-                    ) {
-                        return;
-                    }
                     function applyGapVisibility(
                         checkbox: HTMLInputElement,
                         containerEl: HTMLDivElement,
