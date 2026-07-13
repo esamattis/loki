@@ -1,7 +1,6 @@
 import { Context, Hono } from "hono";
 import { TrieRouter } from "hono/router/trie-router";
 import { eq, lte } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 import { jsxRenderer, useRequestContext } from "hono/jsx-renderer";
 import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
@@ -17,16 +16,17 @@ import {
     isSafeRedirectPath,
     parseBasicAuth,
     SESSION_COOKIE_NAME,
-    SESSION_COOKIE_OPTIONS,
+    sessionCookieOptions,
     type AuthenticatedUser,
 } from "./auth";
+import { createD1Database, type AppDatabase } from "./db";
 
 export type AppType = Hono<Env>;
 
 export type AppRequestContext = Context<Env>;
 
 export interface AppContext {
-    db: ReturnType<typeof drizzle>;
+    db: AppDatabase;
     user: User | null;
     getUser(): User;
     requestContext: AppRequestContext;
@@ -49,8 +49,14 @@ export interface Variables {
     appContext: AppContext;
 }
 
+/** Bindings for Cloudflare Workers (D1) and optional Node self-host override. */
+export interface AppBindings extends CloudflareBindings {
+    /** Pre-built Drizzle client for Node/self-host. When set, DB is unused. */
+    APP_DB?: AppDatabase;
+}
+
 export interface Env {
-    Bindings: CloudflareBindings;
+    Bindings: AppBindings;
     Variables: Variables;
 }
 
@@ -215,7 +221,7 @@ async function setAppContextMiddleware(
     next: () => Promise<void>,
 ) {
     c.set("appContext", {
-        db: drizzle(c.env.DB),
+        db: c.env.APP_DB ?? createD1Database(c.env.DB),
         user: null,
         getUser() {
             const user = this.user;
@@ -330,7 +336,11 @@ async function authenticateMiddleware(
                     .where(eq(sessions.tokenHash, tokenHash))
                     .run();
             }
-            deleteCookie(c, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
+            deleteCookie(
+                c,
+                SESSION_COOKIE_NAME,
+                sessionCookieOptions(c.req.url),
+            );
         }
     }
 

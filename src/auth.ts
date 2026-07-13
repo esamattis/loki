@@ -9,12 +9,15 @@ const SESSION_TOKEN_BYTES = 32; // 256 bits
 export const SESSION_COOKIE_NAME = "session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
-export const SESSION_COOKIE_OPTIONS = {
-    path: "/",
-    httpOnly: true,
-    secure: true,
-    sameSite: "Strict",
-} as const;
+/** Cookie options; `secure` follows the request protocol (HTTPS on Cloudflare). */
+export function sessionCookieOptions(requestUrl: string) {
+    return {
+        path: "/",
+        httpOnly: true,
+        sameSite: "Strict" as const,
+        secure: new URL(requestUrl).protocol === "https:",
+    };
+}
 
 /** Relative same-origin path only; rejects protocol-relative and other open-redirect forms. */
 export function isSafeRedirectPath(path: string | undefined): path is string {

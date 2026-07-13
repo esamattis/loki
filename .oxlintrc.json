@@ -30,5 +30,13 @@
     },
     "env": {
         "builtin": true
-    }
+    },
+    "overrides": [
+        {
+            "files": ["src/db-sqlite.ts", "src/migrate-sqlite.ts"],
+            "rules": {
+                "typescript/consistent-type-assertions": "off"
+            }
+        }
+    ]
 }

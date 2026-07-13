@@ -15,7 +15,7 @@ import {
     hashToken,
     isSafeRedirectPath,
     SESSION_COOKIE_NAME,
-    SESSION_COOKIE_OPTIONS,
+    sessionCookieOptions,
     SESSION_MAX_AGE,
 } from "./auth";
 import * as routes from "./routes";
@@ -512,7 +512,7 @@ export async function createSession(
         .run();
 
     setCookie(c, SESSION_COOKIE_NAME, token, {
-        ...SESSION_COOKIE_OPTIONS,
+        ...sessionCookieOptions(c.req.url),
         maxAge: SESSION_MAX_AGE,
     });
 }
@@ -526,5 +526,5 @@ export async function destroySession(c: AppRequestContext): Promise<void> {
             .where(eq(sessions.tokenHash, tokenHash))
             .run();
     }
-    deleteCookie(c, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS);
+    deleteCookie(c, SESSION_COOKIE_NAME, sessionCookieOptions(c.req.url));
 }
