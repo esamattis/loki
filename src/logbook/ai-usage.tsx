@@ -101,30 +101,39 @@ export function AiUsageSummary(props: {
                     <table className="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-800">
                         <thead className="bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500 dark:bg-slate-950/50 dark:text-slate-400">
                             <tr>
-                                <th scope="col" className="px-4 py-3">
+                                <th
+                                    scope="col"
+                                    className="whitespace-nowrap px-4 py-3"
+                                >
                                     Date
                                 </th>
-                                <th scope="col" className="px-4 py-3">
+                                <th
+                                    scope="col"
+                                    className="w-full min-w-64 px-4 py-3"
+                                >
                                     Title
                                 </th>
-                                <th scope="col" className="px-4 py-3">
+                                <th
+                                    scope="col"
+                                    className="whitespace-nowrap px-4 py-3"
+                                >
                                     Model
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-4 py-3 text-right"
+                                    className="whitespace-nowrap px-4 py-3 text-right"
                                 >
                                     Input
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-4 py-3 text-right"
+                                    className="whitespace-nowrap px-4 py-3 text-right"
                                 >
                                     Output
                                 </th>
                                 <th
                                     scope="col"
-                                    className="px-4 py-3 text-right"
+                                    className="whitespace-nowrap px-4 py-3 text-right"
                                 >
                                     Total
                                 </th>
@@ -133,22 +142,22 @@ export function AiUsageSummary(props: {
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {props.rows.map((row) => (
                                 <tr key={row.uuid}>
-                                    <td className="px-4 py-3 tabular-nums text-slate-600 dark:text-slate-400">
+                                    <td className="whitespace-nowrap px-4 py-3 tabular-nums text-slate-600 dark:text-slate-400">
                                         {formatUsageDateTime(row.createdAt)}
                                     </td>
-                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
+                                    <td className="w-full min-w-64 px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                                         {row.title}
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">
                                         {formatModelLabel(row.model)}
                                     </td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-slate-600 dark:text-slate-400">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-slate-600 dark:text-slate-400">
                                         {formatTokenCount(row.inputTokens)}
                                     </td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-slate-600 dark:text-slate-400">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-slate-600 dark:text-slate-400">
                                         {formatTokenCount(row.outputTokens)}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
                                         {formatTokenCount(row.totalTokens)}
                                     </td>
                                 </tr>
