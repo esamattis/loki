@@ -491,6 +491,7 @@ async function extractJumpDataFromImage(options: {
 
     const { output, usage } = await generateText({
         model: openai(options.model),
+        reasoning: "low",
         output: Output.object({
             schema: JumpImageDataSchema,
             name: "jumpData",
