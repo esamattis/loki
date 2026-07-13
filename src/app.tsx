@@ -138,6 +138,33 @@ function $restoreFormScrollPosition() {
     });
 }
 
+function $disableFormOnSubmit() {
+    document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+        form.classList.add(
+            "opacity-50",
+            "cursor-not-allowed",
+            "pointer-events-none",
+        );
+        // Disable after the browser builds the form data set so values still submit.
+        setTimeout(() => {
+            for (const element of form.elements) {
+                if (
+                    element instanceof HTMLInputElement ||
+                    element instanceof HTMLButtonElement ||
+                    element instanceof HTMLSelectElement ||
+                    element instanceof HTMLTextAreaElement
+                ) {
+                    element.disabled = true;
+                }
+            }
+        }, 0);
+    });
+}
+
 function $applyStoredTheme() {
     try {
         let theme = localStorage.getItem("theme");
@@ -387,6 +414,7 @@ app.use(
                 >
                     <div className="min-h-screen">{props.children}</div>
                     <Script $exec={$restoreFormScrollPosition} />
+                    <Script $exec={$disableFormOnSubmit} />
                 </body>
             </html>
         );

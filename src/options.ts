@@ -30,7 +30,7 @@ export const JUMP_IMAGE_MODELS: {
 }[] = [
     {
         id: "gpt-5.6",
-        label: "GPT-5.6",
+        label: "GPT-5.6 Sol",
         description: "Best quality for hard-to-read images",
     },
     {
