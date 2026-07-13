@@ -340,7 +340,7 @@ function JumpFromImagePage(props: {
                                 persist="jump-from-image-additional-context"
                             />
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Optional notes for this read only. Use this to
+                                Optional instructions for the AI. Use this to
                                 specify which jump to pick if the image contains
                                 multiple jumps, or to explain abbreviations
                                 (e.g. RW means Formation Skydiving). Change the
