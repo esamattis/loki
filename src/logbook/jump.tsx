@@ -31,8 +31,8 @@ function isValidJumpDate(value: string): boolean {
 }
 
 const JumpSchema = z.object({
-    locationUuid: z.string().min(1, "Location is required"),
-    aircraftUuid: z.string().min(1, "Aircraft is required"),
+    locationUuid: z.string().optional().default(""),
+    aircraftUuid: z.string().optional().default(""),
     jumpNumber: z.coerce
         .number()
         .int("Jump number must be a whole number")
@@ -53,6 +53,10 @@ const JumpSchema = z.object({
     description: z.string().trim().max(2_000).optional(),
     gearUuids: z.array(z.string()).default([]),
     jumpTypeUuids: z.array(z.string()).default([]),
+    locationName: z.string().trim().optional().default(""),
+    aircraftName: z.string().trim().optional().default(""),
+    gearName: z.string().trim().optional().default(""),
+    jumpTypeName: z.string().trim().optional().default(""),
 });
 
 async function getJumpFormResources(c: AppRequestContext) {
@@ -111,7 +115,12 @@ type JumpFormResources = Awaited<ReturnType<typeof getJumpFormResources>>;
 
 function ownsJumpResources(
     resources: JumpFormResources,
-    data: z.infer<typeof JumpSchema>,
+    data: {
+        locationUuid: string;
+        aircraftUuid: string;
+        gearUuids: string[];
+        jumpTypeUuids: string[];
+    },
 ) {
     return (
         resources.locations.some((item) => item.uuid === data.locationUuid) &&
@@ -123,6 +132,246 @@ function ownsJumpResources(
             resources.jumpTypes.some((item) => item.uuid === uuid),
         )
     );
+}
+
+function selectedJumpItemsAreOwned(
+    resources: JumpFormResources,
+    data: z.infer<typeof JumpSchema>,
+) {
+    return (
+        data.gearUuids.every((uuid) =>
+            resources.gear.some((item) => item.uuid === uuid),
+        ) &&
+        data.jumpTypeUuids.every((uuid) =>
+            resources.jumpTypes.some((item) => item.uuid === uuid),
+        ) &&
+        (!data.locationUuid ||
+            resources.locations.some(
+                (item) => item.uuid === data.locationUuid,
+            )) &&
+        (!data.aircraftUuid ||
+            resources.aircrafts.some((item) => item.uuid === data.aircraftUuid))
+    );
+}
+
+type ResolvedJumpResources = {
+    locationUuid: string;
+    aircraftUuid: string;
+    gearUuids: string[];
+    jumpTypeUuids: string[];
+};
+
+async function parseAndResolveJumpForm(
+    c: AppRequestContext,
+    formData: FormData,
+): Promise<
+    | {
+          ok: true;
+          raw: JumpFormValues;
+          data: z.infer<typeof JumpSchema>;
+          resources: JumpFormResources;
+          resolved: ResolvedJumpResources;
+      }
+    | {
+          ok: false;
+          raw: JumpFormValues;
+          resources: JumpFormResources;
+          errors: (string | ReturnType<typeof duplicateJumpNumberError>)[];
+      }
+> {
+    const raw = getJumpFormValues(formData);
+    const result = JumpSchema.safeParse(raw);
+    const resources = await getJumpFormResources(c);
+    if (!result.success) {
+        return {
+            ok: false,
+            raw,
+            resources,
+            errors: result.error.issues.map((issue) => issue.message),
+        };
+    }
+    if (!selectedJumpItemsAreOwned(resources, result.data)) {
+        return {
+            ok: false,
+            raw,
+            resources,
+            errors: [
+                "Choose locations, aircraft, gear, and jump types from your logbook",
+            ],
+        };
+    }
+    const resolved = await resolveJumpResources(c, result.data, resources);
+    if (!resolved.ok) {
+        return {
+            ok: false,
+            raw,
+            resources,
+            errors: [resolved.error],
+        };
+    }
+    if (!ownsJumpResources(resources, resolved)) {
+        return {
+            ok: false,
+            raw,
+            resources,
+            errors: [
+                "Choose locations, aircraft, gear, and jump types from your logbook",
+            ],
+        };
+    }
+    return {
+        ok: true,
+        raw,
+        data: result.data,
+        resources,
+        resolved,
+    };
+}
+
+function normalizeJumpItemName(value: string): string {
+    return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function splitJumpItemNames(value: string): string[] {
+    if (!value.trim()) {
+        return [];
+    }
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
+
+function findJumpItemByName(
+    resources: { uuid: string; name: string }[],
+    name: string,
+): { uuid: string; name: string } | undefined {
+    const target = normalizeJumpItemName(name);
+    return resources.find(
+        (item) => normalizeJumpItemName(item.name) === target,
+    );
+}
+
+async function resolveJumpItemUuid(options: {
+    resources: { uuid: string; name: string }[];
+    name: string;
+    create: (name: string) => Promise<string>;
+}): Promise<string> {
+    const existing = findJumpItemByName(options.resources, options.name);
+    if (existing) {
+        return existing.uuid;
+    }
+    return options.create(options.name.trim());
+}
+
+async function resolveJumpResources(
+    c: AppRequestContext,
+    data: z.infer<typeof JumpSchema>,
+    resources: JumpFormResources,
+): Promise<
+    | {
+          ok: true;
+          locationUuid: string;
+          aircraftUuid: string;
+          gearUuids: string[];
+          jumpTypeUuids: string[];
+      }
+    | { ok: false; error: string }
+> {
+    const db = getAppContext(c).db;
+    const userUuid = getAppContext(c).getUser().uuid;
+
+    let locationUuid = data.locationUuid;
+    if (data.locationName) {
+        locationUuid = await resolveJumpItemUuid({
+            resources: resources.locations,
+            name: data.locationName,
+            create: async (name) => {
+                const uuid = crypto.randomUUID();
+                await db.insert(locations).values({
+                    uuid,
+                    userUuid,
+                    name,
+                    previousJumpCount: 0,
+                });
+                resources.locations.push({ uuid, name });
+                return uuid;
+            },
+        });
+    }
+    if (!locationUuid) {
+        return { ok: false, error: "Location is required" };
+    }
+
+    let aircraftUuid = data.aircraftUuid;
+    if (data.aircraftName) {
+        aircraftUuid = await resolveJumpItemUuid({
+            resources: resources.aircrafts,
+            name: data.aircraftName,
+            create: async (name) => {
+                const uuid = crypto.randomUUID();
+                await db.insert(aircrafts).values({
+                    uuid,
+                    userUuid,
+                    name,
+                    previousJumpCount: 0,
+                });
+                resources.aircrafts.push({ uuid, name });
+                return uuid;
+            },
+        });
+    }
+    if (!aircraftUuid) {
+        return { ok: false, error: "Aircraft is required" };
+    }
+
+    const gearUuids = new Set(data.gearUuids);
+    for (const name of splitJumpItemNames(data.gearName)) {
+        const uuid = await resolveJumpItemUuid({
+            resources: resources.gear,
+            name,
+            create: async (itemName) => {
+                const newUuid = crypto.randomUUID();
+                await db.insert(gear).values({
+                    uuid: newUuid,
+                    userUuid,
+                    name: itemName,
+                    previousUsageCount: 0,
+                });
+                resources.gear.push({ uuid: newUuid, name: itemName });
+                return newUuid;
+            },
+        });
+        gearUuids.add(uuid);
+    }
+
+    const jumpTypeUuids = new Set(data.jumpTypeUuids);
+    for (const name of splitJumpItemNames(data.jumpTypeName)) {
+        const uuid = await resolveJumpItemUuid({
+            resources: resources.jumpTypes,
+            name,
+            create: async (itemName) => {
+                const newUuid = crypto.randomUUID();
+                await db.insert(jumpTypes).values({
+                    uuid: newUuid,
+                    userUuid,
+                    name: itemName,
+                    previousUsageCount: 0,
+                });
+                resources.jumpTypes.push({ uuid: newUuid, name: itemName });
+                return newUuid;
+            },
+        });
+        jumpTypeUuids.add(uuid);
+    }
+
+    return {
+        ok: true,
+        locationUuid,
+        aircraftUuid,
+        gearUuids: [...gearUuids],
+        jumpTypeUuids: [...jumpTypeUuids],
+    };
 }
 
 async function findJumpByNumber(
@@ -206,6 +455,18 @@ function applyJumpQueryPrefill(
     if (jumpTypeUuids.length > 0) {
         next.jumpTypeUuids = jumpTypeUuids;
     }
+    if (query.locationName) {
+        next.locationName = query.locationName;
+    }
+    if (query.aircraftName) {
+        next.aircraftName = query.aircraftName;
+    }
+    if (query.gearName) {
+        next.gearName = query.gearName;
+    }
+    if (query.jumpTypeName) {
+        next.jumpTypeName = query.jumpTypeName;
+    }
     return next;
 }
 
@@ -226,6 +487,10 @@ async function renderNewJump(c: AppRequestContext) {
         query.aircraftUuid ||
         query.gearUuids ||
         query.jumpTypeUuids ||
+        query.locationName ||
+        query.aircraftName ||
+        query.gearName ||
+        query.jumpTypeName ||
         query.description,
     );
     const latestJump = await db
@@ -301,39 +566,22 @@ async function renderNewJump(c: AppRequestContext) {
 
 async function handleNewJump(c: AppRequestContext) {
     const formData = await c.req.formData();
-    const raw = getJumpFormValues(formData);
-    const result = JumpSchema.safeParse(raw);
-    const resources = await getJumpFormResources(c);
-
-    if (!result.success) {
+    const parsed = await parseAndResolveJumpForm(c, formData);
+    if (!parsed.ok) {
         return c.render(
             <JumpFormPage
                 title="Add jump"
                 submitLabel="Add jump"
-                errors={result.error.issues.map((issue) => issue.message)}
-                values={raw}
-                resources={resources}
+                errors={parsed.errors}
+                values={parsed.raw}
+                resources={parsed.resources}
             />,
         );
     }
 
     const userUuid = getAppContext(c).getUser().uuid;
     const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
-    if (!ownsJumpResources(resources, result.data)) {
-        return c.render(
-            <JumpFormPage
-                title="Add jump"
-                submitLabel="Add jump"
-                errors={[
-                    "Choose locations, aircraft, gear, and jump types from your logbook",
-                ]}
-                values={raw}
-                resources={resources}
-            />,
-        );
-    }
-
-    const existingJump = await findJumpByNumber(c, result.data.jumpNumber);
+    const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
     if (existingJump) {
         return c.render(
             <JumpFormPage
@@ -341,12 +589,12 @@ async function handleNewJump(c: AppRequestContext) {
                 submitLabel="Add jump"
                 errors={[
                     duplicateJumpNumberError(
-                        result.data.jumpNumber,
+                        parsed.data.jumpNumber,
                         existingJump.uuid,
                     ),
                 ]}
-                values={raw}
-                resources={resources}
+                values={parsed.raw}
+                resources={parsed.resources}
             />,
         );
     }
@@ -357,25 +605,25 @@ async function handleNewJump(c: AppRequestContext) {
         db.insert(jumps).values({
             uuid: jumpUuid,
             userUuid,
-            locationUuid: result.data.locationUuid,
-            aircraftUuid: result.data.aircraftUuid,
-            jumpNumber: result.data.jumpNumber,
-            jumpDate: result.data.jumpDate,
+            locationUuid: parsed.resolved.locationUuid,
+            aircraftUuid: parsed.resolved.aircraftUuid,
+            jumpNumber: parsed.data.jumpNumber,
+            jumpDate: parsed.data.jumpDate,
             exitAltitude: altitudeToMeters(
-                result.data.exitAltitude,
+                parsed.data.exitAltitude,
                 altitudeUnits,
             ),
             openingAltitude: altitudeToMeters(
-                result.data.openingAltitude,
+                parsed.data.openingAltitude,
                 altitudeUnits,
             ),
-            freefallTime: result.data.freefallTime,
-            description: result.data.description || null,
+            freefallTime: parsed.data.freefallTime,
+            description: parsed.data.description || null,
         }),
-        ...result.data.gearUuids.map((gearUuid) =>
+        ...parsed.resolved.gearUuids.map((gearUuid) =>
             db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
         ),
-        ...result.data.jumpTypeUuids.map((jumpTypeUuid) =>
+        ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
             db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
         ),
     ]);
@@ -439,8 +687,7 @@ async function renderEditJump(c: AppRequestContext) {
 async function handleEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const options = getAppContext(c).getUser().options;
-    const altitudeUnits = options.altitudeUnits;
+    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
     const { uuid } = routes.jumpEdit.params(c);
     if (!uuid) {
         return c.notFound();
@@ -463,46 +710,35 @@ async function handleEditJump(c: AppRequestContext) {
             .get();
         return deleted ? c.redirect(routes.logbook({})) : c.notFound();
     }
-    const raw = getJumpFormValues(formData);
-    const result = JumpSchema.safeParse(raw);
-    const resources = await getJumpFormResources(c);
-    const formProps = {
-        title: "Edit jump",
-        submitLabel: "Save jump",
-        values: raw,
-        resources,
-    };
-    if (!result.success) {
+
+    const parsed = await parseAndResolveJumpForm(c, formData);
+    if (!parsed.ok) {
         return c.render(
             <JumpFormPage
-                {...formProps}
-                errors={result.error.issues.map((issue) => issue.message)}
-            />,
-        );
-    }
-    if (!ownsJumpResources(resources, result.data)) {
-        return c.render(
-            <JumpFormPage
-                {...formProps}
-                errors={[
-                    "Choose locations, aircraft, gear, and jump types from your logbook",
-                ]}
+                title="Edit jump"
+                submitLabel="Save jump"
+                values={parsed.raw}
+                resources={parsed.resources}
+                errors={parsed.errors}
             />,
         );
     }
 
     const existingJump = await findJumpByNumber(
         c,
-        result.data.jumpNumber,
+        parsed.data.jumpNumber,
         uuid,
     );
     if (existingJump) {
         return c.render(
             <JumpFormPage
-                {...formProps}
+                title="Edit jump"
+                submitLabel="Save jump"
+                values={parsed.raw}
+                resources={parsed.resources}
                 errors={[
                     duplicateJumpNumberError(
-                        result.data.jumpNumber,
+                        parsed.data.jumpNumber,
                         existingJump.uuid,
                     ),
                 ]}
@@ -514,28 +750,28 @@ async function handleEditJump(c: AppRequestContext) {
         db
             .update(jumps)
             .set({
-                locationUuid: result.data.locationUuid,
-                aircraftUuid: result.data.aircraftUuid,
-                jumpNumber: result.data.jumpNumber,
-                jumpDate: result.data.jumpDate,
+                locationUuid: parsed.resolved.locationUuid,
+                aircraftUuid: parsed.resolved.aircraftUuid,
+                jumpNumber: parsed.data.jumpNumber,
+                jumpDate: parsed.data.jumpDate,
                 exitAltitude: altitudeToMeters(
-                    result.data.exitAltitude,
+                    parsed.data.exitAltitude,
                     altitudeUnits,
                 ),
                 openingAltitude: altitudeToMeters(
-                    result.data.openingAltitude,
+                    parsed.data.openingAltitude,
                     altitudeUnits,
                 ),
-                freefallTime: result.data.freefallTime,
-                description: result.data.description || null,
+                freefallTime: parsed.data.freefallTime,
+                description: parsed.data.description || null,
             })
             .where(eq(jumps.uuid, uuid)),
         db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, uuid)),
         db.delete(jumpsToJumpTypes).where(eq(jumpsToJumpTypes.jumpUuid, uuid)),
-        ...result.data.gearUuids.map((gearUuid) =>
+        ...parsed.resolved.gearUuids.map((gearUuid) =>
             db.insert(jumpsToGear).values({ jumpUuid: uuid, gearUuid }),
         ),
-        ...result.data.jumpTypeUuids.map((jumpTypeUuid) =>
+        ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
             db
                 .insert(jumpsToJumpTypes)
                 .values({ jumpUuid: uuid, jumpTypeUuid }),

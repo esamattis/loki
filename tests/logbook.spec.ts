@@ -517,6 +517,79 @@ test("gear can be converted to a jump type with its jump references", async ({
     ).toBeChecked();
 });
 
+// eslint-disable-next-line max-lines-per-function
+test("a skydiver can create jump items from the add jump form", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("inline-items-skydiver");
+    await page.locator('input[name="displayName"]').fill("Inline Skydiver");
+    await page.locator('input[name="email"]').fill("inline-items@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="jumpDate"]').fill("2024-07-01");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.locator('input[name="locationName"]').fill("Inline Drop Zone");
+    await page.locator('input[name="aircraftName"]').fill("Inline Plane");
+    await page.locator('input[name="gearName"]').fill("Inline Canopy");
+    await page.locator('input[name="jumpTypeName"]').fill("Inline Tracking");
+    await page.getByRole("button", { name: "Add jump" }).click();
+
+    await expect(page).toHaveURL("/logbook");
+    await expect(page.getByRole("link", { name: /#1/ })).toContainText(
+        "Inline Drop Zone / Inline Plane",
+    );
+    await expect(
+        page.getByRole("link", { name: /#1/ }).getByText("Inline Tracking"),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: /#1/ }).click();
+    await expect(
+        page.locator('select[name="locationUuid"] option:checked'),
+    ).toHaveText("Inline Drop Zone");
+    await expect(
+        page.locator('select[name="aircraftUuid"] option:checked'),
+    ).toHaveText("Inline Plane");
+    await expect(
+        page.getByRole("checkbox", { name: "Inline Canopy" }),
+    ).toBeChecked();
+    await expect(
+        page.getByRole("checkbox", { name: "Inline Tracking" }),
+    ).toBeChecked();
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage locations" }).click();
+    await expect(
+        page.getByText("Inline Drop Zone", { exact: true }),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: /Inline Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage aircraft" }).click();
+    await expect(page.getByText("Inline Plane", { exact: true })).toBeVisible();
+
+    await page.getByRole("link", { name: /Inline Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage gear" }).click();
+    await expect(
+        page.getByText("Inline Canopy", { exact: true }),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: /Inline Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage jump types" }).click();
+    await expect(
+        page.getByText("Inline Tracking", { exact: true }),
+    ).toBeVisible();
+});
+
 test("adding a jump with an existing jump number shows an error and link", async ({
     page,
 }) => {

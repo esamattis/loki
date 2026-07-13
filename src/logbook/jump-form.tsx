@@ -3,6 +3,7 @@ import { useAppContext } from "../app";
 import {
     Checkbox,
     FormActions,
+    Input,
     NumberInput,
     Select,
     Textarea,
@@ -31,6 +32,10 @@ export interface JumpFormValues {
     description?: string;
     gearUuids?: string[];
     jumpTypeUuids?: string[];
+    locationName?: string;
+    aircraftName?: string;
+    gearName?: string;
+    jumpTypeName?: string;
 }
 
 function getToday(): string {
@@ -203,6 +208,76 @@ function JumpDateField(props: { value: string }) {
     );
 }
 
+function ResourceSelectWithName(props: {
+    selectName: string;
+    selectLabel: string;
+    selectedUuid?: string;
+    items: Resource[];
+    nameField: string;
+    nameLabel: string;
+    nameValue?: string;
+}) {
+    return (
+        <div className="space-y-3">
+            <Select name={props.selectName} label={props.selectLabel}>
+                <option value="" selected={!props.selectedUuid}>
+                    Select a {props.selectLabel.toLowerCase()}
+                </option>
+                {props.items.map((item) => (
+                    <option
+                        value={item.uuid}
+                        selected={item.uuid === props.selectedUuid}
+                    >
+                        {item.name}
+                    </option>
+                ))}
+            </Select>
+            <Input
+                name={props.nameField}
+                label={props.nameLabel}
+                value={props.nameValue ?? ""}
+                placeholder="Create or match by name"
+            />
+        </div>
+    );
+}
+
+function JumpItemCheckboxFieldset(props: {
+    legend: string;
+    checkboxName: string;
+    items: Resource[];
+    selectedUuids: Set<string>;
+    nameField: string;
+    nameLabel: string;
+    nameValue?: string;
+}) {
+    return (
+        <fieldset>
+            <legend className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {props.legend}
+            </legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {props.items.map((item) => (
+                    <Checkbox
+                        name={props.checkboxName}
+                        value={item.uuid}
+                        label={item.name}
+                        checked={props.selectedUuids.has(item.uuid)}
+                    />
+                ))}
+            </div>
+            <div className="mt-3">
+                <Input
+                    name={props.nameField}
+                    label={props.nameLabel}
+                    value={props.nameValue ?? ""}
+                    placeholder="Create or match by name"
+                />
+            </div>
+        </fieldset>
+    );
+}
+
 function JumpForm(props: {
     values?: JumpFormValues;
     locations: Resource[];
@@ -235,63 +310,43 @@ function JumpForm(props: {
                     value={values.jumpNumber ?? ""}
                 />
                 <AvgSpeed values={values} />
-                <Select name="locationUuid" label="Location" required>
-                    <option value="" disabled selected={!values.locationUuid}>
-                        Select a location
-                    </option>
-                    {props.locations.map((location) => (
-                        <option
-                            value={location.uuid}
-                            selected={location.uuid === values.locationUuid}
-                        >
-                            {location.name}
-                        </option>
-                    ))}
-                </Select>
-                <Select name="aircraftUuid" label="Aircraft" required>
-                    <option value="" disabled selected={!values.aircraftUuid}>
-                        Select an aircraft
-                    </option>
-                    {props.aircrafts.map((aircraft) => (
-                        <option
-                            value={aircraft.uuid}
-                            selected={aircraft.uuid === values.aircraftUuid}
-                        >
-                            {aircraft.name}
-                        </option>
-                    ))}
-                </Select>
+                <ResourceSelectWithName
+                    selectName="locationUuid"
+                    selectLabel="Location"
+                    selectedUuid={values.locationUuid}
+                    items={props.locations}
+                    nameField="locationName"
+                    nameLabel="Or new location name"
+                    nameValue={values.locationName}
+                />
+                <ResourceSelectWithName
+                    selectName="aircraftUuid"
+                    selectLabel="Aircraft"
+                    selectedUuid={values.aircraftUuid}
+                    items={props.aircrafts}
+                    nameField="aircraftName"
+                    nameLabel="Or new aircraft name"
+                    nameValue={values.aircraftName}
+                />
             </div>
-            <fieldset>
-                <legend className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Gear used
-                </legend>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                    {props.gear.map((item) => (
-                        <Checkbox
-                            name="gearUuids"
-                            value={item.uuid}
-                            label={item.name}
-                            checked={selectedGear.has(item.uuid)}
-                        />
-                    ))}
-                </div>
-            </fieldset>
-            <fieldset>
-                <legend className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Jump types
-                </legend>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                    {props.jumpTypes.map((item) => (
-                        <Checkbox
-                            name="jumpTypeUuids"
-                            value={item.uuid}
-                            label={item.name}
-                            checked={selectedJumpTypes.has(item.uuid)}
-                        />
-                    ))}
-                </div>
-            </fieldset>
+            <JumpItemCheckboxFieldset
+                legend="Gear used"
+                checkboxName="gearUuids"
+                items={props.gear}
+                selectedUuids={selectedGear}
+                nameField="gearName"
+                nameLabel="New gear name"
+                nameValue={values.gearName}
+            />
+            <JumpItemCheckboxFieldset
+                legend="Jump types"
+                checkboxName="jumpTypeUuids"
+                items={props.jumpTypes}
+                selectedUuids={selectedJumpTypes}
+                nameField="jumpTypeName"
+                nameLabel="New jump type name"
+                nameValue={values.jumpTypeName}
+            />
             <Textarea
                 name="description"
                 label="Notes"
@@ -379,6 +434,10 @@ export function getJumpFormValues(formData: FormData): JumpFormValues {
         jumpTypeUuids: formData
             .getAll("jumpTypeUuids")
             .filter((value): value is string => typeof value === "string"),
+        locationName: getValue("locationName"),
+        aircraftName: getValue("aircraftName"),
+        gearName: getValue("gearName"),
+        jumpTypeName: getValue("jumpTypeName"),
     };
 }
 

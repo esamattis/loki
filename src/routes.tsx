@@ -26,6 +26,10 @@ export const jumpNew = route("/logbook/jumps/new").query<{
     aircraftUuid?: string;
     gearUuids?: string;
     jumpTypeUuids?: string;
+    locationName?: string;
+    aircraftName?: string;
+    gearName?: string;
+    jumpTypeName?: string;
     description?: string;
 }>();
 export const jumpFromImage = route("/logbook/jumps/new/from-image");

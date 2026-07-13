@@ -70,6 +70,16 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(
         page.locator('select[name="aircraftUuid"] option:checked'),
     ).toHaveText("Image Plane");
+    await expect(page.locator('input[name="locationName"]')).toHaveValue(
+        "Image Drop Zone",
+    );
+    await expect(page.locator('input[name="aircraftName"]')).toHaveValue(
+        "Image Plane",
+    );
+    await expect(page.locator('input[name="gearName"]')).toHaveValue(
+        "Image Canopy",
+    );
+    await expect(page.locator('input[name="jumpTypeName"]')).toHaveValue("FS");
     await expect(
         page.locator("label", { hasText: "Image Canopy" }).locator("input"),
     ).toBeChecked();

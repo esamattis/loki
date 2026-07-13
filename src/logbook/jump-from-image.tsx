@@ -60,10 +60,12 @@ const JumpImageDataSchema = z.object({
         .array(z.string())
         .nullable()
         .describe("Gear names used on the jump, or null if not readable"),
-    jumpTypes: z
-        .array(z.string())
+    jumpType: z
+        .string()
         .nullable()
-        .describe("Jump type or discipline names, or null if not readable"),
+        .describe(
+            "Single primary jump type or discipline name, or null if not readable",
+        ),
     description: z
         .string()
         .nullable()
@@ -255,7 +257,7 @@ const PLAYWRIGHT_MOCK_JUMP_DATA: JumpImageData = {
     location: "Image Drop Zone",
     aircraft: "Image Plane",
     gear: ["Image Canopy"],
-    jumpTypes: ["FS"],
+    jumpType: "FS",
     description: "From image mock",
 };
 
@@ -323,10 +325,10 @@ function buildJumpNewQuery(
     const locationUuid = findResourceUuid(resources.locations, data.location);
     const aircraftUuid = findResourceUuid(resources.aircrafts, data.aircraft);
     const gearUuids = findResourceUuids(resources.gear, data.gear);
-    const jumpTypeUuids = findResourceUuids(
-        resources.jumpTypes,
-        data.jumpTypes,
-    );
+    const jumpTypeUuid = findResourceUuid(resources.jumpTypes, data.jumpType);
+    const gearNames = (data.gear ?? [])
+        .map((name) => name.trim())
+        .filter(Boolean);
 
     return {
         jumpDate: data.jumpDate ?? undefined,
@@ -343,8 +345,11 @@ function buildJumpNewQuery(
         locationUuid,
         aircraftUuid,
         gearUuids: gearUuids.length > 0 ? gearUuids.join(",") : undefined,
-        jumpTypeUuids:
-            jumpTypeUuids.length > 0 ? jumpTypeUuids.join(",") : undefined,
+        jumpTypeUuids: jumpTypeUuid,
+        locationName: data.location?.trim() || undefined,
+        aircraftName: data.aircraft?.trim() || undefined,
+        gearName: gearNames.length > 0 ? gearNames.join(", ") : undefined,
+        jumpTypeName: data.jumpType?.trim() || undefined,
         description: data.description ?? undefined,
     };
 }
