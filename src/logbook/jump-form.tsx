@@ -208,6 +208,67 @@ function JumpDateField(props: { value: string }) {
     );
 }
 
+function JumpNumberField(props: { value: string; nextJumpNumber?: string }) {
+    const inputId = useId();
+    const buttonId = useId();
+
+    if (props.nextJumpNumber === undefined) {
+        return (
+            <NumberInput
+                name="jumpNumber"
+                label="Jump number"
+                min="1"
+                required
+                value={props.value}
+            />
+        );
+    }
+
+    return (
+        <div>
+            <label
+                htmlFor={inputId}
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+                Jump number
+            </label>
+            <div className="mt-1.5 flex gap-2">
+                <input
+                    id={inputId}
+                    name="jumpNumber"
+                    type="number"
+                    min="1"
+                    required
+                    value={props.value}
+                    data-next-jump-number={props.nextJumpNumber}
+                    className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/30"
+                />
+                <button
+                    id={buttonId}
+                    type="button"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40"
+                >
+                    Next
+                </button>
+            </div>
+            <Script
+                $deps={[$assertElement]}
+                $args={[inputId, buttonId]}
+                $exec={(inputId, buttonId) => {
+                    const input = document.getElementById(inputId);
+                    const button = document.getElementById(buttonId);
+                    $assertElement(input, HTMLInputElement);
+                    $assertElement(button, HTMLButtonElement);
+                    button.addEventListener("click", () => {
+                        input.value =
+                            input.getAttribute("data-next-jump-number") ?? "";
+                    });
+                }}
+            />
+        </div>
+    );
+}
+
 function ResourceSelectWithName(props: {
     selectName: string;
     selectLabel: string;
@@ -286,6 +347,7 @@ function JumpForm(props: {
     jumpTypes: Resource[];
     errors?: Child[];
     submitLabel: string;
+    nextJumpNumber?: string;
 }) {
     const values = props.values ?? {};
     const selectedGear = new Set(values.gearUuids ?? []);
@@ -302,12 +364,9 @@ function JumpForm(props: {
             />
             <div className="grid gap-5 sm:grid-cols-2">
                 <JumpDateField value={values.jumpDate ?? getToday()} />
-                <NumberInput
-                    name="jumpNumber"
-                    label="Jump number"
-                    min="1"
-                    required
+                <JumpNumberField
                     value={values.jumpNumber ?? ""}
+                    nextJumpNumber={props.nextJumpNumber}
                 />
                 <AvgSpeed values={values} />
                 <ResourceSelectWithName
@@ -371,6 +430,7 @@ export function JumpFormPage(props: {
         gear: Resource[];
         jumpTypes: Resource[];
     };
+    nextJumpNumber?: string;
     copyHref?: string;
     canDelete?: boolean;
 }) {
@@ -380,6 +440,7 @@ export function JumpFormPage(props: {
                 values={props.values}
                 errors={props.errors}
                 submitLabel={props.submitLabel}
+                nextJumpNumber={props.nextJumpNumber}
                 {...props.resources}
             />
             {props.copyHref && (

@@ -590,6 +590,62 @@ test("a skydiver can create jump items from the add jump form", async ({
     ).toBeVisible();
 });
 
+test("next jump number button restores max plus one", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("next-jump-number");
+    await page.locator('input[name="displayName"]').fill("Next Number Jumper");
+    await page
+        .locator('input[name="email"]')
+        .fill("next-jump-number@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage locations" }).click();
+    await page.getByRole("link", { name: "Add location" }).click();
+    await page.locator('input[name="name"]').fill("Next Number Drop Zone");
+    await page.getByRole("button", { name: "Add location" }).click();
+
+    await page
+        .getByRole("link", { name: /Next Number Jumper's logbook/ })
+        .click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage aircraft" }).click();
+    await page.getByRole("link", { name: "Add aircraft" }).click();
+    await page.locator('input[name="name"]').fill("Next Number Plane");
+    await page.getByRole("button", { name: "Add aircraft" }).click();
+
+    await page
+        .getByRole("link", { name: /Next Number Jumper's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("5");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.locator('select[name="locationUuid"]').selectOption({
+        label: "Next Number Drop Zone",
+    });
+    await page.locator('select[name="aircraftUuid"]').selectOption({
+        label: "Next Number Plane",
+    });
+    await page.getByRole("button", { name: "Add jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("6");
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveAttribute(
+        "data-next-jump-number",
+        "6",
+    );
+
+    await page.locator('input[name="jumpNumber"]').fill("99");
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("6");
+});
+
 test("adding a jump with an existing jump number shows an error and link", async ({
     page,
 }) => {

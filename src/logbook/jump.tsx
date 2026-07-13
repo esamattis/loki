@@ -501,8 +501,9 @@ async function renderNewJump(c: AppRequestContext) {
         .limit(1)
         .get();
 
+    const nextJumpNumber = String((latestJump?.jumpNumber ?? 0) + 1);
     let values: JumpFormValues = {
-        jumpNumber: String((latestJump?.jumpNumber ?? 0) + 1),
+        jumpNumber: nextJumpNumber,
         jumpDate: getToday(),
     };
     const sourceJumpUuid =
@@ -559,14 +560,30 @@ async function renderNewJump(c: AppRequestContext) {
             title="Add jump"
             submitLabel="Add jump"
             values={values}
+            nextJumpNumber={nextJumpNumber}
             resources={await getJumpFormResources(c)}
         />,
     );
 }
 
+async function getNextJumpNumber(
+    c: AppRequestContext,
+    userUuid: string,
+): Promise<string> {
+    const latestJump = await getAppContext(c)
+        .db.select({ jumpNumber: jumps.jumpNumber })
+        .from(jumps)
+        .where(eq(jumps.userUuid, userUuid))
+        .orderBy(desc(jumps.jumpNumber))
+        .limit(1)
+        .get();
+    return String((latestJump?.jumpNumber ?? 0) + 1);
+}
+
 async function handleNewJump(c: AppRequestContext) {
     const formData = await c.req.formData();
     const parsed = await parseAndResolveJumpForm(c, formData);
+    const userUuid = getAppContext(c).getUser().uuid;
     if (!parsed.ok) {
         return c.render(
             <JumpFormPage
@@ -574,12 +591,12 @@ async function handleNewJump(c: AppRequestContext) {
                 submitLabel="Add jump"
                 errors={parsed.errors}
                 values={parsed.raw}
+                nextJumpNumber={await getNextJumpNumber(c, userUuid)}
                 resources={parsed.resources}
             />,
         );
     }
 
-    const userUuid = getAppContext(c).getUser().uuid;
     const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
     const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
     if (existingJump) {
@@ -594,6 +611,7 @@ async function handleNewJump(c: AppRequestContext) {
                     ),
                 ]}
                 values={parsed.raw}
+                nextJumpNumber={await getNextJumpNumber(c, userUuid)}
                 resources={parsed.resources}
             />,
         );
