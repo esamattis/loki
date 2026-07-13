@@ -9,7 +9,7 @@
         "preview": "$npm_execpath run build && vite preview",
         "deploy": "$npm_execpath run build && wrangler deploy",
         "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-        "db:generate": "drizzle-kit generate",
+        "db:generate": "node scripts/db-generate.ts",
         "db:migrate": "node scripts/migrate-local.ts",
         "db:migrate:sqlite": "node scripts/migrate-sqlite.ts",
         "db:migrate:remote": "node scripts/migrate-remote.ts",

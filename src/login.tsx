@@ -18,6 +18,7 @@ import {
     sessionCookieOptions,
     SESSION_MAX_AGE,
 } from "./auth";
+import { DEFAULT_USER_OPTIONS_JSON } from "./options";
 import * as routes from "./routes";
 
 export { hashPassword } from "./auth";
@@ -441,6 +442,7 @@ async function handleRegister(c: AppRequestContext) {
             displayName: displayName || null,
             email,
             password: passwordHash,
+            options: DEFAULT_USER_OPTIONS_JSON,
         })
         .run();
 

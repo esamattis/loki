@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { resolve } from "node:path";
 import { createSqliteDatabase, resolveSqlitePath } from "../src/db-sqlite.ts";
 import { migrateSqlite } from "../src/migrate-sqlite.ts";
+import { DEFAULT_USER_OPTIONS_JSON } from "../src/options.ts";
 import { users } from "../src/schema.ts";
 
 const username = "developer";
@@ -71,6 +72,7 @@ async function main(): Promise<void> {
                     displayName,
                     password: passwordHash,
                     email,
+                    options: DEFAULT_USER_OPTIONS_JSON,
                     admin: true,
                 })
                 .run();

@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateText, Output } from "ai";
+import { generateText, Output, type LanguageModelUsage } from "ai";
 import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { z } from "zod";
@@ -18,6 +18,14 @@ import {
 import * as routes from "../routes";
 import { aircrafts, gear, jumpTypes, locations } from "../schema";
 import { $assertElement } from "../utils";
+import {
+    AiUsageSummary,
+    buildAiUsageTitle,
+    getAiUsageForUser,
+    recordAiUsage,
+    type AiUsageRow,
+    type AiUsageTotals,
+} from "./ai-usage";
 import {
     $formatJumpImageBytes,
     $initJumpImageInput,
@@ -283,100 +291,108 @@ function JumpFromImagePage(props: {
     hasApiKey: boolean;
     additionalContext: string;
     model: UserOptions["jumpImageModel"];
+    usageTotals: AiUsageTotals;
+    usageRows: AiUsageRow[];
 }) {
     return (
         <LogbookPage title="Add jump from image">
-            <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Read jump data from an image
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Upload a photo of a logbook page, altimeter, or freefall
-                        computer. Review the extracted values on the add jump
-                        form before saving.
-                    </p>
-                </div>
-                <ErrorList
-                    errors={props.errors ?? []}
-                    className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
-                />
-                {!props.hasApiKey && (
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
-                        Add an OpenAI API key in{" "}
-                        <a
-                            href={routes.preferences({})}
-                            className="font-medium underline"
-                        >
-                            Preferences
-                        </a>{" "}
-                        before using this feature.
-                    </p>
-                )}
-                <form
-                    method="post"
-                    encType="multipart/form-data"
-                    className="space-y-5"
-                >
-                    <JumpImageField />
-                    <div className="space-y-1.5">
-                        <Select
-                            name="model"
-                            label="AI model"
-                            persist="jump-from-image-model"
-                        >
-                            {JUMP_IMAGE_MODELS.map((model) => (
-                                <option
-                                    value={model.id}
-                                    selected={model.id === props.model}
-                                >
-                                    {model.label} — {model.description}
-                                </option>
-                            ))}
-                        </Select>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Prefills from your saved default. Change for this
-                            read, or set the default in{" "}
-                            <a
-                                href={routes.preferences({})}
-                                className="font-medium text-indigo-600 underline dark:text-indigo-400"
-                            >
-                                Preferences
-                            </a>
-                            .
+            <div className="space-y-6">
+                <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                            Read jump data from an image
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Upload a photo of a logbook page, altimeter, or
+                            freefall computer. Review the extracted values on
+                            the add jump form before saving.
                         </p>
                     </div>
-                    <div className="space-y-1.5">
-                        <Textarea
-                            name="additionalContext"
-                            label="Additional context"
-                            rows={4}
-                            value={props.additionalContext}
-                            persist="jump-from-image-additional-context"
-                        />
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Optional notes for this read only. Change the
-                            default image reading prompt in{" "}
-                            <a
-                                href={routes.preferences({})}
-                                className="font-medium text-indigo-600 underline dark:text-indigo-400"
-                            >
-                                Preferences
-                            </a>
-                            .
-                        </p>
-                    </div>
-                    <FormActions
-                        submitLabel="Read image"
-                        cancelHref={routes.logbook({})}
+                    <ErrorList
+                        errors={props.errors ?? []}
+                        className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
                     />
-                </form>
-            </section>
+                    {!props.hasApiKey && (
+                        <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+                            Add an OpenAI API key in{" "}
+                            <a
+                                href={routes.preferences({})}
+                                className="font-medium underline"
+                            >
+                                Preferences
+                            </a>{" "}
+                            before using this feature.
+                        </p>
+                    )}
+                    <form
+                        method="post"
+                        encType="multipart/form-data"
+                        className="space-y-5"
+                    >
+                        <JumpImageField />
+                        <div className="space-y-1.5">
+                            <Select
+                                name="model"
+                                label="AI model"
+                                persist="jump-from-image-model"
+                            >
+                                {JUMP_IMAGE_MODELS.map((model) => (
+                                    <option
+                                        value={model.id}
+                                        selected={model.id === props.model}
+                                    >
+                                        {model.label} — {model.description}
+                                    </option>
+                                ))}
+                            </Select>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Prefills from your saved default. Change for
+                                this read, or set the default in{" "}
+                                <a
+                                    href={routes.preferences({})}
+                                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
+                                >
+                                    Preferences
+                                </a>
+                                .
+                            </p>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Textarea
+                                name="additionalContext"
+                                label="Additional context"
+                                rows={4}
+                                value={props.additionalContext}
+                                persist="jump-from-image-additional-context"
+                            />
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Optional notes for this read only. Change the
+                                default image reading prompt in{" "}
+                                <a
+                                    href={routes.preferences({})}
+                                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
+                                >
+                                    Preferences
+                                </a>
+                                .
+                            </p>
+                        </div>
+                        <FormActions
+                            submitLabel="Read image"
+                            cancelHref={routes.logbook({})}
+                        />
+                    </form>
+                </section>
+                <AiUsageSummary
+                    totals={props.usageTotals}
+                    rows={props.usageRows}
+                />
+            </div>
         </LogbookPage>
     );
 }
 
-function renderJumpFromImage(
+async function renderJumpFromImage(
     c: AppRequestContext,
     options?: {
         errors?: string[];
@@ -390,12 +406,15 @@ function renderJumpFromImage(
         options?.model ??
         userOptions.jumpImageModel ??
         DEFAULT_JUMP_IMAGE_MODEL;
+    const usage = await getAiUsageForUser(c);
     return c.render(
         <JumpFromImagePage
             errors={options?.errors}
             hasApiKey={hasApiKey}
             additionalContext={options?.additionalContext ?? ""}
             model={model}
+            usageTotals={usage.totals}
+            usageRows={usage.rows}
         />,
     );
 }
@@ -413,6 +432,21 @@ const PLAYWRIGHT_MOCK_JUMP_DATA: JumpImageData = {
     description: "From image mock",
 };
 
+const PLAYWRIGHT_MOCK_USAGE: LanguageModelUsage = {
+    inputTokens: 1200,
+    inputTokenDetails: {
+        noCacheTokens: 1200,
+        cacheReadTokens: undefined,
+        cacheWriteTokens: undefined,
+    },
+    outputTokens: 180,
+    outputTokenDetails: {
+        textTokens: 180,
+        reasoningTokens: undefined,
+    },
+    totalTokens: 1380,
+};
+
 function isPlaywrightTest(): boolean {
     return process.env.PLAYWRIGHT_TEST === "1";
 }
@@ -426,9 +460,12 @@ async function extractJumpDataFromImage(options: {
     image: Uint8Array;
     mediaType: string;
     resources: Awaited<ReturnType<typeof getJumpItemResources>>;
-}): Promise<JumpImageData> {
+}): Promise<{ data: JumpImageData; usage: LanguageModelUsage }> {
     if (isPlaywrightTest()) {
-        return PLAYWRIGHT_MOCK_JUMP_DATA;
+        return {
+            data: PLAYWRIGHT_MOCK_JUMP_DATA,
+            usage: PLAYWRIGHT_MOCK_USAGE,
+        };
     }
 
     const openai = createOpenAI({ apiKey: options.apiKey });
@@ -448,7 +485,7 @@ async function extractJumpDataFromImage(options: {
         .filter(Boolean)
         .join("\n");
 
-    const { output } = await generateText({
+    const { output, usage } = await generateText({
         model: openai(options.model),
         output: Output.object({
             schema: JumpImageDataSchema,
@@ -474,7 +511,7 @@ async function extractJumpDataFromImage(options: {
     if (!output) {
         throw new Error("No jump data was returned from the image");
     }
-    return output;
+    return { data: output, usage };
 }
 
 function buildJumpNewQuery(
@@ -565,7 +602,7 @@ async function handleJumpFromImage(c: AppRequestContext) {
     const resources = await getJumpItemResources(c);
     try {
         const bytes = new Uint8Array(await image.arrayBuffer());
-        const data = await extractJumpDataFromImage({
+        const { data, usage } = await extractJumpDataFromImage({
             apiKey,
             model,
             prompt,
@@ -574,6 +611,12 @@ async function handleJumpFromImage(c: AppRequestContext) {
             image: bytes,
             mediaType,
             resources,
+        });
+        await recordAiUsage({
+            c,
+            model,
+            title: buildAiUsageTitle(data),
+            usage,
         });
         return c.redirect(
             routes.jumpNew({}, buildJumpNewQuery(data, resources)),
@@ -591,5 +634,5 @@ async function handleJumpFromImage(c: AppRequestContext) {
     }
 }
 
-app.get(routes.jumpFromImage.route, (c) => renderJumpFromImage(c));
+app.get(routes.jumpFromImage.route, async (c) => renderJumpFromImage(c));
 app.post(routes.jumpFromImage.route, handleJumpFromImage);

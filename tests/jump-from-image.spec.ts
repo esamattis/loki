@@ -137,6 +137,32 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
         "From image mock",
     );
+
+    await page.getByRole("link", { name: "From image", exact: true }).click();
+    await expect(page).toHaveURL("/logbook/jumps/new/from-image");
+    const usageSection = page
+        .locator("section")
+        .filter({ has: page.getByRole("heading", { name: "AI usage" }) });
+    await expect(
+        usageSection.getByRole("heading", { name: "AI usage" }),
+    ).toBeVisible();
+    const usageRow = usageSection
+        .locator("table tbody tr")
+        .filter({ hasText: "#42 · 2024-06-15 · Image Drop Zone · FS" });
+    await expect(usageRow).toHaveCount(1);
+    await expect(
+        usageRow.getByRole("cell", { name: "gpt-5.6-luna" }),
+    ).toBeVisible();
+    await expect(usageRow.getByRole("cell", { name: "1,200" })).toBeVisible();
+    await expect(usageRow.getByRole("cell", { name: "180" })).toBeVisible();
+    await expect(usageRow.getByRole("cell", { name: "1,380" })).toBeVisible();
+    await expect(
+        usageSection
+            .locator("p")
+            .filter({ hasText: "Input tokens" })
+            .locator("..")
+            .getByText("1,200"),
+    ).toBeVisible();
 });
 
 test("from image form persists model and additional context after reload", async ({

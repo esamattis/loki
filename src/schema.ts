@@ -6,8 +6,9 @@ import {
     primaryKey,
     uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-import { DEFAULT_USER_OPTIONS_JSON } from "./options.ts";
-
+// Keep this default stable (`{}`). App code fills full options JSON on insert.
+// Putting DEFAULT_USER_OPTIONS_JSON here made drizzle-kit rebuild `users` (and
+// cascade-delete jumps) whenever the options default string changed.
 export const users = sqliteTable("users", {
     uuid: text("uuid")
         .primaryKey()
@@ -16,7 +17,7 @@ export const users = sqliteTable("users", {
     displayName: text("display_name"),
     password: text("password").notNull(),
     email: text("email").notNull(),
-    options: text("options").notNull().default(DEFAULT_USER_OPTIONS_JSON),
+    options: text("options").notNull().default("{}"),
     admin: integer("admin", { mode: "boolean" }).notNull().default(false),
 });
 
@@ -148,12 +149,35 @@ export const sessions = sqliteTable("sessions", {
     lastUsedAt: integer("last_used_at").notNull(), // unix seconds
 });
 
+export const aiUsage = sqliteTable("ai_usage", {
+    uuid: text("uuid")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userUuid: text("user_uuid")
+        .references(() => users.uuid, { onDelete: "cascade" })
+        .notNull(),
+    model: text("model").notNull(),
+    title: text("title").notNull(),
+    createdAt: integer("created_at").notNull(), // unix seconds
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    totalTokens: integer("total_tokens"),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
     jumps: many(jumps),
     gear: many(gear),
     jumpTypes: many(jumpTypes),
     locations: many(locations),
     aircrafts: many(aircrafts),
+    aiUsage: many(aiUsage),
+}));
+
+export const aiUsageRelations = relations(aiUsage, ({ one }) => ({
+    user: one(users, {
+        fields: [aiUsage.userUuid],
+        references: [users.uuid],
+    }),
 }));
 
 export const locationsRelations = relations(locations, ({ one, many }) => ({
