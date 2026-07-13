@@ -78,6 +78,12 @@ function GearFormPage(props: {
 }) {
     return (
         <LogbookPage title={props.title}>
+            <a
+                href={routes.gearList({})}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+            >
+                ← Back to gear
+            </a>
             <GearForm
                 values={props.values}
                 errors={props.errors}
