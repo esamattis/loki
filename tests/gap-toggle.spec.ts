@@ -1,49 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const fixtureRecords = [
-    JSON.stringify({
-        type: "aircraft",
-        name: "Gap Plane",
-        previousCount: 0,
-    }),
-    JSON.stringify({
-        type: "location",
-        name: "Gap Drop Zone",
-        previousCount: 0,
-    }),
-    JSON.stringify({
-        type: "jump",
-        jumpNumber: 1,
-        jumpDate: "2021-06-15",
-        exitAltitude: 4000,
-        openingAltitude: 1000,
-        freefallTime: 55,
-        location: "Gap Drop Zone",
-        aircraft: "Gap Plane",
-        description: "First gap year jump",
-    }),
-    JSON.stringify({
-        type: "jump",
-        jumpNumber: 2,
-        jumpDate: "2023-06-15",
-        exitAltitude: 4000,
-        openingAltitude: 1000,
-        freefallTime: 55,
-        location: "Gap Drop Zone",
-        aircraft: "Gap Plane",
-        description: "Second gap year jump",
-    }),
-    JSON.stringify({
-        type: "jump",
-        jumpNumber: 3,
-        jumpDate: "2025-06-15",
-        exitAltitude: 4000,
-        openingAltitude: 1000,
-        freefallTime: 55,
-        location: "Gap Drop Zone",
-        aircraft: "Gap Plane",
-        description: "Third gap year jump",
-    }),
+const CSV_HEADER =
+    "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description";
+
+const fixtureCsv = [
+    CSV_HEADER,
+    "aircraft,Gap Plane,0,,,,,,,,,,",
+    "location,Gap Drop Zone,0,,,,,,,,,,",
+    "jump,,,1,2021-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,First gap year jump",
+    "jump,,,2,2023-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Second gap year jump",
+    "jump,,,3,2025-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Third gap year jump",
 ].join("\n");
 
 async function registerUser(page: Page, username: string) {
@@ -69,9 +35,9 @@ test("the Show gap years toggle hides and reveals histogram gap years", async ({
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Import or export" }).click();
     await page.locator('input[name="file"]').setInputFiles({
-        name: "gap-years.jsonl",
-        mimeType: "application/x-ndjson",
-        buffer: Buffer.from(fixtureRecords),
+        name: "gap-years.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(fixtureCsv),
     });
     await page.getByRole("button", { name: "Import logbook" }).click();
     await expect(page.getByText("Imported 3 jumps")).toBeVisible();

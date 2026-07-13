@@ -1,0 +1,7 @@
+type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description
+aircraft,Twin Otter,120,,,,,,,,,,Fast turbine aircraft
+gear,Navigator 260,42,,,,,,,,,,Main canopy
+jumpType,Formation skydiving,18,,,,,,,,,,Four-way training
+location,Skydive Example,300,,,,,,,,,,Home drop zone
+jump,,,301,,4000,1000,55,Skydive Example,Twin Otter,Navigator 260,Formation skydiving,Imported training jump
+jump,,,302,,3500,900,48,Skydive Example,Twin Otter,Navigator 260,Formation skydiving,Second imported jump

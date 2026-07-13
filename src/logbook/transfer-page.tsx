@@ -1,4 +1,4 @@
-import { Checkbox, Select } from "../components/form";
+import { Checkbox } from "../components/form";
 import * as routes from "../routes";
 import { LogbookPage } from "./layout";
 import { ExportCurlHelp, TransferFormatHelp } from "./transfer-format-help";
@@ -36,24 +36,18 @@ function ExportSection() {
                         Export
                     </h2>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Download your logbook as JSON Lines or CSV. Both formats
-                        use names instead of internal IDs. Only JSON Lines can
-                        be imported back. CSV can be opened in Excel,
-                        LibreOffice, Google Docs, and other spreadsheet tools.
+                        Download your logbook as CSV. The format uses names
+                        instead of internal IDs and can be re-imported. It also
+                        opens in Excel, LibreOffice, Google Docs, and other
+                        spreadsheet tools.
                     </p>
                 </div>
             </div>
             <form
                 method="get"
-                action={routes.logbookExport({}, {})}
-                className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"
+                action={routes.logbookExport({})}
+                className="mt-4"
             >
-                <Select name="format" label="Format" className="sm:w-56">
-                    <option value="jsonl" selected>
-                        JSON Lines (.jsonl)
-                    </option>
-                    <option value="csv">CSV (.csv)</option>
-                </Select>
                 <button
                     type="submit"
                     className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2.5 font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-indigo-400/40"
@@ -93,9 +87,9 @@ function ImportSection(props: TransferPageProps) {
                         Import
                     </h2>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Import a JSON Lines or Skydiving Logbook XML file.
-                        Existing gear, locations, aircraft, and jump types are
-                        matched by name.
+                        Import a CSV or Skydiving Logbook XML file. Existing
+                        gear, locations, aircraft, and jump types are matched by
+                        name. Unknown jump items are created automatically.
                     </p>
                 </div>
             </div>
@@ -122,7 +116,7 @@ function ImportSection(props: TransferPageProps) {
                         <input
                             type="file"
                             name="file"
-                            accept=".jsonl,.xml,application/x-ndjson,application/json,application/xml,text/xml"
+                            accept=".csv,.xml,text/csv,application/xml,text/xml"
                             required
                             className="mt-1.5 block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
                         />

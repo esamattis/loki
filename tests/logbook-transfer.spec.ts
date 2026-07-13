@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.jsonl");
+const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.csv");
 const xmlFixturePath = path.join(
     import.meta.dirname,
     "fixtures/skydiving-logbook.xml",
@@ -16,8 +16,39 @@ const xmlCutawayNoTypeFixturePath = path.join(
     "fixtures/skydiving-logbook-cutaway-no-type.xml",
 );
 
+const CSV_HEADER =
+    "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description";
+
 function basicAuthHeader(username: string, password: string): string {
     return "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
+}
+
+function csvJumpRow(options: {
+    jumpNumber: number;
+    exitAltitude: number;
+    openingAltitude: number;
+    freefallTime: number;
+    location: string;
+    aircraft: string;
+    gear?: string;
+    jumpTypes?: string;
+    description?: string;
+}): string {
+    return [
+        "jump",
+        "",
+        "",
+        options.jumpNumber,
+        "",
+        options.exitAltitude,
+        options.openingAltitude,
+        options.freefallTime,
+        options.location,
+        options.aircraft,
+        options.gear ?? "",
+        options.jumpTypes ?? "",
+        options.description ?? "",
+    ].join(",");
 }
 
 async function registerUser(page: Page, username: string) {
@@ -155,10 +186,9 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     }
     const exportContents = await readFile(exportPath, "utf8");
     expect(exportContents).not.toMatch(/uuid/i);
-    expect(exportContents).toContain('"gear":["Navigator 260"]');
-    expect(exportContents).toContain(
-        '"exitAltitude":4000,"openingAltitude":1000,"freefallTime":55',
-    );
+    expect(exportContents).toContain(CSV_HEADER);
+    expect(exportContents).toContain("Navigator 260");
+    expect(exportContents).toContain(",4000,1000,55,");
     await page.getByRole("button", { name: "Log out" }).click();
     await registerUser(page, "second-skydiver");
 
@@ -206,20 +236,22 @@ test("clearing all previous data replaces the entire logbook during import", asy
     await expect(page.getByText("Imported 2 jumps")).toBeVisible();
 
     await page.locator('input[name="file"]').setInputFiles({
-        name: "replacement-logbook.jsonl",
-        mimeType: "application/x-ndjson",
+        name: "replacement-logbook.csv",
+        mimeType: "text/csv",
         buffer: Buffer.from(
-            JSON.stringify({
-                type: "jump",
-                jumpNumber: 1,
-                exitAltitude: 3000,
-                openingAltitude: 800,
-                freefallTime: 45,
-                location: "Replacement drop zone",
-                aircraft: "Replacement aircraft",
-                gear: ["Replacement gear"],
-                jumpTypes: ["Replacement jump type"],
-            }),
+            [
+                CSV_HEADER,
+                csvJumpRow({
+                    jumpNumber: 1,
+                    exitAltitude: 3000,
+                    openingAltitude: 800,
+                    freefallTime: 45,
+                    location: "Replacement drop zone",
+                    aircraft: "Replacement aircraft",
+                    gear: "Replacement gear",
+                    jumpTypes: "Replacement jump type",
+                }),
+            ].join("\n") + "\n",
         ),
     });
     await page
@@ -236,11 +268,11 @@ test("clearing all previous data replaces the entire logbook during import", asy
         throw new Error("The export download has no file path");
     }
     const exportContents = await readFile(exportPath, "utf8");
-    expect(exportContents).toContain('"jumpNumber":1');
-    expect(exportContents).toContain('"name":"Replacement gear"');
-    expect(exportContents).toContain('"name":"Replacement jump type"');
-    expect(exportContents).toContain('"name":"Replacement drop zone"');
-    expect(exportContents).toContain('"name":"Replacement aircraft"');
+    expect(exportContents).toContain(",1,");
+    expect(exportContents).toContain("Replacement gear");
+    expect(exportContents).toContain("Replacement jump type");
+    expect(exportContents).toContain("Replacement drop zone");
+    expect(exportContents).toContain("Replacement aircraft");
     expect(exportContents).not.toContain("Twin Otter");
     expect(exportContents).not.toContain("Navigator 260");
     expect(exportContents).not.toContain("Formation skydiving");
@@ -323,20 +355,22 @@ test("an import deduplicates repeated gear and jump type references", async ({
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Import or export" }).click();
     await page.locator('input[name="file"]').setInputFiles({
-        name: "duplicated-references.jsonl",
-        mimeType: "application/x-ndjson",
+        name: "duplicated-references.csv",
+        mimeType: "text/csv",
         buffer: Buffer.from(
-            JSON.stringify({
-                type: "jump",
-                jumpNumber: 1,
-                exitAltitude: 4000,
-                openingAltitude: 1000,
-                freefallTime: 60,
-                location: "Test location",
-                aircraft: "Test aircraft",
-                gear: ["Test rig", "test rig"],
-                jumpTypes: ["Test type", "test type"],
-            }),
+            [
+                CSV_HEADER,
+                csvJumpRow({
+                    jumpNumber: 1,
+                    exitAltitude: 4000,
+                    openingAltitude: 1000,
+                    freefallTime: 60,
+                    location: "Test location",
+                    aircraft: "Test aircraft",
+                    gear: "Test rig; test rig",
+                    jumpTypes: "Test type; test type",
+                }),
+            ].join("\n") + "\n",
         ),
     });
     await page.getByRole("button", { name: "Import logbook" }).click();
@@ -354,6 +388,54 @@ test("an import deduplicates repeated gear and jump type references", async ({
     ).toBeChecked();
 });
 
+test("CSV import creates unknown jump items and handles double-escaped semicolons", async ({
+    page,
+}) => {
+    await registerUser(page, "csv-semicolon-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "semicolon-gear.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(
+            [
+                CSV_HEADER,
+                csvJumpRow({
+                    jumpNumber: 10,
+                    exitAltitude: 4000,
+                    openingAltitude: 1000,
+                    freefallTime: 50,
+                    location: "New DZ",
+                    aircraft: "New Plane",
+                    gear: "A;;B; C",
+                    jumpTypes: "Type;;One; Type Two",
+                    description: "Semicolon names",
+                }),
+            ].join("\n") + "\n",
+        ),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 1 jump")).toBeVisible();
+
+    await page
+        .getByRole("link", { name: /csv-semicolon-skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: /#10/ }).click();
+    await expect(page.getByRole("checkbox", { name: "A;B" })).toBeChecked();
+    await expect(
+        page.getByRole("checkbox", { name: "C", exact: true }),
+    ).toBeChecked();
+    await expect(
+        page.getByRole("checkbox", { name: "Type;One" }),
+    ).toBeChecked();
+    await expect(
+        page.getByRole("checkbox", { name: "Type Two" }),
+    ).toBeChecked();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "4000",
+    );
+});
+
 test("the logbook can be exported with curl and HTTP Basic auth", async ({
     page,
     request,
@@ -368,41 +450,17 @@ test("the logbook can be exported with curl and HTTP Basic auth", async ({
     await page.getByRole("button", { name: "Manage logbook" }).click();
     await page.getByRole("link", { name: "Import or export" }).click();
     await expect(
-        page.getByText(/CSV can be opened in Excel, LibreOffice, Google Docs/i),
+        page.getByText(/opens in Excel, LibreOffice, Google Docs/i),
     ).toBeVisible();
     await page.getByText("Download with curl").click();
     await expect(
         page.locator("code", {
             hasText:
-                "curl -OJ -u curl-skydiver:<password> 'http://127.0.0.1:8788/logbook/export?format=jsonl'",
-        }),
-    ).toBeVisible();
-    await expect(
-        page.locator("code", {
-            hasText:
-                "curl -OJ -u curl-skydiver:<password> 'http://127.0.0.1:8788/logbook/export?format=csv'",
+                "curl -OJ -u curl-skydiver:<password> 'http://127.0.0.1:8788/logbook/export'",
         }),
     ).toBeVisible();
 
-    const jsonlResponse = await request.get("/logbook/export?format=jsonl", {
-        headers: {
-            Authorization: basicAuthHeader("curl-skydiver", "parachute"),
-        },
-    });
-    expect(jsonlResponse.status()).toBe(200);
-    expect(jsonlResponse.headers()["content-type"]).toContain(
-        "application/x-ndjson",
-    );
-    expect(jsonlResponse.headers()["content-disposition"]).toContain(
-        'filename="jump-logbook.jsonl"',
-    );
-    const jsonlBody = await jsonlResponse.text();
-    expect(jsonlBody).toContain('"jumpNumber":301');
-    expect(jsonlBody).toContain('"jumpNumber":302');
-    expect(jsonlBody).toContain('"gear":["Navigator 260"]');
-    expect(jsonlBody).not.toMatch(/uuid/i);
-
-    const csvResponse = await request.get("/logbook/export?format=csv", {
+    const csvResponse = await request.get("/logbook/export", {
         headers: {
             Authorization: basicAuthHeader("curl-skydiver", "parachute"),
         },
@@ -413,9 +471,7 @@ test("the logbook can be exported with curl and HTTP Basic auth", async ({
         'filename="jump-logbook.csv"',
     );
     const csvBody = await csvResponse.text();
-    expect(csvBody).toContain(
-        "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
-    );
+    expect(csvBody).toContain(CSV_HEADER);
     expect(csvBody).toContain("jump,");
     expect(csvBody).toContain(",301,");
     expect(csvBody).toContain(",302,");

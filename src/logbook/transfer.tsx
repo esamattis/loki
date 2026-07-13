@@ -336,7 +336,154 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
     ];
 }
 
-/** Reads and validates JSON Lines or Skydiving Logbook XML import records. */
+function parseCsvLine(line: string): string[] {
+    const fields: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i]!;
+        if (inQuotes) {
+            if (ch === '"') {
+                if (line[i + 1] === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                current += ch;
+            }
+        } else if (ch === '"') {
+            inQuotes = true;
+        } else if (ch === ",") {
+            fields.push(current);
+            current = "";
+        } else {
+            current += ch;
+        }
+    }
+    fields.push(current);
+    return fields;
+}
+
+function splitCsvList(value: string): string[] {
+    if (!value.trim()) {
+        return [];
+    }
+    const items: string[] = [];
+    let current = "";
+    for (let i = 0; i < value.length; i++) {
+        if (value[i] === ";") {
+            if (value[i + 1] === ";") {
+                current += ";";
+                i++;
+            } else if (value[i + 1] === " ") {
+                items.push(current);
+                current = "";
+                i++;
+            } else {
+                items.push(current);
+                current = "";
+            }
+        } else {
+            current += value[i]!;
+        }
+    }
+    items.push(current);
+    return items.map((item) => item.trim()).filter((item) => item.length > 0);
+}
+
+const CSV_HEADERS = [
+    "type",
+    "name",
+    "previousCount",
+    "jumpNumber",
+    "jumpDate",
+    "exitAltitude",
+    "openingAltitude",
+    "freefallTime",
+    "location",
+    "aircraft",
+    "gear",
+    "jumpTypes",
+    "description",
+] as const;
+
+function emptyToUndefined(value: string): string | undefined {
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+}
+
+function rowToImportValue(fields: string[]): unknown {
+    const get = (index: number) => fields[index] ?? "";
+    const type = get(0).trim();
+    if (
+        type === "aircraft" ||
+        type === "gear" ||
+        type === "jumpType" ||
+        type === "location"
+    ) {
+        return {
+            type,
+            name: get(1),
+            previousCount: emptyToUndefined(get(2)) ?? "0",
+            description: emptyToUndefined(get(12)) ?? null,
+        };
+    }
+    if (type === "jump") {
+        return {
+            type,
+            jumpNumber: get(3),
+            jumpDate: emptyToUndefined(get(4)),
+            exitAltitude: get(5),
+            openingAltitude: get(6),
+            freefallTime: get(7),
+            location: get(8),
+            aircraft: get(9),
+            gear: splitCsvList(get(10)),
+            jumpTypes: splitCsvList(get(11)),
+            description: emptyToUndefined(get(12)) ?? null,
+        };
+    }
+    return { type };
+}
+
+function parseCsvImport(
+    content: string,
+): { errors: string[] } | { records: ImportRecord[] } {
+    const lines = content.split(/\r?\n/).filter((line) => line.trim());
+    if (lines.length === 0) {
+        return { errors: ["The import file is empty"] };
+    }
+    const headerFields = parseCsvLine(lines[0]!).map((field) => field.trim());
+    if (
+        headerFields.length !== CSV_HEADERS.length ||
+        CSV_HEADERS.some((header, index) => headerFields[index] !== header)
+    ) {
+        return {
+            errors: [`CSV header must be: ${CSV_HEADERS.join(",")}`],
+        };
+    }
+    if (lines.length === 1) {
+        return { errors: ["The import file has no data rows"] };
+    }
+    const records: ImportRecord[] = [];
+    const errors: string[] = [];
+    for (const [index, line] of lines.slice(1).entries()) {
+        const fields = parseCsvLine(line);
+        const result = ImportRecordSchema.safeParse(rowToImportValue(fields));
+        if (result.success) {
+            records.push(result.data);
+        } else {
+            errors.push(
+                `Row ${index + 2}: ${result.error.issues.map((issue) => issue.message).join(", ")}`,
+            );
+        }
+    }
+    return errors.length > 0 ? { errors } : { records };
+}
+
+/** Reads and validates CSV or Skydiving Logbook XML import records. */
 async function readImportRecords(
     file: File,
 ): Promise<{ errors: string[] } | { records: ImportRecord[] }> {
@@ -369,31 +516,7 @@ async function readImportRecords(
         return errors.length > 0 ? { errors } : { records };
     }
 
-    const lines = content.split(/\r?\n/).filter((line) => line.trim());
-    if (lines.length === 0) {
-        return { errors: ["The import file is empty"] };
-    }
-
-    const records: ImportRecord[] = [];
-    const errors: string[] = [];
-    for (const [index, line] of lines.entries()) {
-        let value: unknown;
-        try {
-            value = JSON.parse(line);
-        } catch {
-            errors.push(`Line ${index + 1}: Invalid JSON`);
-            continue;
-        }
-        const result = ImportRecordSchema.safeParse(value);
-        if (result.success) {
-            records.push(result.data);
-        } else {
-            errors.push(
-                `Line ${index + 1}: ${result.error.issues.map((issue) => issue.message).join(", ")}`,
-            );
-        }
-    }
-    return errors.length > 0 ? { errors } : { records };
+    return parseCsvImport(content);
 }
 
 /** Mutable state and queued operations for one logbook import. */
@@ -767,21 +890,6 @@ function joinCsvList(values: string[]): string {
 }
 
 function formatExportCsv(records: ExportRecord[]): string {
-    const headers = [
-        "type",
-        "name",
-        "previousCount",
-        "jumpNumber",
-        "jumpDate",
-        "exitAltitude",
-        "openingAltitude",
-        "freefallTime",
-        "location",
-        "aircraft",
-        "gear",
-        "jumpTypes",
-        "description",
-    ];
     const rows = records.map((record) => {
         if (record.type === "jump") {
             return [
@@ -817,19 +925,17 @@ function formatExportCsv(records: ExportRecord[]): string {
         ];
     });
     return (
-        [headers, ...rows]
+        [CSV_HEADERS, ...rows]
             .map((row) => row.map(escapeCsvField).join(","))
             .join("\n") + "\n"
     );
 }
 
-/** Exports the current user's logbook as a JSON Lines or CSV download. */
+/** Exports the current user's logbook as a CSV download. */
 async function exportLogbook(c: AppRequestContext) {
     const ctx = getAppContext(c);
     const db = ctx.db;
     const userUuid = ctx.getUser().uuid;
-    const formatParam = routes.logbookExport.query(c).format;
-    const format = formatParam === "csv" ? "csv" : "jsonl";
     const [aircraftRows, gearRows, jumpTypeRows, locationRows, jumpRows] =
         await Promise.all([
             db
@@ -943,20 +1049,10 @@ async function exportLogbook(c: AppRequestContext) {
             description: row.description,
         })),
     ];
-    if (format === "csv") {
-        return c.body(formatExportCsv(records), 200, {
-            "Content-Disposition": 'attachment; filename="jump-logbook.csv"',
-            "Content-Type": "text/csv; charset=utf-8",
-        });
-    }
-    return c.body(
-        records.map((record) => JSON.stringify(record)).join("\n") + "\n",
-        200,
-        {
-            "Content-Disposition": 'attachment; filename="jump-logbook.jsonl"',
-            "Content-Type": "application/x-ndjson; charset=utf-8",
-        },
-    );
+    return c.body(formatExportCsv(records), 200, {
+        "Content-Disposition": 'attachment; filename="jump-logbook.csv"',
+        "Content-Type": "text/csv; charset=utf-8",
+    });
 }
 
 app.get(routes.logbookTransfer.route, (c) => c.render(<TransferPage />));
