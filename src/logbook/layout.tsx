@@ -71,6 +71,25 @@ function MainMenu(props: { isAdmin: boolean }) {
     );
 }
 
+function PlusIcon() {
+    return (
+        <svg
+            aria-hidden="true"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2.5"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+            />
+        </svg>
+    );
+}
+
 function LogbookActions() {
     return (
         <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -78,26 +97,14 @@ function LogbookActions() {
                 href={routes.jumpNew({}, {})}
                 className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-indigo-400/40"
             >
-                <svg
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
+                <PlusIcon />
                 Add jump
             </a>
             <a
                 href={routes.jumpFromImage({})}
                 className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40"
             >
+                <PlusIcon />
                 From image
             </a>
         </nav>
