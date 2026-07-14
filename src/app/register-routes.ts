@@ -1,0 +1,76 @@
+import type { App } from "@/app/app";
+import { registerAssetRoutes } from "@/route-handlers/assets";
+import { register as registerHomeRoutes } from "@/route-handlers/home";
+import { register as registerAuthRoutes } from "@/route-handlers/auth/login";
+import { register as registerRegistrationRoutes } from "@/route-handlers/auth/register";
+import { register as registerLogoutRoutes } from "@/route-handlers/auth/logout";
+import { register as registerPreferencesRoutes } from "@/route-handlers/preferences/index";
+import { register as registerLogbookRoutes } from "@/route-handlers/logbook/index";
+import { register as registerJumpFragmentRoutes } from "@/route-handlers/logbook/jump-fragment";
+import { register as registerNewJumpRoutes } from "@/route-handlers/logbook/jumps/new";
+import { register as registerEditJumpRoutes } from "@/route-handlers/logbook/jumps/edit";
+import { register as registerImageRoutes } from "@/route-handlers/logbook/jumps/from-image";
+import { register as registerAircraftIndexRoutes } from "@/route-handlers/logbook/aircraft/index";
+import { register as registerNewAircraftRoutes } from "@/route-handlers/logbook/aircraft/new";
+import { register as registerEditAircraftRoutes } from "@/route-handlers/logbook/aircraft/edit";
+import { register as registerEditGearRoutes } from "@/route-handlers/logbook/gear/edit";
+import { register as registerGearIndexRoutes } from "@/route-handlers/logbook/gear/index";
+import { register as registerNewGearRoutes } from "@/route-handlers/logbook/gear/new";
+import { register as registerEditJumpTypeRoutes } from "@/route-handlers/logbook/jump-types/edit";
+import { register as registerJumpTypeIndexRoutes } from "@/route-handlers/logbook/jump-types/index";
+import { register as registerNewJumpTypeRoutes } from "@/route-handlers/logbook/jump-types/new";
+import { register as registerEditLocationRoutes } from "@/route-handlers/logbook/locations/edit";
+import { register as registerLocationIndexRoutes } from "@/route-handlers/logbook/locations/index";
+import { register as registerNewLocationRoutes } from "@/route-handlers/logbook/locations/new";
+import { register as registerStatisticsRoutes } from "@/route-handlers/logbook/statistics/index";
+import { register as registerDetailedStatisticsRoutes } from "@/route-handlers/logbook/statistics/detailed";
+import { register as registerTransferRoutes } from "@/route-handlers/logbook/transfer/index";
+import { register as registerExportRoutes } from "@/route-handlers/logbook/transfer/export";
+import { register as registerAdminRoutes } from "@/route-handlers/admin/index";
+import { register as registerLoginAsRoutes } from "@/route-handlers/admin/login-as";
+import { register as registerToggleAdminRoutes } from "@/route-handlers/admin/toggle-admin";
+import { register as registerNewInvitationRoutes } from "@/route-handlers/admin/invitations/new";
+import { register as registerEditInvitationRoutes } from "@/route-handlers/admin/invitations/edit";
+import { register as registerServiceWorkerRoutes } from "@/route-handlers/service-worker";
+
+let registered = false;
+
+export function registerRoutes(app: App) {
+    if (registered) {
+        return;
+    }
+    registerAssetRoutes(app);
+    registerHomeRoutes(app);
+    registerAuthRoutes(app);
+    registerRegistrationRoutes(app);
+    registerLogoutRoutes(app);
+    registerPreferencesRoutes(app);
+    registerLogbookRoutes(app);
+    registerJumpFragmentRoutes(app);
+    registerNewJumpRoutes(app);
+    registerEditJumpRoutes(app);
+    registerImageRoutes(app);
+    registerAircraftIndexRoutes(app);
+    registerNewAircraftRoutes(app);
+    registerEditAircraftRoutes(app);
+    registerGearIndexRoutes(app);
+    registerNewGearRoutes(app);
+    registerEditGearRoutes(app);
+    registerJumpTypeIndexRoutes(app);
+    registerNewJumpTypeRoutes(app);
+    registerEditJumpTypeRoutes(app);
+    registerLocationIndexRoutes(app);
+    registerNewLocationRoutes(app);
+    registerEditLocationRoutes(app);
+    registerStatisticsRoutes(app);
+    registerDetailedStatisticsRoutes(app);
+    registerTransferRoutes(app);
+    registerExportRoutes(app);
+    registerAdminRoutes(app);
+    registerLoginAsRoutes(app);
+    registerToggleAdminRoutes(app);
+    registerNewInvitationRoutes(app);
+    registerEditInvitationRoutes(app);
+    registerServiceWorkerRoutes(app);
+    registered = true;
+}

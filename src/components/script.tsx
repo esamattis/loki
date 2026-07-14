@@ -1,4 +1,4 @@
-import { useAppContext } from "@/app";
+import { useAppContext } from "@/app/app";
 
 type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
 const nameCache = new WeakMap<ClientFunction, string>();

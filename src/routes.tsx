@@ -1,22 +1,20 @@
 import { route } from "@/route-tools";
 
-export const home = route("/");
-export const tailwindCss = route("/assets/tailwind.css");
-export const htmxScript = route("/assets/htmx.esm.js");
-export const serviceWorker = route("/sw.js");
-export const register = route("/register");
-export const login = route("/login");
-export const logout = route("/logout");
-export const preferences = route("/preferences");
-export const logbook = route("/logbook");
-export const logbookJumps = route("/logbook/__jumps");
-export const logbookTransfer = route("/logbook/transfer");
-export const logbookExport = route("/logbook/export");
-export const logbookStatistics = route("/logbook/statistics");
-export const logbookDetailedStatistics = route(
-    "/logbook/statistics/detailed",
-).query<{ year?: number }>();
-export const jumpNew = route("/logbook/jumps/new").query<{
+/**
+ * Route helpers are the URL contract and mirror `src/route-handlers/`.
+ *
+ * Group helpers by URL hierarchy: `routes.logbook.jumps.edit` belongs in
+ * `route-handlers/logbook/jumps/edit.tsx`. Use `index.tsx` for a collection
+ * or section root, `new.tsx` for creation, and `edit.tsx` for a parameterized
+ * resource page. Each handler exports `register(app)` for only its own routes;
+ * `app/register-routes.ts` is the sole registration composition root.
+ *
+ * A `__` URL segment denotes an HTMX fragment, not a full page. Name its
+ * helper after the fragment (for example, `jumpFragment`) and keep its handler
+ * next to the owning page. Fragment responses intentionally skip the document
+ * renderer, so never link users to them as standalone pages.
+ */
+export type JumpPrefillQuery = {
     from?: string;
     jumpDate?: string;
     jumpNumber?: string;
@@ -32,26 +30,66 @@ export const jumpNew = route("/logbook/jumps/new").query<{
     gearName?: string;
     jumpTypeName?: string;
     description?: string;
-}>();
-export const jumpFromImage = route("/logbook/jumps/new/from-image");
-export const jumpImageShareTarget = route(
-    "/logbook/jumps/new/from-image/share",
-);
-export const jumpEdit = route("/logbook/jumps/:uuid");
-export const aircraftList = route("/logbook/aircrafts");
-export const aircraftNew = route("/logbook/aircrafts/new");
-export const aircraftEdit = route("/logbook/aircrafts/:uuid");
-export const gearList = route("/logbook/gear");
-export const gearNew = route("/logbook/gear/new");
-export const gearEdit = route("/logbook/gear/:uuid");
-export const jumpTypeList = route("/logbook/jump-types");
-export const jumpTypeNew = route("/logbook/jump-types/new");
-export const jumpTypeEdit = route("/logbook/jump-types/:uuid");
-export const locationList = route("/logbook/locations");
-export const locationNew = route("/logbook/locations/new");
-export const locationEdit = route("/logbook/locations/:uuid");
-export const admin = route("/admin");
-export const adminLoginAs = route("/admin/login-as");
-export const adminToggleAdmin = route("/admin/toggle-admin");
-export const adminInvitationNew = route("/admin/invitations/new");
-export const adminInvitationEdit = route("/admin/invitations/:code");
+};
+
+export const home = route("/");
+export const assets = {
+    tailwindCss: route("/assets/tailwind.css"),
+    htmxScript: route("/assets/htmx.esm.js"),
+};
+export const serviceWorker = route("/sw.js");
+export const auth = {
+    login: route("/login"),
+    register: route("/register"),
+    logout: route("/logout"),
+};
+export const preferences = route("/preferences");
+export const logbook = {
+    index: route("/logbook"),
+    jumpFragment: route("/logbook/__jumps"),
+    transfer: {
+        index: route("/logbook/transfer"),
+        export: route("/logbook/export"),
+    },
+    statistics: {
+        index: route("/logbook/statistics"),
+        detailed: route("/logbook/statistics/detailed").query<{
+            year?: number;
+        }>(),
+    },
+    jumps: {
+        new: route("/logbook/jumps/new").query<JumpPrefillQuery>(),
+        fromImage: route("/logbook/jumps/new/from-image"),
+        imageShare: route("/logbook/jumps/new/from-image/share"),
+        edit: route("/logbook/jumps/:uuid"),
+    },
+    aircraft: {
+        index: route("/logbook/aircrafts"),
+        new: route("/logbook/aircrafts/new"),
+        edit: route("/logbook/aircrafts/:uuid"),
+    },
+    gear: {
+        index: route("/logbook/gear"),
+        new: route("/logbook/gear/new"),
+        edit: route("/logbook/gear/:uuid"),
+    },
+    jumpTypes: {
+        index: route("/logbook/jump-types"),
+        new: route("/logbook/jump-types/new"),
+        edit: route("/logbook/jump-types/:uuid"),
+    },
+    locations: {
+        index: route("/logbook/locations"),
+        new: route("/logbook/locations/new"),
+        edit: route("/logbook/locations/:uuid"),
+    },
+};
+export const admin = {
+    index: route("/admin"),
+    loginAs: route("/admin/login-as"),
+    toggleAdmin: route("/admin/toggle-admin"),
+    invitations: {
+        new: route("/admin/invitations/new"),
+        edit: route("/admin/invitations/:code"),
+    },
+};

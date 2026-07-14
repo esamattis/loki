@@ -92,52 +92,9 @@ If a file exceeds the lint line limit:
 
 # Route Helpers
 
-Use the `routes.tsx` helpers for type-safe routing.
+Use the nested helpers in `src/routes.tsx` for every internal URL and route
+parameter. They define the route-handler file layout; see that module's comment.
 
-## Defining Routes
-
-Define routes with `route()` in `routes.tsx`:
-
-```tsx
-export const userView = route("/user/:username");
-export const userManage = route("/user/:username/manage");
-```
-
-## Generating URLs
-
-Call the route helper with parameters:
-
-```tsx
-// Generate URL with parameters
-const url = userView({ username: "john" });
-// Results in: "/user/john"
-
-// In JSX for links
-<a href={userView({ username: user.username })}>View User</a>;
-
-// For redirects
-return c.redirect(userView({ username }));
-```
-
-## Registering Route Handlers
-
-Register handlers with `.route`:
-
-```tsx
-app.get(userView.route, async (c) => {
-    // Handler logic
-});
-```
-
-## Extracting Route Parameters
-
-Extract parameters with `.params()`:
-
-```tsx
-app.get(userView.route, async (c) => {
-    const { username } = userView.params(c);
-    // username is now type-safe and decoded
-});
-```
-
-Never hardcode internal URLs; always use route helpers.
+Each route handler exports `register(app)` for only its own endpoints. Register
+all handlers explicitly in `src/app/register-routes.ts`; never use side-effect
+imports for registration.
