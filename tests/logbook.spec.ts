@@ -783,6 +783,9 @@ test("freefall time estimate respects feet altitude units", async ({
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await page.locator('select[name="altitudeUnits"]').selectOption("feet");
+    await page
+        .locator('select[name="speedUnits"]')
+        .selectOption("meters-per-second");
     await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
@@ -793,15 +796,25 @@ test("freefall time estimate respects feet altitude units", async ({
     await page.locator('input[name="openingAltitude"]').fill("3281");
 
     await page.getByRole("button", { name: "Estimate" }).click();
-    await page.getByRole("button", { name: "Belly · 180 km/h" }).click();
+    await page.getByRole("button", { name: "Belly · 50 m/s" }).click();
     // 3000 m at 50 m/s = 60 s (without feet conversion this would be ~197 s)
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("60");
-    await expect(page.getByText("Avg speed: 180 km/h")).toBeVisible();
+    await expect(page.getByText("Avg speed: 50 m/s")).toBeVisible();
 
     await page.getByRole("button", { name: "Estimate" }).click();
-    await page.getByRole("button", { name: "Freefly · 240 km/h" }).click();
+    await page.getByRole("button", { name: "Freefly · 66.7 m/s" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("45");
-    await expect(page.getByText("Avg speed: 240 km/h")).toBeVisible();
+    await expect(page.getByText("Avg speed: 66.7 m/s")).toBeVisible();
+
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await page.getByLabel("Custom speed (m/s)").fill("40");
+    await page.getByRole("button", { name: "Use custom speed" }).click();
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("75");
+    await expect(page.getByText("Avg speed: 40 m/s")).toBeVisible();
+
+    await page.reload();
+    await page.getByRole("button", { name: "Estimate" }).click();
+    await expect(page.getByLabel("Custom speed (m/s)")).toHaveValue("40");
 });
 
 test("freefall time can be estimated with custom speed", async ({ page }) => {

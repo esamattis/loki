@@ -12,7 +12,7 @@ import {
     locations,
 } from "@/schema";
 import { LogbookPage } from "@/app/authenticated-page";
-import { formatAltitude, type UserOptions } from "@/options";
+import { formatAltitude, formatSpeed, type UserOptions } from "@/options";
 
 function formatDuration(totalSeconds: number): string {
     const days = Math.floor(totalSeconds / 86_400);
@@ -41,15 +41,6 @@ function formatDistance(
         return `${Math.round(meters / 0.3048).toLocaleString("en-US")} ft`;
     }
     return `${(meters / 1000).toFixed(1).replace(/\.0$/, "")} km`;
-}
-
-function formatSpeed(
-    metersPerSecond: number,
-    units: UserOptions["speedUnits"],
-): string {
-    return units === "meters-per-second"
-        ? `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`
-        : `${Math.round(metersPerSecond * 3.6)} km/h`;
 }
 
 interface RecordJump {

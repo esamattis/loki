@@ -295,6 +295,15 @@ function getLogbookJumpConditions(
     const searchPattern = filters.search
         ? `%${filters.search.replace(/[%_\\]/g, "\\$&")}%`
         : null;
+    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const exitAltitudeText =
+        altitudeUnits === "feet"
+            ? sql`CAST(CAST(ROUND(${jumps.exitAltitude} / 0.3048) AS INTEGER) AS TEXT)`
+            : sql`CAST(${jumps.exitAltitude} AS TEXT)`;
+    const openingAltitudeText =
+        altitudeUnits === "feet"
+            ? sql`CAST(CAST(ROUND(${jumps.openingAltitude} / 0.3048) AS INTEGER) AS TEXT)`
+            : sql`CAST(${jumps.openingAltitude} AS TEXT)`;
     return [
         eq(jumps.userUuid, userUuid),
         ...(filters.locationUuids.length > 0
@@ -334,8 +343,8 @@ function getLogbookJumpConditions(
                   or(
                       sql`CAST(${jumps.jumpNumber} AS TEXT) LIKE ${searchPattern} ESCAPE '\\'`,
                       sql`${jumps.jumpDate} LIKE ${searchPattern} ESCAPE '\\'`,
-                      sql`CAST(${jumps.exitAltitude} AS TEXT) LIKE ${searchPattern} ESCAPE '\\'`,
-                      sql`CAST(${jumps.openingAltitude} AS TEXT) LIKE ${searchPattern} ESCAPE '\\'`,
+                      sql`${exitAltitudeText} LIKE ${searchPattern} ESCAPE '\\'`,
+                      sql`${openingAltitudeText} LIKE ${searchPattern} ESCAPE '\\'`,
                       sql`CAST(${jumps.freefallTime} AS TEXT) LIKE ${searchPattern} ESCAPE '\\'`,
                       sql`${jumps.description} LIKE ${searchPattern} ESCAPE '\\'`,
                   )!,

@@ -52,36 +52,42 @@ async function registerUser(page: Page, username: string, displayName: string) {
 }
 
 async function seedAccountData(username: string): Promise<string> {
+    const locationUuid = `${username}-location`;
+    const aircraftUuid = `${username}-aircraft`;
+    const gearUuid = `${username}-gear`;
+    const jumpTypeUuid = `${username}-jump-type`;
+    const jumpUuid = `${username}-jump`;
+    const usageUuid = `${username}-ai-usage`;
     const results = await executePlaywrightDb(`
         INSERT INTO locations (uuid, user_uuid, name, previous_jump_count, archived)
-        SELECT 'doomed-location', uuid, 'Doomed DZ', 0, 0
+        SELECT '${locationUuid}', uuid, 'Doomed DZ', 0, 0
         FROM users WHERE username = '${username}';
         INSERT INTO aircrafts (uuid, user_uuid, name, previous_jump_count, archived)
-        SELECT 'doomed-aircraft', uuid, 'Doomed Plane', 0, 0
+        SELECT '${aircraftUuid}', uuid, 'Doomed Plane', 0, 0
         FROM users WHERE username = '${username}';
         INSERT INTO gear (uuid, user_uuid, name, previous_usage_count, archived)
-        SELECT 'doomed-gear', uuid, 'Doomed Canopy', 0, 0
+        SELECT '${gearUuid}', uuid, 'Doomed Canopy', 0, 0
         FROM users WHERE username = '${username}';
         INSERT INTO jump_types (uuid, user_uuid, name, previous_usage_count, archived)
-        SELECT 'doomed-jump-type', uuid, 'Doomed Type', 0, 0
+        SELECT '${jumpTypeUuid}', uuid, 'Doomed Type', 0, 0
         FROM users WHERE username = '${username}';
         INSERT INTO jumps (
             uuid, user_uuid, location_uuid, aircraft_uuid, jump_number, jump_date,
             exit_altitude, opening_altitude, freefall_time, description
         ) VALUES (
-            'doomed-jump', (SELECT uuid FROM users WHERE username = '${username}'),
-            'doomed-location', 'doomed-aircraft', 1,
+            '${jumpUuid}', (SELECT uuid FROM users WHERE username = '${username}'),
+            '${locationUuid}', '${aircraftUuid}', 1,
             '2026-01-01', 4000, 1000, 55, 'Doomed jump'
         );
         INSERT INTO jumps_to_gear (jump_uuid, gear_uuid)
-        VALUES ('doomed-jump', 'doomed-gear');
+        VALUES ('${jumpUuid}', '${gearUuid}');
         INSERT INTO jumps_to_jump_types (jump_uuid, jump_type_uuid)
-        VALUES ('doomed-jump', 'doomed-jump-type');
+        VALUES ('${jumpUuid}', '${jumpTypeUuid}');
         INSERT INTO ai_usage (
             uuid, user_uuid, model, title, created_at, input_tokens, output_tokens,
             total_tokens
         ) VALUES (
-            'doomed-ai-usage',
+            '${usageUuid}',
             (SELECT uuid FROM users WHERE username = '${username}'),
             'gpt-4.1-mini', 'Doomed image read', 0, 1, 1, 2
         );
@@ -149,6 +155,55 @@ test("a skydiver can update preferences and account details", async ({
     await page.locator('input[name="password"]').fill("new-parachute");
     await page.getByRole("button", { name: "Log in" }).click();
     await expect(page).toHaveURL("/logbook");
+});
+
+test("unit preferences apply throughout the logbook UI", async ({ page }) => {
+    const username = "units-skydiver";
+    await registerUser(page, username, "Units Skydiver");
+    await seedAccountData(username);
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page.locator('select[name="altitudeUnits"]').selectOption("feet");
+    await page
+        .locator('select[name="speedUnits"]')
+        .selectOption("meters-per-second");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+
+    const jump = page.getByRole("link", { name: /#1/ });
+    await expect(jump).toContainText("13123 ft");
+    await expect(jump).toContainText("3281 ft");
+    await expect(jump).toContainText("54.5 m/s");
+    await expect(
+        page.getByText("Total freefall", { exact: true }).locator(".."),
+    ).toContainText("9,843 ft");
+
+    await page.getByLabel("Search jumps").fill("13123");
+    await page.getByLabel("Search jumps").press("Enter");
+    await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
+    await page.getByRole("link", { name: "Clear search" }).click();
+
+    await page.getByRole("link", { name: /#1/ }).click();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "13123",
+    );
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
+        "3281",
+    );
+
+    await page.getByRole("link", { name: /Units Skydiver's logbook/ }).click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+    await page.getByRole("link", { name: "View detailed statistics" }).click();
+    await expect(
+        page.getByText("Total freefall distance").locator(".."),
+    ).toContainText("9,843 ft");
+    await expect(
+        page.getByText("Highest jump altitude").locator(".."),
+    ).toContainText("13123 ft");
+    await expect(
+        page.getByText("Highest freefall speed avg").locator(".."),
+    ).toContainText("54.5 m/s");
 });
 
 // eslint-disable-next-line max-lines-per-function

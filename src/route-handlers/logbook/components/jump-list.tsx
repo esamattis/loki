@@ -4,7 +4,7 @@ import {
     useAppContext,
     type AppRequestContext,
 } from "@/app/app";
-import { formatAltitude, type UserOptions } from "@/options";
+import { formatAltitude, formatSpeed, type UserOptions } from "@/options";
 import * as routes from "@/routes";
 import {
     aircrafts,
@@ -55,17 +55,6 @@ export function formatDuration(totalSeconds: number): string {
     }
     parts.push(`${seconds} s`);
     return parts.join(" ");
-}
-
-function formatSpeed(
-    metersPerSecond: number,
-    units: UserOptions["speedUnits"],
-): string {
-    if (units === "meters-per-second") {
-        return `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`;
-    }
-    const kmh = Math.round(metersPerSecond * 3.6);
-    return `${kmh} km/h`;
 }
 
 export function Speed(props: { metersPerSecond: number }) {

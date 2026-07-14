@@ -148,3 +148,26 @@ export function altitudeToMeters(
 export function altitudeUnitLabel(units: UserOptions["altitudeUnits"]): string {
     return units === "feet" ? "ft" : "m";
 }
+
+export function formatSpeed(
+    metersPerSecond: number,
+    units: UserOptions["speedUnits"],
+): string {
+    if (units === "meters-per-second") {
+        return `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`;
+    }
+    return `${Math.round(metersPerSecond * 3.6)} km/h`;
+}
+
+export function speedInputValue(
+    metersPerSecond: number,
+    units: UserOptions["speedUnits"],
+): string {
+    const value =
+        units === "meters-per-second" ? metersPerSecond : metersPerSecond * 3.6;
+    return value.toFixed(1).replace(/\.0$/, "");
+}
+
+export function speedUnitLabel(units: UserOptions["speedUnits"]): string {
+    return units === "meters-per-second" ? "m/s" : "km/h";
+}
