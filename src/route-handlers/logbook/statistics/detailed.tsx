@@ -1,5 +1,10 @@
 import { and, asc, desc, eq, gt, gte, lt, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    useAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/app/app";
 import { buttonClassName } from "@/components/form";
 import * as routes from "@/routes";
 import {
@@ -13,6 +18,7 @@ import {
 } from "@/schema";
 import { LogbookPage } from "@/app/authenticated-page";
 import { formatAltitude, formatSpeed, type UserOptions } from "@/options";
+import { formatCalendarDate } from "@/date-time";
 
 function formatDuration(totalSeconds: number): string {
     const days = Math.floor(totalSeconds / 86_400);
@@ -53,6 +59,7 @@ interface RecordJump {
 function RecordJumps(props: {
     records: Array<{ label: string; jump: RecordJump | undefined }>;
 }) {
+    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
     return (
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-800">
@@ -80,7 +87,11 @@ function RecordJumps(props: {
                                     {record.jump.value}{" "}
                                     <span className="text-sm text-slate-500 dark:text-slate-400">
                                         Jump #{record.jump.jumpNumber} (
-                                        {record.jump.jumpDate})
+                                        {formatCalendarDate(
+                                            record.jump.jumpDate,
+                                            dateTimeFormat,
+                                        )}
+                                        )
                                     </span>
                                 </a>
                             ) : (

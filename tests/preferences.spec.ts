@@ -120,6 +120,9 @@ test("a skydiver can update preferences and account details", async ({
     await page
         .locator('select[name="speedUnits"]')
         .selectOption("meters-per-second");
+    await page
+        .locator('select[name="dateTimeFormat"]')
+        .selectOption("american");
     await page.locator('input[name="password"]').fill("new-parachute");
     await page.locator('input[name="confirmPassword"]').fill("new-parachute");
     await page.getByRole("button", { name: "Save preferences" }).click();
@@ -146,6 +149,9 @@ test("a skydiver can update preferences and account details", async ({
     await expect(page.locator('select[name="speedUnits"]')).toHaveValue(
         "meters-per-second",
     );
+    await expect(page.locator('select[name="dateTimeFormat"]')).toHaveValue(
+        "american",
+    );
 
     await logOut(page);
     await expect(page).toHaveURL("/login");
@@ -168,12 +174,16 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
     await page
         .locator('select[name="speedUnits"]')
         .selectOption("meters-per-second");
+    await page
+        .locator('select[name="dateTimeFormat"]')
+        .selectOption("american");
     await page.getByRole("button", { name: "Save preferences" }).click();
 
     const jump = page.getByRole("link", { name: /#1/ });
     await expect(jump).toContainText("13123 ft");
     await expect(jump).toContainText("3281 ft");
     await expect(jump).toContainText("54.5 m/s");
+    await expect(jump).toContainText("01/01/2026");
     await expect(
         page.getByText("Total freefall", { exact: true }).locator(".."),
     ).toContainText("9,843 ft");
@@ -204,6 +214,7 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
     await expect(
         page.getByText("Highest freefall speed avg").locator(".."),
     ).toContainText("54.5 m/s");
+    await expect(page.getByText("Jump #1 (01/01/2026)").first()).toBeVisible();
 });
 
 // eslint-disable-next-line max-lines-per-function

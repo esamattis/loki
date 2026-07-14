@@ -5,6 +5,7 @@ import {
     type AppRequestContext,
 } from "@/app/app";
 import { formatAltitude, formatSpeed, type UserOptions } from "@/options";
+import { formatCalendarDate } from "@/date-time";
 import * as routes from "@/routes";
 import {
     aircrafts,
@@ -120,6 +121,7 @@ function JumpStat(props: { label: string; children: any }) {
 }
 
 export function JumpCard(props: JumpListItem) {
+    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
     return (
         <li>
             <a
@@ -135,7 +137,7 @@ export function JumpCard(props: JumpListItem) {
                             dateTime={props.jumpDate}
                             className="text-sm text-slate-500 tabular-nums dark:text-slate-400"
                         >
-                            {props.jumpDate}
+                            {formatCalendarDate(props.jumpDate, dateTimeFormat)}
                         </time>
                         <span className="text-base font-semibold text-slate-900 dark:text-slate-100">
                             {props.locationName} / {props.aircraftName}

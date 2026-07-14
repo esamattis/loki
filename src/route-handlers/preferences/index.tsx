@@ -41,6 +41,7 @@ const PreferencesSchema = z
         confirmPassword: z.string(),
         altitudeUnits: UserOptionsSchema.shape.altitudeUnits,
         speedUnits: UserOptionsSchema.shape.speedUnits,
+        dateTimeFormat: UserOptionsSchema.shape.dateTimeFormat,
         previousJumpCount: UserOptionsSchema.shape.previousJumpCount,
         openaiApiKey: z.string(),
         jumpImagePrompt: z.string(),
@@ -153,6 +154,47 @@ function UnitsSection(props: { options: UserOptions }) {
                     </option>
                 </Select>
             </div>
+        </section>
+    );
+}
+
+function DateTimeSection(props: { options: UserOptions }) {
+    return (
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Date and time
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Choose how dates and UTC timestamps are displayed.
+                </p>
+            </div>
+            <Select name="dateTimeFormat" label="Date and time format">
+                <option
+                    value="finnish"
+                    selected={props.options.dateTimeFormat === "finnish"}
+                >
+                    Finnish (14.7.2026 klo 16.05.30)
+                </option>
+                <option
+                    value="european"
+                    selected={props.options.dateTimeFormat === "european"}
+                >
+                    European (14/07/2026, 16:05:30)
+                </option>
+                <option
+                    value="american"
+                    selected={props.options.dateTimeFormat === "american"}
+                >
+                    American (07/14/2026, 4:05:30 PM)
+                </option>
+                <option
+                    value="iso"
+                    selected={props.options.dateTimeFormat === "iso"}
+                >
+                    ISO (2026-07-14 16:05:30 UTC)
+                </option>
+            </Select>
         </section>
     );
 }
@@ -408,6 +450,7 @@ function PreferencesForm(props: {
             </section>
             <JumpHistorySection options={props.values.options} />
             <UnitsSection options={props.values.options} />
+            <DateTimeSection options={props.values.options} />
             <JumpFromImageSection options={props.values.options} />
             <PasswordSection />
             <FormActions
@@ -444,6 +487,7 @@ function optionsFromRawForm(
     const partial = UserOptionsSchema.safeParse({
         altitudeUnits: raw.altitudeUnits ?? current.altitudeUnits,
         speedUnits: raw.speedUnits ?? current.speedUnits,
+        dateTimeFormat: raw.dateTimeFormat ?? current.dateTimeFormat,
         previousJumpCount: raw.previousJumpCount ?? current.previousJumpCount,
         openaiApiKey: raw.openaiApiKey ?? current.openaiApiKey,
         jumpImagePrompt: raw.jumpImagePrompt ?? current.jumpImagePrompt,
@@ -540,6 +584,7 @@ async function handlePreferences(c: AppRequestContext) {
     const options = UserOptionsSchema.parse({
         altitudeUnits: result.data.altitudeUnits,
         speedUnits: result.data.speedUnits,
+        dateTimeFormat: result.data.dateTimeFormat,
         previousJumpCount: result.data.previousJumpCount,
         openaiApiKey: result.data.openaiApiKey.trim(),
         jumpImagePrompt:

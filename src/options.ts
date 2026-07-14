@@ -76,6 +76,7 @@ export function resolveJumpImageModel(
 export const DEFAULT_USER_OPTIONS = {
     altitudeUnits: "meters",
     speedUnits: "kilometers-per-hour",
+    dateTimeFormat: "iso",
     previousJumpCount: 0,
     openaiApiKey: "",
     jumpImagePrompt: DEFAULT_JUMP_IMAGE_PROMPT,
@@ -87,6 +88,9 @@ export const UserOptionsSchema = z.object({
     speedUnits: z
         .enum(["kilometers-per-hour", "miles-per-hour", "meters-per-second"])
         .default("kilometers-per-hour"),
+    dateTimeFormat: z
+        .enum(["finnish", "european", "american", "iso"])
+        .default("iso"),
     previousJumpCount: z.coerce.number().int().nonnegative().default(0),
     openaiApiKey: z.string().default(""),
     jumpImagePrompt: z.string().default(DEFAULT_JUMP_IMAGE_PROMPT),

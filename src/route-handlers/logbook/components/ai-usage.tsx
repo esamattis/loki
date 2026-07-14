@@ -1,7 +1,12 @@
 import type { LanguageModelUsage } from "ai";
 import { desc, eq, sql } from "drizzle-orm";
-import { getAppContext, type AppRequestContext } from "@/app/app";
-import { JUMP_IMAGE_MODELS } from "@/options";
+import {
+    getAppContext,
+    useAppContext,
+    type AppRequestContext,
+} from "@/app/app";
+import { formatCalendarDate, formatUnixDateTime } from "@/date-time";
+import { JUMP_IMAGE_MODELS, type UserOptions } from "@/options";
 import { aiUsage } from "@/schema";
 
 export type AiUsageRow = {
@@ -28,11 +33,18 @@ function formatTokenCount(value: number | null | undefined): string {
     return value.toLocaleString("en-US");
 }
 
-function formatUsageDateTime(unixSeconds: number): string {
-    return new Date(unixSeconds * 1000)
-        .toISOString()
-        .replace("T", " ")
-        .slice(0, 19);
+function formatUsageTitle(
+    title: string,
+    format: UserOptions["dateTimeFormat"],
+): string {
+    return title
+        .split(" · ")
+        .map((part) =>
+            /^\d{4}-\d{2}-\d{2}$/.test(part)
+                ? formatCalendarDate(part, format)
+                : part,
+        )
+        .join(" · ");
 }
 
 function formatModelLabel(model: string): string {
@@ -48,6 +60,7 @@ export function AiUsageSummary(props: {
     totals: AiUsageTotals;
     rows: AiUsageRow[];
 }) {
+    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
     return (
         <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div>
@@ -143,10 +156,22 @@ export function AiUsageSummary(props: {
                             {props.rows.map((row) => (
                                 <tr key={row.uuid}>
                                     <td className="whitespace-nowrap px-4 py-3 tabular-nums text-slate-600 dark:text-slate-400">
-                                        {formatUsageDateTime(row.createdAt)}
+                                        <time
+                                            dateTime={new Date(
+                                                row.createdAt * 1000,
+                                            ).toISOString()}
+                                        >
+                                            {formatUnixDateTime(
+                                                row.createdAt,
+                                                dateTimeFormat,
+                                            )}
+                                        </time>
                                     </td>
                                     <td className="w-full min-w-64 px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
-                                        {row.title}
+                                        {formatUsageTitle(
+                                            row.title,
+                                            dateTimeFormat,
+                                        )}
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">
                                         {formatModelLabel(row.model)}

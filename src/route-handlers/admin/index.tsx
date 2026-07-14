@@ -1,5 +1,11 @@
 import { asc, desc, eq } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    useAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/app/app";
+import { formatUnixDateTime } from "@/date-time";
 import { Button, ButtonLink } from "@/components/form";
 import { LogbookPage } from "@/app/authenticated-page";
 import { requireAdmin } from "@/route-handlers/admin/helpers";
@@ -112,15 +118,9 @@ interface AdminSessionRow {
     lastUsedAt: number;
 }
 
-function formatUnixSeconds(seconds: number): string {
-    return new Date(seconds * 1000)
-        .toISOString()
-        .replace("T", " ")
-        .slice(0, 19);
-}
-
 function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
     const now = Math.floor(Date.now() / 1000);
+    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
     return (
         <section className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -159,20 +159,23 @@ function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
                                     <div className="text-right text-sm text-slate-500 dark:text-slate-400">
                                         <p>
                                             Created{" "}
-                                            {formatUnixSeconds(
+                                            {formatUnixDateTime(
                                                 session.createdAt,
+                                                dateTimeFormat,
                                             )}
                                         </p>
                                         <p className="mt-1">
                                             Last used{" "}
-                                            {formatUnixSeconds(
+                                            {formatUnixDateTime(
                                                 session.lastUsedAt,
+                                                dateTimeFormat,
                                             )}
                                         </p>
                                         <p className="mt-1">
                                             Expires{" "}
-                                            {formatUnixSeconds(
+                                            {formatUnixDateTime(
                                                 session.expiresAt,
+                                                dateTimeFormat,
                                             )}
                                         </p>
                                     </div>
