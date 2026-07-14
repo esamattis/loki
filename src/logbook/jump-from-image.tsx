@@ -232,7 +232,7 @@ function JumpImageField() {
                     name="image"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     required
-                    className="block min-w-0 flex-1 cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
+                    className="block min-w-0 flex-1 cursor-pointer rounded-lg border border-slate-300 bg-slate-50 text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600"
                 />
                 <input
                     id={cameraInputId}
@@ -246,7 +246,7 @@ function JumpImageField() {
                 <button
                     type="button"
                     id={cameraButtonId}
-                    className="inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-indigo-400/40"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus:ring-indigo-400/40"
                 >
                     Take photo
                 </button>

@@ -154,7 +154,7 @@ function YearNavigationBar(props: {
             "inline-flex items-center justify-center rounded-lg border px-3 py-1.5 text-sm font-medium transition",
             active
                 ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-900/40 dark:text-indigo-300"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800",
+                : "border-slate-300 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700",
         );
     }
 
@@ -195,7 +195,7 @@ function YearNavigationBar(props: {
                             "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition",
                             props.previousYear === undefined
                                 ? "pointer-events-none border-slate-100 bg-slate-50 text-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-700"
-                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800",
+                                : "border-slate-300 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700",
                         )}
                     >
                         ← {props.previousYear ?? "—"}
@@ -216,7 +216,7 @@ function YearNavigationBar(props: {
                             "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition",
                             props.nextYear === undefined
                                 ? "pointer-events-none border-slate-100 bg-slate-50 text-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-700"
-                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800",
+                                : "border-slate-300 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700",
                         )}
                     >
                         {props.nextYear ?? "—"} →
