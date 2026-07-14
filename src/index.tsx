@@ -3,6 +3,7 @@ import "./login";
 import "./preferences";
 import "./logbook";
 import "./admin";
+import "./share-target";
 import * as routes from "./routes";
 
 function redirectFromHome(c: AppRequestContext) {

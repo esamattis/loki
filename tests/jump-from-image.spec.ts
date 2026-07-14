@@ -259,3 +259,86 @@ test("a skydiver can paste a jump image from the clipboard", async ({
     );
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("42");
 });
+
+// eslint-disable-next-line max-lines-per-function
+test("installed service worker restores a shared image into the from-image reader", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("share-skydiver");
+    await page.locator('input[name="displayName"]').fill("Share Skydiver");
+    await page.locator('input[name="email"]').fill("share@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    // Reload so the already-registered service worker controls the page.
+    await page.reload();
+    await page.evaluate(async () => {
+        await navigator.serviceWorker.ready;
+    });
+    const hasController = await page.evaluate(
+        () => !!navigator.serviceWorker.controller,
+    );
+    expect(hasController).toBe(true);
+
+    const imageBase64 = fs
+        .readFileSync(path.join(__dirname, "fixtures/jump-image.png"))
+        .toString("base64");
+    const shareResponse = await page.evaluate(async (base64) => {
+        const byteString = atob(base64);
+        const bytes = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++) {
+            bytes[i] = byteString.charCodeAt(i);
+        }
+        const file = new File([bytes], "shared-image.png", {
+            type: "image/png",
+        });
+        const formData = new FormData();
+        formData.append("image", file);
+        const response = await fetch("/logbook/jumps/new/from-image/share", {
+            method: "POST",
+            body: formData,
+            redirect: "follow",
+        });
+        return { status: response.status, url: response.url };
+    }, imageBase64);
+    expect(shareResponse.status).toBe(200);
+    expect(shareResponse.url).toContain("/logbook/jumps/new/from-image");
+
+    // The worker wrote the draft into IndexedDB; navigating to the reader
+    // restores and previews the shared file via the existing init path.
+    await page.goto("/logbook/jumps/new/from-image");
+    await expect(
+        page.getByRole("img", { name: "Selected jump image preview" }),
+    ).toBeVisible();
+    await expect(page.getByText(/shared-image\.png/)).toBeVisible();
+});
+
+test("manifest declares the image share target metadata", async ({
+    request,
+}) => {
+    const response = await request.get("/manifest.json");
+    expect(response.status()).toBe(200);
+    const manifest = await response.json();
+    expect(manifest.share_target).toEqual({
+        action: "/logbook/jumps/new/from-image/share",
+        method: "POST",
+        enctype: "multipart/form-data",
+        params: {
+            files: [
+                {
+                    name: "image",
+                    accept: [
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp",
+                        "image/gif",
+                    ],
+                },
+            ],
+        },
+    });
+});

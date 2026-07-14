@@ -486,11 +486,11 @@ function $disableViewTransitionsInAutomation() {
     document.head.appendChild(style);
 }
 
-function $registerServiceWorker() {
+function $registerServiceWorker(workerUrl: string) {
     if (!("serviceWorker" in navigator)) {
         return;
     }
-    navigator.serviceWorker.register("/sw.js").catch(() => {
+    navigator.serviceWorker.register(workerUrl).catch(() => {
         // ignore registration failures
     });
 }
@@ -728,7 +728,10 @@ app.use(
 
                     <title>{title}</title>
                     <Script $exec={$applyStoredTheme} />
-                    <Script $exec={$registerServiceWorker} />
+                    <Script
+                        $args={[routes.serviceWorker({})]}
+                        $exec={$registerServiceWorker}
+                    />
                     <link href={routes.tailwindCss({})} rel="stylesheet" />
                     {/* After CSS so automation can override @view-transition. */}
                     <Script $exec={$disableViewTransitionsInAutomation} />

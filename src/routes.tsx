@@ -3,6 +3,7 @@ import { route } from "./components/helpers";
 export const home = route("/");
 export const tailwindCss = route("/assets/tailwind.css");
 export const htmxScript = route("/assets/htmx.esm.js");
+export const serviceWorker = route("/sw.js");
 export const register = route("/register");
 export const login = route("/login");
 export const logout = route("/logout");
@@ -33,6 +34,9 @@ export const jumpNew = route("/logbook/jumps/new").query<{
     description?: string;
 }>();
 export const jumpFromImage = route("/logbook/jumps/new/from-image");
+export const jumpImageShareTarget = route(
+    "/logbook/jumps/new/from-image/share",
+);
 export const jumpEdit = route("/logbook/jumps/:uuid");
 export const aircraftList = route("/logbook/aircrafts");
 export const aircraftNew = route("/logbook/aircrafts/new");
