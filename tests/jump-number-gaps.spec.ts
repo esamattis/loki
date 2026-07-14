@@ -11,7 +11,7 @@ const fixtureCsv = [
     "jump,,,1,2021-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,First jump",
     "jump,,,2,2021-07-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Second jump",
     "jump,,,5,2021-08-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Fifth jump",
-    "jump,,,8,2021-09-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Eighth jump",
+    "jump,,,8,2021-09-15,4000,1000,0,Gap Drop Zone,Gap Plane,,,Incomplete eighth jump",
 ].join("\n");
 
 async function registerUser(page: Page, username: string) {
@@ -26,7 +26,7 @@ async function registerUser(page: Page, username: string) {
     await expect(page).toHaveURL("/logbook");
 }
 
-test("statistics page lists jump number gaps linking to add jump", async ({
+test("statistics page lists jump number gaps and insufficient data", async ({
     page,
 }) => {
     await registerUser(page, "jump-gaps-skydiver");
@@ -62,4 +62,16 @@ test("statistics page lists jump number gaps linking to add jump", async ({
     await section.getByRole("link", { name: "#3" }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?.*jumpNumber=3/);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("3");
+
+    await page.goto("/logbook/statistics");
+    const insufficientDataSection = page.locator("section").filter({
+        has: page.getByRole("heading", {
+            name: "Jumps with insufficient data",
+        }),
+    });
+    await expect(insufficientDataSection).toBeVisible();
+    await expect(insufficientDataSection.getByText("1 jump")).toBeVisible();
+    await insufficientDataSection.getByRole("link", { name: "#8" }).click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/[^/]+$/);
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("8");
 });

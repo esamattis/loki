@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import clsx from "clsx";
 import { useId } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
@@ -8,6 +8,7 @@ import * as routes from "@/routes";
 import { jumps } from "@/schema";
 import { $assertElement } from "@/utils";
 import { LogbookPage } from "@/app/authenticated-page";
+import { JumpIssueList } from "@/route-handlers/logbook/statistics/jump-issue-list";
 
 function formatDate(date: Date): string {
     return date.toISOString().slice(0, 10);
@@ -85,39 +86,20 @@ function findJumpNumberGaps(jumpNumbers: number[]): number[] {
 }
 
 function JumpNumberGaps(props: { gaps: number[] }) {
-    if (props.gaps.length === 0) {
-        return null;
-    }
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Jump number gaps
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {props.gaps.length.toLocaleString("en-US")} missing
-                </p>
-            </div>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Missing jump numbers between your first and last recorded jump.
-                Select a number to add that jump.
-            </p>
-            <ul className="mt-4 grid max-h-80 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
-                {props.gaps.map((jumpNumber) => (
-                    <li key={jumpNumber}>
-                        <a
-                            href={routes.logbook.jumps.new(
-                                {},
-                                { jumpNumber: String(jumpNumber) },
-                            )}
-                            className="flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm font-medium tabular-nums text-indigo-600 transition hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400 dark:hover:border-indigo-500 dark:hover:bg-slate-700 dark:focus:ring-indigo-400/40"
-                        >
-                            #{jumpNumber}
-                        </a>
-                    </li>
-                ))}
-            </ul>
-        </section>
+        <JumpIssueList
+            title="Jump number gaps"
+            countLabel="missing"
+            description="Missing jump numbers between your first and last recorded jump. Select a number to add that jump."
+            items={props.gaps.map((jumpNumber) => ({
+                key: String(jumpNumber),
+                jumpNumber,
+                href: routes.logbook.jumps.new(
+                    {},
+                    { jumpNumber: String(jumpNumber) },
+                ),
+            }))}
+        />
     );
 }
 
@@ -242,32 +224,57 @@ async function renderStatistics(c: AppRequestContext) {
     const startOfCurrentMonth = getStartOfCurrentMonth();
     const startOfPreviousMonth = getStartOfPreviousMonth();
     const twelveMonthsAgo = getTwelveMonthsAgo();
-    const [[stats], yearlyRows, jumpNumberRows] = await Promise.all([
-        getAppContext(c)
-            .db.select({
-                totalJumps: sql<number>`count(*) + ${user.options.previousJumpCount}`,
-                currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
-                lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
-                lastMonthJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfPreviousMonth} and ${jumps.jumpDate} < ${startOfCurrentMonth} then 1 else 0 end), 0)`,
-                totalFreefallTime: sql<number>`coalesce(sum(${jumps.freefallTime}), 0)`,
-            })
-            .from(jumps)
-            .where(eq(jumps.userUuid, userUuid)),
-        getAppContext(c)
-            .db.select({
-                year: sql<string>`substr(${jumps.jumpDate}, 1, 4)`,
-                count: sql<number>`count(*)`,
-            })
-            .from(jumps)
-            .where(eq(jumps.userUuid, userUuid))
-            .groupBy(sql`substr(${jumps.jumpDate}, 1, 4)`)
-            .orderBy(sql`substr(${jumps.jumpDate}, 1, 4)`),
-        getAppContext(c)
-            .db.select({ jumpNumber: jumps.jumpNumber })
-            .from(jumps)
-            .where(eq(jumps.userUuid, userUuid))
-            .orderBy(asc(jumps.jumpNumber)),
-    ]);
+    const insufficientDataCondition = or(
+        isNull(jumps.freefallTime),
+        eq(jumps.freefallTime, 0),
+        sql`${jumps.freefallTime} = ''`,
+        isNull(jumps.exitAltitude),
+        eq(jumps.exitAltitude, 0),
+        sql`${jumps.exitAltitude} = ''`,
+        isNull(jumps.openingAltitude),
+        eq(jumps.openingAltitude, 0),
+        sql`${jumps.openingAltitude} = ''`,
+    );
+    const [[stats], yearlyRows, jumpNumberRows, insufficientDataJumps] =
+        await Promise.all([
+            getAppContext(c)
+                .db.select({
+                    totalJumps: sql<number>`count(*) + ${user.options.previousJumpCount}`,
+                    currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
+                    lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
+                    lastMonthJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfPreviousMonth} and ${jumps.jumpDate} < ${startOfCurrentMonth} then 1 else 0 end), 0)`,
+                    totalFreefallTime: sql<number>`coalesce(sum(${jumps.freefallTime}), 0)`,
+                })
+                .from(jumps)
+                .where(eq(jumps.userUuid, userUuid)),
+            getAppContext(c)
+                .db.select({
+                    year: sql<string>`substr(${jumps.jumpDate}, 1, 4)`,
+                    count: sql<number>`count(*)`,
+                })
+                .from(jumps)
+                .where(eq(jumps.userUuid, userUuid))
+                .groupBy(sql`substr(${jumps.jumpDate}, 1, 4)`)
+                .orderBy(sql`substr(${jumps.jumpDate}, 1, 4)`),
+            getAppContext(c)
+                .db.select({ jumpNumber: jumps.jumpNumber })
+                .from(jumps)
+                .where(eq(jumps.userUuid, userUuid))
+                .orderBy(asc(jumps.jumpNumber)),
+            getAppContext(c)
+                .db.select({
+                    uuid: jumps.uuid,
+                    jumpNumber: jumps.jumpNumber,
+                })
+                .from(jumps)
+                .where(
+                    and(
+                        eq(jumps.userUuid, userUuid),
+                        insufficientDataCondition,
+                    ),
+                )
+                .orderBy(asc(jumps.jumpNumber)),
+        ]);
 
     const values = stats ?? {
         totalJumps: 0,
@@ -314,6 +321,18 @@ async function renderStatistics(c: AppRequestContext) {
             </dl>
             <YearlyJumpsHistogram data={yearlyData} />
             <JumpNumberGaps gaps={jumpNumberGaps} />
+            <JumpIssueList
+                title="Jumps with insufficient data"
+                countLabel={
+                    insufficientDataJumps.length === 1 ? "jump" : "jumps"
+                }
+                description="These jumps have no freefall time, exit altitude, or opening altitude. Select a jump to add the missing data."
+                items={insufficientDataJumps.map((jump) => ({
+                    key: jump.uuid,
+                    jumpNumber: jump.jumpNumber,
+                    href: routes.logbook.jumps.edit({ uuid: jump.uuid }),
+                }))}
+            />
             <ButtonLink
                 href={routes.logbook.statistics.detailed({}, {})}
                 variant="secondary"
