@@ -9,11 +9,9 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
-import {
-    ConfirmDeleteButton,
-    DangerZone,
-    MergeIntoForm,
-} from "@/components/ui";
+import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
+import { DangerZone } from "@/components/ui/danger-zone";
+import { MergeIntoForm } from "@/components/ui/merge-into-form";
 import * as routes from "@/routes";
 import { jumps, locations } from "@/schema";
 import {

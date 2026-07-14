@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 import { $assertElement } from "@/utils";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 function $initDialog(dialogId: string, openButtonId: string) {
     const dialog = document.getElementById(dialogId);

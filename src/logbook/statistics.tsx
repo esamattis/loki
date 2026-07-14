@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useId } from "hono/jsx";
 import { app, getAppContext, type AppRequestContext } from "@/app";
 import { ButtonLink } from "@/components/form";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 import * as routes from "@/routes";
 import { jumps } from "@/schema";
 import { $assertElement } from "@/utils";

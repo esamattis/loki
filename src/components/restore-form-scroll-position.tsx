@@ -1,4 +1,4 @@
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 function $restoreFormScrollPosition() {
     const storageKey = "form-scroll-position";

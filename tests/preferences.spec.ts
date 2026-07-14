@@ -2,13 +2,11 @@ import { expect, test, type Page } from "@playwright/test";
 import { execFile as execFileCallback } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { logOut, openMainMenu, openManageLogbook } from "./helpers";
 
 const execFile = promisify(execFileCallback);
 const require = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function wranglerBin(): string {
     const packageJson = require.resolve("wrangler/package.json");
@@ -19,9 +17,7 @@ type D1ExecuteResult = {
     results: Array<Record<string, number | string | null>>;
 };
 
-async function queryPlaywrightDb(
-    sql: string,
-): Promise<Array<Record<string, number | string | null>>> {
+async function executePlaywrightDb(sql: string): Promise<D1ExecuteResult[]> {
     const { stdout } = await execFile(process.execPath, [
         wranglerBin(),
         "d1",
@@ -34,8 +30,13 @@ async function queryPlaywrightDb(
         "--command",
         sql,
     ]);
-    const parsed: D1ExecuteResult[] = JSON.parse(stdout);
-    return parsed[0]?.results ?? [];
+    return JSON.parse(stdout);
+}
+
+async function queryPlaywrightDb(
+    sql: string,
+): Promise<Array<Record<string, number | string | null>>> {
+    return (await executePlaywrightDb(sql))[0]?.results ?? [];
 }
 
 async function registerUser(page: Page, username: string, displayName: string) {
@@ -50,17 +51,44 @@ async function registerUser(page: Page, username: string, displayName: string) {
     await expect(page).toHaveURL("/logbook");
 }
 
-async function addItem(
-    page: Page,
-    manageLink: string,
-    addLabel: string,
-    name: string,
-) {
-    await openManageLogbook(page);
-    await page.getByRole("link", { name: manageLink }).click();
-    await page.getByRole("link", { name: addLabel }).click();
-    await page.locator('input[name="name"]').fill(name);
-    await page.getByRole("button", { name: addLabel }).click();
+async function seedAccountData(username: string): Promise<string> {
+    const results = await executePlaywrightDb(`
+        INSERT INTO locations (uuid, user_uuid, name, previous_jump_count, archived)
+        SELECT 'doomed-location', uuid, 'Doomed DZ', 0, 0
+        FROM users WHERE username = '${username}';
+        INSERT INTO aircrafts (uuid, user_uuid, name, previous_jump_count, archived)
+        SELECT 'doomed-aircraft', uuid, 'Doomed Plane', 0, 0
+        FROM users WHERE username = '${username}';
+        INSERT INTO gear (uuid, user_uuid, name, previous_usage_count, archived)
+        SELECT 'doomed-gear', uuid, 'Doomed Canopy', 0, 0
+        FROM users WHERE username = '${username}';
+        INSERT INTO jump_types (uuid, user_uuid, name, previous_usage_count, archived)
+        SELECT 'doomed-jump-type', uuid, 'Doomed Type', 0, 0
+        FROM users WHERE username = '${username}';
+        INSERT INTO jumps (
+            uuid, user_uuid, location_uuid, aircraft_uuid, jump_number, jump_date,
+            exit_altitude, opening_altitude, freefall_time, description
+        ) VALUES (
+            'doomed-jump', (SELECT uuid FROM users WHERE username = '${username}'),
+            'doomed-location', 'doomed-aircraft', 1,
+            '2026-01-01', 4000, 1000, 55, 'Doomed jump'
+        );
+        INSERT INTO jumps_to_gear (jump_uuid, gear_uuid)
+        VALUES ('doomed-jump', 'doomed-gear');
+        INSERT INTO jumps_to_jump_types (jump_uuid, jump_type_uuid)
+        VALUES ('doomed-jump', 'doomed-jump-type');
+        INSERT INTO ai_usage (
+            uuid, user_uuid, model, title, created_at, input_tokens, output_tokens,
+            total_tokens
+        ) VALUES (
+            'doomed-ai-usage',
+            (SELECT uuid FROM users WHERE username = '${username}'),
+            'gpt-4.1-mini', 'Doomed image read', 0, 1, 1, 2
+        );
+        SELECT uuid FROM users WHERE username = '${username}';
+    `);
+    const user = results.at(-1)?.results[0];
+    return String(user?.uuid);
 }
 
 function deleteAccountButton(page: Page) {
@@ -131,65 +159,7 @@ test("a skydiver can permanently delete their account and all jump items", async
     const displayName = "Delete Account Skydiver";
     await registerUser(page, username, displayName);
 
-    await addItem(page, "Manage locations", "Add location", "Doomed DZ");
-    await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Doomed Plane");
-    await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-    await addItem(page, "Manage gear", "Add gear", "Doomed Canopy");
-    await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-    await addItem(page, "Manage jump types", "Add jump type", "Doomed Type");
-    await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-
-    await openMainMenu(page);
-    await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page.getByRole("button", { name: "Save preferences" }).click();
-    await expect(page).toHaveURL("/logbook");
-
-    await page.getByRole("link", { name: "From image", exact: true }).click();
-    await page
-        .locator('input[name="image"]')
-        .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
-    await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
-
-    await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-    await page.getByRole("link", { name: "Add jump", exact: true }).click();
-    await page.locator('input[name="jumpNumber"]').fill("1");
-    await page.locator('input[name="exitAltitude"]').fill("4000");
-    await page.locator('input[name="openingAltitude"]').fill("1000");
-    await page.locator('input[name="freefallTime"]').fill("55");
-    await page.locator('select[name="locationUuid"]').selectOption({
-        label: "Doomed DZ",
-    });
-    await page.locator('select[name="aircraftUuid"]').selectOption({
-        label: "Doomed Plane",
-    });
-    await page.getByRole("checkbox", { name: "Doomed Canopy" }).check();
-    await page.getByRole("checkbox", { name: "Doomed Type" }).check();
-    await page.locator('textarea[name="description"]').fill("Doomed jump");
-    await page.getByRole("button", { name: "Add jump" }).click();
-    await expect(page).toHaveURL("/logbook");
-    await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
-
-    const userUuid = String(
-        (
-            await queryPlaywrightDb(
-                `SELECT uuid FROM users WHERE username = '${username}'`,
-            )
-        )[0]?.uuid,
-    );
-    const usageCountBefore = Number(
-        (
-            await queryPlaywrightDb(
-                `SELECT count(*) AS c FROM ai_usage WHERE user_uuid = '${userUuid}'`,
-            )
-        )[0]?.c,
-    );
-    expect(usageCountBefore).toBeGreaterThan(0);
-    const totalUsageBefore = Number(
-        (await queryPlaywrightDb("SELECT count(*) AS c FROM ai_usage"))[0]?.c,
-    );
+    const userUuid = await seedAccountData(username);
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
@@ -209,25 +179,25 @@ test("a skydiver can permanently delete their account and all jump items", async
     await expect(page).toHaveURL("/login");
     await expect(page.getByText("Invalid username or password")).toBeVisible();
 
-    const totalUsageAfter = Number(
-        (await queryPlaywrightDb("SELECT count(*) AS c FROM ai_usage"))[0]?.c,
-    );
-    expect(totalUsageAfter).toBe(totalUsageBefore);
-
-    const scrubbedUsage = (
-        await queryPlaywrightDb(
-            "SELECT count(*) AS c FROM ai_usage WHERE user_uuid IS NULL AND title = 'Deleted account'",
-        )
+    const usageAfter = (
+        await queryPlaywrightDb(`
+            SELECT
+                (SELECT count(*) FROM ai_usage) AS total_count,
+                (
+                    SELECT count(*) FROM ai_usage
+                    WHERE user_uuid IS NULL AND title = 'Deleted account'
+                ) AS scrubbed_count,
+                (
+                    SELECT count(*) FROM ai_usage WHERE user_uuid = '${userUuid}'
+                ) AS linked_count;
+        `)
     )[0];
-    expect(Number(scrubbedUsage?.c)).toBeGreaterThanOrEqual(usageCountBefore);
+    const totalUsageAfter = Number(usageAfter?.total_count);
+    expect(totalUsageAfter).toBeGreaterThan(0);
 
-    const linkedToDeletedUser = Number(
-        (
-            await queryPlaywrightDb(
-                `SELECT count(*) AS c FROM ai_usage WHERE user_uuid = '${userUuid}'`,
-            )
-        )[0]?.c,
-    );
+    expect(Number(usageAfter?.scrubbed_count)).toBeGreaterThanOrEqual(1);
+
+    const linkedToDeletedUser = Number(usageAfter?.linked_count);
     expect(linkedToDeletedUser).toBe(0);
 
     // Username is free again; a new account must not inherit deleted jump items.

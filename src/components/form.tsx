@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 import { $assertElement } from "@/utils";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 export const labelClassName =
     "block text-sm font-medium text-slate-700 dark:text-slate-300";

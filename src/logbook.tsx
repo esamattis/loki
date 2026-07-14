@@ -11,7 +11,7 @@ import {
     locations,
 } from "@/schema";
 import { Button } from "@/components/form";
-import { Details } from "@/components/ui";
+import { Details } from "@/components/ui/details";
 import { LogbookPage } from "@/logbook/layout";
 import {
     Distance,

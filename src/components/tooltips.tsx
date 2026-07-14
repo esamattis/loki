@@ -1,5 +1,5 @@
 import { $assertElement } from "@/utils";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 function $initTooltips() {
     const tooltip = document.createElement("div");

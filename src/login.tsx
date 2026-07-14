@@ -6,7 +6,7 @@ import { z } from "zod";
 import clsx from "clsx";
 import { AuthFormShell } from "@/components/auth";
 import { controlClassName } from "@/components/form";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 import { useId } from "hono/jsx";
 import { $assertElement } from "@/utils";
 import {
@@ -21,8 +21,6 @@ import {
 } from "@/auth";
 import { DEFAULT_USER_OPTIONS_JSON } from "@/options";
 import * as routes from "@/routes";
-
-export { hashPassword } from "@/auth";
 
 const DEFAULT_JUMP_TYPES = [
     "Cutaway",

@@ -11,9 +11,11 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
-import { Script } from "@/route-tools";
-import { ConfirmDeleteButton, DangerZone } from "@/components/ui";
-import { destroySession, hashPassword, Password } from "@/login";
+import { Script } from "@/components/script";
+import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
+import { DangerZone } from "@/components/ui/danger-zone";
+import { hashPassword } from "@/auth";
+import { destroySession, Password } from "@/login";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,

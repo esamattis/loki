@@ -1,7 +1,12 @@
 import { useAppContext } from "@/app";
-import { Script, Style } from "@/route-tools";
+import { Script } from "@/components/script";
+import { Style } from "@/components/style";
 import { Button, ButtonLink, buttonClassName } from "@/components/form";
-import { DropdownMenu, MenuDivider, menuItemClassName } from "@/components/ui";
+import {
+    DropdownMenu,
+    MenuDivider,
+    menuItemClassName,
+} from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
 import { useId } from "hono/jsx";

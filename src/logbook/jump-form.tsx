@@ -13,8 +13,10 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
-import { ConfirmDeleteButton, DangerZone, Dialog } from "@/components/ui";
-import { Script } from "@/route-tools";
+import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
+import { DangerZone } from "@/components/ui/danger-zone";
+import { Dialog } from "@/components/ui/dialog";
+import { Script } from "@/components/script";
 import { $assertElement } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/logbook/layout";

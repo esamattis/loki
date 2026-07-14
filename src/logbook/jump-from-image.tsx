@@ -13,7 +13,7 @@ import {
     Select,
     Textarea,
 } from "@/components/form";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,

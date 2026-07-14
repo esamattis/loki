@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 import { $assertElement } from "@/utils";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 export const menuItemClassName =
     "flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800";

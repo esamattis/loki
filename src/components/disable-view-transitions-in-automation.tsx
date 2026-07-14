@@ -1,4 +1,4 @@
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 function $disableViewTransitionsInAutomation() {
     if (!navigator.webdriver) return;

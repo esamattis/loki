@@ -7,8 +7,9 @@ jump,,,301,,4000,1000,55,Skydive Example,Twin Otter,Navigator 260,Formation skyd
 
 import { useId } from "hono/jsx";
 import { useAppContext } from "@/app";
-import { Code, Details } from "@/components/ui";
-import { Script } from "@/route-tools";
+import { Code } from "@/components/ui/code";
+import { Details } from "@/components/ui/details";
+import { Script } from "@/components/script";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
 

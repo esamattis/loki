@@ -6,9 +6,9 @@ import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
 import htmx from "htmx.org/dist/htmx.esm.js?raw";
 import tailwind from "@/tailwind.css?inline";
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 import { Button } from "@/components/form";
-import { Dialog } from "@/components/ui";
+import { Dialog } from "@/components/ui/dialog";
 import { DisableViewTransitionsInAutomation } from "@/components/disable-view-transitions-in-automation";
 import {
     DisableFormOnSubmit,

@@ -1,4 +1,4 @@
-import { Script } from "@/route-tools";
+import { Script } from "@/components/script";
 
 function $showUpdateToast(toastId: string) {
     const toast = document.getElementById(toastId);
