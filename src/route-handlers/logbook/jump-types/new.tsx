@@ -5,6 +5,7 @@ import {
     type JumpTypeFormValues,
 } from "@/route-handlers/logbook/jump-types/form";
 import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
+import { getFormString } from "@/utils";
 import * as routes from "@/routes";
 import { jumpTypes } from "@/schema";
 
@@ -44,13 +45,8 @@ async function createJumpType(c: AppRequestContext) {
 
 function getJumpTypeFormValues(formData: FormData): JumpTypeFormValues {
     return {
-        name: getValue(formData, "name"),
-        previousCount: getValue(formData, "previousCount"),
-        description: getValue(formData, "description"),
+        name: getFormString(formData, "name"),
+        previousCount: getFormString(formData, "previousCount"),
+        description: getFormString(formData, "description"),
     };
-}
-
-function getValue(formData: FormData, name: string) {
-    const value = formData.get(name);
-    return typeof value === "string" ? value : "";
 }

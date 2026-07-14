@@ -5,10 +5,8 @@ import {
     type GearFormValues,
 } from "@/route-handlers/logbook/gear/form";
 import { getRecentJumpsForItem } from "@/route-handlers/logbook/components/jump-list";
-import {
-    getFormString,
-    ResourceSchema,
-} from "@/route-handlers/logbook/components/resource";
+import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
+import { getFormString } from "@/utils";
 import * as routes from "@/routes";
 import { gear, jumpsToGear, jumpsToJumpTypes, jumpTypes } from "@/schema";
 
@@ -236,12 +234,8 @@ async function mergeGear(
 
 function getGearFormValues(formData: FormData): GearFormValues {
     return {
-        name: getValue(formData, "name"),
-        previousCount: getValue(formData, "previousCount"),
-        description: getValue(formData, "description"),
+        name: getFormString(formData, "name"),
+        previousCount: getFormString(formData, "previousCount"),
+        description: getFormString(formData, "description"),
     };
-}
-function getValue(formData: FormData, name: string) {
-    const value = formData.get(name);
-    return typeof value === "string" ? value : "";
 }

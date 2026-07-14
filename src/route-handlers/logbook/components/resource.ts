@@ -8,8 +8,3 @@ export const ResourceSchema = z.object({
         .min(0, "Previous count cannot be negative"),
     description: z.string().trim().max(2_000).optional(),
 });
-
-export function getFormString(formData: FormData, name: string): string {
-    const value = formData.get(name);
-    return typeof value === "string" ? value : "";
-}
