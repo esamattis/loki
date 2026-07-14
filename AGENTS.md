@@ -18,7 +18,7 @@ For vanilla CSS, use the `Style` helper:
 </Style>
 ```
 
-`Style` and `Script` are imported from the project's `helpers.tsx` file.
+Import `Style` from `@/components/style` and `Script` from `@/components/script`.
 
 # Browser Scripts
 
