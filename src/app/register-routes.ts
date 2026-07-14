@@ -5,6 +5,7 @@ import { register as registerAuthRoutes } from "@/route-handlers/auth/login";
 import { register as registerRegistrationRoutes } from "@/route-handlers/auth/register";
 import { register as registerLogoutRoutes } from "@/route-handlers/auth/logout";
 import { register as registerPreferencesRoutes } from "@/route-handlers/preferences/index";
+import { register as registerInstallRoutes } from "@/route-handlers/install";
 import { register as registerLogbookRoutes } from "@/route-handlers/logbook/index";
 import { register as registerJumpFragmentRoutes } from "@/route-handlers/logbook/jump-fragment";
 import { register as registerNewJumpRoutes } from "@/route-handlers/logbook/jumps/new";
@@ -45,6 +46,7 @@ export function registerRoutes(app: App) {
     registerRegistrationRoutes(app);
     registerLogoutRoutes(app);
     registerPreferencesRoutes(app);
+    registerInstallRoutes(app);
     registerLogbookRoutes(app);
     registerJumpFragmentRoutes(app);
     registerNewJumpRoutes(app);

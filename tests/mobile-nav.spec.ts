@@ -88,4 +88,78 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
     await expect(page.getByRole("link", { name: "Preferences" })).toBeVisible();
     await page.getByRole("link", { name: "Preferences" }).click();
     await expect(page).toHaveURL("/preferences");
+    await expect(
+        page.getByRole("heading", { name: "Install app" }),
+    ).not.toBeVisible();
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Install app" }).click();
+    await expect(page).toHaveURL("/install");
+    await expect(
+        page.getByRole("heading", { name: "Install app" }),
+    ).toBeVisible();
+});
+
+test("Android Brave users are advised to install with Chrome", async ({
+    page,
+}) => {
+    await page.addInitScript(() => {
+        Object.defineProperty(navigator, "brave", {
+            configurable: true,
+            value: {},
+        });
+        Object.defineProperty(navigator, "userAgent", {
+            configurable: true,
+            value: "Mozilla/5.0 (Linux; Android 15) Chrome/136.0 Mobile",
+        });
+    });
+    await registerUser(page, "brave-skydiver", "Brave Skydiver");
+    await page.goto("/install");
+
+    await expect(page.getByText(/install this app using Chrome/)).toBeVisible();
+});
+
+test("an installed Android app shows Android uninstall instructions", async ({
+    page,
+}) => {
+    await page.addInitScript(() => {
+        Object.defineProperty(navigator, "userAgent", {
+            configurable: true,
+            value: "Mozilla/5.0 (Linux; Android 15) Chrome/136.0 Mobile",
+        });
+        Object.defineProperty(navigator, "standalone", {
+            configurable: true,
+            value: true,
+        });
+    });
+    await registerUser(page, "android-app-skydiver", "Android App Skydiver");
+    await page.goto("/install");
+
+    await expect(page.getByText(/touch and hold the Loki icon/)).toContainText(
+        "App info",
+    );
+    await expect(page.getByText(/touch and hold the Loki icon/)).toContainText(
+        "Uninstall",
+    );
+});
+
+test("an installed iPhone app shows iOS uninstall instructions", async ({
+    page,
+}) => {
+    await page.addInitScript(() => {
+        Object.defineProperty(navigator, "userAgent", {
+            configurable: true,
+            value: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)",
+        });
+        Object.defineProperty(navigator, "standalone", {
+            configurable: true,
+            value: true,
+        });
+    });
+    await registerUser(page, "iphone-app-skydiver", "iPhone App Skydiver");
+    await page.goto("/install");
+
+    await expect(page.getByText(/touch and hold the Loki icon/)).toContainText(
+        "Remove App and Delete App",
+    );
 });

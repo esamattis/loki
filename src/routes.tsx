@@ -44,6 +44,7 @@ export const auth = {
     logout: route("/logout"),
 };
 export const preferences = route("/preferences");
+export const install = route("/install");
 export const logbook = {
     index: route("/logbook"),
     jumpFragment: route("/logbook/__jumps"),

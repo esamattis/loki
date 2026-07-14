@@ -1,9 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
-import { useId } from "hono/jsx";
 import { z } from "zod";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
-    Button,
     FormActions,
     Input,
     NumberInput,
@@ -11,7 +9,6 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
-import { Script } from "@/components/script";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
 import { hashPassword } from "@/auth";
@@ -27,7 +24,6 @@ import {
 import * as routes from "@/routes";
 import { aiUsage, users } from "@/schema";
 import { LogbookPage } from "@/app/authenticated-page";
-import { $assertElement, $showAndroidChromeHint } from "@/utils";
 
 const PreferencesSchema = z
     .object({
@@ -243,146 +239,6 @@ function JumpFromImageSection(props: { options: UserOptions }) {
     );
 }
 
-function InstallAppSection() {
-    const buttonId = useId();
-    const statusId = useId();
-    const hintId = useId();
-    return (
-        <section className="space-y-5">
-            <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Install app
-                </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Add Loki to your home screen for quick access.
-                </p>
-                <p
-                    id={hintId}
-                    hidden
-                    className="mt-2 text-sm text-amber-600 dark:text-amber-400"
-                ></p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-                <Button id={buttonId} type="button" variant="primary" hidden>
-                    Install
-                </Button>
-                <p
-                    id={statusId}
-                    className="text-sm text-slate-500 dark:text-slate-400"
-                ></p>
-            </div>
-            <Script
-                $deps={[$assertElement, $showAndroidChromeHint]}
-                $args={[buttonId, statusId, hintId]}
-                $exec={(buttonId: string, statusId: string, hintId: string) => {
-                    const buttonEl = document.getElementById(buttonId);
-                    $assertElement(buttonEl, HTMLButtonElement);
-                    const button: HTMLButtonElement = buttonEl;
-                    const statusEl = document.getElementById(statusId);
-                    $assertElement(statusEl, HTMLElement);
-                    const status: HTMLElement = statusEl;
-                    const hintEl = document.getElementById(hintId);
-                    $assertElement(hintEl, HTMLParagraphElement);
-                    const hint: HTMLParagraphElement = hintEl;
-                    $showAndroidChromeHint(hint);
-
-                    type BeforeInstallPromptEvent = Event & {
-                        prompt: () => Promise<void>;
-                        userChoice: Promise<{
-                            outcome: "accepted" | "dismissed";
-                        }>;
-                    };
-
-                    let deferredPrompt: BeforeInstallPromptEvent | null = null;
-
-                    function isBeforeInstallPromptEvent(
-                        event: Event,
-                    ): event is BeforeInstallPromptEvent {
-                        if (!("prompt" in event) || !("userChoice" in event)) {
-                            return false;
-                        }
-                        const candidate: {
-                            prompt?: unknown;
-                            userChoice?: unknown;
-                        } = event;
-                        return typeof candidate.prompt === "function";
-                    }
-
-                    function isStandalone() {
-                        return (
-                            window.matchMedia("(display-mode: standalone)")
-                                .matches ||
-                            Boolean(
-                                // iOS Safari
-                                Reflect.get(navigator, "standalone"),
-                            )
-                        );
-                    }
-
-                    function setStatus(message: string) {
-                        status.textContent = message;
-                    }
-
-                    function showInstallButton() {
-                        button.hidden = false;
-                        setStatus("");
-                    }
-
-                    function hideInstallButton() {
-                        button.hidden = true;
-                    }
-
-                    if (isStandalone()) {
-                        hideInstallButton();
-                        setStatus("App is already installed.");
-                        return;
-                    }
-
-                    window.addEventListener("beforeinstallprompt", (event) => {
-                        event.preventDefault();
-                        if (isBeforeInstallPromptEvent(event)) {
-                            deferredPrompt = event;
-                            showInstallButton();
-                        }
-                    });
-
-                    window.addEventListener("appinstalled", () => {
-                        deferredPrompt = null;
-                        hideInstallButton();
-                        setStatus("App installed.");
-                    });
-
-                    button.addEventListener("click", async () => {
-                        if (!deferredPrompt) {
-                            return;
-                        }
-                        await deferredPrompt.prompt();
-                        const choice = await deferredPrompt.userChoice;
-                        deferredPrompt = null;
-                        hideInstallButton();
-                        if (choice.outcome === "accepted") {
-                            setStatus("App installed.");
-                        } else {
-                            setStatus(
-                                "Install dismissed. You can try again later.",
-                            );
-                        }
-                    });
-
-                    // Safari / browsers without beforeinstallprompt
-                    setTimeout(() => {
-                        if (!deferredPrompt && !isStandalone()) {
-                            setStatus(
-                                "Use your browser’s “Add to Home Screen” option to install.",
-                            );
-                        }
-                    }, 500);
-                }}
-            />
-        </section>
-    );
-}
-
 function PasswordSection() {
     return (
         <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
@@ -516,9 +372,6 @@ function renderPreferences(
     return c.render(
         <LogbookPage title="Preferences">
             <PreferencesForm values={values} errors={errors} />
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <InstallAppSection />
-            </div>
             <DeleteAccountSection />
         </LogbookPage>,
     );

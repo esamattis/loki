@@ -46,7 +46,9 @@ export function $assertElement<T>(
 export function $showAndroidChromeHint(hint: HTMLParagraphElement) {
     const ua = navigator.userAgent;
     const notChrome =
-        /SamsungBrowser|Firefox|OPR\/|Opera/i.test(ua) || !/Chrome\//i.test(ua);
+        Boolean(Reflect.get(navigator, "brave")) ||
+        /SamsungBrowser|Firefox|OPR\/|Opera/i.test(ua) ||
+        !/Chrome\//i.test(ua);
     if (/Android/i.test(ua) && notChrome) {
         hint.hidden = false;
         hint.textContent =

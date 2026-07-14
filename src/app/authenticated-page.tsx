@@ -77,6 +77,9 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
             <a href={routes.preferences({})} className={menuItemClassName}>
                 Preferences
             </a>
+            <a href={routes.install({})} className={menuItemClassName}>
+                Install app
+            </a>
             <form method="post" action={routes.auth.logout({})}>
                 <button type="submit" className={menuItemClassName}>
                     Log out
