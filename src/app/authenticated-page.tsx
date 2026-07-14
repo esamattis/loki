@@ -264,10 +264,43 @@ function ThemeToggle() {
     );
 }
 
+function $initMobileHeader(headerId: string) {
+    const headerEl = document.getElementById(headerId);
+    $assertElement(headerEl, HTMLElement);
+    const header = headerEl;
+    const mobile = window.matchMedia("(max-width: 639px)");
+    let previousScrollY = window.scrollY;
+    let ticking = false;
+
+    function updateHeader() {
+        const scrollY = window.scrollY;
+        const scrollingDown = scrollY > previousScrollY;
+        header.classList.toggle(
+            "-translate-y-full",
+            mobile.matches && scrollingDown && scrollY > header.offsetHeight,
+        );
+        previousScrollY = scrollY;
+        ticking = false;
+    }
+
+    window.addEventListener(
+        "scroll",
+        () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateHeader);
+                ticking = true;
+            }
+        },
+        { passive: true },
+    );
+    mobile.addEventListener("change", updateHeader);
+}
+
 export function LogbookPage(props: { title?: string; children: any }) {
     const appContext = useAppContext();
     const user = appContext.getUser();
     const pathname = appContext.url().pathname;
+    const headerId = useId();
 
     return (
         <div className="min-h-screen">
@@ -281,7 +314,10 @@ export function LogbookPage(props: { title?: string; children: any }) {
                     summary::-webkit-details-marker { display: none; }
                 `}
             </Style>
-            <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md [view-transition-name:logbook-header] dark:border-slate-800 dark:bg-slate-900/85">
+            <header
+                id={headerId}
+                className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md transition-transform duration-200 motion-reduce:transition-none [view-transition-name:logbook-header] dark:border-slate-800 dark:bg-slate-900/85"
+            >
                 <div className="mx-auto max-w-3xl px-4 py-2.5 sm:py-3">
                     <div className="flex items-center gap-3">
                         <a
@@ -314,6 +350,11 @@ export function LogbookPage(props: { title?: string; children: any }) {
                     </div>
                 </div>
             </header>
+            <Script
+                $deps={[$assertElement]}
+                $args={[headerId]}
+                $exec={$initMobileHeader}
+            />
             <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 pb-24 sm:py-8 sm:pb-8">
                 {props.title && (
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
