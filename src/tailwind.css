@@ -31,7 +31,7 @@
 /* In-flight navigation / form submit feedback (before the next page paints). */
 #form-submit-progress {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     z-index: 100;
     height: 3px;
@@ -47,6 +47,13 @@
     background-size: 40% 100%;
     background-repeat: no-repeat;
     animation: form-submit-progress 1.1s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+    #form-submit-progress {
+        top: 0;
+        bottom: auto;
+    }
 }
 
 /* POST forms: reddish bar to signal a mutating request */
