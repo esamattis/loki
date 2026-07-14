@@ -19,6 +19,11 @@ import { altitudeUnitLabel } from "../options";
 export interface Resource {
     uuid: string;
     name: string;
+    archived: boolean;
+}
+
+function resourceLabel(item: Resource): string {
+    return item.archived ? `${item.name} (Archived)` : item.name;
 }
 
 export interface JumpFormValues {
@@ -486,14 +491,20 @@ function ResourceSelectWithName(props: {
                 <option value="" selected={!props.selectedUuid}>
                     Select a {props.selectLabel.toLowerCase()}
                 </option>
-                {props.items.map((item) => (
-                    <option
-                        value={item.uuid}
-                        selected={item.uuid === props.selectedUuid}
-                    >
-                        {item.name}
-                    </option>
-                ))}
+                {props.items.map((item) => {
+                    const isSelected = item.uuid === props.selectedUuid;
+                    const hideArchived = item.archived && !isSelected;
+                    return (
+                        <option
+                            value={item.uuid}
+                            selected={isSelected}
+                            hidden={hideArchived}
+                            data-archived={item.archived ? "true" : undefined}
+                        >
+                            {resourceLabel(item)}
+                        </option>
+                    );
+                })}
             </Select>
             <Input
                 name={props.nameField}
@@ -520,14 +531,20 @@ function JumpItemCheckboxFieldset(props: {
                 {props.legend}
             </legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {props.items.map((item) => (
-                    <Checkbox
-                        name={props.checkboxName}
-                        value={item.uuid}
-                        label={item.name}
-                        checked={props.selectedUuids.has(item.uuid)}
-                    />
-                ))}
+                {props.items.map((item) => {
+                    const isSelected = props.selectedUuids.has(item.uuid);
+                    const hideArchived = item.archived && !isSelected;
+                    return (
+                        <Checkbox
+                            name={props.checkboxName}
+                            value={item.uuid}
+                            label={resourceLabel(item)}
+                            checked={isSelected}
+                            hidden={hideArchived}
+                            data-archived={item.archived ? "true" : undefined}
+                        />
+                    );
+                })}
             </div>
             <div className="mt-3">
                 <Input
@@ -538,6 +555,76 @@ function JumpItemCheckboxFieldset(props: {
                 />
             </div>
         </fieldset>
+    );
+}
+
+function ToggleArchivedJumpItemsButton(props: {
+    buttonId: string;
+    formId: string;
+}) {
+    return (
+        <>
+            <button
+                id={props.buttonId}
+                type="button"
+                className="text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                data-showing-archived="false"
+            >
+                Show archived items
+            </button>
+            <Script
+                $deps={[$assertElement]}
+                $args={[props.buttonId, props.formId]}
+                $exec={(buttonId, formId) => {
+                    const buttonEl = document.getElementById(buttonId);
+                    const formEl = document.getElementById(formId);
+                    $assertElement(buttonEl, HTMLButtonElement);
+                    $assertElement(formEl, HTMLFormElement);
+                    const button: HTMLButtonElement = buttonEl;
+                    const form: HTMLFormElement = formEl;
+
+                    function isArchivedItemInUse(element: HTMLElement) {
+                        if (element instanceof HTMLOptionElement) {
+                            return element.selected;
+                        }
+                        const checkbox = element.querySelector(
+                            'input[type="checkbox"]',
+                        );
+                        return (
+                            checkbox instanceof HTMLInputElement &&
+                            checkbox.checked
+                        );
+                    }
+
+                    function setArchivedItemsVisible(visible: boolean) {
+                        for (const element of form.querySelectorAll(
+                            '[data-archived="true"]',
+                        )) {
+                            if (!(element instanceof HTMLElement)) {
+                                continue;
+                            }
+                            if (visible || isArchivedItemInUse(element)) {
+                                element.hidden = false;
+                            } else {
+                                element.hidden = true;
+                            }
+                        }
+                        button.dataset.showingArchived = visible
+                            ? "true"
+                            : "false";
+                        button.textContent = visible
+                            ? "Hide archived items"
+                            : "Show archived items";
+                    }
+
+                    button.addEventListener("click", () => {
+                        const showing =
+                            button.dataset.showingArchived === "true";
+                        setArchivedItemsVisible(!showing);
+                    });
+                }}
+            />
+        </>
     );
 }
 
@@ -555,9 +642,17 @@ function JumpForm(props: {
     const values = props.values ?? {};
     const selectedGear = new Set(values.gearUuids ?? []);
     const selectedJumpTypes = new Set(values.jumpTypeUuids ?? []);
+    const formId = useId();
+    const showArchivedButtonId = useId();
+    const hasArchivedItems =
+        props.locations.some((item) => item.archived) ||
+        props.aircrafts.some((item) => item.archived) ||
+        props.gear.some((item) => item.archived) ||
+        props.jumpTypes.some((item) => item.archived);
 
     return (
         <form
+            id={formId}
             method="post"
             className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
@@ -569,6 +664,14 @@ function JumpForm(props: {
                 errors={props.errors ?? []}
                 className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
             />
+            {hasArchivedItems && (
+                <div>
+                    <ToggleArchivedJumpItemsButton
+                        buttonId={showArchivedButtonId}
+                        formId={formId}
+                    />
+                </div>
+            )}
             <div className="grid gap-5 sm:grid-cols-2">
                 <JumpDateField value={values.jumpDate ?? getToday()} />
                 <JumpNumberField

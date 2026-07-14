@@ -199,6 +199,8 @@ export function Checkbox(props: {
     label: string;
     checked?: boolean;
     className?: string;
+    hidden?: boolean;
+    "data-archived"?: string;
 }) {
     return (
         <label
@@ -206,6 +208,8 @@ export function Checkbox(props: {
                 "flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition hover:border-slate-300 hover:bg-white has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-50 has-[:checked]:text-indigo-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-700/60 dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-900/40 dark:has-[:checked]:text-indigo-200",
                 props.className,
             )}
+            hidden={props.hidden}
+            data-archived={props["data-archived"]}
         >
             <input
                 name={props.name}

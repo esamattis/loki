@@ -404,18 +404,22 @@ test("a skydiver can register and record their first jump", async ({
         page.getByText("Tracking updated", { exact: true }),
     ).not.toHaveCount(0);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    // Prefill from the previous jump keeps archived selections visible.
     await expect(
-        page.getByRole("option", { name: "Skydive Updated Center" }),
-    ).toHaveCount(0);
-    await expect(page.getByRole("option", { name: "Cessna 206" })).toHaveCount(
-        0,
-    );
+        page.locator('select[name="locationUuid"] option:checked'),
+    ).toHaveText("Skydive Updated Center (Archived)");
     await expect(
-        page.getByRole("checkbox", { name: "Main canopy updated" }),
-    ).toHaveCount(0);
+        page.locator('select[name="aircraftUuid"] option:checked'),
+    ).toHaveText("Cessna 206 (Archived)");
     await expect(
-        page.getByRole("checkbox", { name: "Freefly updated" }),
-    ).toHaveCount(0);
+        page.getByRole("checkbox", { name: "Main canopy updated (Archived)" }),
+    ).toBeChecked();
+    await expect(
+        page.getByRole("checkbox", { name: "Freefly updated (Archived)" }),
+    ).toBeChecked();
+    await expect(
+        page.getByRole("button", { name: "Show archived items" }),
+    ).toBeVisible();
 
     await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
     await openManageLogbook(page);
@@ -429,7 +433,10 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: /Test Skydiver's logbook/ }).click();
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
     await expect(
-        page.getByRole("checkbox", { name: "Main canopy updated" }),
+        page.getByRole("checkbox", {
+            name: "Main canopy updated",
+            exact: true,
+        }),
     ).toBeVisible();
 });
 

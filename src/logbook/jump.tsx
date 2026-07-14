@@ -65,41 +65,40 @@ async function getJumpFormResources(c: AppRequestContext) {
     const [locationRows, aircraftRows, gearRows, jumpTypeRows] =
         await Promise.all([
             db
-                .select({ uuid: locations.uuid, name: locations.name })
+                .select({
+                    uuid: locations.uuid,
+                    name: locations.name,
+                    archived: locations.archived,
+                })
                 .from(locations)
-                .where(
-                    and(
-                        eq(locations.userUuid, userUuid),
-                        eq(locations.archived, false),
-                    ),
-                )
+                .where(eq(locations.userUuid, userUuid))
                 .orderBy(locations.name),
             db
-                .select({ uuid: aircrafts.uuid, name: aircrafts.name })
+                .select({
+                    uuid: aircrafts.uuid,
+                    name: aircrafts.name,
+                    archived: aircrafts.archived,
+                })
                 .from(aircrafts)
-                .where(
-                    and(
-                        eq(aircrafts.userUuid, userUuid),
-                        eq(aircrafts.archived, false),
-                    ),
-                )
+                .where(eq(aircrafts.userUuid, userUuid))
                 .orderBy(aircrafts.name),
             db
-                .select({ uuid: gear.uuid, name: gear.name })
+                .select({
+                    uuid: gear.uuid,
+                    name: gear.name,
+                    archived: gear.archived,
+                })
                 .from(gear)
-                .where(
-                    and(eq(gear.userUuid, userUuid), eq(gear.archived, false)),
-                )
+                .where(eq(gear.userUuid, userUuid))
                 .orderBy(gear.name),
             db
-                .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
+                .select({
+                    uuid: jumpTypes.uuid,
+                    name: jumpTypes.name,
+                    archived: jumpTypes.archived,
+                })
                 .from(jumpTypes)
-                .where(
-                    and(
-                        eq(jumpTypes.userUuid, userUuid),
-                        eq(jumpTypes.archived, false),
-                    ),
-                )
+                .where(eq(jumpTypes.userUuid, userUuid))
                 .orderBy(jumpTypes.name),
         ]);
 
@@ -294,7 +293,7 @@ async function resolveJumpResources(
                     name,
                     previousJumpCount: 0,
                 });
-                resources.locations.push({ uuid, name });
+                resources.locations.push({ uuid, name, archived: false });
                 return uuid;
             },
         });
@@ -316,7 +315,7 @@ async function resolveJumpResources(
                     name,
                     previousJumpCount: 0,
                 });
-                resources.aircrafts.push({ uuid, name });
+                resources.aircrafts.push({ uuid, name, archived: false });
                 return uuid;
             },
         });
@@ -338,7 +337,11 @@ async function resolveJumpResources(
                     name: itemName,
                     previousUsageCount: 0,
                 });
-                resources.gear.push({ uuid: newUuid, name: itemName });
+                resources.gear.push({
+                    uuid: newUuid,
+                    name: itemName,
+                    archived: false,
+                });
                 return newUuid;
             },
         });
@@ -358,7 +361,11 @@ async function resolveJumpResources(
                     name: itemName,
                     previousUsageCount: 0,
                 });
-                resources.jumpTypes.push({ uuid: newUuid, name: itemName });
+                resources.jumpTypes.push({
+                    uuid: newUuid,
+                    name: itemName,
+                    archived: false,
+                });
                 return newUuid;
             },
         });
