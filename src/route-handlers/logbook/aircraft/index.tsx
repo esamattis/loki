@@ -1,11 +1,118 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { getAircraftListResponse } from "@/route-handlers/logbook/aircraft/helpers";
+import { eq } from "drizzle-orm";
+import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import { Button, ButtonLink } from "@/components/form";
+import { LogbookPage } from "@/app/authenticated-page";
 import * as routes from "@/routes";
+import { aircrafts } from "@/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.aircraft.index.route, renderAircraftList);
+    app.get(routes.logbook.aircraft.index.route, getAircraftList);
 }
 
-async function renderAircraftList(c: AppRequestContext) {
-    return getAircraftListResponse(c);
+async function getAircraftList(c: AppRequestContext) {
+    const app = getAppContext(c);
+    const rows = await app.db
+        .select()
+        .from(aircrafts)
+        .where(eq(aircrafts.userUuid, app.getUser().uuid))
+        .orderBy(aircrafts.name);
+    return c.render(
+        <LogbookPage title="Aircraft">
+            <div className="flex flex-wrap items-center gap-3">
+                <ButtonLink
+                    href={routes.logbook.aircraft.new({})}
+                    variant="primary"
+                    className="gap-1.5"
+                >
+                    <svg
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+                    Add aircraft
+                </ButtonLink>
+            </div>
+            {rows.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        No aircraft yet.
+                    </p>
+                </div>
+            ) : (
+                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {rows.map((aircraft) => (
+                        <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/30">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                        {aircraft.name}
+                                        {aircraft.archived && (
+                                            <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                                Archived
+                                            </span>
+                                        )}
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                        Previous jumps:{" "}
+                                        {aircraft.previousJumpCount}
+                                    </p>
+                                    {aircraft.description && (
+                                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                                            {aircraft.description}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                <ButtonLink
+                                    href={routes.logbook.aircraft.edit({
+                                        uuid: aircraft.uuid,
+                                    })}
+                                    variant="secondary"
+                                    size="sm"
+                                >
+                                    Edit
+                                </ButtonLink>
+                                <form
+                                    method="post"
+                                    action={routes.logbook.aircraft.edit({
+                                        uuid: aircraft.uuid,
+                                    })}
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="toggleArchive"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="archived"
+                                        value={String(!aircraft.archived)}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="secondary"
+                                        size="sm"
+                                    >
+                                        {aircraft.archived
+                                            ? "Unarchive"
+                                            : "Archive"}
+                                    </Button>
+                                </form>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </LogbookPage>,
+    );
 }
