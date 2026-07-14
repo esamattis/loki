@@ -10,8 +10,8 @@ Return only values that are clearly visible or confidently readable.
 - location, aircraft, gear, and jump types as short names when present
 - "WS" refers to jump type of "Wingsuit"
 - "Delay" refers to freefall fime
-- description for any other useful notes (weather, formation, instructors, etc.)
-If a field is missing or unclear, omit it (except openingAltitude, which defaults to 900).`;
+- description for any other useful notes (weather, formation, instructors, etc.). Add description even if it is just a single word.
+- If a field is missing or unclear, omit it (except openingAltitude, which defaults to 900).`;
 
 /** Vision-capable OpenAI models suited to structured logbook image extraction. */
 export const JUMP_IMAGE_MODEL_IDS = [
