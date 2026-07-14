@@ -145,6 +145,12 @@ function UnitsSection(props: { options: UserOptions }) {
                     >
                         Meters per second (m/s)
                     </option>
+                    <option
+                        value="miles-per-hour"
+                        selected={props.options.speedUnits === "miles-per-hour"}
+                    >
+                        Miles per hour (mph)
+                    </option>
                 </Select>
             </div>
         </section>

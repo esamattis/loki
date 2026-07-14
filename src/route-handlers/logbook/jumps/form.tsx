@@ -24,6 +24,7 @@ import { LogbookPage } from "@/app/authenticated-page";
 import {
     altitudeUnitLabel,
     formatSpeed,
+    speedConversionFactor,
     speedInputValue,
     speedUnitLabel,
     type UserOptions,
@@ -75,7 +76,7 @@ function FreefallEstimateScript(props: {
     customSpeedId: string;
     customSpeedButtonId: string;
     altitudeUnits: UserOptions["altitudeUnits"];
-    speedUnits: UserOptions["speedUnits"];
+    speedConversionFactor: string;
 }) {
     return (
         <Script
@@ -88,7 +89,7 @@ function FreefallEstimateScript(props: {
                 props.customSpeedId,
                 props.customSpeedButtonId,
                 props.altitudeUnits,
-                props.speedUnits,
+                props.speedConversionFactor,
             ]}
             $exec={(
                 exitAltitudeId,
@@ -98,7 +99,7 @@ function FreefallEstimateScript(props: {
                 customSpeedId,
                 customSpeedButtonId,
                 altitudeUnits,
-                speedUnits,
+                speedConversionFactor,
             ) => {
                 const exitAltitude = document.getElementById(exitAltitudeId);
                 const openingAltitude =
@@ -115,6 +116,7 @@ function FreefallEstimateScript(props: {
                 $assertElement(estimateDialog, HTMLDialogElement);
                 $assertElement(customSpeed, HTMLInputElement);
                 $assertElement(customSpeedButton, HTMLButtonElement);
+                const conversionFactor = Number(speedConversionFactor);
 
                 function estimateFreefallTime(speed: number) {
                     $assertElement(exitAltitude, HTMLInputElement);
@@ -133,10 +135,7 @@ function FreefallEstimateScript(props: {
                     const distanceMeters =
                         Math.max(0, exit - opening) *
                         (altitudeUnits === "feet" ? 0.3048 : 1);
-                    const metersPerSecond =
-                        speedUnits === "meters-per-second"
-                            ? speed
-                            : speed / 3.6;
+                    const metersPerSecond = speed / conversionFactor;
                     freefallTime.value = String(
                         Math.round(distanceMeters / metersPerSecond),
                     );
@@ -268,7 +267,9 @@ function FreefallTimeField(props: {
                 customSpeedId={customSpeedId}
                 customSpeedButtonId={customSpeedButtonId}
                 altitudeUnits={props.altitudeUnits}
-                speedUnits={props.speedUnits}
+                speedConversionFactor={String(
+                    speedConversionFactor(props.speedUnits),
+                )}
             />
         </div>
     );
@@ -322,7 +323,8 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     freefallTimeId,
                     avgSpeedId,
                     options.altitudeUnits,
-                    options.speedUnits,
+                    String(speedConversionFactor(options.speedUnits)),
+                    speedUnitLabel(options.speedUnits),
                 ]}
                 $exec={(
                     exitAltitudeId,
@@ -330,7 +332,8 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     freefallTimeId,
                     avgSpeedId,
                     altitudeUnits,
-                    speedUnits,
+                    speedConversionFactor,
+                    speedUnitLabel,
                 ) => {
                     const exitAltitude =
                         document.getElementById(exitAltitudeId);
@@ -343,6 +346,7 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     $assertElement(openingAltitude, HTMLInputElement);
                     $assertElement(freefallTime, HTMLInputElement);
                     $assertElement(avgSpeed, HTMLDivElement);
+                    const conversionFactor = Number(speedConversionFactor);
 
                     function updateAvgSpeed() {
                         $assertElement(exitAltitude, HTMLInputElement);
@@ -366,11 +370,13 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                             (Math.max(0, exit - opening) *
                                 (altitudeUnits === "feet" ? 0.3048 : 1)) /
                             time;
+                        const convertedSpeed =
+                            metersPerSecond * conversionFactor;
                         const formatted =
-                            speedUnits === "meters-per-second"
-                                ? `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`
-                                : `${Math.round(metersPerSecond * 3.6)} km/h`;
-                        avgSpeed.textContent = `Avg speed: ${formatted}`;
+                            conversionFactor === 1
+                                ? convertedSpeed.toFixed(1).replace(/\.0$/, "")
+                                : String(Math.round(convertedSpeed));
+                        avgSpeed.textContent = `Avg speed: ${formatted} ${speedUnitLabel}`;
                     }
 
                     for (const input of [

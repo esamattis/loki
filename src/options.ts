@@ -85,7 +85,7 @@ export const DEFAULT_USER_OPTIONS = {
 export const UserOptionsSchema = z.object({
     altitudeUnits: z.enum(["meters", "feet"]).default("meters"),
     speedUnits: z
-        .enum(["kilometers-per-hour", "meters-per-second"])
+        .enum(["kilometers-per-hour", "miles-per-hour", "meters-per-second"])
         .default("kilometers-per-hour"),
     previousJumpCount: z.coerce.number().int().nonnegative().default(0),
     openaiApiKey: z.string().default(""),
@@ -156,18 +156,29 @@ export function formatSpeed(
     if (units === "meters-per-second") {
         return `${metersPerSecond.toFixed(1).replace(/\.0$/, "")} m/s`;
     }
-    return `${Math.round(metersPerSecond * 3.6)} km/h`;
+    return `${Math.round(metersPerSecond * speedConversionFactor(units))} ${speedUnitLabel(units)}`;
+}
+
+export function speedConversionFactor(
+    units: UserOptions["speedUnits"],
+): number {
+    if (units === "meters-per-second") {
+        return 1;
+    }
+    return units === "miles-per-hour" ? 2.2369362920544 : 3.6;
 }
 
 export function speedInputValue(
     metersPerSecond: number,
     units: UserOptions["speedUnits"],
 ): string {
-    const value =
-        units === "meters-per-second" ? metersPerSecond : metersPerSecond * 3.6;
+    const value = metersPerSecond * speedConversionFactor(units);
     return value.toFixed(1).replace(/\.0$/, "");
 }
 
 export function speedUnitLabel(units: UserOptions["speedUnits"]): string {
-    return units === "meters-per-second" ? "m/s" : "km/h";
+    if (units === "meters-per-second") {
+        return "m/s";
+    }
+    return units === "miles-per-hour" ? "mph" : "km/h";
 }
