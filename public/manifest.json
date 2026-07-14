@@ -1,6 +1,6 @@
 {
-    "name": "Hypyt",
-    "short_name": "Hypyt",
+    "name": "Loki - Skydiving Logbook",
+    "short_name": "Loki",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#f8fafc",

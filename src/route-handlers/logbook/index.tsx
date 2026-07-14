@@ -474,7 +474,7 @@ async function renderLogbook(c: AppRequestContext) {
     }));
 
     return c.render(
-        <LogbookPage title="Jump Logbook">
+        <LogbookPage title="Loki - Skydiving Logbook">
             {stats.totalJumps > 0 && (
                 <>
                     <div className="flex justify-end">

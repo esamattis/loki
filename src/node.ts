@@ -66,7 +66,7 @@ serve(
     },
     (info) => {
         console.log(
-            `Self-hosted Jump Logbook listening on http://${info.address}:${info.port}`,
+            `Self-hosted Loki - Skydiving Logbook listening on http://${info.address}:${info.port}`,
         );
         console.log(`SQLite database: ${absoluteSqlitePath}`);
     },

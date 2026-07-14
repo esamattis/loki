@@ -705,7 +705,7 @@ function setAuthenticatedUser(ctx: AppContext, user: AuthenticatedUser) {
 
 function basicAuthChallenge(c: AppRequestContext) {
     return c.body("Invalid username or password", 401, {
-        "WWW-Authenticate": 'Basic realm="Jump Logbook"',
+        "WWW-Authenticate": 'Basic realm="Loki - Skydiving Logbook"',
         "Content-Type": "text/plain; charset=utf-8",
     });
 }
@@ -819,8 +819,8 @@ app.use(
         const user = getAppContext(c).user;
 
         const title = user
-            ? `${user.getDisplayName()} – Jump Logbook`
-            : "Jump Logbook";
+            ? `${user.getDisplayName()} – Loki - Skydiving Logbook`
+            : "Loki - Skydiving Logbook";
 
         return (
             <html lang="en">

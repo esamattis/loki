@@ -114,7 +114,7 @@ async function main(): Promise<void> {
     // Reorder CREATE/INSERT for D1 FK rules (see rewriteDumpForImport).
     const raw = await readFile(filePath, "utf8");
     const rewritten = rewriteDumpForImport(raw);
-    const dir = await mkdtemp(join(tmpdir(), "hypyt-d1-import-"));
+    const dir = await mkdtemp(join(tmpdir(), "loki-d1-import-"));
     const importPath = join(dir, "import.sql");
     try {
         await writeFile(importPath, rewritten, "utf8");

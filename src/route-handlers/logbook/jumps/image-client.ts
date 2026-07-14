@@ -2,7 +2,7 @@ import { $assertElement } from "@/utils";
 
 export const JUMP_IMAGE_MAX_DIMENSION = 2048;
 export const JUMP_IMAGE_TARGET_BYTES = 2 * 1024 * 1024;
-export const JUMP_IMAGE_DB_NAME = "hypyt-jump-from-image";
+export const JUMP_IMAGE_DB_NAME = "loki-jump-from-image";
 export const JUMP_IMAGE_STORE = "images";
 export const JUMP_IMAGE_KEY = "draft";
 

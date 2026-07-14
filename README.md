@@ -1,4 +1,4 @@
-## Jump Logbook
+## Loki - Skydiving Logbook
 
 Install dependencies and start the local development server:
 
@@ -99,16 +99,16 @@ Then open http://127.0.0.1:8787
 
 ### Environment
 
-| Variable      | Default             | Description                                          |
-| ------------- | ------------------- | ---------------------------------------------------- |
-| `PORT`        | `8787`              | HTTP port                                            |
-| `HOST`        | `127.0.0.1`         | Bind address (`0.0.0.0` to listen on all interfaces) |
-| `SQLITE_PATH` | `data/hypyt.sqlite` | Path to the SQLite database file                     |
+| Variable      | Default            | Description                                          |
+| ------------- | ------------------ | ---------------------------------------------------- |
+| `PORT`        | `8787`             | HTTP port                                            |
+| `HOST`        | `127.0.0.1`        | Bind address (`0.0.0.0` to listen on all interfaces) |
+| `SQLITE_PATH` | `data/loki.sqlite` | Path to the SQLite database file                     |
 
 Example:
 
 ```sh
-HOST=0.0.0.0 PORT=3000 SQLITE_PATH=/var/lib/hypyt/db.sqlite pn start
+HOST=0.0.0.0 PORT=3000 SQLITE_PATH=/var/lib/loki/db.sqlite pn start
 ```
 
 ### SQLite database helpers

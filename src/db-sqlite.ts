@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import type { AppDatabase } from "@/db";
 
 export function resolveSqlitePath(path = process.env.SQLITE_PATH): string {
-    return resolve(path?.trim() || "data/hypyt.sqlite");
+    return resolve(path?.trim() || "data/loki.sqlite");
 }
 
 type BatchableQuery = {

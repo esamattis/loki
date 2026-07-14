@@ -111,7 +111,7 @@ function buildExportFilename(displayName: string, date = new Date()): string {
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "") || "user";
-    return `logbook-${slug}-${date.toISOString().slice(0, 19).replace(/:/g, "")}Z.csv`;
+    return `loki-${slug}-${date.toISOString().slice(0, 19).replace(/:/g, "")}Z.csv`;
 }
 
 export async function exportLogbook(c: AppRequestContext) {

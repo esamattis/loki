@@ -142,7 +142,7 @@ function imageShareFallback(c: AppRequestContext) {
                 </h1>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                     The shared image could not be imported because the app's
-                    service worker did not handle the request. Open Hypyt, then
+                    service worker did not handle the request. Open Loki, then
                     share the image again.
                 </p>
             </div>

@@ -206,7 +206,7 @@ function InstallAppSection() {
                     Install app
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Add Jump Logbook to your home screen for quick access.
+                    Add Loki to your home screen for quick access.
                 </p>
                 <p
                     id={hintId}

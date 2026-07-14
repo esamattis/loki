@@ -51,6 +51,6 @@ export function $showAndroidChromeHint(hint: HTMLParagraphElement) {
         hint.hidden = false;
         hint.textContent =
             "For the best experience on Android, install this app using Chrome. " +
-            "Chrome enables sharing images from other apps directly into Jump Logbook.";
+            "Chrome enables sharing images from other apps directly into Loki.";
     }
 }
