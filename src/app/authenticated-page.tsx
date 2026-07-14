@@ -338,7 +338,7 @@ function ThemeToggle() {
     );
 }
 
-export function LogbookPage(props: { title: string; children: any }) {
+export function LogbookPage(props: { title?: string; children: any }) {
     const user = useAppContext().getUser();
 
     return (
@@ -367,8 +367,11 @@ export function LogbookPage(props: { title: string; children: any }) {
                                 aria-hidden="true"
                                 className="h-8 w-auto"
                             />
-                            <span className="inline">
-                                {user.getDisplayName()}'s logbook
+                            <span className="flex flex-col">
+                                <span>Loki – Skydiving Logbook</span>
+                                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                                    {user.getDisplayName()}'s logbook
+                                </span>
                             </span>
                         </a>
                         <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -384,9 +387,11 @@ export function LogbookPage(props: { title: string; children: any }) {
                 </div>
             </header>
             <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 pb-24 sm:py-8 sm:pb-8">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
-                    {props.title}
-                </h1>
+                {props.title && (
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+                        {props.title}
+                    </h1>
+                )}
                 {props.children}
             </main>
             <nav

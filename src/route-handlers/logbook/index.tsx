@@ -474,15 +474,21 @@ async function renderLogbook(c: AppRequestContext) {
     }));
 
     return c.render(
-        <LogbookPage title="Loki - Skydiving Logbook">
+        <LogbookPage title="Your Jumps">
             {stats.totalJumps > 0 && (
                 <>
+                    <LogbookStats
+                        totalJumps={stats.totalJumps}
+                        totalFreefallMeters={stats.totalFreefallMeters}
+                        totalFreefallTime={stats.totalFreefallTime}
+                        activeJumpYears={stats.activeJumpYears}
+                    />
                     <div className="flex justify-end">
                         <a
                             href={routes.logbook.statistics.index({})}
                             className="inline-flex items-center gap-1 text-sm text-slate-500 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
                         >
-                            View statistics
+                            View all statistics
                             <svg
                                 aria-hidden="true"
                                 className="h-4 w-4"
@@ -499,12 +505,6 @@ async function renderLogbook(c: AppRequestContext) {
                             </svg>
                         </a>
                     </div>
-                    <LogbookStats
-                        totalJumps={stats.totalJumps}
-                        totalFreefallMeters={stats.totalFreefallMeters}
-                        totalFreefallTime={stats.totalFreefallTime}
-                        activeJumpYears={stats.activeJumpYears}
-                    />
                 </>
             )}
             <JumpFilters
