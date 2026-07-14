@@ -16,6 +16,10 @@
     animation: vt-fade-in 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+::view-transition-group(logbook-header) {
+    animation: none;
+}
+
 @keyframes vt-fade-out {
     to {
         opacity: 0;

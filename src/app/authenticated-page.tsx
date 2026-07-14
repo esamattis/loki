@@ -260,7 +260,7 @@ export function LogbookPage(props: { title?: string; children: any }) {
                     summary::-webkit-details-marker { display: none; }
                 `}
             </Style>
-            <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85">
+            <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md [view-transition-name:logbook-header] dark:border-slate-800 dark:bg-slate-900/85">
                 <div className="mx-auto max-w-3xl px-4 py-2.5 sm:py-3">
                     <div className="flex items-center gap-3">
                         <a
