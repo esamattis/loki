@@ -19,6 +19,7 @@ import {
     parseBasicAuth,
     SESSION_COOKIE_NAME,
     sessionCookieOptions,
+    SESSION_MAX_AGE,
     type AuthenticatedUser,
 } from "./auth";
 import { createD1Database, type AppDatabase } from "./db";
@@ -759,7 +760,7 @@ async function authenticateMiddleware(
             if (lastUsedAt <= now - 5 * 60) {
                 await ctx.db
                     .update(sessions)
-                    .set({ lastUsedAt: now })
+                    .set({ lastUsedAt: now, expiresAt: now + SESSION_MAX_AGE })
                     .where(eq(sessions.tokenHash, tokenHash))
                     .run();
             }
