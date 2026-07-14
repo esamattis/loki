@@ -6,7 +6,7 @@ import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
 import htmx from "htmx.org/dist/htmx.esm.js?raw";
 import tailwind from "./tailwind.css?inline";
-import { Script } from "./components/helpers";
+import { $initTooltips, Script } from "./components/helpers";
 import { Button } from "./components/form";
 import { Dialog } from "./components/ui";
 import { sessions, users } from "./schema";
@@ -882,6 +882,7 @@ app.use(
                         $exec={$guardUnsavedFormChanges}
                     />
                     <Script $exec={$restoreFormScrollPosition} />
+                    <Script $deps={[$assertElement]} $exec={$initTooltips} />
                     <Script
                         $deps={[$showNavigationProgress]}
                         $exec={$disableFormOnSubmit}

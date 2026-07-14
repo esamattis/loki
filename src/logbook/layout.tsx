@@ -29,6 +29,7 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
     return (
         <DropdownMenu
             label="Menu"
+            tooltip="Menu"
             button={<BurgerMenuIcon />}
             buttonClassName={buttonClassName({
                 variant: "secondary",
@@ -140,7 +141,7 @@ function LogbookActions() {
                 href={routes.logbook({})}
                 variant="secondary"
                 aria-label="Logbook"
-                title="Logbook"
+                data-tooltip="Show jump list"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
                 <LogbookIcon />
@@ -150,7 +151,7 @@ function LogbookActions() {
                 href={routes.jumpNew({}, {})}
                 variant="primary"
                 aria-label="Add jump"
-                title="Add jump"
+                data-tooltip="Add jump"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
                 <PlusIcon />
@@ -160,7 +161,7 @@ function LogbookActions() {
                 href={routes.jumpFromImage({})}
                 variant="secondary"
                 aria-label="From image"
-                title="From image"
+                data-tooltip="Create jump from image using AI image recognition"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
                 <ImageIcon />
@@ -248,7 +249,7 @@ function $initThemeToggle(
         darkIcon.classList.toggle("hidden", theme !== "dark");
         systemIcon.classList.toggle("hidden", theme !== "system");
         button.setAttribute("aria-label", labels[theme]);
-        button.title = labels[theme];
+        button.dataset.tooltip = labels[theme];
     }
 
     function setTheme(theme: "light" | "dark" | "system") {
@@ -289,7 +290,7 @@ function ThemeToggle() {
                 type="button"
                 variant="secondary"
                 aria-label="Toggle theme"
-                title="Toggle theme"
+                data-tooltip="Toggle theme"
                 className="px-3 py-2 text-sm"
             >
                 <ThemeIcon
@@ -337,6 +338,7 @@ export function LogbookPage(props: { title: string; children: any }) {
                     <div className="flex items-center gap-3">
                         <a
                             href={routes.logbook({})}
+                            data-tooltip="Logbook home"
                             className="flex shrink-0 items-center gap-2 text-base font-bold tracking-tight text-slate-900 sm:text-lg dark:text-slate-100"
                         >
                             <img

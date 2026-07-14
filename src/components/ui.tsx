@@ -15,6 +15,7 @@ export function DropdownMenu(props: {
     label: string;
     button: Child;
     buttonClassName?: string;
+    tooltip?: string;
     menuClassName?: string;
     children: Child;
 }) {
@@ -30,6 +31,7 @@ export function DropdownMenu(props: {
                 aria-controls={menuId}
                 aria-expanded="false"
                 aria-label={props.label}
+                data-tooltip={props.tooltip}
                 className={props.buttonClassName}
             >
                 {props.button}

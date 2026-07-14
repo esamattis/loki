@@ -52,6 +52,7 @@ export function Button(props: {
     hidden?: boolean;
     disabled?: boolean;
     title?: string;
+    "data-tooltip"?: string;
     "aria-label"?: string;
     "aria-controls"?: string;
     "aria-expanded"?: string;
@@ -65,6 +66,7 @@ export function Button(props: {
             hidden={props.hidden}
             disabled={props.disabled}
             title={props.title}
+            data-tooltip={props["data-tooltip"]}
             aria-label={props["aria-label"]}
             aria-controls={props["aria-controls"]}
             aria-expanded={props["aria-expanded"]}
@@ -85,6 +87,7 @@ export function ButtonLink(props: {
     size?: ButtonSize;
     className?: string;
     title?: string;
+    "data-tooltip"?: string;
     "aria-label"?: string;
     "aria-disabled"?: boolean;
     children: Child;
@@ -93,6 +96,7 @@ export function ButtonLink(props: {
         <a
             href={props.href}
             title={props.title}
+            data-tooltip={props["data-tooltip"]}
             aria-label={props["aria-label"]}
             aria-disabled={props["aria-disabled"]}
             className={buttonClassName({
