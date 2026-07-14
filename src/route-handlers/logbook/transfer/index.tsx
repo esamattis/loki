@@ -174,20 +174,20 @@ function createXmlCatalog(
     return { records, namesById };
 }
 
-function resolveXmlNames(
-    ids: string[],
-    catalog: XmlCatalog,
-    resourceName: string,
-    errors: string[],
-    jumpNumber: number,
-): string[] {
-    return ids.flatMap((id) => {
-        const name = catalog.namesById.get(id);
+function resolveXmlNames(config: {
+    ids: string[];
+    catalog: XmlCatalog;
+    resourceName: string;
+    errors: string[];
+    jumpNumber: number;
+}): string[] {
+    return config.ids.flatMap((id) => {
+        const name = config.catalog.namesById.get(id);
         if (name) {
             return [name];
         }
-        errors.push(
-            `Jump #${jumpNumber}: unknown ${resourceName} ID ${JSON.stringify(id)}`,
+        config.errors.push(
+            `Jump #${config.jumpNumber}: unknown ${config.resourceName} ID ${JSON.stringify(id)}`,
         );
         return [];
     });
@@ -235,22 +235,22 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
         const locationId = xmlString(record, "location_id");
         const aircraftId = xmlString(record, "aircraft_id");
         const location = locationId
-            ? resolveXmlNames(
-                  [locationId],
-                  locations,
-                  "location",
+            ? resolveXmlNames({
+                  ids: [locationId],
+                  catalog: locations,
+                  resourceName: "location",
                   errors,
                   jumpNumber,
-              )[0]
+              })[0]
             : "Unknown location";
         const aircraftName = aircraftId
-            ? resolveXmlNames(
-                  [aircraftId],
-                  aircraft,
-                  "aircraft",
+            ? resolveXmlNames({
+                  ids: [aircraftId],
+                  catalog: aircraft,
+                  resourceName: "aircraft",
                   errors,
                   jumpNumber,
-              )[0]
+              })[0]
             : "Unknown aircraft";
         if (!location || !aircraftName) {
             continue;
@@ -260,15 +260,15 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
         const description = xmlString(record, "notes");
         const cutaway = xmlString(record, "cutaway");
         needsCutawayType ||= cutaway === "true";
-        const resolvedJumpTypes = resolveXmlNames(
-            xmlString(record, "skydive_type_id")
+        const resolvedJumpTypes = resolveXmlNames({
+            ids: xmlString(record, "skydive_type_id")
                 ? [requiredXmlString(record, "skydive_type_id")]
                 : [],
-            jumpTypes,
-            "skydive type",
+            catalog: jumpTypes,
+            resourceName: "skydive type",
             errors,
             jumpNumber,
-        );
+        });
         const jumpTypesWithCutaway = addCutawayJumpType(
             resolvedJumpTypes,
             cutaway === "true",
@@ -282,13 +282,13 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
             freefallTime: xmlNumber(record, "freefall_time", 0),
             location,
             aircraft: aircraftName,
-            gear: resolveXmlNames(
-                xmlRigIds(record),
-                gearCatalog,
-                "rig",
+            gear: resolveXmlNames({
+                ids: xmlRigIds(record),
+                catalog: gearCatalog,
+                resourceName: "rig",
                 errors,
                 jumpNumber,
-            ),
+            }),
             jumpTypes: jumpTypesWithCutaway,
             ...(description ? { description } : {}),
         });
@@ -521,13 +521,22 @@ async function readImportRecords(
 /** Mutable state and queued operations for one logbook import. */
 class ImportState {
     readonly queries: ImportQuery[] = [];
+    readonly db: ImportDatabase;
+    readonly userUuid: string;
+    readonly resources: Record<ResourceType, Map<string, string>>;
+    readonly jumpUuids: Map<number, string>;
 
-    private constructor(
-        readonly db: ImportDatabase,
-        readonly userUuid: string,
-        readonly resources: Record<ResourceType, Map<string, string>>,
-        readonly jumpUuids: Map<number, string>,
-    ) {}
+    private constructor(config: {
+        db: ImportDatabase;
+        userUuid: string;
+        resources: Record<ResourceType, Map<string, string>>;
+        jumpUuids: Map<number, string>;
+    }) {
+        this.db = config.db;
+        this.userUuid = config.userUuid;
+        this.resources = config.resources;
+        this.jumpUuids = config.jumpUuids;
+    }
 
     /** Loads existing user resources for an import. */
     static async create(
@@ -536,17 +545,17 @@ class ImportState {
         clearAll: boolean,
     ): Promise<ImportState> {
         if (clearAll) {
-            return new ImportState(
+            return new ImportState({
                 db,
                 userUuid,
-                {
+                resources: {
                     aircraft: new Map(),
                     gear: new Map(),
                     jumpType: new Map(),
                     location: new Map(),
                 },
-                new Map(),
-            );
+                jumpUuids: new Map(),
+            });
         }
 
         const [aircraftRows, gearRows, jumpRows, jumpTypeRows, locationRows] =
@@ -572,17 +581,19 @@ class ImportState {
                     .from(locations)
                     .where(eq(locations.userUuid, userUuid)),
             ]);
-        return new ImportState(
+        return new ImportState({
             db,
             userUuid,
-            {
+            resources: {
                 aircraft: resourceMap(aircraftRows),
                 gear: resourceMap(gearRows),
                 jumpType: resourceMap(jumpTypeRows),
                 location: resourceMap(locationRows),
             },
-            new Map(jumpRows.map((jump) => [jump.jumpNumber, jump.uuid])),
-        );
+            jumpUuids: new Map(
+                jumpRows.map((jump) => [jump.jumpNumber, jump.uuid]),
+            ),
+        });
     }
 
     /** Adds a database query to the atomic import batch. */
@@ -616,42 +627,42 @@ class ImportState {
     }
 
     /** Queues insertion of a resource and records its UUID for later references. */
-    queueResource(
-        type: ResourceType,
-        name: string,
-        previousCount: number,
-        description: string | null | undefined,
-    ): string {
+    queueResource(config: {
+        type: ResourceType;
+        name: string;
+        previousCount: number;
+        description: string | null | undefined;
+    }): string {
         const uuid = crypto.randomUUID();
-        this.resources[type].set(normalizeName(name), uuid);
-        if (type === "aircraft") {
+        this.resources[config.type].set(normalizeName(config.name), uuid);
+        if (config.type === "aircraft") {
             this.queueQuery(
                 this.db.insert(aircrafts).values({
                     uuid,
                     userUuid: this.userUuid,
-                    name,
-                    previousJumpCount: previousCount,
-                    description: description || null,
+                    name: config.name,
+                    previousJumpCount: config.previousCount,
+                    description: config.description || null,
                 }),
             );
-        } else if (type === "gear") {
+        } else if (config.type === "gear") {
             this.queueQuery(
                 this.db.insert(gear).values({
                     uuid,
                     userUuid: this.userUuid,
-                    name,
-                    previousUsageCount: previousCount,
-                    description: description || null,
+                    name: config.name,
+                    previousUsageCount: config.previousCount,
+                    description: config.description || null,
                 }),
             );
-        } else if (type === "jumpType") {
+        } else if (config.type === "jumpType") {
             this.queueQuery(
                 this.db.insert(jumpTypes).values({
                     uuid,
                     userUuid: this.userUuid,
-                    name,
-                    previousUsageCount: previousCount,
-                    description: description || null,
+                    name: config.name,
+                    previousUsageCount: config.previousCount,
+                    description: config.description || null,
                 }),
             );
         } else {
@@ -659,9 +670,9 @@ class ImportState {
                 this.db.insert(locations).values({
                     uuid,
                     userUuid: this.userUuid,
-                    name,
-                    previousJumpCount: previousCount,
-                    description: description || null,
+                    name: config.name,
+                    previousJumpCount: config.previousCount,
+                    description: config.description || null,
                 }),
             );
         }
@@ -677,12 +688,12 @@ class ImportState {
             if (this.resources[record.type].has(normalizeName(record.name))) {
                 continue;
             }
-            this.queueResource(
-                record.type,
-                record.name,
-                record.previousCount,
-                record.description,
-            );
+            this.queueResource({
+                type: record.type,
+                name: record.name,
+                previousCount: record.previousCount,
+                description: record.description,
+            });
         }
     }
 
@@ -693,22 +704,42 @@ class ImportState {
         this.jumpUuids.set(record.jumpNumber, jumpUuid);
         const locationUuid =
             this.resources.location.get(normalizeName(record.location)) ??
-            this.queueResource("location", record.location, 0, null);
+            this.queueResource({
+                type: "location",
+                name: record.location,
+                previousCount: 0,
+                description: null,
+            });
         const aircraftUuid =
             this.resources.aircraft.get(normalizeName(record.aircraft)) ??
-            this.queueResource("aircraft", record.aircraft, 0, null);
+            this.queueResource({
+                type: "aircraft",
+                name: record.aircraft,
+                previousCount: 0,
+                description: null,
+            });
         const gearByUuid = new Map<string, string>();
         for (const name of record.gear) {
             const gearUuid =
                 this.resources.gear.get(normalizeName(name)) ??
-                this.queueResource("gear", name, 0, null);
+                this.queueResource({
+                    type: "gear",
+                    name,
+                    previousCount: 0,
+                    description: null,
+                });
             gearByUuid.set(gearUuid, name);
         }
         const jumpTypeByUuid = new Map<string, string>();
         for (const name of record.jumpTypes) {
             const jumpTypeUuid =
                 this.resources.jumpType.get(normalizeName(name)) ??
-                this.queueResource("jumpType", name, 0, null);
+                this.queueResource({
+                    type: "jumpType",
+                    name,
+                    previousCount: 0,
+                    description: null,
+                });
             jumpTypeByUuid.set(jumpTypeUuid, name);
         }
         const jumpValues = {

@@ -12,13 +12,13 @@ const dangerButtonClassName = buttonClassName({
 const confirmDangerCountdownSeconds =
     process.env.PLAYWRIGHT_TEST === "1" ? 0 : 3;
 
-function $initConfirmDangerButton(
-    buttonId: string,
-    label: string,
-    confirmLabel: string,
-    countdownSeconds: number,
-) {
-    const button = document.getElementById(buttonId);
+function $initConfirmDangerButton(config: {
+    buttonId: string;
+    label: string;
+    confirmLabel: string;
+    countdownSeconds: number;
+}) {
+    const button = document.getElementById(config.buttonId);
     $assertElement(button, HTMLButtonElement);
     const buttonElement = button;
     let state: "idle" | "ready" = "idle";
@@ -41,7 +41,7 @@ function $initConfirmDangerButton(
             "bg-red-100",
             "dark:bg-red-950/60",
         );
-        buttonElement.textContent = label;
+        buttonElement.textContent = config.label;
     }
     function onOutsideClick(event: MouseEvent) {
         const target = event.target;
@@ -56,7 +56,7 @@ function $initConfirmDangerButton(
             "bg-red-100",
             "dark:bg-red-950/60",
         );
-        buttonElement.textContent = confirmLabel;
+        buttonElement.textContent = config.confirmLabel;
         setTimeout(() => {
             if (state === "ready")
                 document.addEventListener("click", onOutsideClick, {
@@ -68,7 +68,7 @@ function $initConfirmDangerButton(
         if (state === "ready") return;
         event.preventDefault();
         state = "ready";
-        if (countdownSeconds <= 0) {
+        if (config.countdownSeconds <= 0) {
             armReady();
             return;
         }
@@ -80,8 +80,8 @@ function $initConfirmDangerButton(
             "bg-red-100",
             "dark:bg-red-950/60",
         );
-        let count = countdownSeconds;
-        buttonElement.textContent = `${confirmLabel} (${count}s)`;
+        let count = config.countdownSeconds;
+        buttonElement.textContent = `${config.confirmLabel} (${count}s)`;
         timer = setInterval(() => {
             count -= 1;
             if (count <= 0) {
@@ -89,7 +89,7 @@ function $initConfirmDangerButton(
                 armReady();
                 return;
             }
-            buttonElement.textContent = `${confirmLabel} (${count}s)`;
+            buttonElement.textContent = `${config.confirmLabel} (${count}s)`;
         }, 1000);
     });
 }
@@ -103,10 +103,12 @@ function ConfirmDangerButtonScript(props: {
         <Script
             $deps={[$assertElement]}
             $args={[
-                props.buttonId,
-                props.label,
-                props.confirmLabel,
-                confirmDangerCountdownSeconds,
+                {
+                    buttonId: props.buttonId,
+                    label: props.label,
+                    confirmLabel: props.confirmLabel,
+                    countdownSeconds: confirmDangerCountdownSeconds,
+                },
             ]}
             $exec={$initConfirmDangerButton}
         />

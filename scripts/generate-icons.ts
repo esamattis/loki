@@ -65,26 +65,29 @@ async function rasterizeLogo(outPng: string, height: number) {
 /**
  * Square PNG with a centered logo and optional transparent background.
  */
-async function writeSquarePng(
-    sourcePng: string,
-    outPath: string,
-    size: number,
-    paddingRatio: number,
-    transparent = false,
-) {
-    const content = Math.max(1, Math.round(size * (1 - 2 * paddingRatio)));
+async function writeSquarePng(config: {
+    sourcePng: string;
+    outPath: string;
+    size: number;
+    paddingRatio: number;
+    transparent?: boolean;
+}) {
+    const content = Math.max(
+        1,
+        Math.round(config.size * (1 - 2 * config.paddingRatio)),
+    );
     await gmConvert([
-        sourcePng,
+        config.sourcePng,
         "-background",
-        transparent ? "none" : BACKGROUND,
-        ...(transparent ? [] : ["-flatten"]),
+        config.transparent ? "none" : BACKGROUND,
+        ...(config.transparent ? [] : ["-flatten"]),
         "-resize",
         `${content}x${content}`,
         "-gravity",
         "center",
         "-extent",
-        `${size}x${size}`,
-        outPath,
+        `${config.size}x${config.size}`,
+        config.outPath,
     ]);
 }
 
@@ -127,7 +130,13 @@ async function generateFavicon(sourcePng: string, tmpDir: string) {
     const pngPaths: string[] = [];
     for (const size of FAVICON_SIZES) {
         const path = join(tmpDir, `favicon-${size}.png`);
-        await writeSquarePng(sourcePng, path, size, 0.08, true);
+        await writeSquarePng({
+            sourcePng,
+            outPath: path,
+            size,
+            paddingRatio: 0.08,
+            transparent: true,
+        });
         pngPaths.push(path);
     }
     const buffers = await Promise.all(pngPaths.map((p) => readFile(p)));
@@ -162,12 +171,12 @@ async function main() {
 
         for (const target of PNG_TARGETS) {
             const out = join(PUBLIC, target.file);
-            await writeSquarePng(
+            await writeSquarePng({
                 sourcePng,
-                out,
-                target.size,
-                target.paddingRatio,
-            );
+                outPath: out,
+                size: target.size,
+                paddingRatio: target.paddingRatio,
+            });
             console.log(`wrote ${target.file} (${target.size}x${target.size})`);
         }
         await generateFavicon(sourcePng, tmpDir);

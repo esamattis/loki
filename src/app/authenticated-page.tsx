@@ -123,19 +123,19 @@ function LogbookActions() {
     );
 }
 
-function $initThemeToggle(
-    buttonId: string,
-    lightIconId: string,
-    darkIconId: string,
-    systemIconId: string,
-) {
-    const buttonEl = document.getElementById(buttonId);
+function $initThemeToggle(ids: {
+    buttonId: string;
+    lightIconId: string;
+    darkIconId: string;
+    systemIconId: string;
+}) {
+    const buttonEl = document.getElementById(ids.buttonId);
     $assertElement(buttonEl, HTMLButtonElement);
-    const lightIconEl = document.getElementById(lightIconId);
+    const lightIconEl = document.getElementById(ids.lightIconId);
     $assertElement(lightIconEl, SVGSVGElement);
-    const darkIconEl = document.getElementById(darkIconId);
+    const darkIconEl = document.getElementById(ids.darkIconId);
     $assertElement(darkIconEl, SVGSVGElement);
-    const systemIconEl = document.getElementById(systemIconId);
+    const systemIconEl = document.getElementById(ids.systemIconId);
     $assertElement(systemIconEl, SVGSVGElement);
     const button = buttonEl;
     const lightIcon = lightIconEl;
@@ -231,7 +231,14 @@ function ThemeToggle() {
             </Button>
             <Script
                 $deps={[$assertElement]}
-                $args={[id, lightIconId, darkIconId, systemIconId]}
+                $args={[
+                    {
+                        buttonId: id,
+                        lightIconId,
+                        darkIconId,
+                        systemIconId,
+                    },
+                ]}
                 $exec={$initThemeToggle}
             />
         </>

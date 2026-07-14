@@ -54,15 +54,16 @@ export function Password(props: {
             </div>
             <Script
                 $deps={[$assertElement]}
-                $args={[id, toggleId, eyeIconId, eyeOffIconId]}
-                $exec={(inputId, toggleId, eyeIconId, eyeOffIconId) => {
+                $args={[{ inputId: id, toggleId, eyeIconId, eyeOffIconId }]}
+                $exec={(ids) => {
                     function togglePasswordVisibility() {
-                        const input = document.getElementById(inputId);
+                        const input = document.getElementById(ids.inputId);
                         $assertElement(input, HTMLInputElement);
-                        const eyeIcon = document.getElementById(eyeIconId);
+                        const eyeIcon = document.getElementById(ids.eyeIconId);
                         $assertElement(eyeIcon, SVGSVGElement);
-                        const eyeOffIcon =
-                            document.getElementById(eyeOffIconId);
+                        const eyeOffIcon = document.getElementById(
+                            ids.eyeOffIconId,
+                        );
                         $assertElement(eyeOffIcon, SVGSVGElement);
                         if (input.type === "password") {
                             input.type = "text";
@@ -75,7 +76,7 @@ export function Password(props: {
                         }
                         input.focus();
                     }
-                    const toggleButton = document.getElementById(toggleId);
+                    const toggleButton = document.getElementById(ids.toggleId);
                     $assertElement(toggleButton, HTMLButtonElement);
                     toggleButton.addEventListener(
                         "click",

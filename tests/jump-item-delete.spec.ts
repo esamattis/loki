@@ -15,15 +15,13 @@ async function registerUser(page: Page, username: string, displayName: string) {
 
 async function addItem(
     page: Page,
-    manageLink: string,
-    addLabel: string,
-    name: string,
+    item: { manageLink: string; addLabel: string; name: string },
 ) {
     await openManageLogbook(page);
-    await page.getByRole("link", { name: manageLink }).click();
-    await page.getByRole("link", { name: addLabel }).click();
-    await page.locator('input[name="name"]').fill(name);
-    await page.getByRole("button", { name: addLabel }).click();
+    await page.getByRole("link", { name: item.manageLink }).click();
+    await page.getByRole("link", { name: item.addLabel }).click();
+    await page.locator('input[name="name"]').fill(item.name);
+    await page.getByRole("button", { name: item.addLabel }).click();
 }
 
 async function confirmDelete(page: Page, deleteLabel: string) {
@@ -47,7 +45,11 @@ test("gear can be deleted from the edit view with a confirm countdown", async ({
         "deleting-gear-skydiver",
         "Deleting Gear Skydiver",
     );
-    await addItem(page, "Manage gear", "Add gear", "Disappearing Canopy");
+    await addItem(page, {
+        manageLink: "Manage gear",
+        addLabel: "Add gear",
+        name: "Disappearing Canopy",
+    });
 
     await page
         .getByRole("listitem")
@@ -71,12 +73,11 @@ test("jump types can be deleted from the edit view", async ({ page }) => {
         "deleting-type-skydiver",
         "Deleting Type Skydiver",
     );
-    await addItem(
-        page,
-        "Manage jump types",
-        "Add jump type",
-        "Disposable Jump Type",
-    );
+    await addItem(page, {
+        manageLink: "Manage jump types",
+        addLabel: "Add jump type",
+        name: "Disposable Jump Type",
+    });
 
     await page
         .getByRole("listitem")
@@ -99,11 +100,19 @@ test("aircraft cannot be deleted while used by jumps", async ({ page }) => {
         "guarded-aircraft-skydiver",
         "Guarded Aircraft Skydiver",
     );
-    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Guarded DZ",
+    });
     await page
         .getByRole("link", { name: /Guarded Aircraft Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Guarded Plane",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Aircraft Skydiver's logbook/ })
@@ -153,11 +162,19 @@ test("aircraft can be deleted once no jumps use it", async ({ page }) => {
         "free-aircraft-skydiver",
         "Free Aircraft Skydiver",
     );
-    await addItem(page, "Manage locations", "Add location", "Free DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Free DZ",
+    });
     await page
         .getByRole("link", { name: /Free Aircraft Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Free Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Free Plane",
+    });
 
     await page
         .getByRole("link", { name: /Free Aircraft Skydiver's logbook/ })
@@ -207,16 +224,28 @@ test("aircraft can be deleted once no jumps use it", async ({ page }) => {
 
 test("gear cannot be deleted while used by jumps", async ({ page }) => {
     await registerUser(page, "guarded-gear-skydiver", "Guarded Gear Skydiver");
-    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Guarded DZ",
+    });
     await page
         .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Guarded Plane",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage gear", "Add gear", "Guarded Canopy");
+    await addItem(page, {
+        manageLink: "Manage gear",
+        addLabel: "Add gear",
+        name: "Guarded Canopy",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Gear Skydiver's logbook/ })
@@ -267,16 +296,28 @@ test("jump types cannot be deleted while used by jumps", async ({ page }) => {
         "guarded-jumptype-skydiver",
         "Guarded Jump Type Skydiver",
     );
-    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Guarded DZ",
+    });
     await page
         .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Guarded Plane",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage jump types", "Add jump type", "Guarded Type");
+    await addItem(page, {
+        manageLink: "Manage jump types",
+        addLabel: "Add jump type",
+        name: "Guarded Type",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Jump Type Skydiver's logbook/ })
@@ -325,11 +366,19 @@ test("locations cannot be deleted while used by jumps", async ({ page }) => {
         "guarded-location-skydiver",
         "Guarded Location Skydiver",
     );
-    await addItem(page, "Manage locations", "Add location", "Guarded DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Guarded DZ",
+    });
     await page
         .getByRole("link", { name: /Guarded Location Skydiver's logbook/ })
         .click();
-    await addItem(page, "Manage aircraft", "Add aircraft", "Guarded Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Guarded Plane",
+    });
 
     await page
         .getByRole("link", { name: /Guarded Location Skydiver's logbook/ })

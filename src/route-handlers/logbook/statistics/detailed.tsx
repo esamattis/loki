@@ -378,23 +378,23 @@ interface StatisticsItemRow {
     recordedJumpCount: number;
 }
 
-async function fetchTotalJumps(
-    db: ReturnType<typeof getAppContext>["db"],
-    userUuid: string,
-    yearCondition: ReturnType<typeof and> | undefined,
-    previousJumpCount: number,
-): Promise<number> {
-    const [row] = await db
+async function fetchTotalJumps(config: {
+    db: ReturnType<typeof getAppContext>["db"];
+    userUuid: string;
+    yearCondition: ReturnType<typeof and> | undefined;
+    previousJumpCount: number;
+}): Promise<number> {
+    const [row] = await config.db
         .select({
             totalJumps: sql<number>`count(*) + ${
-                yearCondition ? 0 : previousJumpCount
+                config.yearCondition ? 0 : config.previousJumpCount
             }`,
         })
         .from(jumps)
         .where(
-            yearCondition
-                ? and(eq(jumps.userUuid, userUuid), yearCondition)
-                : eq(jumps.userUuid, userUuid),
+            config.yearCondition
+                ? and(eq(jumps.userUuid, config.userUuid), config.yearCondition)
+                : eq(jumps.userUuid, config.userUuid),
         );
     return row?.totalJumps ?? 0;
 }
@@ -617,12 +617,12 @@ async function fetchDetailedStatistics(
         .filter((y): y is number => Number.isInteger(y) && y > 0)
         .sort((a, b) => b - a);
 
-    const totalJumps = await fetchTotalJumps(
+    const totalJumps = await fetchTotalJumps({
         db,
         userUuid,
         yearCondition,
-        user.options.previousJumpCount,
-    );
+        previousJumpCount: user.options.previousJumpCount,
+    });
 
     return {
         locationRows,

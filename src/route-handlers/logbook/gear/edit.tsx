@@ -35,13 +35,13 @@ async function getEditGear(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(gear.name);
-    const recentJumps = await getRecentJumpsForItem(
+    const recentJumps = await getRecentJumpsForItem({
         c,
-        app.getUser().uuid,
-        app.getUser().options,
-        item.uuid,
-        "gear",
-    );
+        userUuid: app.getUser().uuid,
+        options: app.getUser().options,
+        itemUuid: item.uuid,
+        relation: "gear",
+    });
     return c.render(
         <GearFormPage
             title="Edit gear"
@@ -139,13 +139,13 @@ async function updateGear(c: AppRequestContext) {
     const values = getGearFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem(
+        const recentJumps = await getRecentJumpsForItem({
             c,
-            app.getUser().uuid,
-            app.getUser().options,
-            uuid,
-            "gear",
-        );
+            userUuid: app.getUser().uuid,
+            options: app.getUser().options,
+            itemUuid: uuid,
+            relation: "gear",
+        });
         return c.render(
             <GearFormPage
                 title="Edit gear"

@@ -81,42 +81,33 @@ function FreefallEstimateScript(props: {
     return (
         <Script
             $deps={[$assertElement]}
-            $args={[
-                props.exitAltitudeId,
-                props.openingAltitudeId,
-                props.freefallTimeId,
-                props.estimateDialogId,
-                props.customSpeedId,
-                props.customSpeedButtonId,
-                props.altitudeUnits,
-                props.speedConversionFactor,
-            ]}
-            $exec={(
-                exitAltitudeId,
-                openingAltitudeId,
-                freefallTimeId,
-                estimateDialogId,
-                customSpeedId,
-                customSpeedButtonId,
-                altitudeUnits,
-                speedConversionFactor,
-            ) => {
-                const exitAltitude = document.getElementById(exitAltitudeId);
-                const openingAltitude =
-                    document.getElementById(openingAltitudeId);
-                const freefallTime = document.getElementById(freefallTimeId);
-                const estimateDialog =
-                    document.getElementById(estimateDialogId);
-                const customSpeed = document.getElementById(customSpeedId);
-                const customSpeedButton =
-                    document.getElementById(customSpeedButtonId);
+            $args={[props]}
+            $exec={(config) => {
+                const exitAltitude = document.getElementById(
+                    config.exitAltitudeId,
+                );
+                const openingAltitude = document.getElementById(
+                    config.openingAltitudeId,
+                );
+                const freefallTime = document.getElementById(
+                    config.freefallTimeId,
+                );
+                const estimateDialog = document.getElementById(
+                    config.estimateDialogId,
+                );
+                const customSpeed = document.getElementById(
+                    config.customSpeedId,
+                );
+                const customSpeedButton = document.getElementById(
+                    config.customSpeedButtonId,
+                );
                 $assertElement(exitAltitude, HTMLInputElement);
                 $assertElement(openingAltitude, HTMLInputElement);
                 $assertElement(freefallTime, HTMLInputElement);
                 $assertElement(estimateDialog, HTMLDialogElement);
                 $assertElement(customSpeed, HTMLInputElement);
                 $assertElement(customSpeedButton, HTMLButtonElement);
-                const conversionFactor = Number(speedConversionFactor);
+                const conversionFactor = Number(config.speedConversionFactor);
 
                 function estimateFreefallTime(speed: number) {
                     $assertElement(exitAltitude, HTMLInputElement);
@@ -134,7 +125,7 @@ function FreefallEstimateScript(props: {
                     }
                     const distanceMeters =
                         Math.max(0, exit - opening) *
-                        (altitudeUnits === "feet" ? 0.3048 : 1);
+                        (config.altitudeUnits === "feet" ? 0.3048 : 1);
                     const metersPerSecond = speed / conversionFactor;
                     freefallTime.value = String(
                         Math.round(distanceMeters / metersPerSecond),
@@ -318,35 +309,36 @@ function AvgSpeed(props: { values: JumpFormValues }) {
             <Script
                 $deps={[$assertElement]}
                 $args={[
-                    exitAltitudeId,
-                    openingAltitudeId,
-                    freefallTimeId,
-                    avgSpeedId,
-                    options.altitudeUnits,
-                    String(speedConversionFactor(options.speedUnits)),
-                    speedUnitLabel(options.speedUnits),
+                    {
+                        exitAltitudeId,
+                        openingAltitudeId,
+                        freefallTimeId,
+                        avgSpeedId,
+                        altitudeUnits: options.altitudeUnits,
+                        speedConversionFactor: String(
+                            speedConversionFactor(options.speedUnits),
+                        ),
+                        speedUnitLabel: speedUnitLabel(options.speedUnits),
+                    },
                 ]}
-                $exec={(
-                    exitAltitudeId,
-                    openingAltitudeId,
-                    freefallTimeId,
-                    avgSpeedId,
-                    altitudeUnits,
-                    speedConversionFactor,
-                    speedUnitLabel,
-                ) => {
-                    const exitAltitude =
-                        document.getElementById(exitAltitudeId);
-                    const openingAltitude =
-                        document.getElementById(openingAltitudeId);
-                    const freefallTime =
-                        document.getElementById(freefallTimeId);
-                    const avgSpeed = document.getElementById(avgSpeedId);
+                $exec={(config) => {
+                    const exitAltitude = document.getElementById(
+                        config.exitAltitudeId,
+                    );
+                    const openingAltitude = document.getElementById(
+                        config.openingAltitudeId,
+                    );
+                    const freefallTime = document.getElementById(
+                        config.freefallTimeId,
+                    );
+                    const avgSpeed = document.getElementById(config.avgSpeedId);
                     $assertElement(exitAltitude, HTMLInputElement);
                     $assertElement(openingAltitude, HTMLInputElement);
                     $assertElement(freefallTime, HTMLInputElement);
                     $assertElement(avgSpeed, HTMLDivElement);
-                    const conversionFactor = Number(speedConversionFactor);
+                    const conversionFactor = Number(
+                        config.speedConversionFactor,
+                    );
 
                     function updateAvgSpeed() {
                         $assertElement(exitAltitude, HTMLInputElement);
@@ -368,7 +360,9 @@ function AvgSpeed(props: { values: JumpFormValues }) {
 
                         const metersPerSecond =
                             (Math.max(0, exit - opening) *
-                                (altitudeUnits === "feet" ? 0.3048 : 1)) /
+                                (config.altitudeUnits === "feet"
+                                    ? 0.3048
+                                    : 1)) /
                             time;
                         const convertedSpeed =
                             metersPerSecond * conversionFactor;
@@ -376,7 +370,7 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                             conversionFactor === 1
                                 ? convertedSpeed.toFixed(1).replace(/\.0$/, "")
                                 : String(Math.round(convertedSpeed));
-                        avgSpeed.textContent = `Avg speed: ${formatted} ${speedUnitLabel}`;
+                        avgSpeed.textContent = `Avg speed: ${formatted} ${config.speedUnitLabel}`;
                     }
 
                     for (const input of [

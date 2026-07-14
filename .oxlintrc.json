@@ -5,6 +5,7 @@
         "correctness": "error"
     },
     "rules": {
+        "max-params": "error",
         "max-lines-per-function": [
             "error",
             {

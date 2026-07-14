@@ -40,13 +40,13 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(aircrafts.name);
-    const recentJumps = await getRecentJumpsForItem(
+    const recentJumps = await getRecentJumpsForItem({
         c,
-        app.getUser().uuid,
-        app.getUser().options,
-        aircraft.uuid,
-        "aircraft",
-    );
+        userUuid: app.getUser().uuid,
+        options: app.getUser().options,
+        itemUuid: aircraft.uuid,
+        relation: "aircraft",
+    });
     return c.render(
         <AircraftFormPage
             title="Edit aircraft"
@@ -118,13 +118,13 @@ async function updateAircraft(c: AppRequestContext) {
     const values = getAircraftFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem(
+        const recentJumps = await getRecentJumpsForItem({
             c,
-            app.getUser().uuid,
-            app.getUser().options,
-            uuid,
-            "aircraft",
-        );
+            userUuid: app.getUser().uuid,
+            options: app.getUser().options,
+            itemUuid: uuid,
+            relation: "aircraft",
+        });
         return c.render(
             <AircraftFormPage
                 title="Edit aircraft"

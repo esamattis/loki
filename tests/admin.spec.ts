@@ -21,11 +21,10 @@ async function sessionCookieHeader(page: Page): Promise<string> {
 async function postAsPage(
     page: Page,
     request: APIRequestContext,
-    path: string,
-    form: Record<string, string>,
+    options: { path: string; form: Record<string, string> },
 ) {
-    return request.post(path, {
-        form,
+    return request.post(options.path, {
+        form: options.form,
         headers: {
             Cookie: await sessionCookieHeader(page),
         },
@@ -54,41 +53,28 @@ test("non-admins cannot access admin pages", async ({ page }) => {
 test("non-admins cannot perform admin actions", async ({ page, request }) => {
     await registerUser(page, "non-admin-actions");
 
-    const loginAsResponse = await postAsPage(page, request, "/admin/login-as", {
-        uuid: "00000000-0000-0000-0000-000000000000",
+    const loginAsResponse = await postAsPage(page, request, {
+        path: "/admin/login-as",
+        form: { uuid: "00000000-0000-0000-0000-000000000000" },
     });
     expect(loginAsResponse.status()).toBe(404);
 
-    const toggleAdminResponse = await postAsPage(
-        page,
-        request,
-        "/admin/toggle-admin",
-        {
-            uuid: "00000000-0000-0000-0000-000000000000",
-        },
-    );
+    const toggleAdminResponse = await postAsPage(page, request, {
+        path: "/admin/toggle-admin",
+        form: { uuid: "00000000-0000-0000-0000-000000000000" },
+    });
     expect(toggleAdminResponse.status()).toBe(404);
 
-    const createInvitationResponse = await postAsPage(
-        page,
-        request,
-        "/admin/invitations/new",
-        {
-            code: "stolen-invite",
-            count: "10",
-        },
-    );
+    const createInvitationResponse = await postAsPage(page, request, {
+        path: "/admin/invitations/new",
+        form: { code: "stolen-invite", count: "10" },
+    });
     expect(createInvitationResponse.status()).toBe(404);
 
-    const editInvitationResponse = await postAsPage(
-        page,
-        request,
-        "/admin/invitations/test-invite",
-        {
-            code: "test-invite",
-            count: "0",
-        },
-    );
+    const editInvitationResponse = await postAsPage(page, request, {
+        path: "/admin/invitations/test-invite",
+        form: { code: "test-invite", count: "0" },
+    });
     expect(editInvitationResponse.status()).toBe(404);
 
     // Session must remain the non-admin user after blocked login-as.

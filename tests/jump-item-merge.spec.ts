@@ -15,19 +15,23 @@ async function registerUser(page: Page, username: string, displayName: string) {
 
 async function addItem(
     page: Page,
-    manageLink: string,
-    addLabel: string,
-    name: string,
-    previousCount?: string,
+    item: {
+        manageLink: string;
+        addLabel: string;
+        name: string;
+        previousCount?: string;
+    },
 ) {
     await openManageLogbook(page);
-    await page.getByRole("link", { name: manageLink }).click();
-    await page.getByRole("link", { name: addLabel }).click();
-    await page.locator('input[name="name"]').fill(name);
-    if (previousCount !== undefined) {
-        await page.locator('input[name="previousCount"]').fill(previousCount);
+    await page.getByRole("link", { name: item.manageLink }).click();
+    await page.getByRole("link", { name: item.addLabel }).click();
+    await page.locator('input[name="name"]').fill(item.name);
+    if (item.previousCount !== undefined) {
+        await page
+            .locator('input[name="previousCount"]')
+            .fill(item.previousCount);
     }
-    await page.getByRole("button", { name: addLabel }).click();
+    await page.getByRole("button", { name: item.addLabel }).click();
 }
 
 async function goHome(page: Page, displayName: string) {
@@ -38,16 +42,18 @@ async function goHome(page: Page, displayName: string) {
 
 async function mergeItem(
     page: Page,
-    manageLink: string,
-    sourceName: string,
-    targetName: string,
-    mergeButtonLabel: string,
+    item: {
+        manageLink: string;
+        sourceName: string;
+        targetName: string;
+        mergeButtonLabel: string;
+    },
 ) {
     await openManageLogbook(page);
-    await page.getByRole("link", { name: manageLink }).click();
+    await page.getByRole("link", { name: item.manageLink }).click();
     await page
         .getByRole("listitem")
-        .filter({ hasText: sourceName })
+        .filter({ hasText: item.sourceName })
         .getByRole("link", { name: "Edit" })
         .click();
     await expect(page.getByText("Danger zone")).toBeVisible();
@@ -55,10 +61,10 @@ async function mergeItem(
         has: page.locator('input[name="action"][value="merge"]'),
     });
     await mergeForm.locator('select[name="targetUuid"]').selectOption({
-        label: targetName,
+        label: item.targetName,
     });
     const mergeButton = mergeForm.getByRole("button");
-    await expect(mergeButton).toHaveText(mergeButtonLabel);
+    await expect(mergeButton).toHaveText(item.mergeButtonLabel);
     await mergeButton.click();
     await expect(mergeButton).toHaveText("Confirm merge", { timeout: 1000 });
     await mergeButton.click();
@@ -67,11 +73,25 @@ async function mergeItem(
 test("location can be merged into another location", async ({ page }) => {
     const displayName = "Merge Location Skydiver";
     await registerUser(page, "merge-location-skydiver", displayName);
-    await addItem(page, "Manage locations", "Add location", "Source DZ", "3");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Source DZ",
+        previousCount: "3",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage locations", "Add location", "Target DZ", "5");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Target DZ",
+        previousCount: "5",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage aircraft", "Add aircraft", "Merge Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Merge Plane",
+    });
 
     await goHome(page, displayName);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
@@ -88,13 +108,12 @@ test("location can be merged into another location", async ({ page }) => {
     await page.getByRole("button", { name: "Add jump" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await mergeItem(
-        page,
-        "Manage locations",
-        "Source DZ",
-        "Target DZ",
-        "Merge location",
-    );
+    await mergeItem(page, {
+        manageLink: "Manage locations",
+        sourceName: "Source DZ",
+        targetName: "Target DZ",
+        mergeButtonLabel: "Merge location",
+    });
 
     await expect(page).toHaveURL(/\/logbook\/locations\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue("Target DZ");
@@ -112,11 +131,25 @@ test("location can be merged into another location", async ({ page }) => {
 test("aircraft can be merged into another aircraft", async ({ page }) => {
     const displayName = "Merge Aircraft Skydiver";
     await registerUser(page, "merge-aircraft-skydiver", displayName);
-    await addItem(page, "Manage locations", "Add location", "Merge DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Merge DZ",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage aircraft", "Add aircraft", "Source Plane", "2");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Source Plane",
+        previousCount: "2",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage aircraft", "Add aircraft", "Target Plane", "4");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Target Plane",
+        previousCount: "4",
+    });
 
     await goHome(page, displayName);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
@@ -133,13 +166,12 @@ test("aircraft can be merged into another aircraft", async ({ page }) => {
     await page.getByRole("button", { name: "Add jump" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await mergeItem(
-        page,
-        "Manage aircraft",
-        "Source Plane",
-        "Target Plane",
-        "Merge aircraft",
-    );
+    await mergeItem(page, {
+        manageLink: "Manage aircraft",
+        sourceName: "Source Plane",
+        targetName: "Target Plane",
+        mergeButtonLabel: "Merge aircraft",
+    });
 
     await expect(page).toHaveURL(/\/logbook\/aircrafts\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue(
@@ -163,13 +195,31 @@ test("aircraft can be merged into another aircraft", async ({ page }) => {
 test("gear can be merged into another gear item", async ({ page }) => {
     const displayName = "Merge Gear Skydiver";
     await registerUser(page, "merge-gear-skydiver", displayName);
-    await addItem(page, "Manage locations", "Add location", "Merge DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Merge DZ",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage aircraft", "Add aircraft", "Merge Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Merge Plane",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage gear", "Add gear", "Source Canopy", "1");
+    await addItem(page, {
+        manageLink: "Manage gear",
+        addLabel: "Add gear",
+        name: "Source Canopy",
+        previousCount: "1",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage gear", "Add gear", "Target Canopy", "7");
+    await addItem(page, {
+        manageLink: "Manage gear",
+        addLabel: "Add gear",
+        name: "Target Canopy",
+        previousCount: "7",
+    });
 
     await goHome(page, displayName);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
@@ -187,13 +237,12 @@ test("gear can be merged into another gear item", async ({ page }) => {
     await page.getByRole("button", { name: "Add jump" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await mergeItem(
-        page,
-        "Manage gear",
-        "Source Canopy",
-        "Target Canopy",
-        "Merge gear",
-    );
+    await mergeItem(page, {
+        manageLink: "Manage gear",
+        sourceName: "Source Canopy",
+        targetName: "Target Canopy",
+        mergeButtonLabel: "Merge gear",
+    });
 
     await expect(page).toHaveURL(/\/logbook\/gear\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue(
@@ -217,25 +266,31 @@ test("gear can be merged into another gear item", async ({ page }) => {
 test("jump type can be merged into another jump type", async ({ page }) => {
     const displayName = "Merge Jump Type Skydiver";
     await registerUser(page, "merge-jumptype-skydiver", displayName);
-    await addItem(page, "Manage locations", "Add location", "Merge DZ");
+    await addItem(page, {
+        manageLink: "Manage locations",
+        addLabel: "Add location",
+        name: "Merge DZ",
+    });
     await goHome(page, displayName);
-    await addItem(page, "Manage aircraft", "Add aircraft", "Merge Plane");
+    await addItem(page, {
+        manageLink: "Manage aircraft",
+        addLabel: "Add aircraft",
+        name: "Merge Plane",
+    });
     await goHome(page, displayName);
-    await addItem(
-        page,
-        "Manage jump types",
-        "Add jump type",
-        "Source Type",
-        "2",
-    );
+    await addItem(page, {
+        manageLink: "Manage jump types",
+        addLabel: "Add jump type",
+        name: "Source Type",
+        previousCount: "2",
+    });
     await goHome(page, displayName);
-    await addItem(
-        page,
-        "Manage jump types",
-        "Add jump type",
-        "Target Type",
-        "9",
-    );
+    await addItem(page, {
+        manageLink: "Manage jump types",
+        addLabel: "Add jump type",
+        name: "Target Type",
+        previousCount: "9",
+    });
 
     await goHome(page, displayName);
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
@@ -253,13 +308,12 @@ test("jump type can be merged into another jump type", async ({ page }) => {
     await page.getByRole("button", { name: "Add jump" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await mergeItem(
-        page,
-        "Manage jump types",
-        "Source Type",
-        "Target Type",
-        "Merge jump type",
-    );
+    await mergeItem(page, {
+        manageLink: "Manage jump types",
+        sourceName: "Source Type",
+        targetName: "Target Type",
+        mergeButtonLabel: "Merge jump type",
+    });
 
     await expect(page).toHaveURL(/\/logbook\/jump-types\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue("Target Type");

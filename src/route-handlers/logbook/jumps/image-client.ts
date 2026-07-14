@@ -6,33 +6,33 @@ export const JUMP_IMAGE_DB_NAME = "loki-jump-from-image";
 export const JUMP_IMAGE_STORE = "images";
 export const JUMP_IMAGE_KEY = "draft";
 
-export function $saveJumpImageDraft(
-    file: File,
-    dbName: string,
-    storeName: string,
-    storageKey: string,
-): Promise<void> {
+export function $saveJumpImageDraft(config: {
+    file: File;
+    dbName: string;
+    storeName: string;
+    storageKey: string;
+}): Promise<void> {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, 1);
+        const request = indexedDB.open(config.dbName, 1);
         request.onupgradeneeded = () => {
             const db = request.result;
-            if (!db.objectStoreNames.contains(storeName)) {
-                db.createObjectStore(storeName);
+            if (!db.objectStoreNames.contains(config.storeName)) {
+                db.createObjectStore(config.storeName);
             }
         };
         request.onerror = () =>
             reject(request.error ?? new Error("Failed to open IndexedDB"));
         request.onsuccess = () => {
             const db = request.result;
-            const tx = db.transaction(storeName, "readwrite");
-            tx.objectStore(storeName).put(
+            const tx = db.transaction(config.storeName, "readwrite");
+            tx.objectStore(config.storeName).put(
                 {
-                    blob: file,
-                    name: file.name,
-                    type: file.type,
-                    lastModified: file.lastModified,
+                    blob: config.file,
+                    name: config.file.name,
+                    type: config.file.type,
+                    lastModified: config.file.lastModified,
                 },
-                storageKey,
+                config.storageKey,
             );
             tx.oncomplete = () => {
                 db.close();
@@ -365,12 +365,12 @@ export function $initJumpImageInput(props: {
             resizeNote.textContent = "";
         }
         try {
-            await $saveJumpImageDraft(
-                result.file,
-                props.dbName,
-                props.storeName,
-                props.storageKey,
-            );
+            await $saveJumpImageDraft({
+                file: result.file,
+                dbName: props.dbName,
+                storeName: props.storeName,
+                storageKey: props.storageKey,
+            });
         } catch (error) {
             console.error("Failed to save the jump image draft", error);
         }

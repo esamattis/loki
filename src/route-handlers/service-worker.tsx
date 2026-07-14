@@ -90,12 +90,12 @@ function $installShareTargetServiceWorker(
         }
 
         try {
-            await saveDraft(
+            await saveDraft({
                 file,
-                config.dbName,
-                config.storeName,
-                config.storageKey,
-            );
+                dbName: config.dbName,
+                storeName: config.storeName,
+                storageKey: config.storageKey,
+            });
         } catch (error) {
             console.error("Failed to save the shared image draft", error);
             return new Response("Failed to save shared image", {

@@ -232,33 +232,38 @@ export type JumpItemRelation = "aircraft" | "location" | "gear" | "jumpType";
 
 const RECENT_JUMPS_LIMIT = 50;
 
-export async function getRecentJumpsForItem(
-    c: AppRequestContext,
-    userUuid: string,
-    options: UserOptions,
-    itemUuid: string,
-    relation: JumpItemRelation,
-): Promise<JumpListItem[]> {
-    const db = getAppContext(c).db;
+export async function getRecentJumpsForItem(config: {
+    c: AppRequestContext;
+    userUuid: string;
+    options: UserOptions;
+    itemUuid: string;
+    relation: JumpItemRelation;
+}): Promise<JumpListItem[]> {
+    const db = getAppContext(config.c).db;
     const itemCondition =
-        relation === "aircraft"
-            ? eq(jumps.aircraftUuid, itemUuid)
-            : relation === "location"
-              ? eq(jumps.locationUuid, itemUuid)
-              : relation === "gear"
+        config.relation === "aircraft"
+            ? eq(jumps.aircraftUuid, config.itemUuid)
+            : config.relation === "location"
+              ? eq(jumps.locationUuid, config.itemUuid)
+              : config.relation === "gear"
                 ? inArray(
                       jumps.uuid,
                       db
                           .select({ jumpUuid: jumpsToGear.jumpUuid })
                           .from(jumpsToGear)
-                          .where(eq(jumpsToGear.gearUuid, itemUuid)),
+                          .where(eq(jumpsToGear.gearUuid, config.itemUuid)),
                   )
                 : inArray(
                       jumps.uuid,
                       db
                           .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
                           .from(jumpsToJumpTypes)
-                          .where(eq(jumpsToJumpTypes.jumpTypeUuid, itemUuid)),
+                          .where(
+                              eq(
+                                  jumpsToJumpTypes.jumpTypeUuid,
+                                  config.itemUuid,
+                              ),
+                          ),
                   );
 
     const jumpRows = await db
@@ -276,7 +281,7 @@ export async function getRecentJumpsForItem(
         .from(jumps)
         .innerJoin(locations, eq(jumps.locationUuid, locations.uuid))
         .innerJoin(aircrafts, eq(jumps.aircraftUuid, aircrafts.uuid))
-        .where(and(eq(jumps.userUuid, userUuid), itemCondition))
+        .where(and(eq(jumps.userUuid, config.userUuid), itemCondition))
         .orderBy(desc(jumps.jumpNumber))
         .limit(RECENT_JUMPS_LIMIT);
 
@@ -305,6 +310,6 @@ export async function getRecentJumpsForItem(
     return jumpRows.map((jump) => ({
         ...jump,
         jumpTypes: jumpTypesByJump.get(jump.uuid) ?? [],
-        options,
+        options: config.options,
     }));
 }

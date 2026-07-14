@@ -40,13 +40,13 @@ async function getEditLocation(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(locations.name);
-    const recentJumps = await getRecentJumpsForItem(
+    const recentJumps = await getRecentJumpsForItem({
         c,
-        app.getUser().uuid,
-        app.getUser().options,
-        item.uuid,
-        "location",
-    );
+        userUuid: app.getUser().uuid,
+        options: app.getUser().options,
+        itemUuid: item.uuid,
+        relation: "location",
+    });
     return c.render(
         <LocationFormPage
             title="Edit location"
@@ -116,13 +116,13 @@ async function updateLocation(c: AppRequestContext) {
     const values = getLocationFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem(
+        const recentJumps = await getRecentJumpsForItem({
             c,
-            app.getUser().uuid,
-            app.getUser().options,
-            uuid,
-            "location",
-        );
+            userUuid: app.getUser().uuid,
+            options: app.getUser().options,
+            itemUuid: uuid,
+            relation: "location",
+        });
         return c.render(
             <LocationFormPage
                 title="Edit location"

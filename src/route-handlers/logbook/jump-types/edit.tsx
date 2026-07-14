@@ -40,13 +40,13 @@ async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(jumpTypes.name);
-    const recentJumps = await getRecentJumpsForItem(
+    const recentJumps = await getRecentJumpsForItem({
         c,
-        app.getUser().uuid,
-        app.getUser().options,
-        item.uuid,
-        "jumpType",
-    );
+        userUuid: app.getUser().uuid,
+        options: app.getUser().options,
+        itemUuid: item.uuid,
+        relation: "jumpType",
+    });
     return c.render(
         <JumpTypeFormPage
             title="Edit jump type"
@@ -116,13 +116,13 @@ async function updateJumpType(c: AppRequestContext) {
     const values = getJumpTypeFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem(
+        const recentJumps = await getRecentJumpsForItem({
             c,
-            app.getUser().uuid,
-            app.getUser().options,
-            uuid,
-            "jumpType",
-        );
+            userUuid: app.getUser().uuid,
+            options: app.getUser().options,
+            itemUuid: uuid,
+            relation: "jumpType",
+        });
         return c.render(
             <JumpTypeFormPage
                 title="Edit jump type"
