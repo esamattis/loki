@@ -4,6 +4,7 @@ import {
     JUMP_IMAGE_DB_NAME,
     JUMP_IMAGE_KEY,
     JUMP_IMAGE_STORE,
+    $saveJumpImageDraft,
 } from "@/route-handlers/logbook/jumps/image-client";
 
 interface ShareTargetWorkerConfig {
@@ -45,7 +46,10 @@ interface ShareTargetServiceWorkerScope {
 
 declare const self: ShareTargetServiceWorkerScope;
 
-function $installShareTargetServiceWorker(config: ShareTargetWorkerConfig) {
+function $installShareTargetServiceWorker(
+    config: ShareTargetWorkerConfig,
+    saveDraft: typeof $saveJumpImageDraft,
+) {
     self.addEventListener("install", () => {
         self.skipWaiting();
     });
@@ -86,7 +90,12 @@ function $installShareTargetServiceWorker(config: ShareTargetWorkerConfig) {
         }
 
         try {
-            await saveDraft(file);
+            await saveDraft(
+                file,
+                config.dbName,
+                config.storeName,
+                config.storageKey,
+            );
         } catch (error) {
             console.error("Failed to save the shared image draft", error);
             return new Response("Failed to save shared image", {
@@ -100,43 +109,6 @@ function $installShareTargetServiceWorker(config: ShareTargetWorkerConfig) {
         ).href;
         return Response.redirect(redirectUrl, 303);
     }
-
-    function saveDraft(file: File): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const openRequest = indexedDB.open(config.dbName, 1);
-            openRequest.onupgradeneeded = () => {
-                const db = openRequest.result;
-                if (!db.objectStoreNames.contains(config.storeName)) {
-                    db.createObjectStore(config.storeName);
-                }
-            };
-            openRequest.onerror = () =>
-                reject(
-                    openRequest.error ?? new Error("Failed to open IndexedDB"),
-                );
-            openRequest.onsuccess = () => {
-                const db = openRequest.result;
-                const tx = db.transaction(config.storeName, "readwrite");
-                tx.objectStore(config.storeName).put(
-                    {
-                        blob: file,
-                        name: file.name,
-                        type: file.type,
-                        lastModified: file.lastModified,
-                    },
-                    config.storageKey,
-                );
-                tx.oncomplete = () => {
-                    db.close();
-                    resolve();
-                };
-                tx.onerror = () => {
-                    db.close();
-                    reject(tx.error ?? new Error("Failed to save image draft"));
-                };
-            };
-        });
-    }
 }
 
 function serviceWorker(c: AppRequestContext) {
@@ -148,7 +120,7 @@ function serviceWorker(c: AppRequestContext) {
         storeName: JUMP_IMAGE_STORE,
         storageKey: JUMP_IMAGE_KEY,
     };
-    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)});`;
+    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)}, ${$saveJumpImageDraft.toString()});`;
     return c.body(workerSource, 200, {
         "Content-Type": "text/javascript; charset=utf-8",
         "Service-Worker-Allowed": "/",
