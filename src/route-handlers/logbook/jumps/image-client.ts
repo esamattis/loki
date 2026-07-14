@@ -406,8 +406,7 @@ export function $initJumpImageInput(props: {
             if (!file || input.files?.length) {
                 return;
             }
-            setInputFile(file);
-            showPreview(file);
+            return applyFile(file);
         })
         .catch(() => {
             // Ignore restore failures.
