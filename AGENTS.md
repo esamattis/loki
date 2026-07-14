@@ -61,6 +61,8 @@ Write named functions with the `function` keyword. Use arrow functions only for 
 
 Write all UI text in English.
 
+Use the `@/` alias for imports from `src` (for example, `@/components/feedback`) instead of relative paths.
+
 # Forms
 
 Do not use React-style `defaultValue` on form controls; Hono SSR does not map it to HTML `value`. Use `value={...}` for inputs and selects, and children or `value` for textareas. Mark the selected option with `selected`.
