@@ -523,6 +523,38 @@ function errorHandler(err: Error, c: AppRequestContext) {
 
 app.onError(errorHandler);
 
+function notFoundHandler(c: AppRequestContext) {
+    if (c.req.path.includes("__")) {
+        return c.body("Not found", 404, { "Content-Type": "text/plain" });
+    }
+
+    c.status(404);
+    return c.render(
+        <div className="mx-auto mt-16 flex max-w-md flex-col items-center gap-6 px-4 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-800">
+                🪂
+            </div>
+            <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                    404 — Not found
+                </h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                    This page drift does not lead anywhere. Let's get you back
+                    to your logbook.
+                </p>
+            </div>
+            <a
+                href={routes.logbook({})}
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+                Back to logbook
+            </a>
+        </div>,
+    );
+}
+
+app.notFound(notFoundHandler);
+
 async function setAppContextMiddleware(
     c: AppRequestContext,
     next: () => Promise<void>,
