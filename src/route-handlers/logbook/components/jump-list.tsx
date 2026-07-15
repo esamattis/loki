@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import {
     getAppContext,
     useAppContext,
@@ -142,7 +142,7 @@ export function JumpCard(props: JumpListItem) {
                         </time>
                         <span className="text-base font-semibold text-slate-900 dark:text-slate-100">
                             {props.locationName} /{" "}
-                            {props.aircraftNames.join(", ")}
+                            {props.aircraftNames.join(", ") || "Not set"}
                         </span>
                     </div>
                     {props.jumpTypes.length > 0 && (
@@ -287,10 +287,10 @@ export async function getRecentJumpsForItem(config: {
             openingAltitude: jumps.openingAltitude,
             freefallTime: jumps.freefallTime,
             description: jumps.description,
-            locationName: locations.name,
+            locationName: sql<string>`coalesce(${locations.name}, 'Not set')`,
         })
         .from(jumps)
-        .innerJoin(locations, eq(jumps.locationUuid, locations.uuid))
+        .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
         .where(and(eq(jumps.userUuid, config.userUuid), itemCondition))
         .orderBy(desc(jumps.jumpNumber))
         .limit(RECENT_JUMPS_LIMIT);

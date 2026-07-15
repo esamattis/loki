@@ -5,7 +5,12 @@ import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ButtonLink } from "@/components/form";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
-import { jumps } from "@/schema";
+import {
+    jumps,
+    jumpsToAircrafts,
+    jumpsToGear,
+    jumpsToJumpTypes,
+} from "@/schema";
 import { $assertElement } from "@/utils";
 import { LogbookPage } from "@/app/authenticated-page";
 import { JumpIssueList } from "@/route-handlers/logbook/statistics/jump-issue-list";
@@ -234,6 +239,19 @@ async function renderStatistics(c: AppRequestContext) {
         isNull(jumps.openingAltitude),
         eq(jumps.openingAltitude, 0),
         sql`${jumps.openingAltitude} = ''`,
+        isNull(jumps.locationUuid),
+        sql`not exists (
+            select 1 from ${jumpsToAircrafts}
+            where ${jumpsToAircrafts.jumpUuid} = ${jumps.uuid}
+        )`,
+        sql`not exists (
+            select 1 from ${jumpsToGear}
+            where ${jumpsToGear.jumpUuid} = ${jumps.uuid}
+        )`,
+        sql`not exists (
+            select 1 from ${jumpsToJumpTypes}
+            where ${jumpsToJumpTypes.jumpUuid} = ${jumps.uuid}
+        )`,
     );
     const [[stats], yearlyRows, jumpNumberRows, insufficientDataJumps] =
         await Promise.all([
@@ -326,7 +344,7 @@ async function renderStatistics(c: AppRequestContext) {
                 countLabel={
                     insufficientDataJumps.length === 1 ? "jump" : "jumps"
                 }
-                description="These jumps have no freefall time, exit altitude, or opening altitude. Select a jump to add the missing data."
+                description="These jumps are missing freefall data or jump items. Select a jump to add the missing data."
                 items={insufficientDataJumps.map((jump) => ({
                     key: jump.uuid,
                     jumpNumber: jump.jumpNumber,

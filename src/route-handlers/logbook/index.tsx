@@ -347,10 +347,10 @@ export async function getLogbookJumps(
             openingAltitude: jumps.openingAltitude,
             freefallTime: jumps.freefallTime,
             description: jumps.description,
-            locationName: locations.name,
+            locationName: sql<string>`coalesce(${locations.name}, 'Not set')`,
         })
         .from(jumps)
-        .innerJoin(locations, eq(jumps.locationUuid, locations.uuid))
+        .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
         .where(and(...conditions))
         .orderBy(desc(jumps.jumpNumber))
         .limit(JUMPS_PER_PAGE + 1);

@@ -108,14 +108,17 @@ type JumpFormResources = Awaited<ReturnType<typeof getJumpFormResources>>;
 function ownsJumpResources(
     resources: JumpFormResources,
     data: {
-        locationUuid: string;
+        locationUuid: string | null;
         aircraftUuids: string[];
         gearUuids: string[];
         jumpTypeUuids: string[];
     },
 ) {
     return (
-        resources.locations.some((item) => item.uuid === data.locationUuid) &&
+        (!data.locationUuid ||
+            resources.locations.some(
+                (item) => item.uuid === data.locationUuid,
+            )) &&
         data.aircraftUuids.every((uuid) =>
             resources.aircrafts.some((item) => item.uuid === uuid),
         ) &&
@@ -148,7 +151,7 @@ function selectedJumpItemsAreOwned(
 }
 
 type ResolvedJumpResources = {
-    locationUuid: string;
+    locationUuid: string | null;
     aircraftUuids: string[];
     gearUuids: string[];
     jumpTypeUuids: string[];
@@ -264,7 +267,7 @@ async function resolveJumpResources(
 ): Promise<
     | {
           ok: true;
-          locationUuid: string;
+          locationUuid: string | null;
           aircraftUuids: string[];
           gearUuids: string[];
           jumpTypeUuids: string[];
@@ -297,10 +300,6 @@ async function resolveJumpResources(
             },
         });
     }
-    if (!locationUuid) {
-        return { ok: false, error: "Location is required" };
-    }
-
     const aircraftUuids = new Set(data.aircraftUuids);
     for (const name of splitJumpItemNames(data.aircraftName)) {
         const uuid = await resolveJumpItemUuid({
@@ -325,10 +324,6 @@ async function resolveJumpResources(
         });
         aircraftUuids.add(uuid);
     }
-    if (aircraftUuids.size === 0) {
-        return { ok: false, error: "Aircraft is required" };
-    }
-
     const gearUuids = new Set(data.gearUuids);
     for (const name of splitJumpItemNames(data.gearName)) {
         const uuid = await resolveJumpItemUuid({
@@ -381,7 +376,7 @@ async function resolveJumpResources(
 
     return {
         ok: true,
-        locationUuid,
+        locationUuid: locationUuid || null,
         aircraftUuids: [...aircraftUuids],
         gearUuids: [...gearUuids],
         jumpTypeUuids: [...jumpTypeUuids],

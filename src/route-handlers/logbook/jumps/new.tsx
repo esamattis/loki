@@ -144,7 +144,7 @@ export async function renderNewJump(c: AppRequestContext) {
             values = {
                 ...values,
                 jumpDate: jump.jumpDate,
-                locationUuid: jump.locationUuid,
+                locationUuid: jump.locationUuid ?? undefined,
                 aircraftUuids: aircraftRows.map((item) => item.aircraftUuid),
                 exitAltitude: altitudeInputValue(
                     jump.exitAltitude,

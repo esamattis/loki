@@ -87,9 +87,9 @@ export const jumps = sqliteTable(
         userUuid: text("user_uuid")
             .references(() => users.uuid, { onDelete: "cascade" })
             .notNull(),
-        locationUuid: text("location_uuid")
-            .references(() => locations.uuid, { onDelete: "cascade" })
-            .notNull(),
+        locationUuid: text("location_uuid").references(() => locations.uuid, {
+            onDelete: "cascade",
+        }),
         jumpNumber: integer("jump_number").notNull(),
         jumpDate: text("jump_date").notNull(),
         exitAltitude: integer("exit_altitude").notNull().default(0),

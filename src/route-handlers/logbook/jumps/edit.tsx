@@ -48,7 +48,7 @@ export async function renderEditJump(c: AppRequestContext) {
             submitLabel="Save jump"
             confirmationTitle="Edit Jump"
             values={{
-                locationUuid: jump.locationUuid,
+                locationUuid: jump.locationUuid ?? undefined,
                 aircraftUuids: aircraftRows.map((item) => item.aircraftUuid),
                 jumpNumber: String(jump.jumpNumber),
                 jumpDate: jump.jumpDate,

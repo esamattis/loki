@@ -7,11 +7,13 @@ const CSV_HEADER =
 const fixtureCsv = [
     CSV_HEADER,
     "aircraft,Gap Plane,0,,,,,,,,,,",
+    "gear,Gap Rig,0,,,,,,,,,,",
+    "jumpType,Gap Type,0,,,,,,,,,,",
     "location,Gap Drop Zone,0,,,,,,,,,,",
-    "jump,,,1,2021-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,First jump",
-    "jump,,,2,2021-07-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Second jump",
-    "jump,,,5,2021-08-15,4000,1000,55,Gap Drop Zone,Gap Plane,,,Fifth jump",
-    "jump,,,8,2021-09-15,4000,1000,0,Gap Drop Zone,Gap Plane,,,Incomplete eighth jump",
+    "jump,,,1,2021-06-15,4000,1000,55,Gap Drop Zone,Gap Plane,Gap Rig,Gap Type,First jump",
+    "jump,,,2,2021-07-15,4000,1000,55,Gap Drop Zone,Gap Plane,Gap Rig,Gap Type,Second jump",
+    "jump,,,5,2021-08-15,4000,1000,55,Gap Drop Zone,Gap Plane,Gap Rig,Gap Type,Fifth jump",
+    "jump,,,8,2021-09-15,4000,1000,0,Gap Drop Zone,Gap Plane,Gap Rig,Gap Type,Incomplete eighth jump",
 ].join("\n");
 
 async function registerUser(page: Page, username: string) {
@@ -74,4 +76,33 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     await insufficientDataSection.getByRole("link", { name: "#8" }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/[^/]+$/);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("8");
+});
+
+test("a jump can be saved without jump items and is listed as insufficient", async ({
+    page,
+}) => {
+    await registerUser(page, "itemless-jump-skydiver");
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.locator('input[name="jumpNumber"]').fill("1");
+    await page.locator('input[name="exitAltitude"]').fill("4000");
+    await page.locator('input[name="openingAltitude"]').fill("1000");
+    await page.locator('input[name="freefallTime"]').fill("55");
+    await page.getByRole("button", { name: "Add jump" }).click();
+
+    await expect(page).toHaveURL("/logbook");
+    await expect(page.getByRole("link", { name: /#1/ })).toContainText(
+        "Not set / Not set",
+    );
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+    const insufficientDataSection = page.locator("section").filter({
+        has: page.getByRole("heading", {
+            name: "Jumps with insufficient data",
+        }),
+    });
+    await expect(insufficientDataSection.getByText("1 jump")).toBeVisible();
+    await expect(
+        insufficientDataSection.getByRole("link", { name: "#1" }),
+    ).toBeVisible();
 });

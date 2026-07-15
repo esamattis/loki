@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import * as routes from "@/routes";
 import {
@@ -157,10 +157,10 @@ export async function exportLogbook(c: AppRequestContext) {
                 openingAltitude: jumps.openingAltitude,
                 freefallTime: jumps.freefallTime,
                 description: jumps.description,
-                location: locations.name,
+                location: sql<string>`coalesce(${locations.name}, '')`,
             })
             .from(jumps)
-            .innerJoin(locations, eq(jumps.locationUuid, locations.uuid))
+            .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
             .where(eq(jumps.userUuid, user.uuid))
             .orderBy(jumps.jumpNumber),
         context.db
