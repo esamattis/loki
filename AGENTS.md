@@ -73,9 +73,11 @@ Opt saveable edit forms into unsaved-change tracking with `data-confirm="Edit Ju
 
 "Jump items" are gear, locations, aircraft, and jump types assignable to a jump.
 
-# Git
+# General guides
 
 Never use git commands unless explicitly instructed.
+
+Never use subagents unless explicitly instructed.
 
 # Tests
 
