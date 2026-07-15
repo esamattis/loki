@@ -84,6 +84,7 @@ export function Button(props: {
 
 export function ButtonLink(props: {
     href: string;
+    icon?: Child;
     variant?: ButtonVariant;
     size?: ButtonSize;
     className?: string;
@@ -108,6 +109,7 @@ export function ButtonLink(props: {
                 className: props.className,
             })}
         >
+            {props.icon}
             {props.children}
         </a>
     );

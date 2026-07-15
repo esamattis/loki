@@ -22,10 +22,10 @@ async function getAircraftList(c: AppRequestContext) {
             <div className="flex flex-wrap items-center gap-3">
                 <ButtonLink
                     href={routes.logbook.aircraft.new({})}
+                    icon={<PlusIcon className="h-4 w-4" />}
                     variant="primary"
                     className="gap-1.5"
                 >
-                    <PlusIcon className="h-4 w-4" />
                     Add aircraft
                 </ButtonLink>
             </div>

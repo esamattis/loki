@@ -678,10 +678,10 @@ export function JumpFormPage(props: {
             {props.copyHref && (
                 <ButtonLink
                     href={props.copyHref}
+                    icon={<CopyIcon className="h-4 w-4" />}
                     variant="secondary"
                     className="gap-1.5"
                 >
-                    <CopyIcon className="h-4 w-4" />
                     Copy to new
                 </ButtonLink>
             )}

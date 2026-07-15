@@ -98,6 +98,7 @@ function LogbookActions(props: { pathname: string }) {
         <nav className="flex flex-wrap items-center gap-2.5 sm:gap-2">
             <ButtonLink
                 href={logbookPath}
+                icon={<LogbookIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 variant={
                     props.pathname === logbookPath ? "primary" : "secondary"
                 }
@@ -108,11 +109,11 @@ function LogbookActions(props: { pathname: string }) {
                 data-tooltip="Show jump list"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
-                <LogbookIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Logbook</span>
             </ButtonLink>
             <ButtonLink
                 href={newJumpPath}
+                icon={<PlusIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 variant={
                     props.pathname === newJumpPath ? "primary" : "secondary"
                 }
@@ -123,11 +124,11 @@ function LogbookActions(props: { pathname: string }) {
                 data-tooltip="Add jump"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
-                <PlusIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Add jump</span>
             </ButtonLink>
             <ButtonLink
                 href={fromImagePath}
+                icon={<ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                 variant={
                     props.pathname === fromImagePath ? "primary" : "secondary"
                 }
@@ -138,7 +139,6 @@ function LogbookActions(props: { pathname: string }) {
                 data-tooltip="Create jump from image using AI image recognition"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
-                <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">From image</span>
             </ButtonLink>
         </nav>
