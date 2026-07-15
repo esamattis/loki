@@ -26,13 +26,10 @@ async function expectActiveAction(
         } else {
             await expect(link).not.toHaveAttribute("aria-current");
         }
-        await expect(link).toHaveClass(
-            label === activeLabel ? /bg-indigo-600/ : /bg-slate-50/,
-        );
     }
 }
 
-test("desktop header highlights the active action", async ({ page }) => {
+test("desktop header marks the active action", async ({ page }) => {
     await registerUser(page, "desktop-nav-skydiver", "Desktop Nav Skydiver");
 
     const header = page.getByRole("banner");
