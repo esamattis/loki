@@ -5,6 +5,7 @@ import { jsxRenderer, useRequestContext } from "hono/jsx-renderer";
 import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
 import { html, Script } from "@/components/script";
+import { htmxAsset, tailwindAsset } from "@/app-assets";
 import { Button } from "@/components/form";
 import { Dialog } from "@/components/ui/dialog";
 import { DisableViewTransitionsInAutomation } from "@/components/disable-view-transitions-in-automation";
@@ -869,13 +870,17 @@ app.use(
                         workerUrl={routes.serviceWorker({})}
                     />
                     <link
-                        href={routes.assets.tailwindCss({})}
+                        href={routes.assets.tailwindCss({
+                            fingerprint: tailwindAsset.fingerprint,
+                        })}
                         rel="stylesheet"
                     />
                     {/* After CSS so automation can override @view-transition. */}
                     <DisableViewTransitionsInAutomation />
                     <script
-                        src={routes.assets.htmxScript({})}
+                        src={routes.assets.htmxScript({
+                            fingerprint: htmxAsset.fingerprint,
+                        })}
                         type="module"
                     ></script>
                 </head>

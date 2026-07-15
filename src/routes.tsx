@@ -34,8 +34,8 @@ export type JumpPrefillQuery = {
 
 export const home = route("/");
 export const assets = {
-    tailwindCss: route("/assets/tailwind.css"),
-    htmxScript: route("/assets/htmx.esm.js"),
+    tailwindCss: route("/assets/:fingerprint/tailwind.css"),
+    htmxScript: route("/assets/:fingerprint/htmx.esm.js"),
 };
 export const serviceWorker = route("/sw.js");
 export const auth = {
