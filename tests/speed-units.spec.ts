@@ -32,11 +32,15 @@ test("speed can be displayed and entered in miles per hour", async ({
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByRole("button", { name: "Belly · 112 mph" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("60");
-    await expect(page.getByText("Avg speed: 112 mph")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("112 mph");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByLabel("Custom speed (mph)").fill("100");
     await page.getByRole("button", { name: "Use custom speed" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("67");
-    await expect(page.getByText("Avg speed: 100 mph")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("100 mph");
 });

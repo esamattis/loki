@@ -766,17 +766,23 @@ test("freefall time can be estimated from freefall type", async ({ page }) => {
 
     await page.getByRole("button", { name: "Belly · 180 km/h" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("60");
-    await expect(page.getByText("Avg speed: 180 km/h")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("180 km/h");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByRole("button", { name: "Freefly · 240 km/h" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("45");
-    await expect(page.getByText("Avg speed: 240 km/h")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("240 km/h");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByRole("button", { name: "Wingsuit · 80 km/h" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("135");
-    await expect(page.getByText("Avg speed: 80 km/h")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("80 km/h");
 });
 
 test("freefall time estimate respects feet altitude units", async ({
@@ -814,18 +820,24 @@ test("freefall time estimate respects feet altitude units", async ({
     await page.getByRole("button", { name: "Belly · 50 m/s" }).click();
     // 3000 m at 50 m/s = 60 s (without feet conversion this would be ~197 s)
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("60");
-    await expect(page.getByText("Avg speed: 50 m/s")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("50 m/s");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByRole("button", { name: "Freefly · 66.7 m/s" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("45");
-    await expect(page.getByText("Avg speed: 66.7 m/s")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("66.7 m/s");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByLabel("Custom speed (m/s)").fill("40");
     await page.getByRole("button", { name: "Use custom speed" }).click();
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("75");
-    await expect(page.getByText("Avg speed: 40 m/s")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("40 m/s");
 
     await page.reload();
     await page.getByRole("button", { name: "Estimate" }).click();
@@ -853,7 +865,9 @@ test("freefall time can be estimated with custom speed", async ({ page }) => {
     await page.getByRole("button", { name: "Use custom speed" }).click();
     // 3000 m at 120 km/h = 33.3 m/s → 90 s
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("90");
-    await expect(page.getByText("Avg speed: 120 km/h")).toBeVisible();
+    await expect(
+        page.getByRole("status", { name: "Average speed" }),
+    ).toHaveText("120 km/h");
 
     await page.reload();
     await page.locator('input[name="exitAltitude"]').fill("4000");
