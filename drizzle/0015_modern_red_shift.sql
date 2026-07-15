@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `invitation_code` text;

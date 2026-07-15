@@ -1,118 +1,13 @@
 {
-    "version": "7",
-    "dialect": "sqlite",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "6",
-            "when": 1783859892572,
-            "tag": "0000_sloppy_terror",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "6",
-            "when": 1783863072924,
-            "tag": "0001_complete_lake",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "6",
-            "when": 1783864856352,
-            "tag": "0002_absent_angel",
-            "breakpoints": true
-        },
-        {
-            "idx": 3,
-            "version": "6",
-            "when": 1783866545766,
-            "tag": "0003_sweet_ghost_rider",
-            "breakpoints": true
-        },
-        {
-            "idx": 4,
-            "version": "6",
-            "when": 1783870376169,
-            "tag": "0004_lazy_nekra",
-            "breakpoints": true
-        },
-        {
-            "idx": 5,
-            "version": "6",
-            "when": 1783874026786,
-            "tag": "0005_gray_darkhawk",
-            "breakpoints": true
-        },
-        {
-            "idx": 6,
-            "version": "6",
-            "when": 1783883595808,
-            "tag": "0006_uneven_ulik",
-            "breakpoints": true
-        },
-        {
-            "idx": 7,
-            "version": "6",
-            "when": 1783926671655,
-            "tag": "0007_keen_warhawk",
-            "breakpoints": true
-        },
-        {
-            "idx": 8,
-            "version": "6",
-            "when": 1783928566454,
-            "tag": "0008_skinny_thena",
-            "breakpoints": true
-        },
-        {
-            "idx": 9,
-            "version": "6",
-            "when": 1783930808427,
-            "tag": "0009_rapid_quasar",
-            "breakpoints": true
-        },
-        {
-            "idx": 10,
-            "version": "6",
-            "when": 1783932088314,
-            "tag": "0010_faulty_frightful_four",
-            "breakpoints": true
-        },
-        {
-            "idx": 11,
-            "version": "6",
-            "when": 1783952943752,
-            "tag": "0011_workable_sway",
-            "breakpoints": true
-        },
-        {
-            "idx": 12,
-            "version": "6",
-            "when": 1783960141530,
-            "tag": "0012_dashing_wind_dancer",
-            "breakpoints": true
-        },
-        {
-            "idx": 13,
-            "version": "6",
-            "when": 1784106190016,
-            "tag": "0013_violet_tusk",
-            "breakpoints": true
-        },
-        {
-            "idx": 14,
-            "version": "6",
-            "when": 1784106829240,
-            "tag": "0014_smooth_ares",
-            "breakpoints": true
-        },
-        {
-            "idx": 15,
-            "version": "6",
-            "when": 1784107184912,
-            "tag": "0015_modern_red_shift",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784108037746,
+      "tag": "0000_init",
+      "breakpoints": true
+    }
+  ]
 }

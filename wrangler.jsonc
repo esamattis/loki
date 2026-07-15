@@ -6,8 +6,8 @@
     "d1_databases": [
         {
             "binding": "DB",
-            "database_name": "hypyt",
-            "database_id": "717d20f9-6210-487a-a330-2386208f87d3",
+            "database_name": "loki",
+            "database_id": "a13d522a-9f10-44fa-980e-0d80a6887e67",
         },
     ],
 }
