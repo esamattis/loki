@@ -165,6 +165,18 @@ function JumpFilters(props: {
                 <JumpItemSelect
                     label="Locations"
                     dialogTitle="Select locations"
+                    description={
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Locations can be edited on the{" "}
+                            <a
+                                href={routes.logbook.locations.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage locations
+                            </a>{" "}
+                            page.
+                        </p>
+                    }
                     name="locationUuids"
                     items={props.locations}
                     selectedUuids={selectedLocations}
@@ -173,6 +185,18 @@ function JumpFilters(props: {
                 <JumpItemSelect
                     label="Gear"
                     dialogTitle="Select gear"
+                    description={
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Gear can be edited on the{" "}
+                            <a
+                                href={routes.logbook.gear.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage gear
+                            </a>{" "}
+                            page.
+                        </p>
+                    }
                     name="gearUuids"
                     items={props.gear}
                     selectedUuids={selectedGear}
@@ -181,6 +205,18 @@ function JumpFilters(props: {
                 <JumpItemSelect
                     label="Jump types"
                     dialogTitle="Select jump types"
+                    description={
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Jump types can be edited on the{" "}
+                            <a
+                                href={routes.logbook.jumpTypes.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage jump types
+                            </a>{" "}
+                            page.
+                        </p>
+                    }
                     name="jumpTypeUuids"
                     items={props.jumpTypes}
                     selectedUuids={selectedJumpTypes}

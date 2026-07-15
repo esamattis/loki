@@ -17,6 +17,26 @@ test("bootstrap admin and require invitations for later users", async ({
     await expect(page).toHaveURL("/logbook");
 
     await openMainMenu(page);
+    await page.getByRole("link", { name: "Manage aircraft" }).click();
+    for (const name of [
+        "Cessna Caravan",
+        "OH-DZF",
+        "Cessna 182",
+        "OH-AIK",
+        "Cessna 206",
+        "OH-ARR",
+    ]) {
+        await expect(page.getByText(name, { exact: true })).toBeVisible();
+    }
+
+    await page.getByRole("link", { name: /Test Admin's logbook/ }).click();
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Manage locations" }).click();
+    for (const name of ["EFUT", "EFJY", "EFAL", "EFSE", "EFLP"]) {
+        await expect(page.getByText(name, { exact: true })).toBeVisible();
+    }
+
+    await openMainMenu(page);
     await expect(
         page.getByRole("link", { name: "Admin", exact: true }),
     ).toBeVisible();

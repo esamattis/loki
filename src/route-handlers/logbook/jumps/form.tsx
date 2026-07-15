@@ -502,6 +502,7 @@ function JumpNumberField(props: { value: string; nextJumpNumber?: string }) {
 function ResourceSelectWithName(props: {
     selectName: string;
     selectLabel: string;
+    description: Child;
     selectedUuid?: string;
     items: Resource[];
     nameField: string;
@@ -513,6 +514,7 @@ function ResourceSelectWithName(props: {
             <JumpItemSelect
                 label={props.selectLabel}
                 dialogTitle={`Select ${props.selectLabel.toLowerCase()}`}
+                description={props.description}
                 name={props.selectName}
                 items={props.items}
                 selectedUuids={
@@ -537,7 +539,7 @@ function JumpItemCheckboxFieldset(props: {
     nameField: string;
     nameLabel: string;
     nameValue?: string;
-    description?: string;
+    description?: Child;
 }) {
     return (
         <div>
@@ -603,6 +605,18 @@ function JumpForm(props: {
                 <ResourceSelectWithName
                     selectName="locationUuid"
                     selectLabel="Location"
+                    description={
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Locations can be edited on the{" "}
+                            <a
+                                href={routes.logbook.locations.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage locations
+                            </a>{" "}
+                            page.
+                        </p>
+                    }
                     selectedUuid={values.locationUuid}
                     items={props.locations}
                     nameField="locationName"
@@ -618,7 +632,26 @@ function JumpForm(props: {
                 nameField="aircraftName"
                 nameLabel="New aircraft name"
                 nameValue={values.aircraftName}
-                description='Multiple aircraft can be selected, so aircraft types and registration numbers can be tracked individually. For example, "Caravan" and "OH-DZF".'
+                description={
+                    <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                        <p>
+                            Multiple aircraft can be selected, so aircraft types
+                            and registration numbers can be tracked
+                            individually. For example, &quot;Caravan&quot; and
+                            &quot;OH-DZF&quot;.
+                        </p>
+                        <p>
+                            Aircraft can be edited on the{" "}
+                            <a
+                                href={routes.logbook.aircraft.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage aircraft
+                            </a>{" "}
+                            page.
+                        </p>
+                    </div>
+                }
             />
             <JumpItemCheckboxFieldset
                 legend="Gear used"
@@ -628,6 +661,18 @@ function JumpForm(props: {
                 nameField="gearName"
                 nameLabel="New gear name"
                 nameValue={values.gearName}
+                description={
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Gear can be edited on the{" "}
+                        <a
+                            href={routes.logbook.gear.index({})}
+                            className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        >
+                            Manage gear
+                        </a>{" "}
+                        page.
+                    </p>
+                }
             />
             <JumpItemCheckboxFieldset
                 legend="Jump types"
@@ -637,7 +682,26 @@ function JumpForm(props: {
                 nameField="jumpTypeName"
                 nameLabel="New jump type name"
                 nameValue={values.jumpTypeName}
-                description="Multiple jump types can be selected, so roles such as load organizer can be tracked on a wingsuit jump. Jump types can also be used to track cutaways and similar events."
+                description={
+                    <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                        <p>
+                            Multiple jump types can be selected, so roles such
+                            as load organizer can be tracked on a wingsuit jump.
+                            Jump types can also be used to track cutaways and
+                            similar events.
+                        </p>
+                        <p>
+                            Jump types can be edited on the{" "}
+                            <a
+                                href={routes.logbook.jumpTypes.index({})}
+                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                Manage jump types
+                            </a>{" "}
+                            page.
+                        </p>
+                    </div>
+                }
             />
             <Textarea
                 name="description"

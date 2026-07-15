@@ -8,7 +8,7 @@
  * change. Resource descriptions are exposed through the shared tooltip system.
  */
 import clsx from "clsx";
-import { useId } from "hono/jsx";
+import { useId, type Child } from "hono/jsx";
 import { Button } from "@/components/form";
 import { html, Script } from "@/components/script";
 import { Dialog } from "@/components/ui/dialog";
@@ -173,7 +173,7 @@ interface JumpItemSelectProps {
     items: JumpItemResource[];
     selectedUuids: Set<string>;
     multiple?: boolean;
-    description?: string;
+    description?: Child;
     className?: string;
 }
 
@@ -232,11 +232,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                 title={props.dialogTitle}
                 className="max-w-lg"
             >
-                {props.description && (
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {props.description}
-                    </p>
-                )}
+                {props.description}
                 <div
                     id={optionsId}
                     className="max-h-[60vh] space-y-4 overflow-y-auto pr-1"

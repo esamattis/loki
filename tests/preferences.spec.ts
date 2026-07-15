@@ -276,7 +276,7 @@ test("a skydiver can permanently delete their account and all jump items", async
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Manage locations" }).click();
     await expect(page.getByText("Doomed DZ", { exact: true })).toHaveCount(0);
-    await expect(page.getByText("No locations yet.")).toBeVisible();
+    await expect(page.getByText("EFUT", { exact: true })).toBeVisible();
 
     await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
     await openManageLogbook(page);
@@ -284,7 +284,9 @@ test("a skydiver can permanently delete their account and all jump items", async
     await expect(page.getByText("Doomed Plane", { exact: true })).toHaveCount(
         0,
     );
-    await expect(page.getByText("No aircraft yet.")).toBeVisible();
+    await expect(
+        page.getByText("Cessna Caravan", { exact: true }),
+    ).toBeVisible();
 
     await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
     await openManageLogbook(page);

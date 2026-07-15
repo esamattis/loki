@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { jumpTypes, users } from "@/schema";
+import { aircrafts, jumpTypes, locations, users } from "@/schema";
 import { z } from "zod";
 import { AuthFormShell } from "@/components/auth";
 import { hashPassword } from "@/auth";
@@ -8,6 +8,18 @@ import { Password, TextInput } from "@/route-handlers/auth/components";
 import { createSession } from "@/route-handlers/auth/sessions";
 import * as routes from "@/routes";
 import { createRegistrationUser } from "@/route-handlers/auth/register/user";
+import type { AppDatabase } from "@/db";
+
+const DEFAULT_AIRCRAFT = [
+    "Cessna Caravan",
+    "OH-DZF",
+    "Cessna 182",
+    "OH-AIK",
+    "Cessna 206",
+    "OH-ARR",
+];
+
+const DEFAULT_LOCATIONS = ["EFUT", "EFJY", "EFAL", "EFSE", "EFLP"];
 
 const DEFAULT_JUMP_TYPES = [
     "Cutaway",
@@ -17,6 +29,23 @@ const DEFAULT_JUMP_TYPES = [
     "Freefly",
     "AFF",
 ];
+
+async function createDefaultJumpItems(db: AppDatabase, userUuid: string) {
+    await Promise.all([
+        db
+            .insert(aircrafts)
+            .values(DEFAULT_AIRCRAFT.map((name) => ({ userUuid, name })))
+            .run(),
+        db
+            .insert(locations)
+            .values(DEFAULT_LOCATIONS.map((name) => ({ userUuid, name })))
+            .run(),
+        db
+            .insert(jumpTypes)
+            .values(DEFAULT_JUMP_TYPES.map((name) => ({ userUuid, name })))
+            .run(),
+    ]);
+}
 
 const RegisterFormSchema = z
     .object({
@@ -220,24 +249,7 @@ async function handleRegister(c: AppRequestContext) {
         );
 
     const newUserUuid = createdUser.uuid;
-
-    const existingJumpTypes = await db
-        .select({ uuid: jumpTypes.uuid })
-        .from(jumpTypes)
-        .where(eq(jumpTypes.userUuid, newUserUuid))
-        .limit(1)
-        .get();
-    if (!existingJumpTypes) {
-        await db
-            .insert(jumpTypes)
-            .values(
-                DEFAULT_JUMP_TYPES.map((name) => ({
-                    userUuid: newUserUuid,
-                    name,
-                })),
-            )
-            .run();
-    }
+    await createDefaultJumpItems(db, newUserUuid);
     await createSession(c, newUserUuid);
     return c.redirect(routes.logbook.index({}));
 }
