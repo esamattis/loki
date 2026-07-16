@@ -13,6 +13,7 @@ import { $ } from "zx";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const migrationsDir = join(root, "drizzle");
+const $$ = $({ cwd: root, stdio: "inherit" });
 
 function listSqlFiles(): string[] {
     return readdirSync(migrationsDir)
@@ -58,10 +59,7 @@ function loadAllCascadeParents(): Set<string> {
 
 async function main(): Promise<void> {
     const before = new Set(listSqlFiles());
-    await $({
-        cwd: root,
-        stdio: "inherit",
-    })`pnpm exec drizzle-kit generate`;
+    await $$`pnpm exec drizzle-kit generate`;
     const after = listSqlFiles();
     const created = after.filter((name) => !before.has(name));
     if (created.length === 0) {

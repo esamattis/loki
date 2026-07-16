@@ -13,6 +13,12 @@ const root = resolve(import.meta.dirname, "..");
 const outputDirectory = join(root, "dist-executable");
 const executableName = process.platform === "win32" ? "loki.exe" : "loki";
 const executablePath = join(outputDirectory, executableName);
+const $$ = $({
+    cwd: root,
+    env: { ...process.env, NODE_ENV: "production" },
+    stdio: "inherit",
+    verbose: false,
+});
 
 function listFiles(directory: string): string[] {
     return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -74,10 +80,6 @@ function migrationAssets(): Record<string, string> {
     return assets;
 }
 
-async function run(command: string, args: string[]): Promise<void> {
-    await $({ cwd: root, stdio: "inherit" })`${command} ${args}`;
-}
-
 async function main(): Promise<void> {
     rmSync(outputDirectory, { recursive: true, force: true });
     mkdirSync(outputDirectory, { recursive: true });
@@ -103,16 +105,15 @@ async function main(): Promise<void> {
         )}\n`,
     );
 
-    await run("node", ["--build-sea", configPath.split(sep).join("/")]);
+    await $$`node --build-sea ${configPath.split(sep).join("/")}`;
     if (process.platform === "darwin") {
-        await run("codesign", ["--sign", "-", executablePath]);
+        await $$`codesign --sign - ${executablePath}`;
     }
     const smokeTestPath = `./${relative(root, executablePath).split(sep).join("/")}`;
-    await $({
-        cwd: root,
+    const $smokeTest = $$({
         env: { ...process.env, LOKI_SMOKE_TEST: "1" },
-        stdio: "inherit",
-    })`${smokeTestPath}`;
+    });
+    await $smokeTest`${smokeTestPath}`;
     console.log(`Executable built: ${executablePath}`);
 }
 
