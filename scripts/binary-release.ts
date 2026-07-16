@@ -12,6 +12,7 @@ async function main(): Promise<void> {
 
     await $({ stdio: "inherit" })`git tag ${tag}`;
     await $({ stdio: "inherit" })`git push origin ${tag}`;
+    await $({ stdio: "inherit" })`git push origin`;
     console.log(`Created and pushed ${tag}`);
 }
 
