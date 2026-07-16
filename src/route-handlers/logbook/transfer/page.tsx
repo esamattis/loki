@@ -66,10 +66,10 @@ function ImportSection(props: TransferPageProps) {
                         Import
                     </h2>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Import a CSV or Skydiving Logbook XML file. Existing
-                        gear, locations, aircraft, and jump types are matched by
-                        name. Unknown jump items are created automatically.
-                    </p>
+                        Import a CSV or Skydiving Logbook XML
+                        (skydiving_logbook.xml) file. Existing gear, locations,
+                        aircraft, and jump types are matched by name. Unknown
+                        jump items are created automatically. </p>
                 </div>
             </div>
             {props.notice && (
