@@ -97,18 +97,29 @@ Then open http://127.0.0.1:8787
 
 `pn start` runs migrations on the SQLite file at startup.
 
-### Environment
+To build a self-contained executable for the current platform:
 
-| Variable      | Default            | Description                                          |
-| ------------- | ------------------ | ---------------------------------------------------- |
-| `PORT`        | `8787`             | HTTP port                                            |
-| `HOST`        | `127.0.0.1`        | Bind address (`0.0.0.0` to listen on all interfaces) |
-| `SQLITE_PATH` | `data/loki.sqlite` | Path to the SQLite database file                     |
+```sh
+pn build:executable
+./dist-executable/loki
+```
+
+The executable stores its database at
+`$HOME/.local/share/loki/sqlite/loki.sqlite` by default and accepts `--host`,
+`--port`, and `--sqlite-dir` options. It runs all pending migrations at startup.
+
+### Options
+
+| Option         | Default                          | Description                                          |
+| -------------- | -------------------------------- | ---------------------------------------------------- |
+| `--port`       | `8787`                           | HTTP port                                            |
+| `--host`       | `127.0.0.1`                      | Bind address (`0.0.0.0` to listen on all interfaces) |
+| `--sqlite-dir` | `$HOME/.local/share/loki/sqlite` | Directory containing `loki.sqlite`                   |
 
 Example:
 
 ```sh
-HOST=0.0.0.0 PORT=3000 SQLITE_PATH=/var/lib/loki/db.sqlite pn start
+pn start --host 0.0.0.0 --port 3000 --sqlite-dir /var/lib/loki
 ```
 
 ### SQLite database helpers
@@ -118,8 +129,9 @@ pn db:migrate:sqlite      # apply Drizzle migrations only
 pn db:dev-user:sqlite     # migrate + upsert developer user
 ```
 
-The SQLite file and `data/` directory are gitignored. Delete `data/` to reset
-self-hosted state.
+Set `SQLITE_PATH` to override the database file used by the SQLite helper
+scripts. By default they use the same
+`$HOME/.local/share/loki/sqlite/loki.sqlite` file as the server.
 
 Session cookies use `Secure` only on HTTPS. Plain HTTP self-host works on
 localhost without extra configuration.

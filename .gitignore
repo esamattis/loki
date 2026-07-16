@@ -1,6 +1,7 @@
 # prod
 dist/
 dist-server/
+dist-executable/
 data/
 backups/
 

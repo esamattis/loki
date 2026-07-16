@@ -1,11 +1,14 @@
 import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { homedir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import type { AppDatabase } from "@/db";
 
 export function resolveSqlitePath(path = process.env.SQLITE_PATH): string {
-    return resolve(path?.trim() || "data/loki.sqlite");
+    return resolve(
+        path?.trim() || join(homedir(), ".local/share/loki/sqlite/loki.sqlite"),
+    );
 }
 
 type BatchableQuery = {
@@ -34,14 +37,22 @@ function runBatchQuery(query: BatchableQuery): unknown {
 /**
  * Build a Drizzle client against better-sqlite3, with a D1-compatible `batch`.
  */
-export function createSqliteDatabase(path = resolveSqlitePath()): {
+export function createSqliteDatabase(
+    path = resolveSqlitePath(),
+    nativeBinding?: object,
+): {
     db: AppDatabase;
     sqlite: Database.Database;
     path: string;
 } {
     const absolutePath = resolve(path);
     mkdirSync(dirname(absolutePath), { recursive: true });
-    const sqlite = new Database(absolutePath);
+    const sqlite = new Database(
+        absolutePath,
+        nativeBinding
+            ? ({ nativeBinding } as unknown as Database.Options)
+            : undefined,
+    );
     sqlite.pragma("journal_mode = WAL");
     sqlite.pragma("foreign_keys = ON");
 
