@@ -17,7 +17,9 @@ const CONTENT_TYPES: Record<string, string> = {
 function seaNativeBindingPath(): string {
     const path = join(tmpdir(), `loki-better-sqlite3-${process.pid}.node`);
     writeFileSync(path, new Uint8Array(getAsset("native/better_sqlite3.node")));
-    process.once("exit", () => rmSync(path, { force: true }));
+    if (process.platform !== "win32") {
+        process.once("exit", () => rmSync(path, { force: true }));
+    }
     return path;
 }
 
