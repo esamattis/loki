@@ -119,6 +119,20 @@ function deleteLogbookDataButton(page: Page) {
         .getByRole("button");
 }
 
+test("saving preferences returns to the originating pathname", async ({
+    page,
+}) => {
+    await registerUser(page, "preferences-back", "Preferences Back");
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await expect(page).toHaveURL("/preferences?back=%2Flogbook%2Fjumps%2Fnew");
+
+    await page.getByRole("button", { name: "Save preferences" }).click();
+    await expect(page).toHaveURL("/logbook/jumps/new");
+});
+
 test("a skydiver can update preferences and account details", async ({
     page,
 }) => {
@@ -126,7 +140,7 @@ test("a skydiver can update preferences and account details", async ({
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page).toHaveURL("/preferences");
+    await expect(page).toHaveURL("/preferences?back=%2Flogbook");
     await page.locator('input[name="displayName"]').fill("Feet Skydiver");
     await page.locator('input[name="email"]').fill("feet@example.test");
     await page.locator('select[name="altitudeUnits"]').selectOption("feet");
@@ -292,7 +306,7 @@ test("a skydiver can permanently delete their account and all jump items", async
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page).toHaveURL("/preferences");
+    await expect(page).toHaveURL("/preferences?back=%2Flogbook");
     await expect(page.getByText("Danger zone")).toBeVisible();
 
     const button = deleteAccountButton(page);

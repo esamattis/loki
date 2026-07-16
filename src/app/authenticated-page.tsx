@@ -27,8 +27,9 @@ import {
 } from "@/components/menu-icons";
 import {
     DropdownMenu,
+    MenuButton,
     MenuDivider,
-    menuItemClassName,
+    MenuLink,
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
@@ -38,6 +39,8 @@ const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
 function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
+    const pathname = useAppContext().url().pathname;
+
     return (
         <DropdownMenu
             label="Menu"
@@ -52,74 +55,56 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
                 <BuildInfo />
             </div>
             <MenuDivider />
-            <a
-                href={routes.logbook.aircraft.index({})}
-                className={menuItemClassName}
-            >
+            <MenuLink href={routes.logbook.aircraft.index({})}>
                 <AircraftIcon className={menuIconClassName} />
                 Manage aircraft
-            </a>
-            <a
-                href={routes.logbook.gear.index({})}
-                className={menuItemClassName}
-            >
+            </MenuLink>
+            <MenuLink href={routes.logbook.gear.index({})}>
                 <GearIcon className={menuIconClassName} />
                 Manage gear
-            </a>
-            <a
-                href={routes.logbook.jumpTypes.index({})}
-                className={menuItemClassName}
-            >
+            </MenuLink>
+            <MenuLink href={routes.logbook.jumpTypes.index({})}>
                 <JumpTypeIcon className={menuIconClassName} />
                 Manage jump types
-            </a>
-            <a
-                href={routes.logbook.locations.index({})}
-                className={menuItemClassName}
-            >
+            </MenuLink>
+            <MenuLink href={routes.logbook.locations.index({})}>
                 <LocationIcon className={menuIconClassName} />
                 Manage locations
-            </a>
+            </MenuLink>
             <MenuDivider />
-            <a
-                href={routes.logbook.statistics.index({})}
-                className={menuItemClassName}
-            >
+            <MenuLink href={routes.logbook.statistics.index({})}>
                 <StatisticsIcon className={menuIconClassName} />
                 Statistics
-            </a>
-            <a
-                href={routes.logbook.transfer.index({})}
-                className={menuItemClassName}
-            >
+            </MenuLink>
+            <MenuLink href={routes.logbook.transfer.index({})}>
                 <TransferIcon className={menuIconClassName} />
                 Import or export
-            </a>
+            </MenuLink>
             <MenuDivider />
             {props.isAdmin && (
-                <a href={routes.admin.index({})} className={menuItemClassName}>
+                <MenuLink href={routes.admin.index({})}>
                     <AdminIcon className={menuIconClassName} />
                     Admin
-                </a>
+                </MenuLink>
             )}
-            <a href={routes.preferences({})} className={menuItemClassName}>
+            <MenuLink href={routes.preferences({}, { back: pathname })}>
                 <PreferencesIcon className={menuIconClassName} />
                 Preferences
-            </a>
-            <a href={routes.install({})} className={menuItemClassName}>
+            </MenuLink>
+            <MenuLink href={routes.install({})}>
                 <InstallIcon className={menuIconClassName} />
                 Install app
-            </a>
-            <a href={routes.about({})} className={menuItemClassName}>
+            </MenuLink>
+            <MenuLink href={routes.about({})}>
                 <AboutIcon className={menuIconClassName} />
                 About
-            </a>
+            </MenuLink>
             <MenuDivider />
             <form method="post" action={routes.auth.logout({})}>
-                <button type="submit" className={menuItemClassName}>
+                <MenuButton type="submit">
                     <LogoutIcon className={menuIconClassName} />
                     Log out
-                </button>
+                </MenuButton>
             </form>
         </DropdownMenu>
     );

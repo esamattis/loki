@@ -3,8 +3,27 @@ import { useId, type Child } from "hono/jsx";
 import { $assertElement } from "@/utils";
 import { Script } from "@/components/script";
 
-export const menuItemClassName =
+const menuItemClassName =
     "flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50 sm:py-2 dark:text-slate-300 dark:hover:bg-slate-800";
+
+export function MenuLink(props: { href: string; children: Child }) {
+    return (
+        <a href={props.href} className={menuItemClassName}>
+            {props.children}
+        </a>
+    );
+}
+
+export function MenuButton(props: {
+    type?: "button" | "submit";
+    children: Child;
+}) {
+    return (
+        <button type={props.type ?? "button"} className={menuItemClassName}>
+            {props.children}
+        </button>
+    );
+}
 
 export function MenuDivider() {
     return <div className="my-1 h-px bg-slate-100 dark:bg-slate-800"></div>;

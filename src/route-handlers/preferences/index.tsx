@@ -1,5 +1,6 @@
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
+import { isSafeRedirectPath } from "@/auth";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     FormActions,
@@ -300,11 +301,13 @@ function PasswordSection() {
 
 function PreferencesForm(props: {
     values: PreferencesFormValues;
+    back?: string;
     errors?: string[];
 }) {
     return (
         <form
             method="post"
+            action={routes.preferences({}, { back: props.back })}
             data-confirm="Edit Preferences"
             className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
@@ -415,9 +418,11 @@ function renderPreferences(
     values = getFormValues(c),
     errors?: string[],
 ) {
+    const requestedBack = c.req.query("back");
+    const back = isSafeRedirectPath(requestedBack) ? requestedBack : undefined;
     return c.render(
         <LogbookPage title="Preferences">
-            <PreferencesForm values={values} errors={errors} />
+            <PreferencesForm values={values} back={back} errors={errors} />
             <DangerZoneSection />
         </LogbookPage>,
     );
@@ -518,7 +523,10 @@ async function handlePreferences(c: AppRequestContext) {
         })
         .where(eq(users.uuid, user.uuid));
 
-    return c.redirect(routes.logbook.index({}));
+    const back = c.req.query("back");
+    return c.redirect(
+        isSafeRedirectPath(back) ? back : routes.logbook.index({}),
+    );
 }
 
 export function register(app: App) {

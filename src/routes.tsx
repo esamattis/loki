@@ -43,7 +43,7 @@ export const auth = {
     register: route("/register"),
     logout: route("/logout"),
 };
-export const preferences = route("/preferences");
+export const preferences = route("/preferences").query<{ back?: string }>();
 export const install = route("/install");
 export const about = route("/about");
 export const logbook = {
