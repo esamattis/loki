@@ -5,6 +5,7 @@ import * as routes from "@/routes";
 
 const repositoryUrl = "https://github.com/esamattis/loki";
 const releasesUrl = `${repositoryUrl}/releases`;
+const licenseUrl = `${repositoryUrl}/blob/main/LICENSE`;
 const linkClassName =
     "font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300";
 
@@ -22,9 +23,37 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                 )}
                 <div className="space-y-4 text-slate-700 dark:text-slate-300">
                     <p>
-                        Loki is open source software licensed under the GNU
-                        Affero General Public License (AGPL).
+                        Loki is open source software licensed under the{" "}
+                        <a href={licenseUrl} className={linkClassName}>
+                            GNU Affero General Public License (AGPL)
+                        </a>
+                        .
                     </p>
+                    <div>
+                        <p>In plain language, the license:</p>
+                        <ul className="mt-2 list-disc space-y-1 pl-6">
+                            <li>
+                                allows you to use Loki for any purpose, study
+                                how it works, and modify it
+                            </li>
+                            <li>
+                                allows you to share original or modified copies
+                            </li>
+                            <li>
+                                requires shared copies and their source code to
+                                remain available under the AGPL
+                            </li>
+                            <li>
+                                requires you to offer the source code of your
+                                modified version to people who use it over a
+                                network
+                            </li>
+                            <li>
+                                requires you to keep the copyright and license
+                                notices
+                            </li>
+                        </ul>
+                    </div>
                     <p>
                         The source code is available on{" "}
                         <a href={repositoryUrl} className={linkClassName}>
@@ -33,10 +62,39 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                         .
                     </p>
                     <p>
+                        Loki is developed by{" "}
+                        <a
+                            href="https://esamatti.fi/"
+                            className={linkClassName}
+                        >
+                            Esa-Matti Suuronen
+                        </a>
+                        .
+                    </p>
+                    <p>
                         Pre-built releases for self-hosting or running Loki on
                         your own computer are available from the{" "}
                         <a href={releasesUrl} className={linkClassName}>
                             releases page
+                        </a>
+                        .
+                    </p>
+                </div>
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+                    <p className="font-semibold">
+                        Important: Back up your data
+                    </p>
+                    <p className="mt-1">
+                        Loki is provided as-is, without any warranty. This
+                        applies in particular to the hosted version: service
+                        availability and the preservation of your data are not
+                        guaranteed. Take regular backups of your logbook using
+                        the{" "}
+                        <a
+                            href={routes.logbook.transfer.index({})}
+                            className="font-semibold underline underline-offset-2 hover:no-underline"
+                        >
+                            export page
                         </a>
                         .
                     </p>
