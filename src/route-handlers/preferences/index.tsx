@@ -1,9 +1,10 @@
 import { and, eq, ne } from "drizzle-orm";
+import { useId } from "hono/jsx";
 import { z } from "zod";
 import { isSafeRedirectPath } from "@/auth";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
-    FormActions,
+    Button,
     Input,
     NumberInput,
     Select,
@@ -300,12 +301,14 @@ function PasswordSection() {
 }
 
 function PreferencesForm(props: {
+    formId: string;
     values: PreferencesFormValues;
     back?: string;
     errors?: string[];
 }) {
     return (
         <form
+            id={props.formId}
             method="post"
             action={routes.preferences({}, { back: props.back })}
             data-confirm="Edit Preferences"
@@ -344,11 +347,44 @@ function PreferencesForm(props: {
             <DateTimeSection options={props.values.options} />
             <JumpFromImageSection options={props.values.options} />
             <PasswordSection />
-            <FormActions
-                submitLabel="Save preferences"
-                cancelHref={routes.logbook.index({})}
-            />
+            <div className="hidden sm:block">
+                <Button type="submit" variant="primary">
+                    Save preferences
+                </Button>
+            </div>
         </form>
+    );
+}
+
+function PreferencesPage(props: {
+    values: PreferencesFormValues;
+    back?: string;
+    errors?: string[];
+}) {
+    const formId = useId();
+
+    return (
+        <LogbookPage
+            title="Preferences"
+            mobileAction={
+                <Button
+                    type="submit"
+                    form={formId}
+                    variant="primary"
+                    className="w-full"
+                >
+                    Save preferences
+                </Button>
+            }
+        >
+            <PreferencesForm
+                formId={formId}
+                values={props.values}
+                back={props.back}
+                errors={props.errors}
+            />
+            <DangerZoneSection />
+        </LogbookPage>
     );
 }
 
@@ -421,10 +457,7 @@ function renderPreferences(
     const requestedBack = c.req.query("back");
     const back = isSafeRedirectPath(requestedBack) ? requestedBack : undefined;
     return c.render(
-        <LogbookPage title="Preferences">
-            <PreferencesForm values={values} back={back} errors={errors} />
-            <DangerZoneSection />
-        </LogbookPage>,
+        <PreferencesPage values={values} back={back} errors={errors} />,
     );
 }
 

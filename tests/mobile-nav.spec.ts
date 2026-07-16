@@ -98,6 +98,12 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
     await page.getByRole("link", { name: "Preferences" }).click();
     await expect(page).toHaveURL("/preferences?back=%2Flogbook");
     await expect(
+        page
+            .getByLabel("Form actions")
+            .getByRole("button", { name: "Save preferences" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Cancel" })).toHaveCount(0);
+    await expect(
         page.getByRole("heading", { name: "Install app" }),
     ).not.toBeVisible();
 
