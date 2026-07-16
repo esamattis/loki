@@ -8,7 +8,8 @@ type TemplateValue = string | Node;
  * the existing root and updates only its slots, or with a detached container as
  * a factory whose rendered root is moved into a list or document fragment.
  * Templates must have exactly one HTML root, every slot must have one matching
- * value, and slot names must be unique. Strings are inserted as text, not HTML.
+ * value, slot names must be unique, and slots must not be nested. Strings are
+ * inserted as text, not HTML.
  *
  * In an SSR component, generate the container and template IDs with `useId()`,
  * assign them to the corresponding elements, and pass both IDs to `Script`
@@ -26,8 +27,11 @@ export function $renderTemplate(
         existingRoot instanceof HTMLElement &&
         existingRoot.dataset.renderTemplate === templateId;
     let root: HTMLElement | DocumentFragment;
-    if (canRefill) root = existingRoot;
-    else {
+    let element: HTMLElement;
+    if (canRefill) {
+        root = existingRoot;
+        element = existingRoot;
+    } else {
         const template = document.getElementById(templateId);
         if (!(template instanceof HTMLTemplateElement)) {
             throw new Error(`Template not found: ${templateId}`);
@@ -37,35 +41,56 @@ export function $renderTemplate(
             throw new Error(`Could not clone template: ${templateId}`);
         }
         root = clone;
+        const cloneRoot = root.firstElementChild;
+        if (
+            !(cloneRoot instanceof HTMLElement) ||
+            root.childElementCount !== 1
+        ) {
+            throw new Error(`Template must have one HTML root: ${templateId}`);
+        }
+        element = cloneRoot;
         for (const slot of root.querySelectorAll("[data-template-slot]")) {
             slot.setAttribute("data-render-template-slot", templateId);
         }
     }
 
+    const slots = Array.from(root.querySelectorAll("[data-template-slot]"));
+    if (root instanceof HTMLElement && root.matches("[data-template-slot]")) {
+        slots.unshift(root);
+    }
+    const ownedSlots = slots.filter(
+        (slot) => slot.getAttribute("data-render-template-slot") === templateId,
+    );
     const remainingNames = new Set(Object.keys(values));
-    for (const slot of root.querySelectorAll("[data-template-slot]")) {
-        if (slot.getAttribute("data-render-template-slot") !== templateId)
-            continue;
+    const replacements: { slot: Element; value: TemplateValue }[] = [];
+    for (const slot of ownedSlots) {
         const name = slot.getAttribute("data-template-slot");
         if (name === null) throw new Error("Template slot has no name");
+        if (
+            ownedSlots.some(
+                (possibleParent) =>
+                    possibleParent !== slot && possibleParent.contains(slot),
+            )
+        ) {
+            throw new Error(`Nested template slot: ${name}`);
+        }
         const value = values[name];
         if (value === undefined)
             throw new Error(`Missing template value: ${name}`);
         if (!remainingNames.delete(name))
             throw new Error(`Duplicate template slot: ${name}`);
-        slot.replaceChildren(value);
+        replacements.push({ slot, value });
     }
     if (remainingNames.size > 0) {
         throw new Error(
             `Template slots not found: ${Array.from(remainingNames).join(", ")}`,
         );
     }
+    for (const replacement of replacements) {
+        replacement.slot.replaceChildren(replacement.value);
+    }
     if (canRefill) return;
 
-    const element = root.firstElementChild;
-    if (!(element instanceof HTMLElement) || root.childElementCount !== 1) {
-        throw new Error(`Template must have one HTML root: ${templateId}`);
-    }
     element.dataset.renderTemplate = templateId;
     container.replaceChildren(element);
 }
