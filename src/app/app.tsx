@@ -51,6 +51,7 @@ export type AppRequestContext = Context<Env>;
 
 export interface AppContext {
     db: AppDatabase;
+    sqlitePath?: string;
     user: User | null;
     getUser(): User;
     requestContext: AppRequestContext;
@@ -81,6 +82,8 @@ export interface Variables {
 export interface AppBindings extends CloudflareBindings {
     /** Pre-built Drizzle client for Node/self-host. When set, DB is unused. */
     APP_DB?: AppDatabase;
+    /** Absolute database path exposed by the self-contained Node binary. */
+    APP_SQLITE_PATH?: string;
 }
 
 export interface Env {
@@ -697,6 +700,7 @@ async function setAppContextMiddleware(
 ) {
     c.set("appContext", {
         db: c.env.APP_DB ?? createD1Database(c.env.DB),
+        sqlitePath: c.env.APP_SQLITE_PATH,
         user: null,
         getUser() {
             const user = this.user;

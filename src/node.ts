@@ -69,6 +69,7 @@ function startServer(args: {
         join(resolve(args.sqliteDir), "loki.sqlite"),
         loadNodeNativeBinding(),
     );
+    const selfContained = isSea();
     migrateSqlite(sqlite);
     registerStaticAssets();
 
@@ -78,6 +79,7 @@ function startServer(args: {
                 return app.fetch(request, {
                     ...env,
                     APP_DB: db,
+                    APP_SQLITE_PATH: selfContained ? path : undefined,
                 });
             },
             port: args.port,
@@ -89,7 +91,7 @@ function startServer(args: {
                 `Self-hosted Loki - Skydiving Logbook listening on ${url}`,
             );
             console.log(`SQLite database: ${path}`);
-            if (isSea() && !args.noOpen && hasGraphicalSession()) {
+            if (selfContained && !args.noOpen && hasGraphicalSession()) {
                 openBrowser(url);
             }
         },
