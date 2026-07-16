@@ -4,6 +4,10 @@ import path from "node:path";
 import { jumpItemSummary, logOut, openManageLogbook } from "./helpers";
 
 const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.csv");
+const roundTripFixturePath = path.join(
+    import.meta.dirname,
+    "fixtures/logbook-round-trip.csv",
+);
 const xmlFixturePath = path.join(
     import.meta.dirname,
     "fixtures/skydiving-logbook.xml",
@@ -159,22 +163,16 @@ test("a CSV jump can omit optional measurements and jump items", async ({
     );
 });
 
-test("a logbook can be imported, edited, exported, and imported by another user", async ({
+test("an exported logbook file preserves jumps and jump items when imported", async ({
     page,
 }) => {
     await registerUser(page, "first-skydiver");
 
     await openManageLogbook(page);
-    await page.getByRole("link", { name: "Manage gear" }).click();
-    await page.getByRole("link", { name: "Add gear" }).click();
-    await page.locator('input[name="name"]').fill("Navigator 260");
-    await page.locator('input[name="previousCount"]').fill("1");
-    await page.getByRole("button", { name: "Add gear" }).click();
-
-    await page.getByRole("link", { name: /first-skydiver's logbook/ }).click();
-    await openManageLogbook(page);
     await page.getByRole("link", { name: "Import or export" }).click();
-    await page.locator('input[name="file"]').setInputFiles(fixturePath);
+    await page
+        .locator('input[name="file"]')
+        .setInputFiles(roundTripFixturePath);
     await page.getByRole("button", { name: "Import logbook" }).click();
     await expect(page.getByText("Imported 2 jumps")).toBeVisible();
 
@@ -185,25 +183,11 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     await page.getByRole("link", { name: /#301/ }).click();
     await page
         .locator('textarea[name="description"]')
-        .fill("Edited after import");
+        .fill("Edited after import\nSecond line");
     await page.getByRole("button", { name: "Save jump" }).click();
-    await expect(page.getByText("Edited after import")).toBeVisible();
-
-    await openManageLogbook(page);
-    await page.getByRole("link", { name: "Import or export" }).click();
-    await page.locator('input[name="file"]').setInputFiles(fixturePath);
-    await page.getByRole("button", { name: "Import logbook" }).click();
-    await expect(page.getByText("Imported 2 jumps")).toBeVisible();
-    await page.getByRole("link", { name: /first-skydiver's logbook/ }).click();
-    await expect(page.getByRole("link", { name: /#\d+/ })).toHaveCount(2);
-    await page.getByRole("link", { name: /#301/ }).click();
-    await expect(page.locator('textarea[name="description"]')).toHaveValue(
-        "Imported training jump",
-    );
-    await page
-        .locator('textarea[name="description"]')
-        .fill("Edited after import");
-    await page.getByRole("button", { name: "Save jump" }).click();
+    await expect(
+        page.getByText(/Edited after import\s+Second line/),
+    ).toBeVisible();
 
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Import or export" }).click();
@@ -217,7 +201,15 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     const exportContents = await readFile(exportPath, "utf8");
     expect(exportContents).not.toMatch(/uuid/i);
     expect(exportContents).toContain(CSV_HEADER);
+    expect(exportContents).toContain("Twin Otter");
+    expect(exportContents).toContain("Grand Caravan");
     expect(exportContents).toContain("Navigator 260");
+    expect(exportContents).toContain("Vector 3");
+    expect(exportContents).toContain("Skydive Example");
+    expect(exportContents).toContain("Coastal Drop Zone");
+    expect(exportContents).toContain("Formation skydiving");
+    expect(exportContents).toContain("Wingsuit");
+    expect(exportContents).toContain("Accuracy landing");
     expect(exportContents).toContain(",4000,1000,55,");
     await logOut(page);
     await registerUser(page, "second-skydiver");
@@ -230,15 +222,15 @@ test("a logbook can be imported, edited, exported, and imported by another user"
 
     await page.getByRole("link", { name: /second-skydiver's logbook/ }).click();
     await expect(page.getByRole("link", { name: /#301/ })).toContainText(
-        "Skydive Example / Twin Otter",
+        "Skydive Example",
     );
     await expect(page.getByRole("link", { name: /#302/ })).toContainText(
-        "Skydive Example / Twin Otter",
+        "Coastal Drop Zone / Grand Caravan",
     );
     await expect(page.getByRole("link", { name: /#\d+/ })).toHaveCount(2);
     await page.getByRole("link", { name: /#301/ }).click();
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
-        "Edited after import",
+        "Edited after import\nSecond line",
     );
     await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
         "4000",
@@ -250,9 +242,35 @@ test("a logbook can be imported, edited, exported, and imported by another user"
     await expect(jumpItemSummary(page, "Gear used")).toContainText(
         "Navigator 260",
     );
+    await expect(jumpItemSummary(page, "Gear used")).toContainText("Vector 3");
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText("Twin Otter");
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText(
+        "Grand Caravan",
+    );
+    await expect(jumpItemSummary(page, "Location")).toContainText(
+        "Skydive Example",
+    );
     await expect(jumpItemSummary(page, "Jump types")).toContainText(
         "Formation skydiving",
     );
+    await expect(jumpItemSummary(page, "Jump types")).toContainText("Wingsuit");
+
+    await page.getByRole("link", { name: /second-skydiver's logbook/ }).click();
+    await page.getByRole("link", { name: /#302/ }).click();
+    await expect(jumpItemSummary(page, "Location")).toContainText(
+        "Coastal Drop Zone",
+    );
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText(
+        "Grand Caravan",
+    );
+    await expect(jumpItemSummary(page, "Gear used")).toContainText("Vector 3");
+    await expect(jumpItemSummary(page, "Jump types")).toContainText("Wingsuit");
+
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Manage jump types" }).click();
+    await expect(
+        page.getByText("Accuracy landing", { exact: true }),
+    ).toBeVisible();
 });
 
 test("clearing all previous data replaces the entire logbook during import", async ({

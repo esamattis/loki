@@ -4,6 +4,7 @@ dist-server/
 dist-executable/
 data/
 backups/
+loki-*.csv
 
 # dev
 .yarn/

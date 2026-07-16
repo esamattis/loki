@@ -1,0 +1,12 @@
+type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description
+aircraft,Twin Otter,120,,,,,,,,,,Fast turbine aircraft
+aircraft,Grand Caravan,80,,,,,,,,,,Large turbine aircraft
+gear,Navigator 260,42,,,,,,,,,,Main canopy
+gear,Vector 3,35,,,,,,,,,,Container
+jumpType,Formation skydiving,18,,,,,,,,,,Four-way training
+jumpType,Wingsuit,12,,,,,,,,,,Wingsuit flight
+jumpType,Accuracy landing,7,,,,,,,,,,Not used by an imported jump
+location,Skydive Example,300,,,,,,,,,,Home drop zone
+location,Coastal Drop Zone,90,,,,,,,,,,Seaside drop zone
+jump,,,301,,4000,1000,55,Skydive Example,Twin Otter; Grand Caravan,Navigator 260; Vector 3,Formation skydiving; Wingsuit,Imported training jump
+jump,,,302,,3500,900,48,Coastal Drop Zone,Grand Caravan,Vector 3,Wingsuit,Second imported jump

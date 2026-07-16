@@ -374,34 +374,70 @@ function parseSkydivingLogbookXml(xml: string): ImportRecord[] {
     ];
 }
 
-function parseCsvLine(line: string): string[] {
-    const fields: string[] = [];
+interface CsvRow {
+    fields: string[];
+    line: number;
+}
+
+function parseCsvRows(content: string): CsvRow[] {
+    const rows: CsvRow[] = [];
+    let fields: string[] = [];
     let current = "";
     let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-        const ch = line[i]!;
+    let hasContent = false;
+    let line = 1;
+    let rowLine = 1;
+    for (let i = 0; i < content.length; i++) {
+        const ch = content[i]!;
         if (inQuotes) {
             if (ch === '"') {
-                if (line[i + 1] === '"') {
+                hasContent = true;
+                if (content[i + 1] === '"') {
                     current += '"';
                     i++;
                 } else {
                     inQuotes = false;
                 }
+            } else if (ch === "\r" || ch === "\n") {
+                current += "\n";
+                if (ch === "\r" && content[i + 1] === "\n") {
+                    i++;
+                }
+                line++;
             } else {
                 current += ch;
+                hasContent ||= ch.trim().length > 0;
             }
         } else if (ch === '"') {
             inQuotes = true;
+            hasContent = true;
         } else if (ch === ",") {
             fields.push(current);
             current = "";
+            hasContent = true;
+        } else if (ch === "\r" || ch === "\n") {
+            if (hasContent) {
+                fields.push(current);
+                rows.push({ fields, line: rowLine });
+            }
+            fields = [];
+            current = "";
+            hasContent = false;
+            if (ch === "\r" && content[i + 1] === "\n") {
+                i++;
+            }
+            line++;
+            rowLine = line;
         } else {
             current += ch;
+            hasContent ||= ch.trim().length > 0;
         }
     }
-    fields.push(current);
-    return fields;
+    if (hasContent) {
+        fields.push(current);
+        rows.push({ fields, line: rowLine });
+    }
+    return rows;
 }
 
 function splitCsvList(value: string): string[] {
@@ -489,11 +525,11 @@ function rowToImportValue(fields: string[]): unknown {
 function parseCsvImport(
     content: string,
 ): { errors: string[] } | { records: ImportRecord[] } {
-    const lines = content.split(/\r?\n/).filter((line) => line.trim());
-    if (lines.length === 0) {
+    const rows = parseCsvRows(content);
+    if (rows.length === 0) {
         return { errors: ["The import file is empty"] };
     }
-    const headerFields = parseCsvLine(lines[0]!).map((field) => field.trim());
+    const headerFields = rows[0]!.fields.map((field) => field.trim());
     if (
         headerFields.length !== CSV_HEADERS.length ||
         CSV_HEADERS.some((header, index) => headerFields[index] !== header)
@@ -502,19 +538,20 @@ function parseCsvImport(
             errors: [`CSV header must be: ${CSV_HEADERS.join(",")}`],
         };
     }
-    if (lines.length === 1) {
+    if (rows.length === 1) {
         return { errors: ["The import file has no data rows"] };
     }
     const records: ImportRecord[] = [];
     const errors: string[] = [];
-    for (const [index, line] of lines.slice(1).entries()) {
-        const fields = parseCsvLine(line);
-        const result = ImportRecordSchema.safeParse(rowToImportValue(fields));
+    for (const row of rows.slice(1)) {
+        const result = ImportRecordSchema.safeParse(
+            rowToImportValue(row.fields),
+        );
         if (result.success) {
             records.push(result.data);
         } else {
             errors.push(
-                `Row ${index + 2}: ${result.error.issues.map((issue) => issue.message).join(", ")}`,
+                `Row ${row.line}: ${result.error.issues.map((issue) => issue.message).join(", ")}`,
             );
         }
     }
