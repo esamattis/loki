@@ -1,17 +1,20 @@
 import { z } from "zod";
 
-export const DEFAULT_JUMP_IMAGE_PROMPT = `Extract skydiving jump data from this image (logbook page, altimeter screenshot, freefall computer, or handwritten notes).
+export const DEFAULT_JUMP_IMAGE_PROMPT = `Extract data for one skydiving jump from this image (logbook page, altimeter screenshot, freefall computer, or handwritten notes).
 
-Return only values that are clearly visible or confidently readable.
-- jumpDate as YYYY-MM-DD when a date is present
-- exitAltitude and openingAltitude as whole numbers in the unit specified in the user message
-- if openingAltitude is not found or unclear, use 900
-- freefallTime in whole seconds
-- location, aircraft, gear, and jump types as short names when present; separate multiple aircraft, gear, or jump types with ;
-- "WS" refers to jump type of "Wingsuit"
-- "Delay" refers to freefall fime
-- description for any other useful notes (weather, formation, instructors, etc.). Add description even if it is just a single word.
-- If a field is missing or unclear, omit it (except openingAltitude, which defaults to 900).`;
+If the image contains multiple jumps, use the user's additional context to identify the requested jump. Do not combine values from different jumps.
+
+Return only values that are clearly visible or confidently readable. Use null for unreadable fields.
+- jumpNumber as a positive whole number
+- jumpDate as a valid YYYY-MM-DD date; do not infer missing date components
+- exitAltitude and openingAltitude as whole numbers in the altitude unit specified by the user
+- if openingAltitude is unreadable, use 900 meters or 3000 feet according to the requested altitude unit
+- freefallTime as a whole number of seconds
+- location as a short drop zone or location name
+- aircraft, gear, and jump types as separate short names, matching the user's existing logbook item names when possible
+- "WS" means the jump type "Wingsuit"
+- "Delay" means freefall time
+- description for clearly readable notes not already represented by another field, such as weather, formation, instructors, or incidents; preserve even a single-word note and do not invent details`;
 
 /** Vision-capable OpenAI models suited to structured logbook image extraction. */
 export const JUMP_IMAGE_MODEL_IDS = [

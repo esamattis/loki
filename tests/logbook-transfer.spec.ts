@@ -107,8 +107,9 @@ test("statistics show recorded and total jump counts for every item", async ({
         page.getByRole("heading", { name: "Detailed statistics" }),
     ).toBeVisible();
     await expect(
-        page.getByRole("heading", { name: "All Years", exact: true }),
+        page.getByRole("heading", { name: "All Time", exact: true }),
     ).toBeVisible();
+    await expect(page.getByText("Showing all years")).toHaveCount(0);
     await expect(
         page.getByText("Total freefall time").locator(".."),
     ).toContainText("1min 43s");
@@ -141,8 +142,15 @@ test("statistics show recorded and total jump counts for every item", async ({
         `/logbook/statistics/detailed?year=${currentYear}`,
     );
     await expect(
-        page.getByRole("heading", { name: String(currentYear), exact: true }),
+        page.getByRole("heading", {
+            name: `Jump from ${currentYear}`,
+            exact: true,
+        }),
     ).toBeVisible();
+    await expect(page.getByText(`Showing ${currentYear}`)).toHaveCount(0);
+    await expect(
+        page.getByText(`Showing jumps recorded in ${currentYear}.`),
+    ).toHaveCount(0);
 });
 
 test("a CSV jump can omit optional measurements and jump items", async ({

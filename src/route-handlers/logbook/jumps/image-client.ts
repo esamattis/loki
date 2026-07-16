@@ -296,6 +296,7 @@ export function $setupClipboardImageInput(
 
 export function $initJumpImageInput(props: {
     inputId: string;
+    formId: string;
     cameraInputId: string;
     cameraButtonId: string;
     clipboardButtonId: string;
@@ -309,6 +310,7 @@ export function $initJumpImageInput(props: {
     storageKey: string;
 }) {
     const inputEl = document.getElementById(props.inputId);
+    const formEl = document.getElementById(props.formId);
     const cameraInputEl = document.getElementById(props.cameraInputId);
     const cameraButtonEl = document.getElementById(props.cameraButtonId);
     const clipboardButtonEl = document.getElementById(props.clipboardButtonId);
@@ -316,6 +318,7 @@ export function $initJumpImageInput(props: {
     const metaEl = document.getElementById(props.metaId);
     const resizeNoteEl = document.getElementById(props.resizeNoteId);
     $assertElement(inputEl, HTMLInputElement);
+    $assertElement(formEl, HTMLFormElement);
     $assertElement(cameraInputEl, HTMLInputElement);
     $assertElement(cameraButtonEl, HTMLButtonElement);
     $assertElement(clipboardButtonEl, HTMLButtonElement);
@@ -323,6 +326,7 @@ export function $initJumpImageInput(props: {
     $assertElement(metaEl, HTMLElement);
     $assertElement(resizeNoteEl, HTMLElement);
     const input: HTMLInputElement = inputEl;
+    const form: HTMLFormElement = formEl;
     const cameraInput: HTMLInputElement = cameraInputEl;
     const cameraButton: HTMLButtonElement = cameraButtonEl;
     const clipboardButton: HTMLButtonElement = clipboardButtonEl;
@@ -331,6 +335,20 @@ export function $initJumpImageInput(props: {
     const resizeNote: HTMLElement = resizeNoteEl;
 
     let previewUrl: string | null = null;
+    let processing = false;
+    let selectionVersion = 0;
+
+    function setProcessing(value: boolean) {
+        const submit = form.querySelector('button[type="submit"]');
+        $assertElement(submit, HTMLButtonElement);
+        processing = value;
+        submit.disabled = value;
+        if (value) {
+            form.setAttribute("aria-busy", "true");
+        } else {
+            form.removeAttribute("aria-busy");
+        }
+    }
 
     function setInputFile(file: File) {
         const transfer = new DataTransfer();
@@ -350,29 +368,40 @@ export function $initJumpImageInput(props: {
     }
 
     async function applyFile(file: File) {
-        const result = await $resizeJumpImageIfNeeded(
-            file,
-            props.maxDimension,
-            props.targetBytes,
-        );
-        setInputFile(result.file);
-        showPreview(result.file);
-        if (result.resized) {
-            resizeNote.textContent = `Resized from ${$formatJumpImageBytes(file.size)} (${result.originalWidth} x ${result.originalHeight}) to ${$formatJumpImageBytes(result.file.size)} (${result.width} x ${result.height}).`;
-            resizeNote.classList.remove("hidden");
-        } else {
-            resizeNote.classList.add("hidden");
-            resizeNote.textContent = "";
-        }
+        const version = ++selectionVersion;
+        setProcessing(true);
         try {
-            await $saveJumpImageDraft({
-                file: result.file,
-                dbName: props.dbName,
-                storeName: props.storeName,
-                storageKey: props.storageKey,
-            });
-        } catch (error) {
-            console.error("Failed to save the jump image draft", error);
+            const result = await $resizeJumpImageIfNeeded(
+                file,
+                props.maxDimension,
+                props.targetBytes,
+            );
+            if (version !== selectionVersion) {
+                return;
+            }
+            setInputFile(result.file);
+            showPreview(result.file);
+            if (result.resized) {
+                resizeNote.textContent = `Resized from ${$formatJumpImageBytes(file.size)} (${result.originalWidth} x ${result.originalHeight}) to ${$formatJumpImageBytes(result.file.size)} (${result.width} x ${result.height}).`;
+                resizeNote.classList.remove("hidden");
+            } else {
+                resizeNote.classList.add("hidden");
+                resizeNote.textContent = "";
+            }
+            try {
+                await $saveJumpImageDraft({
+                    file: result.file,
+                    dbName: props.dbName,
+                    storeName: props.storeName,
+                    storageKey: props.storageKey,
+                });
+            } catch (error) {
+                console.error("Failed to save the jump image draft", error);
+            }
+        } finally {
+            if (version === selectionVersion) {
+                setProcessing(false);
+            }
         }
     }
 
@@ -401,6 +430,14 @@ export function $initJumpImageInput(props: {
     });
 
     $setupClipboardImageInput(clipboardButton, handleSelectedFile);
+
+    form.addEventListener("submit", (event) => {
+        if (!processing) {
+            return;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    });
 
     void $loadJumpImageDraft(props.dbName, props.storeName, props.storageKey)
         .then((file) => {

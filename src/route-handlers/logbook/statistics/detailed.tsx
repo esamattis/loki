@@ -141,24 +141,7 @@ function YearNavigationBar(props: {
 
     return (
         <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                    {props.year === undefined ? (
-                        <span>
-                            Showing{" "}
-                            <span className="font-semibold text-slate-900 dark:text-slate-100">
-                                all years
-                            </span>
-                        </span>
-                    ) : (
-                        <span>
-                            Showing{" "}
-                            <span className="font-semibold text-slate-900 dark:text-slate-100">
-                                {props.year}
-                            </span>
-                        </span>
-                    )}
-                </div>
+            <div className="flex flex-wrap items-center justify-center gap-3">
                 <div className="flex items-center gap-2">
                     <a
                         href={
@@ -203,7 +186,7 @@ function YearNavigationBar(props: {
                 </div>
             </div>
             {sortedAscending.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap justify-center gap-1.5 border-t border-slate-200 pt-3 dark:border-slate-800">
                     {sortedAscending.map((availableYear) => (
                         <a
                             key={availableYear}
@@ -731,7 +714,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 ← Back to statistics
             </a>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                {year ?? "All Years"}
+                {year === undefined ? "All Time" : `Jump from ${year}`}
             </h2>
             <YearNavigationBar
                 year={year}
@@ -739,11 +722,11 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                 previousYear={previousYear}
                 nextYear={nextYear}
             />
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-                {filteredByYear
-                    ? `Showing jumps recorded in ${year}.`
-                    : "Total jumps include jumps recorded before this logbook."}
-            </p>
+            {!filteredByYear && (
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Total jumps include jumps recorded before this logbook.
+                </p>
+            )}
             <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <SummaryCard
                     label="Total jumps"

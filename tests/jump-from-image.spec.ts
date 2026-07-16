@@ -85,16 +85,10 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(jumpItemSummary(page, "Aircraft")).toContainText(
         "Image Plane",
     );
-    await expect(page.locator('input[name="locationName"]')).toHaveValue(
-        "Image Drop Zone",
-    );
-    await expect(page.locator('input[name="aircraftName"]')).toHaveValue(
-        "Image Plane",
-    );
-    await expect(page.locator('input[name="gearName"]')).toHaveValue(
-        "Image Canopy",
-    );
-    await expect(page.locator('input[name="jumpTypeName"]')).toHaveValue("FS");
+    await expect(page.locator('input[name="locationName"]')).toHaveValue("");
+    await expect(page.locator('input[name="aircraftName"]')).toHaveValue("");
+    await expect(page.locator('input[name="gearName"]')).toHaveValue("");
+    await expect(page.locator('input[name="jumpTypeName"]')).toHaveValue("");
     await expect(jumpItemSummary(page, "Gear used")).toContainText(
         "Image Canopy",
     );
@@ -158,6 +152,47 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
             .locator("..")
             .getByText(/1\s200/),
     ).toBeVisible();
+
+    await page
+        .locator('textarea[name="additionalContext"]')
+        .fill("Mock unreadable required fields");
+    await page
+        .locator('input[name="image"]')
+        .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
+    await page.getByRole("button", { name: "Read image" }).click();
+
+    await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
+    await expect(page.locator('input[name="jumpDate"]')).toHaveValue("");
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("");
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
+        "900",
+    );
+
+    await page.goto("/logbook/jumps/new/from-image");
+    await page
+        .locator('textarea[name="additionalContext"]')
+        .fill("Mock multiple jump items");
+    await page
+        .locator('input[name="image"]')
+        .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
+    await page.getByRole("button", { name: "Read image" }).click();
+
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText(
+        "Image Plane",
+    );
+    await expect(page.locator('input[name="aircraftName"]')).toHaveValue(
+        "OH-NEW",
+    );
+    await expect(jumpItemSummary(page, "Gear used")).toContainText(
+        "Image Canopy",
+    );
+    await expect(page.locator('input[name="gearName"]')).toHaveValue(
+        "Altimeter",
+    );
+    await expect(jumpItemSummary(page, "Jump types")).toContainText("FS");
+    await expect(page.locator('input[name="jumpTypeName"]')).toHaveValue(
+        "Image Special",
+    );
 });
 
 test("from image form persists model and additional context after reload", async ({
@@ -205,6 +240,19 @@ test("from image form describes resized images", async ({ page }) => {
     await page.getByRole("button", { name: "Create account" }).click();
     await page.getByRole("link", { name: "Read image", exact: true }).click();
 
+    await page.evaluate(() => {
+        const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+        HTMLCanvasElement.prototype.toBlob = function (
+            callback,
+            type,
+            quality,
+        ) {
+            window.setTimeout(() => {
+                originalToBlob.call(this, callback, type, quality);
+            }, 250);
+        };
+    });
+
     await page.evaluate(async () => {
         const canvas = document.createElement("canvas");
         canvas.width = 4096;
@@ -234,10 +282,53 @@ test("from image form describes resized images", async ({ page }) => {
     });
 
     await expect(
+        page.getByRole("button", { name: "Read image" }),
+    ).toBeDisabled();
+
+    await expect(
         page.getByText(
             /^Resized from \d+(?:\.\d+)? (?:B|KB|MB) \(4096 x 4\) to \d+(?:\.\d+)? (?:B|KB|MB) \(2048 x 2\)\.$/,
         ),
     ).toBeVisible();
+    await expect(
+        page.getByRole("button", { name: "Read image" }),
+    ).toBeEnabled();
+});
+
+test("from image rejects oversized files on the server", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("oversize-skydiver");
+    await page.locator('input[name="displayName"]').fill("Oversize Skydiver");
+    await page
+        .locator('input[name="email"]')
+        .fill("oversize-image@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+    await page.getByRole("link", { name: "Read image", exact: true }).click();
+
+    const responseText = await page.evaluate(async () => {
+        const formData = new FormData();
+        formData.set(
+            "image",
+            new File([new Uint8Array(8 * 1024 * 1024 + 1)], "oversize.png", {
+                type: "image/png",
+            }),
+        );
+        const response = await fetch(window.location.href, {
+            method: "POST",
+            body: formData,
+        });
+        return response.text();
+    });
+
+    expect(responseText).toContain("Image is too large. Maximum size is 8 MB.");
 });
 
 // eslint-disable-next-line max-lines-per-function

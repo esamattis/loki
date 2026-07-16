@@ -16,6 +16,7 @@ import { route } from "@/route-tools";
  */
 export type JumpPrefillQuery = {
     from?: string;
+    fromImage?: string;
     jumpDate?: string;
     jumpNumber?: string;
     exitAltitude?: string;

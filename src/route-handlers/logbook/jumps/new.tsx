@@ -85,7 +85,9 @@ export async function renderNewJump(c: AppRequestContext) {
     const userUuid = getAppContext(c).getUser().uuid;
     const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
     const query = routes.logbook.jumps.new.query(c);
+    const isImagePrefill = query.fromImage === "1";
     const hasImagePrefill = Boolean(
+        isImagePrefill ||
         query.jumpDate ||
         query.jumpNumber ||
         query.exitAltitude ||
@@ -109,10 +111,9 @@ export async function renderNewJump(c: AppRequestContext) {
         .limit(1)
         .get();
     const nextJumpNumber = String((latestJump?.jumpNumber ?? 0) + 1);
-    let values: JumpFormValues = {
-        jumpNumber: nextJumpNumber,
-        jumpDate: getToday(),
-    };
+    let values: JumpFormValues = isImagePrefill
+        ? { jumpNumber: "", jumpDate: "" }
+        : { jumpNumber: nextJumpNumber, jumpDate: getToday() };
     const sourceJumpUuid =
         query.from ?? (hasImagePrefill ? undefined : latestJump?.uuid);
     if (sourceJumpUuid) {

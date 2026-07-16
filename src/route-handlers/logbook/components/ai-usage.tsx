@@ -225,7 +225,7 @@ export function buildAiUsageTitle(data: {
     jumpNumber: number | null;
     jumpDate: string | null;
     location: string | null;
-    jumpType: string | null;
+    jumpType: string[] | null;
 }): string {
     const parts: string[] = [];
     if (data.jumpNumber != null) {
@@ -237,8 +237,12 @@ export function buildAiUsageTitle(data: {
     if (data.location?.trim()) {
         parts.push(data.location.trim());
     }
-    if (data.jumpType?.trim()) {
-        parts.push(data.jumpType.trim());
+    const jumpTypes = data.jumpType
+        ?.map((item) => item.trim())
+        .filter(Boolean)
+        .join(", ");
+    if (jumpTypes) {
+        parts.push(jumpTypes);
     }
     if (parts.length === 0) {
         return "Jump image read";

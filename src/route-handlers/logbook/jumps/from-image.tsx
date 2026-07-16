@@ -49,10 +49,28 @@ import {
 } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/authenticated-page";
 
+const MAX_JUMP_ITEM_NAME_LENGTH = 200;
+const MAX_JUMP_ITEMS_PER_TYPE = 20;
+
+function isValidJumpDate(value: string): boolean {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return (
+        !Number.isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === value
+    );
+}
+
+const JumpImageItemNameSchema = z
+    .string()
+    .trim()
+    .min(1)
+    .max(MAX_JUMP_ITEM_NAME_LENGTH);
+
 const JumpImageDataSchema = z.object({
     jumpDate: z
         .string()
         .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .refine(isValidJumpDate)
         .nullable()
         .describe("Jump date as YYYY-MM-DD, or null if not readable"),
     jumpNumber: z
@@ -85,24 +103,31 @@ const JumpImageDataSchema = z.object({
         .describe("Freefall time in whole seconds, or null if not readable"),
     location: z
         .string()
+        .trim()
+        .min(1)
+        .max(MAX_JUMP_ITEM_NAME_LENGTH)
         .nullable()
         .describe("Drop zone or location name, or null if not readable"),
     aircraft: z
-        .string()
+        .array(JumpImageItemNameSchema)
+        .max(MAX_JUMP_ITEMS_PER_TYPE)
         .nullable()
-        .describe("Aircraft name, or null if not readable"),
+        .describe("Aircraft names, or null if not readable"),
     gear: z
-        .array(z.string())
+        .array(JumpImageItemNameSchema)
+        .max(MAX_JUMP_ITEMS_PER_TYPE)
         .nullable()
         .describe("Gear names used on the jump, or null if not readable"),
     jumpType: z
-        .string()
+        .array(JumpImageItemNameSchema)
+        .max(MAX_JUMP_ITEMS_PER_TYPE)
         .nullable()
-        .describe(
-            "Single primary jump type or discipline name, or null if not readable",
-        ),
+        .describe("Jump type or discipline names, or null if not readable"),
     description: z
         .string()
+        .trim()
+        .min(1)
+        .max(2_000)
         .nullable()
         .describe(
             "Any additional notes from the image, or null if not readable",
@@ -132,32 +157,27 @@ function findResourceUuid(
     }
     const target = normalizeName(name);
     const exact = resources.find((item) => normalizeName(item.name) === target);
-    if (exact) {
-        return exact.uuid;
-    }
-    const partial = resources.find(
-        (item) =>
-            normalizeName(item.name).includes(target) ||
-            target.includes(normalizeName(item.name)),
-    );
-    return partial?.uuid;
+    return exact?.uuid;
 }
 
-function findResourceUuids(
+function resolveResourceNames(
     resources: { uuid: string; name: string }[],
     names: string[] | null | undefined,
-): string[] {
+): { uuids: string[]; unmatchedNames: string[] } {
     if (!names?.length) {
-        return [];
+        return { uuids: [], unmatchedNames: [] };
     }
     const uuids = new Set<string>();
+    const unmatchedNames = new Map<string, string>();
     for (const name of names) {
         const uuid = findResourceUuid(resources, name);
         if (uuid) {
             uuids.add(uuid);
+        } else {
+            unmatchedNames.set(normalizeName(name), name.trim());
         }
     }
-    return [...uuids];
+    return { uuids: [...uuids], unmatchedNames: [...unmatchedNames.values()] };
 }
 
 async function getJumpItemResources(c: AppRequestContext) {
@@ -219,7 +239,7 @@ function buildResourceHint(label: string, items: { name: string }[]): string {
     return `${label}: ${items.map((item) => item.name).join(", ")}`;
 }
 
-function JumpImageField() {
+function JumpImageField(props: { formId: string }) {
     const inputId = useId();
     const cameraInputId = useId();
     const cameraButtonId = useId();
@@ -308,6 +328,7 @@ function JumpImageField() {
                 $args={[
                     {
                         inputId,
+                        formId: props.formId,
                         cameraInputId,
                         cameraButtonId,
                         clipboardButtonId,
@@ -335,6 +356,8 @@ function JumpFromImagePage(props: {
     usageTotals: AiUsageTotals;
     usageRows: AiUsageRow[];
 }) {
+    const formId = useId();
+
     return (
         <LogbookPage title="Read jump from image">
             <div className="space-y-6">
@@ -366,11 +389,12 @@ function JumpFromImagePage(props: {
                         </p>
                     )}
                     <form
+                        id={formId}
                         method="post"
                         encType="multipart/form-data"
                         className="space-y-5"
                     >
-                        <JumpImageField />
+                        <JumpImageField formId={formId} />
                         <div className="space-y-1.5">
                             <Textarea
                                 name="additionalContext"
@@ -471,9 +495,9 @@ const PLAYWRIGHT_MOCK_JUMP_DATA: JumpImageData = {
     openingAltitude: 1200,
     freefallTime: 50,
     location: "Image Drop Zone",
-    aircraft: "Image Plane",
+    aircraft: ["Image Plane"],
     gear: ["Image Canopy"],
-    jumpType: "FS",
+    jumpType: ["FS"],
     description: "From image mock",
 };
 
@@ -496,6 +520,37 @@ function isPlaywrightTest(): boolean {
     return process.env.PLAYWRIGHT_TEST === "1";
 }
 
+function applyOpeningAltitudeFallback(
+    data: JumpImageData,
+    altitudeUnits: UserOptions["altitudeUnits"],
+): JumpImageData {
+    return {
+        ...data,
+        openingAltitude:
+            data.openingAltitude ?? (altitudeUnits === "feet" ? 3000 : 900),
+    };
+}
+
+function getPlaywrightMockJumpData(additionalContext: string): JumpImageData {
+    if (additionalContext === "Mock unreadable required fields") {
+        return {
+            ...PLAYWRIGHT_MOCK_JUMP_DATA,
+            jumpDate: null,
+            jumpNumber: null,
+            openingAltitude: null,
+        };
+    }
+    if (additionalContext === "Mock multiple jump items") {
+        return {
+            ...PLAYWRIGHT_MOCK_JUMP_DATA,
+            aircraft: ["Image Plane", "OH-NEW"],
+            gear: ["Image Canopy", "Altimeter"],
+            jumpType: ["FS", "Image Special"],
+        };
+    }
+    return PLAYWRIGHT_MOCK_JUMP_DATA;
+}
+
 async function extractJumpDataFromImage(options: {
     apiKey: string;
     model: UserOptions["jumpImageModel"];
@@ -508,7 +563,10 @@ async function extractJumpDataFromImage(options: {
 }): Promise<{ data: JumpImageData; usage: LanguageModelUsage }> {
     if (isPlaywrightTest()) {
         return {
-            data: PLAYWRIGHT_MOCK_JUMP_DATA,
+            data: applyOpeningAltitudeFallback(
+                getPlaywrightMockJumpData(options.additionalContext),
+                options.altitudeUnits,
+            ),
             usage: PLAYWRIGHT_MOCK_USAGE,
         };
     }
@@ -557,7 +615,10 @@ async function extractJumpDataFromImage(options: {
     if (!output) {
         throw new Error("No jump data was returned from the image");
     }
-    return { data: output, usage };
+    return {
+        data: applyOpeningAltitudeFallback(output, options.altitudeUnits),
+        usage,
+    };
 }
 
 function buildJumpNewQuery(
@@ -565,14 +626,15 @@ function buildJumpNewQuery(
     resources: Awaited<ReturnType<typeof getJumpItemResources>>,
 ) {
     const locationUuid = findResourceUuid(resources.locations, data.location);
-    const aircraftUuid = findResourceUuid(resources.aircrafts, data.aircraft);
-    const gearUuids = findResourceUuids(resources.gear, data.gear);
-    const jumpTypeUuid = findResourceUuid(resources.jumpTypes, data.jumpType);
-    const gearNames = (data.gear ?? [])
-        .map((name) => name.trim())
-        .filter(Boolean);
+    const aircraft = resolveResourceNames(resources.aircrafts, data.aircraft);
+    const gearItems = resolveResourceNames(resources.gear, data.gear);
+    const jumpTypeItems = resolveResourceNames(
+        resources.jumpTypes,
+        data.jumpType,
+    );
 
     return {
+        fromImage: "1",
         jumpDate: data.jumpDate ?? undefined,
         jumpNumber:
             data.jumpNumber != null ? String(data.jumpNumber) : undefined,
@@ -585,13 +647,29 @@ function buildJumpNewQuery(
         freefallTime:
             data.freefallTime != null ? String(data.freefallTime) : undefined,
         locationUuid,
-        aircraftUuids: aircraftUuid,
-        gearUuids: gearUuids.length > 0 ? gearUuids.join(",") : undefined,
-        jumpTypeUuids: jumpTypeUuid,
-        locationName: data.location?.trim() || undefined,
-        aircraftName: data.aircraft?.trim() || undefined,
-        gearName: gearNames.length > 0 ? gearNames.join(", ") : undefined,
-        jumpTypeName: data.jumpType?.trim() || undefined,
+        aircraftUuids:
+            aircraft.uuids.length > 0 ? aircraft.uuids.join(",") : undefined,
+        gearUuids:
+            gearItems.uuids.length > 0 ? gearItems.uuids.join(",") : undefined,
+        jumpTypeUuids:
+            jumpTypeItems.uuids.length > 0
+                ? jumpTypeItems.uuids.join(",")
+                : undefined,
+        locationName: locationUuid
+            ? undefined
+            : data.location?.trim() || undefined,
+        aircraftName:
+            aircraft.unmatchedNames.length > 0
+                ? aircraft.unmatchedNames.join("; ")
+                : undefined,
+        gearName:
+            gearItems.unmatchedNames.length > 0
+                ? gearItems.unmatchedNames.join("; ")
+                : undefined,
+        jumpTypeName:
+            jumpTypeItems.unmatchedNames.length > 0
+                ? jumpTypeItems.unmatchedNames.join("; ")
+                : undefined,
         description: data.description ?? undefined,
     };
 }
