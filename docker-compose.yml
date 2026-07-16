@@ -1,0 +1,13 @@
+services:
+    loki:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        ports:
+            - "8787:8787"
+        restart: unless-stopped
+        volumes:
+            - loki-data:/var/lib/loki
+
+volumes:
+    loki-data:

@@ -119,6 +119,34 @@ The executable stores its database at
 `%LOCALAPPDATA%\Loki\sqlite\loki.sqlite` on Windows. It accepts `--host`,
 `--port`, and `--sqlite-dir` options and runs pending migrations at startup.
 
+### Docker
+
+The image definition is in `docker/Dockerfile`, and the Compose configuration
+is in `docker-compose.yml` at the repository root.
+
+Build and start Loki with Docker Compose:
+
+```sh
+docker compose up --build -d
+```
+
+Then open http://127.0.0.1:8787. The build downloads the latest Linux binary
+from the GitHub releases page for the target architecture. The SQLite database
+is persisted in the `loki-data` volume at `/var/lib/loki` in the container.
+
+To stop Loki:
+
+```sh
+docker compose down
+```
+
+Rebuild without the Docker cache to download a newer release:
+
+```sh
+docker compose build --no-cache
+docker compose up -d
+```
+
 ### Options
 
 | Option         | Default                      | Description                                          |
