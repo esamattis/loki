@@ -105,16 +105,17 @@ pn build:executable
 ```
 
 The executable stores its database at
-`$HOME/.local/share/loki/sqlite/loki.sqlite` by default and accepts `--host`,
-`--port`, and `--sqlite-dir` options. It runs all pending migrations at startup.
+`$HOME/.local/share/loki/sqlite/loki.sqlite` on Linux and macOS, or
+`%LOCALAPPDATA%\Loki\sqlite\loki.sqlite` on Windows. It accepts `--host`,
+`--port`, and `--sqlite-dir` options and runs pending migrations at startup.
 
 ### Options
 
-| Option         | Default                          | Description                                          |
-| -------------- | -------------------------------- | ---------------------------------------------------- |
-| `--port`       | `8787`                           | HTTP port                                            |
-| `--host`       | `127.0.0.1`                      | Bind address (`0.0.0.0` to listen on all interfaces) |
-| `--sqlite-dir` | `$HOME/.local/share/loki/sqlite` | Directory containing `loki.sqlite`                   |
+| Option         | Default                      | Description                                          |
+| -------------- | ---------------------------- | ---------------------------------------------------- |
+| `--port`       | `8787`                       | HTTP port                                            |
+| `--host`       | `127.0.0.1`                  | Bind address (`0.0.0.0` to listen on all interfaces) |
+| `--sqlite-dir` | Platform user data directory | Directory containing `loki.sqlite`                   |
 
 Example:
 
@@ -130,8 +131,7 @@ pn db:dev-user:sqlite     # migrate + upsert developer user
 ```
 
 Set `SQLITE_PATH` to override the database file used by the SQLite helper
-scripts. By default they use the same
-`$HOME/.local/share/loki/sqlite/loki.sqlite` file as the server.
+scripts. By default they use the same platform-specific file as the server.
 
 Session cookies use `Secure` only on HTTPS. Plain HTTP self-host works on
 localhost without extra configuration.

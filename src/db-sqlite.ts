@@ -1,13 +1,30 @@
 import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
-import { mkdirSync } from "node:fs";
+import { chmodSync, closeSync, mkdirSync, openSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, posix, resolve, win32 } from "node:path";
 import type { AppDatabase } from "@/db";
+
+export function defaultSqliteDirectory(
+    platform: NodeJS.Platform = process.platform,
+    environment: NodeJS.ProcessEnv = process.env,
+    home = homedir(),
+): string {
+    if (platform === "win32") {
+        const localAppData = environment.LOCALAPPDATA?.trim();
+        return win32.join(
+            localAppData || win32.join(home, "AppData", "Local"),
+            "Loki",
+            "sqlite",
+        );
+    }
+
+    return posix.join(home, ".local", "share", "loki", "sqlite");
+}
 
 export function resolveSqlitePath(path = process.env.SQLITE_PATH): string {
     return resolve(
-        path?.trim() || join(homedir(), ".local/share/loki/sqlite/loki.sqlite"),
+        path?.trim() || join(defaultSqliteDirectory(), "loki.sqlite"),
     );
 }
 
@@ -34,6 +51,21 @@ function runBatchQuery(query: BatchableQuery): unknown {
     throw new Error("Unsupported batch query");
 }
 
+function prepareSqliteStorage(path: string): void {
+    const directory = dirname(path);
+    if (process.platform === "win32") {
+        // LOCALAPPDATA inherits the current user's Windows ACLs.
+        mkdirSync(directory, { recursive: true });
+        return;
+    }
+
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    chmodSync(directory, 0o700);
+    const descriptor = openSync(path, "a", 0o600);
+    closeSync(descriptor);
+    chmodSync(path, 0o600);
+}
+
 /**
  * Build a Drizzle client against better-sqlite3, with a D1-compatible `batch`.
  */
@@ -46,7 +78,7 @@ export function createSqliteDatabase(
     path: string;
 } {
     const absolutePath = resolve(path);
-    mkdirSync(dirname(absolutePath), { recursive: true });
+    prepareSqliteStorage(absolutePath);
     const sqlite = new Database(
         absolutePath,
         nativeBinding

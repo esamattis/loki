@@ -2,12 +2,11 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { command, flag, number, option, run, string } from "cmd-ts";
 import { spawn } from "node:child_process";
-import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
 import { app } from "@/app/app";
 import { registerRoutes } from "@/app/register-routes";
-import { createSqliteDatabase } from "@/db-sqlite";
+import { createSqliteDatabase, defaultSqliteDirectory } from "@/db-sqlite";
 import { migrateSqlite } from "@/migrate-sqlite";
 import { loadNodeNativeBinding, registerSeaStaticAssets } from "@/node-sea";
 import { buildTitle } from "@/build-info";
@@ -121,7 +120,7 @@ const cli = command({
         sqliteDir: option({
             long: "sqlite-dir",
             type: string,
-            defaultValue: () => join(homedir(), ".local/share/loki/sqlite"),
+            defaultValue: defaultSqliteDirectory,
             description: "Directory containing loki.sqlite",
         }),
     },
