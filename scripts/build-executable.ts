@@ -107,6 +107,11 @@ async function main(): Promise<void> {
     if (process.platform === "darwin") {
         await run("codesign", ["--sign", "-", executablePath]);
     }
+    await $({
+        cwd: root,
+        env: { ...process.env, LOKI_SMOKE_TEST: "1" },
+        stdio: "inherit",
+    })`${executablePath}`;
     console.log(`Executable built: ${executablePath}`);
 }
 

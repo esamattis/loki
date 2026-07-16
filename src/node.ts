@@ -2,7 +2,9 @@ import { createAdaptorServer, type ServerType } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { command, flag, number, option, run, string } from "cmd-ts";
 import { spawn } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
 import type { AddressInfo } from "node:net";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
 import { app } from "@/app/app";
@@ -170,6 +172,36 @@ async function startServer(args: {
     }
 }
 
+function runSmokeTest(): void {
+    const directory = mkdtempSync(join(tmpdir(), "loki-smoke-test-"));
+    try {
+        const { sqlite } = createSqliteDatabase(
+            join(directory, "loki.sqlite"),
+            loadNodeNativeBinding(),
+        );
+        try {
+            migrateSqlite(sqlite);
+            sqlite.exec(
+                "CREATE TABLE smoke_test (value TEXT NOT NULL); INSERT INTO smoke_test VALUES ('ok')",
+            );
+            const result = sqlite
+                .prepare("SELECT value FROM smoke_test")
+                .pluck()
+                .get();
+            if (result !== "ok") {
+                throw new Error(
+                    "SQLite smoke test returned an unexpected value",
+                );
+            }
+        } finally {
+            sqlite.close();
+        }
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
+    console.log("Executable smoke test passed");
+}
+
 const cli = command({
     name: "loki",
     version: buildTitle,
@@ -201,7 +233,11 @@ const cli = command({
     handler: startServer,
 });
 
-run(cli, process.argv.slice(2)).catch((error: unknown) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+if (process.env.LOKI_SMOKE_TEST === "1") {
+    runSmokeTest();
+} else {
+    run(cli, process.argv.slice(2)).catch((error: unknown) => {
+        console.error(error);
+        process.exitCode = 1;
+    });
+}
