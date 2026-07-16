@@ -1,6 +1,7 @@
 import { useAppContext } from "@/app/app";
 import { Script } from "@/components/script";
 import { Style } from "@/components/style";
+import { BuildInfo } from "@/components/build-info";
 import { Button, ButtonLink, buttonClassName } from "@/components/form";
 import {
     BurgerMenuIcon,
@@ -13,6 +14,7 @@ import {
 } from "@/components/icons";
 import {
     AdminIcon,
+    AboutIcon,
     AircraftIcon,
     GearIcon,
     InstallIcon,
@@ -30,7 +32,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
-import { commitUrl, releaseUrl, shortGitRevision, version } from "@/build-info";
 import { useId } from "hono/jsx";
 
 const menuIconClassName =
@@ -48,26 +49,7 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
             menuClassName={props.menuClassName}
         >
             <div className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <span>Loki</span>
-                {version && releaseUrl && (
-                    <>
-                        {" "}
-                        <a
-                            href={releaseUrl}
-                            className="hover:text-indigo-600 hover:underline dark:hover:text-indigo-400"
-                        >
-                            {version}
-                        </a>
-                    </>
-                )}{" "}
-                (
-                <a
-                    href={commitUrl}
-                    className="hover:text-indigo-600 hover:underline dark:hover:text-indigo-400"
-                >
-                    {shortGitRevision}
-                </a>
-                )
+                <BuildInfo />
             </div>
             <MenuDivider />
             <a
@@ -127,6 +109,10 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
             <a href={routes.install({})} className={menuItemClassName}>
                 <InstallIcon className={menuIconClassName} />
                 Install app
+            </a>
+            <a href={routes.about({})} className={menuItemClassName}>
+                <AboutIcon className={menuIconClassName} />
+                About
             </a>
             <form method="post" action={routes.auth.logout({})}>
                 <button type="submit" className={menuItemClassName}>
@@ -377,7 +363,6 @@ export function LogbookPage(props: { title?: string; children: any }) {
                     <div className="flex items-center gap-3">
                         <a
                             href={routes.logbook.index({})}
-                            data-tooltip="Logbook home"
                             className="flex shrink-0 items-center gap-2 text-base font-bold tracking-tight text-slate-900 sm:text-lg dark:text-slate-100"
                         >
                             <img

@@ -739,7 +739,11 @@ async function setAppContextMiddleware(
 
 app.use("*", setAppContextMiddleware);
 
-const PUBLIC_PATHS = [routes.auth.login.route, routes.auth.register.route];
+const PUBLIC_PATHS = [
+    routes.auth.login.route,
+    routes.auth.register.route,
+    routes.about.route,
+];
 const PUBLIC_ASSET_PREFIX = "/assets/";
 const PUBLIC_ROOT_ASSETS = new Set([
     "/favicon.ico",
@@ -856,6 +860,7 @@ async function authenticateMiddleware(
     if (
         !ctx.user &&
         path !== routes.auth.register.route &&
+        path !== routes.about.route &&
         !(await hasRegisteredUsers(ctx.db))
     ) {
         return c.redirect(routes.auth.register({}));

@@ -103,6 +103,15 @@ export function InstallIcon(props: { className: string }) {
     );
 }
 
+export function AboutIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M12 11v6m0-10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+    );
+}
+
 export function LogoutIcon(props: { className: string }) {
     return (
         <MenuIcon
