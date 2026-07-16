@@ -10,13 +10,10 @@
  *
  * Usage: node scripts/generate-icons.ts
  */
-import { execFile as execFileCallback } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
-
-const execFile = promisify(execFileCallback);
+import { $ } from "zx";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC = join(ROOT, "public");
@@ -39,27 +36,22 @@ const FAVICON_SIZES = [16, 32] as const;
 
 async function requireCommand(command: string, installHint: string) {
     try {
-        await execFile(command, command === "gm" ? ["version"] : ["--version"]);
+        const args = command === "gm" ? ["version"] : ["--version"];
+        await $`${command} ${args}`;
     } catch {
         throw new Error(`${installHint} (\`${command}\` not found on PATH)`);
     }
 }
 
 async function gmConvert(args: string[]) {
-    await execFile("gm", ["convert", ...args]);
+    await $`gm convert ${args}`;
 }
 
 /**
  * Rasterize the SVG tall enough that padding still leaves a sharp logo.
  */
 async function rasterizeLogo(outPng: string, height: number) {
-    await execFile("rsvg-convert", [
-        "-h",
-        String(height),
-        LOGO_SVG,
-        "-o",
-        outPng,
-    ]);
+    await $`rsvg-convert ${["-h", String(height), LOGO_SVG, "-o", outPng]}`;
 }
 
 /**

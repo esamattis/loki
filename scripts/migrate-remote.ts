@@ -6,14 +6,11 @@
 // falls back to the local miniflare SQLite under `.wrangler/state/v3/d1`, the migrator finds the
 // migrations already applied there, and the script reports success without ever touching prod.
 // Driving `wrangler d1 execute --remote` directly guarantees we hit the production database.
-import { execFile as execFileCallback } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
-import { promisify } from "node:util";
+import { $ } from "zx";
 import { wranglerBin } from "./wrangler-bin.ts";
-
-const execFile = promisify(execFileCallback);
 
 const DB_BINDING = "DB";
 // Reuse drizzle's default tracking table name and schema so this stays compatible with the drizzle
@@ -33,7 +30,7 @@ type WranglerEnvelope<T> = {
 async function wranglerQuery<T = unknown>(
     command: string,
 ): Promise<WranglerEnvelope<T>> {
-    const { stdout } = await execFile(process.execPath, [
+    const { stdout } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -42,7 +39,7 @@ async function wranglerQuery<T = unknown>(
         "--json",
         "--command",
         command,
-    ]);
+    ]}`;
     // `--command` returns pure JSON on stdout: an array of result envelopes (one per statement).
     const parsed: WranglerEnvelope<T>[] = JSON.parse(stdout);
     const [envelope] = parsed;
@@ -56,7 +53,7 @@ async function wranglerApplyFile(filePath: string): Promise<void> {
     // Use `--file` (no `--json`) because the file upload path mixes progress spinner text into
     // stdout, making the output non-parseable. We rely on the non-zero exit code on failure
     // instead of parsing the result envelope.
-    await execFile(process.execPath, [
+    await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -64,7 +61,7 @@ async function wranglerApplyFile(filePath: string): Promise<void> {
         "--remote",
         "--file",
         filePath,
-    ]);
+    ]}`;
 }
 
 const MIGRATIONS_TABLE_DDL = `CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (id INTEGER PRIMARY KEY AUTOINCREMENT, hash text NOT NULL, created_at numeric)`;

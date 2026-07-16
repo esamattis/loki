@@ -3,13 +3,11 @@ import { stdin as input, stdout as output } from "node:process";
 import { asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
-import { execFile as execFileCallback } from "node:child_process";
-import { promisify } from "node:util";
 import { getPlatformProxy } from "wrangler";
+import { $ } from "zx";
 import { invitations } from "../src/schema.ts";
 import { wranglerBin } from "./wrangler-bin.ts";
 
-const execFile = promisify(execFileCallback);
 const DB_BINDING = "DB";
 
 type InvitationRow = {
@@ -119,7 +117,7 @@ type WranglerEnvelope<T> = {
 };
 
 async function listRemoteInvitations(): Promise<void> {
-    const { stdout } = await execFile(process.execPath, [
+    const { stdout } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -128,7 +126,7 @@ async function listRemoteInvitations(): Promise<void> {
         "--json",
         "--command",
         "SELECT code, count FROM invitations ORDER BY code",
-    ]);
+    ]}`;
     const parsed: WranglerEnvelope<InvitationRow>[] = JSON.parse(stdout);
     const [envelope] = parsed;
     if (!envelope) {
@@ -139,7 +137,7 @@ async function listRemoteInvitations(): Promise<void> {
 
 async function createRemote(code: string, count: number): Promise<void> {
     const command = `INSERT INTO invitations (code, count) VALUES (${sqlString(code)}, ${count}) ON CONFLICT(code) DO UPDATE SET count = excluded.count`;
-    const { stdout, stderr } = await execFile(process.execPath, [
+    const { stdout, stderr } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -147,7 +145,7 @@ async function createRemote(code: string, count: number): Promise<void> {
         "--remote",
         "--command",
         command,
-    ]);
+    ]}`;
     process.stdout.write(stdout);
     process.stderr.write(stderr);
     console.log(

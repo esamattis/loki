@@ -1,9 +1,6 @@
-import { execFile as execFileCallback } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { promisify } from "node:util";
+import { $ } from "zx";
 import { wranglerBin } from "./wrangler-bin.ts";
-
-const execFile = promisify(execFileCallback);
 
 type MigrationJournal = {
     entries: Array<{ tag: string }>;
@@ -15,7 +12,7 @@ async function main(): Promise<void> {
     );
 
     for (const { tag } of journal.entries) {
-        const { stdout, stderr } = await execFile(process.execPath, [
+        const { stdout, stderr } = await $`${process.execPath} ${[
             wranglerBin(),
             "d1",
             "execute",
@@ -25,7 +22,7 @@ async function main(): Promise<void> {
             ".playwright/state",
             "--file",
             `drizzle/${tag}.sql`,
-        ]);
+        ]}`;
         process.stdout.write(stdout);
         process.stderr.write(stderr);
     }

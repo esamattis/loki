@@ -1,12 +1,9 @@
-import { execFile as execFileCallback } from "node:child_process";
 import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { promisify } from "node:util";
+import { $ } from "zx";
 import { orderTableNamesByFk, rewriteDumpForImport } from "./sql-dump.ts";
 import { wranglerBin } from "./wrangler-bin.ts";
-
-const execFile = promisify(execFileCallback);
 
 const DB_BINDING = "DB";
 
@@ -18,7 +15,7 @@ type WranglerEnvelope<T> = {
 async function wranglerQuery<T = unknown>(
     command: string,
 ): Promise<WranglerEnvelope<T>[]> {
-    const { stdout } = await execFile(process.execPath, [
+    const { stdout } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -27,7 +24,7 @@ async function wranglerQuery<T = unknown>(
         "--json",
         "--command",
         command,
-    ]);
+    ]}`;
     const parsed: WranglerEnvelope<T>[] = JSON.parse(stdout);
     if (!Array.isArray(parsed) || parsed.length === 0) {
         throw new Error("Wrangler returned no result envelope");
@@ -36,7 +33,7 @@ async function wranglerQuery<T = unknown>(
 }
 
 async function wranglerApplyFile(filePath: string): Promise<void> {
-    await execFile(process.execPath, [
+    await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -45,7 +42,7 @@ async function wranglerApplyFile(filePath: string): Promise<void> {
         "--yes",
         "--file",
         filePath,
-    ]);
+    ]}`;
 }
 
 async function listTableSchemas(): Promise<

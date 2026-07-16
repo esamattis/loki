@@ -3,13 +3,11 @@ import { stdin as input, stdout as output } from "node:process";
 import { asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
-import { execFile as execFileCallback } from "node:child_process";
-import { promisify } from "node:util";
 import { getPlatformProxy } from "wrangler";
+import { $ } from "zx";
 import { users } from "../src/schema.ts";
 import { wranglerBin } from "./wrangler-bin.ts";
 
-const execFile = promisify(execFileCallback);
 const DB_BINDING = "DB";
 
 type UserRow = {
@@ -128,7 +126,7 @@ type WranglerEnvelope<T> = {
 };
 
 async function listRemoteUsers(): Promise<UserRow[]> {
-    const { stdout } = await execFile(process.execPath, [
+    const { stdout } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -137,7 +135,7 @@ async function listRemoteUsers(): Promise<UserRow[]> {
         "--json",
         "--command",
         "SELECT username, display_name AS displayName, email, admin FROM users ORDER BY username",
-    ]);
+    ]}`;
     const parsed: WranglerEnvelope<UserRow>[] = JSON.parse(stdout);
     const [envelope] = parsed;
     if (!envelope) {
@@ -149,7 +147,7 @@ async function listRemoteUsers(): Promise<UserRow[]> {
 
 async function makeRemoteAdmin(username: string): Promise<void> {
     const command = `UPDATE users SET admin = 1 WHERE username = ${sqlString(username)}`;
-    const { stdout, stderr } = await execFile(process.execPath, [
+    const { stdout, stderr } = await $`${process.execPath} ${[
         wranglerBin(),
         "d1",
         "execute",
@@ -157,7 +155,7 @@ async function makeRemoteAdmin(username: string): Promise<void> {
         "--remote",
         "--command",
         command,
-    ]);
+    ]}`;
     process.stdout.write(stdout);
     process.stderr.write(stderr);
     console.log(`Granted admin to remote user "${username}".`);

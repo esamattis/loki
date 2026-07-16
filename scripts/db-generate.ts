@@ -6,10 +6,10 @@
  * This script fails generation if a new migration would drop a table that other
  * tables reference with ON DELETE CASCADE.
  */
-import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { $ } from "zx";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const migrationsDir = join(root, "drizzle");
@@ -56,12 +56,12 @@ function loadAllCascadeParents(): Set<string> {
     return parents;
 }
 
-function main(): void {
+async function main(): Promise<void> {
     const before = new Set(listSqlFiles());
-    execFileSync("pnpm", ["exec", "drizzle-kit", "generate"], {
+    await $({
         cwd: root,
         stdio: "inherit",
-    });
+    })`pnpm exec drizzle-kit generate`;
     const after = listSqlFiles();
     const created = after.filter((name) => !before.has(name));
     if (created.length === 0) {
@@ -101,4 +101,7 @@ function main(): void {
     process.exit(1);
 }
 
-main();
+main().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+});

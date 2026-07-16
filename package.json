@@ -44,7 +44,8 @@
         "hono": "^4.12.27",
         "htmx.org": "^2.0.10",
         "tailwindcss": "^4.3.2",
-        "zod": "^4.4.3"
+        "zod": "^4.4.3",
+        "zx": "^8.8.5"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.2.3",
