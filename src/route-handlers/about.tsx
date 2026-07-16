@@ -94,7 +94,7 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                             href={routes.logbook.transfer.index({})}
                             className="font-semibold underline underline-offset-2 hover:no-underline"
                         >
-                            export page
+                            export feature
                         </a>
                         .
                     </p>
