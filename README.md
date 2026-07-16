@@ -1,5 +1,15 @@
 ## Loki - Skydiving Logbook
 
+Development assumes [mise](https://mise.jdx.dev/) is installed and activated in
+your shell. The project configuration selects Node.js, reads the pnpm version
+from `package.json`.
+
+Install the configured tools:
+
+```sh
+mise install
+```
+
 Install dependencies and start the local development server:
 
 ```sh
