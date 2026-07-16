@@ -77,6 +77,14 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(
         page.getByRole("img", { name: "Image used to read jump values" }),
     ).toBeVisible();
+    await expect(page.locator('form[data-dirty="true"]')).toHaveAttribute(
+        "data-form-dirty",
+        "true",
+    );
+    await expect(page.locator("html")).toHaveAttribute(
+        "data-form-dirty",
+        "true",
+    );
     await expect(page.locator('input[name="jumpDate"]')).toHaveValue(
         "2024-06-15",
     );

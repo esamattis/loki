@@ -69,6 +69,13 @@ function $navigationHrefFromClick(event: MouseEvent): string | null {
 function $guardUnsavedFormChanges(dialogId: string) {
     let pendingHref: string | null = null;
     let pendingForm: HTMLFormElement | null = null;
+    const initiallyDirtyForm = document.querySelector(
+        'form[data-dirty="true"]',
+    );
+    if (initiallyDirtyForm instanceof HTMLFormElement) {
+        document.documentElement.dataset.formDirty = "true";
+        initiallyDirtyForm.dataset.formDirty = "true";
+    }
     document.addEventListener("input", $markFormDirtyFromEvent, true);
     document.addEventListener("change", $markFormDirtyFromEvent, true);
     document.addEventListener(

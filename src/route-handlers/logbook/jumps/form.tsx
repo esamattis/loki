@@ -752,6 +752,7 @@ function JumpForm(props: {
     submitLabel: string;
     confirmationTitle: string;
     nextJumpNumber?: string;
+    dirty?: boolean;
 }) {
     const values = props.values ?? {};
 
@@ -760,6 +761,7 @@ function JumpForm(props: {
             id={props.formId}
             method="post"
             data-confirm={props.confirmationTitle}
+            data-dirty={props.dirty ? "true" : undefined}
             className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
             <ErrorList
@@ -816,6 +818,7 @@ export function JumpFormPage(props: {
     copyHref?: string;
     canDelete?: boolean;
     sourceImageId?: string;
+    dirty?: boolean;
 }) {
     const formId = useId();
 
@@ -844,6 +847,7 @@ export function JumpFormPage(props: {
                 submitLabel={props.submitLabel}
                 confirmationTitle={props.confirmationTitle}
                 nextJumpNumber={props.nextJumpNumber}
+                dirty={props.dirty}
                 {...props.resources}
             />
             {props.copyHref && (
