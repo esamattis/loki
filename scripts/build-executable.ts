@@ -103,7 +103,7 @@ async function main(): Promise<void> {
         )}\n`,
     );
 
-    await run(process.execPath, ["--build-sea", configPath]);
+    await run("node", ["--build-sea", configPath]);
     if (process.platform === "darwin") {
         await run("codesign", ["--sign", "-", executablePath]);
     }
