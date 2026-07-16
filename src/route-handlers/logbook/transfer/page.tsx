@@ -40,6 +40,7 @@ function ExportSection() {
             <form
                 method="get"
                 action={routes.logbook.transfer.export({})}
+                data-download
                 className="mt-4"
             >
                 <Button type="submit" variant="primary" className="gap-1.5">

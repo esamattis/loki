@@ -31,6 +31,22 @@ function $clearNavigationProgress() {
     document.getElementById("form-submit-progress")?.remove();
 }
 
+function $clearFormSubmitProgress(
+    form: HTMLFormElement,
+    submitter: HTMLElement | null,
+) {
+    $clearNavigationProgress();
+    form.removeAttribute("aria-busy");
+    form.classList.remove(
+        "opacity-60",
+        "cursor-not-allowed",
+        "pointer-events-none",
+        "select-none",
+    );
+    submitter?.classList.remove("form-submit-pending");
+    submitter?.querySelector(".form-submit-spinner")?.remove();
+}
+
 function $disableFormOnSubmit(config: {
     progressTemplateId: string;
     spinnerTemplateId: string;
@@ -60,6 +76,12 @@ function $disableFormOnSubmit(config: {
                 $assertElement(spinner, HTMLElement);
                 submitter.insertBefore(spinner, submitter.firstChild);
             }
+        }
+        if (form.hasAttribute("data-download")) {
+            setTimeout(() => {
+                $clearFormSubmitProgress(form, submitter);
+            }, 1000);
+            return;
         }
         setTimeout(() => {
             for (const element of form.elements)
@@ -136,6 +158,8 @@ export function DisableFormOnSubmit() {
                     $renderTemplate,
                     $assertElement,
                     $showNavigationProgress,
+                    $clearNavigationProgress,
+                    $clearFormSubmitProgress,
                 ]}
                 $args={[{ progressTemplateId, spinnerTemplateId }]}
                 $exec={$disableFormOnSubmit}
