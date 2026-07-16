@@ -83,6 +83,51 @@ export function ImageIcon(props: IconProps) {
     );
 }
 
+export function CameraIcon(props: IconProps) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"
+            />
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.5 13a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z"
+            />
+        </svg>
+    );
+}
+
+export function ClipboardIcon(props: IconProps) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5h6m-6 0a2 2 0 012-2h2a2 2 0 012 2m-6 0a2 2 0 00-2 2v1m8-3a2 2 0 012 2v1M7 8H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-9a2 2 0 00-2-2h-2M7 8h10"
+            />
+        </svg>
+    );
+}
+
 export function LightThemeIcon(props: IconProps) {
     return (
         <svg

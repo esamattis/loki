@@ -58,12 +58,14 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
             .getByRole("link", { name: "Preferences" })
             .first(),
     ).toBeVisible();
-    await expect(
-        page.getByRole("button", { name: "Take photo" }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Camera" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Camera" })).toHaveAttribute(
+        "data-tooltip",
+        "Take a photo with your camera",
+    );
     await expect(page.locator('input[capture="environment"]')).toHaveCount(1);
     await page
-        .locator('input[name="image"]')
+        .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
     await page.getByRole("button", { name: "Read image" }).click();
 
@@ -157,7 +159,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         .locator('textarea[name="additionalContext"]')
         .fill("Mock unreadable required fields");
     await page
-        .locator('input[name="image"]')
+        .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
     await page.getByRole("button", { name: "Read image" }).click();
 
@@ -173,7 +175,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         .locator('textarea[name="additionalContext"]')
         .fill("Mock multiple jump items");
     await page
-        .locator('input[name="image"]')
+        .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
     await page.getByRole("button", { name: "Read image" }).click();
 
@@ -213,6 +215,43 @@ test("from image form persists model and additional context after reload", async
 
     await page.getByRole("link", { name: "Read image", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
+
+    const imageBuffer = fs.readFileSync(
+        path.join(__dirname, "fixtures/jump-image.png"),
+    );
+    await page.locator("input[multiple]").setInputFiles([
+        {
+            name: "first-image.png",
+            mimeType: "image/png",
+            buffer: imageBuffer,
+        },
+        {
+            name: "second-image.png",
+            mimeType: "image/png",
+            buffer: imageBuffer,
+        },
+    ]);
+    await expect(page.getByText(/^2 images\./)).toBeVisible();
+    await page.getByRole("button", { name: "Select second-image.png" }).click();
+    await expect
+        .poll(() =>
+            page.locator('input[name="image"]').evaluate((input) => {
+                if (!(input instanceof HTMLInputElement)) {
+                    return null;
+                }
+                return input.files?.[0]?.name ?? null;
+            }),
+        )
+        .toBe("second-image.png");
+    await page.getByRole("button", { name: "Delete first-image.png" }).click();
+    await expect(page.getByText(/^1 image\./)).toBeVisible();
+    await page.reload();
+    await expect(
+        page.getByText("second-image.png", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("first-image.png", { exact: false }),
+    ).toHaveCount(0);
 
     await page.locator('select[name="model"]').selectOption("gpt-4o-mini");
     await page
@@ -271,7 +310,7 @@ test("from image form describes resized images", async ({ page }) => {
                 }
             }, "image/png");
         });
-        const input = document.querySelector('input[name="image"]');
+        const input = document.querySelector("input[multiple]");
         if (!(input instanceof HTMLInputElement)) {
             throw new Error("Image input is unavailable");
         }
@@ -352,9 +391,11 @@ test("a skydiver can paste a jump image from the clipboard", async ({
 
     await page.getByRole("link", { name: "Read image", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
-    await expect(
-        page.getByRole("button", { name: "Paste from clipboard" }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Paste" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Paste" })).toHaveAttribute(
+        "data-tooltip",
+        "Paste images from the clipboard",
+    );
 
     const imageBase64 = fs
         .readFileSync(path.join(__dirname, "fixtures/jump-image.png"))

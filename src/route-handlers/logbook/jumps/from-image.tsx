@@ -6,13 +6,14 @@ import { useId } from "hono/jsx";
 import { z } from "zod";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ErrorList } from "@/components/feedback";
+import { CameraIcon, ClipboardIcon } from "@/components/icons";
 import {
     Button,
     fileInputClassName,
     Select,
     Textarea,
 } from "@/components/form";
-import { Script } from "@/components/script";
+import { html, Script } from "@/components/script";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,
@@ -34,11 +35,12 @@ import {
 } from "@/route-handlers/logbook/components/ai-usage";
 import {
     $formatJumpImageBytes,
+    $getJumpImageElements,
     $imageMimeTypeToExtension,
     $initJumpImageInput,
-    $loadJumpImageDraft,
+    $prepareJumpImageFiles,
+    $renderJumpImageGallery,
     $resizeJumpImageIfNeeded,
-    $saveJumpImageDraft,
     $setupClipboardImageInput,
     JUMP_IMAGE_DB_NAME,
     JUMP_IMAGE_KEY,
@@ -46,6 +48,11 @@ import {
     JUMP_IMAGE_STORE,
     JUMP_IMAGE_TARGET_BYTES,
 } from "@/route-handlers/logbook/jumps/image-client";
+import {
+    $appendJumpImageDrafts,
+    $loadJumpImageDrafts,
+    $updateJumpImageDrafts,
+} from "@/route-handlers/logbook/jumps/image-storage-client";
 import { LogbookPage } from "@/app/authenticated-page";
 
 const MAX_JUMP_ITEM_NAME_LENGTH = 200;
@@ -240,10 +247,11 @@ function buildResourceHint(label: string, items: { name: string }[]): string {
 
 function JumpImageField(props: { formId: string }) {
     const inputId = useId();
+    const uploadInputId = useId();
     const cameraInputId = useId();
     const cameraButtonId = useId();
     const clipboardButtonId = useId();
-    const previewId = useId();
+    const galleryId = useId();
     const metaId = useId();
     const resizeNoteId = useId();
 
@@ -259,10 +267,18 @@ function JumpImageField(props: { formId: string }) {
                 <input
                     id={inputId}
                     type="file"
-                    name="image"
                     accept="image/jpeg,image/png,image/webp,image/gif"
-                    required
+                    multiple
                     className={clsx(fileInputClassName, "min-w-0 flex-1")}
+                />
+                <input
+                    id={uploadInputId}
+                    type="file"
+                    name="image"
+                    required
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden="true"
                 />
                 <input
                     id={cameraInputId}
@@ -277,17 +293,21 @@ function JumpImageField(props: { formId: string }) {
                     type="button"
                     id={cameraButtonId}
                     variant="secondary"
-                    className="shrink-0 text-sm"
+                    className="shrink-0 gap-2 text-sm"
+                    data-tooltip="Take a photo with your camera"
                 >
-                    Take photo
+                    <CameraIcon className="h-4 w-4" />
+                    Camera
                 </Button>
                 <Button
                     type="button"
                     id={clipboardButtonId}
                     variant="secondary"
-                    className="shrink-0 text-sm"
+                    className="shrink-0 gap-2 text-sm"
+                    data-tooltip="Paste images from the clipboard"
                 >
-                    Paste from clipboard
+                    <ClipboardIcon className="h-4 w-4" />
+                    Paste
                 </Button>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -301,10 +321,9 @@ function JumpImageField(props: { formId: string }) {
                 </a>
                 .
             </p>
-            <img
-                id={previewId}
-                alt="Selected jump image preview"
-                className="hidden max-h-80 w-full rounded-lg border border-slate-200 object-contain dark:border-slate-700"
+            <div
+                id={galleryId}
+                className="hidden grid grid-cols-2 gap-3 md:grid-cols-3"
             />
             <p
                 id={metaId}
@@ -317,21 +336,27 @@ function JumpImageField(props: { formId: string }) {
             <Script
                 $deps={[
                     $assertElement,
-                    $saveJumpImageDraft,
-                    $loadJumpImageDraft,
+                    html,
+                    $appendJumpImageDrafts,
+                    $loadJumpImageDrafts,
+                    $updateJumpImageDrafts,
                     $resizeJumpImageIfNeeded,
                     $formatJumpImageBytes,
+                    $getJumpImageElements,
+                    $renderJumpImageGallery,
+                    $prepareJumpImageFiles,
                     $setupClipboardImageInput,
                     $imageMimeTypeToExtension,
                 ]}
                 $args={[
                     {
                         inputId,
+                        uploadInputId,
                         formId: props.formId,
                         cameraInputId,
                         cameraButtonId,
                         clipboardButtonId,
-                        previewId,
+                        galleryId,
                         metaId,
                         resizeNoteId,
                         maxDimension: JUMP_IMAGE_MAX_DIMENSION,

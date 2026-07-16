@@ -4,8 +4,8 @@ import {
     JUMP_IMAGE_DB_NAME,
     JUMP_IMAGE_KEY,
     JUMP_IMAGE_STORE,
-    $saveJumpImageDraft,
 } from "@/route-handlers/logbook/jumps/image-client";
+import { $appendJumpImageDrafts } from "@/route-handlers/logbook/jumps/image-storage-client";
 
 interface ShareTargetWorkerConfig {
     shareTargetPath: string;
@@ -48,7 +48,7 @@ declare const self: ShareTargetServiceWorkerScope;
 
 function $installShareTargetServiceWorker(
     config: ShareTargetWorkerConfig,
-    saveDraft: typeof $saveJumpImageDraft,
+    appendDrafts: typeof $appendJumpImageDrafts,
 ) {
     self.addEventListener("install", () => {
         self.skipWaiting();
@@ -84,14 +84,19 @@ function $installShareTargetServiceWorker(
         } catch {
             return new Response("Invalid form data", { status: 400 });
         }
-        const file = formData.get(config.fileFieldName);
-        if (!(file instanceof File) || file.size === 0) {
+        const files = formData
+            .getAll(config.fileFieldName)
+            .filter(
+                (value): value is File =>
+                    value instanceof File && value.size > 0,
+            );
+        if (files.length === 0) {
             return new Response("No image file provided", { status: 400 });
         }
 
         try {
-            await saveDraft({
-                file,
+            await appendDrafts({
+                files,
                 dbName: config.dbName,
                 storeName: config.storeName,
                 storageKey: config.storageKey,
@@ -120,7 +125,7 @@ function serviceWorker(c: AppRequestContext) {
         storeName: JUMP_IMAGE_STORE,
         storageKey: JUMP_IMAGE_KEY,
     };
-    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)}, ${$saveJumpImageDraft.toString()});`;
+    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)}, ${$appendJumpImageDrafts.toString()});`;
     return c.body(workerSource, 200, {
         "Content-Type": "text/javascript; charset=utf-8",
         "Service-Worker-Allowed": "/",
