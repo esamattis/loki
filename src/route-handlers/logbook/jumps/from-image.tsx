@@ -357,7 +357,7 @@ function JumpFromImagePage(props: {
                         <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
                             Add an OpenAI API key in{" "}
                             <a
-                                href={routes.preferences({})}
+                                href={`${routes.preferences({})}#openai`}
                                 className="font-medium underline"
                             >
                                 Preferences

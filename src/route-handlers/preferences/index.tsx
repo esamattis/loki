@@ -226,10 +226,13 @@ function DateTimeSection(props: { options: UserOptions }) {
 
 function JumpFromImageSection(props: { options: UserOptions }) {
     return (
-        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+        <section
+            id="openai"
+            className="scroll-mt-4 space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800"
+        >
             <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Jump from image
+                    OpenAI API Key
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Configure OpenAI so you can create jumps from photos of
