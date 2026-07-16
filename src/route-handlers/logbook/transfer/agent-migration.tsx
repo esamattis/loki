@@ -7,7 +7,7 @@ import { $assertElement } from "@/utils";
 
 function $agentInstructions(uploadUrl: string, username: string): string {
     return `<loki-instructions>
-    Migrate my attached logbook data file to Loki. Inspect the source file, infer its fields, and convert all usable records to a Loki supported UTF-8 CSV import file. You may use python or python3 for the conversion, but use only the Python standard library.
+Migrate my attached logbook data file to Loki. Inspect the source file, infer its fields, and convert all usable records to a Loki supported UTF-8 CSV import file. You may use python or python3 for the conversion, but use only the Python standard library.
 
 The required CSV header, including its order and capitalization, is:
 type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description
