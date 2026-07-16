@@ -142,11 +142,12 @@ The executable stores its database at
 ### Docker
 
 The image definition is in `docker/Dockerfile`, and the Compose configuration
-is in `docker-compose.yml` at the repository root.
+is in `docker/docker-compose.yml`.
 
-Build and start Loki with Docker Compose:
+Change to the Docker directory, then build and start Loki with Docker Compose:
 
 ```sh
+cd docker
 docker compose up --build -d
 ```
 
