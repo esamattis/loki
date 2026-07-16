@@ -230,12 +230,13 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                 id={dialogId}
                 openButtonId={buttonId}
                 title={props.dialogTitle}
-                className="max-w-lg"
+                className="max-h-[calc(100dvh-2rem)] max-w-lg overflow-hidden"
+                contentClassName="flex max-h-[calc(100dvh-2rem)] flex-col"
             >
                 {props.description}
                 <div
                     id={optionsId}
-                    className="max-h-[60vh] space-y-4 overflow-y-auto pr-1"
+                    className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1"
                 >
                     <section>
                         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -296,7 +297,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                         </section>
                     )}
                 </div>
-                <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
+                <div className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
                     {archivedItems.length > 0 ? (
                         <button
                             id={archivedButtonId}

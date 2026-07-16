@@ -37,6 +37,7 @@ export function Dialog(props: {
     description?: Child;
     children: Child;
     className?: string;
+    contentClassName?: string;
 }) {
     const generatedId = useId();
     const dialogId = props.id ?? generatedId;
@@ -49,7 +50,7 @@ export function Dialog(props: {
                     props.className,
                 )}
             >
-                <div className="space-y-4 p-5">
+                <div className={clsx("space-y-4 p-5", props.contentClassName)}>
                     <div className="flex items-start justify-between gap-3">
                         <h2 className="text-base font-semibold">
                             {props.title}
