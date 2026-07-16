@@ -231,6 +231,7 @@ export async function renderNewJump(c: AppRequestContext) {
             nextJumpNumber={nextJumpNumber}
             notices={notices}
             resources={await getJumpFormResources(c)}
+            sourceImageId={query.imageId}
         />,
     );
 }

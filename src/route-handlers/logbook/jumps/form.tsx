@@ -22,6 +22,7 @@ import {
 import { $assertElement } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/authenticated-page";
+import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
 import {
     altitudeUnitLabel,
     numberFormatLocale,
@@ -814,6 +815,7 @@ export function JumpFormPage(props: {
     nextJumpNumber?: string;
     copyHref?: string;
     canDelete?: boolean;
+    sourceImageId?: string;
 }) {
     const formId = useId();
 
@@ -831,6 +833,9 @@ export function JumpFormPage(props: {
                 </Button>
             }
         >
+            {props.sourceImageId && (
+                <JumpImageSource imageId={props.sourceImageId} />
+            )}
             <JumpForm
                 formId={formId}
                 values={props.values}

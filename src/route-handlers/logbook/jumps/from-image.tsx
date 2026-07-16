@@ -227,6 +227,7 @@ function buildResourceHint(label: string, items: { name: string }[]): string {
 function JumpImageField(props: { formId: string }) {
     const inputId = useId();
     const uploadInputId = useId();
+    const imageIdInputId = useId();
     const cameraInputId = useId();
     const cameraButtonId = useId();
     const clipboardButtonId = useId();
@@ -256,6 +257,7 @@ function JumpImageField(props: { formId: string }) {
                     tabIndex={-1}
                     aria-hidden="true"
                 />
+                <input id={imageIdInputId} type="hidden" name="imageId" />
                 <input
                     id={cameraInputId}
                     type="file"
@@ -300,6 +302,7 @@ function JumpImageField(props: { formId: string }) {
             <ImageGallery
                 inputId={inputId}
                 uploadInputId={uploadInputId}
+                imageIdInputId={imageIdInputId}
                 formId={props.formId}
                 cameraInputId={cameraInputId}
                 cameraButtonId={cameraButtonId}
@@ -602,6 +605,7 @@ async function extractJumpDataFromImage(options: {
 function buildJumpNewQuery(
     data: JumpImageData,
     resources: Awaited<ReturnType<typeof getJumpItemResources>>,
+    imageId: string | undefined,
 ) {
     const locationUuid = findResourceUuid(resources.locations, data.location);
     const aircraft = resolveResourceNames(resources.aircrafts, data.aircraft);
@@ -613,6 +617,7 @@ function buildJumpNewQuery(
 
     return {
         fromImage: "1",
+        imageId,
         jumpDate: data.jumpDate ?? undefined,
         jumpNumber:
             data.jumpNumber != null ? String(data.jumpNumber) : undefined,
@@ -678,6 +683,11 @@ async function handleJumpFromImage(c: AppRequestContext) {
     }
 
     const image = formData.get("image");
+    const imageIdField = formData.get("imageId");
+    const imageId =
+        typeof imageIdField === "string" && imageIdField.trim()
+            ? imageIdField
+            : undefined;
     if (!(image instanceof File) || image.size === 0) {
         return renderJumpFromImage(c, {
             errors: ["Choose an image to upload."],
@@ -721,7 +731,10 @@ async function handleJumpFromImage(c: AppRequestContext) {
             usage,
         });
         return c.redirect(
-            routes.logbook.jumps.new({}, buildJumpNewQuery(data, resources)),
+            routes.logbook.jumps.new(
+                {},
+                buildJumpNewQuery(data, resources, imageId),
+            ),
         );
     } catch (error) {
         console.error("Failed to extract jump data from the image", error);

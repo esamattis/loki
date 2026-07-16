@@ -3,6 +3,7 @@ import { Script } from "@/components/script";
 import { $assertElement, $renderTemplate } from "@/utils";
 import {
     $appendJumpImageDrafts,
+    $loadImage,
     $loadJumpImageDrafts,
     $updateJumpImageDrafts,
     type JumpImageDraft,
@@ -17,6 +18,7 @@ export const JUMP_IMAGE_KEY = "draft";
 interface JumpImageInputProps {
     inputId: string;
     uploadInputId: string;
+    imageIdInputId: string;
     formId: string;
     cameraInputId: string;
     cameraButtonId: string;
@@ -35,6 +37,7 @@ interface JumpImageInputProps {
 export function ImageGallery(props: {
     inputId: string;
     uploadInputId: string;
+    imageIdInputId: string;
     formId: string;
     cameraInputId: string;
     cameraButtonId: string;
@@ -64,6 +67,12 @@ export function ImageGallery(props: {
                     <button type="button" data-select-image>
                         <img className="h-36 w-full rounded object-contain sm:h-44" />
                         <span
+                            data-read-image
+                            className="absolute left-2 top-2 hidden rounded-full bg-emerald-700 px-2 py-1 text-xs font-semibold text-white shadow"
+                        >
+                            Read once
+                        </span>
+                        <span
                             data-template-slot="meta"
                             className="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
                         ></span>
@@ -82,6 +91,7 @@ export function ImageGallery(props: {
                     $assertElement,
                     $renderTemplate,
                     $appendJumpImageDrafts,
+                    $loadImage,
                     $loadJumpImageDrafts,
                     $updateJumpImageDrafts,
                     $resizeJumpImageIfNeeded,
@@ -89,6 +99,7 @@ export function ImageGallery(props: {
                     $getJumpImageElements,
                     $renderJumpImageGallery,
                     $prepareJumpImageFiles,
+                    $setupCameraImageInput,
                     $setupClipboardImageInput,
                     $imageMimeTypeToExtension,
                 ]}
@@ -96,6 +107,7 @@ export function ImageGallery(props: {
                     {
                         inputId: props.inputId,
                         uploadInputId: props.uploadInputId,
+                        imageIdInputId: props.imageIdInputId,
                         formId: props.formId,
                         cameraInputId: props.cameraInputId,
                         cameraButtonId: props.cameraButtonId,
@@ -311,9 +323,23 @@ export function $setupClipboardImageInput(
     });
 }
 
+export function $setupCameraImageInput(
+    cameraInput: HTMLInputElement,
+    cameraButton: HTMLButtonElement,
+    handleSelectedFiles: (files: File[]) => void,
+) {
+    cameraInput.addEventListener("change", () => {
+        const files = Array.from(cameraInput.files ?? []);
+        cameraInput.value = "";
+        handleSelectedFiles(files);
+    });
+    cameraButton.addEventListener("click", () => cameraInput.click());
+}
+
 export function $getJumpImageElements(props: JumpImageInputProps) {
     const inputEl = document.getElementById(props.inputId);
     const uploadInputEl = document.getElementById(props.uploadInputId);
+    const imageIdInputEl = document.getElementById(props.imageIdInputId);
     const formEl = document.getElementById(props.formId);
     const cameraInputEl = document.getElementById(props.cameraInputId);
     const cameraButtonEl = document.getElementById(props.cameraButtonId);
@@ -323,6 +349,7 @@ export function $getJumpImageElements(props: JumpImageInputProps) {
     const resizeNoteEl = document.getElementById(props.resizeNoteId);
     $assertElement(inputEl, HTMLInputElement);
     $assertElement(uploadInputEl, HTMLInputElement);
+    $assertElement(imageIdInputEl, HTMLInputElement);
     $assertElement(formEl, HTMLFormElement);
     $assertElement(cameraInputEl, HTMLInputElement);
     $assertElement(cameraButtonEl, HTMLButtonElement);
@@ -333,6 +360,7 @@ export function $getJumpImageElements(props: JumpImageInputProps) {
     return {
         input: inputEl,
         uploadInput: uploadInputEl,
+        imageIdInput: imageIdInputEl,
         form: formEl,
         cameraInput: cameraInputEl,
         cameraButton: cameraButtonEl,
@@ -376,14 +404,17 @@ export function $renderJumpImageGallery(options: {
         const selectButton = item.querySelector("[data-select-image]");
         const image = item.querySelector("img");
         const deleteButton = item.querySelector("[data-delete-image]");
+        const readIndicator = item.querySelector("[data-read-image]");
         $assertElement(selectButton, HTMLButtonElement);
         $assertElement(image, HTMLImageElement);
         $assertElement(deleteButton, HTMLButtonElement);
+        $assertElement(readIndicator, HTMLElement);
         selectButton.className = selectClass;
         selectButton.dataset.selectImage = draft.id;
         selectButton.setAttribute("aria-label", `Select ${draft.file.name}`);
         image.src = url;
         image.alt = alt;
+        readIndicator.classList.toggle("hidden", !draft.read);
         deleteButton.dataset.deleteImage = draft.id;
         deleteButton.setAttribute("aria-label", `Delete ${draft.file.name}`);
         options.gallery.appendChild(item);
@@ -444,6 +475,7 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
     const elements = $getJumpImageElements(props);
     const input = elements.input;
     const uploadInput = elements.uploadInput;
+    const imageIdInput = elements.imageIdInput;
     const form = elements.form;
     const cameraInput = elements.cameraInput;
     const cameraButton = elements.cameraButton;
@@ -475,6 +507,7 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
             transfer.items.add(file);
         }
         uploadInput.files = transfer.files;
+        imageIdInput.value = file ? (selectedId ?? "") : "";
     }
 
     function selectDraft(id: string) {
@@ -563,19 +596,8 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
         void appendFiles(files);
     });
 
-    cameraInput.addEventListener("change", () => {
-        const files = Array.from(cameraInput.files ?? []);
-        cameraInput.value = "";
-        void appendFiles(files);
-    });
-
-    cameraButton.addEventListener("click", () => {
-        cameraInput.click();
-    });
-
-    $setupClipboardImageInput(clipboardButton, (files) => {
-        void appendFiles(files);
-    });
+    $setupCameraImageInput(cameraInput, cameraButton, appendFiles);
+    $setupClipboardImageInput(clipboardButton, appendFiles);
 
     form.addEventListener("submit", (event) => {
         if (processingCount === 0) {
