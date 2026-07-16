@@ -102,16 +102,16 @@ function JumpItemSelectScript(props: {
                     function updateSummary() {
                         const selected = selectedInputs();
                         if (selected.length === 0) {
-                            summary.replaceChildren(
-                                $renderTemplate(config.emptyTemplateId, {
-                                    emptyText: config.emptyText,
-                                }),
-                            );
+                            $renderTemplate(summary, config.emptyTemplateId, {
+                                emptyText: config.emptyText,
+                            });
                             return;
                         }
                         summary.replaceChildren(
                             ...selected.map((input) => {
-                                const item = $renderTemplate(
+                                const container = document.createElement("div");
+                                $renderTemplate(
+                                    container,
                                     config.itemTemplateId,
                                     {
                                         label:
@@ -119,6 +119,8 @@ function JumpItemSelectScript(props: {
                                             "",
                                     },
                                 );
+                                const item = container.firstElementChild;
+                                $assertElement(item, HTMLElement);
                                 const description =
                                     input.getAttribute("data-description");
                                 if (description)

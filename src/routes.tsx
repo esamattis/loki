@@ -47,6 +47,7 @@ export const auth = {
 export const preferences = route("/preferences").query<{ back?: string }>();
 export const install = route("/install");
 export const about = route("/about");
+export const todo = route("/todo");
 export const logbook = {
     index: route("/logbook"),
     jumpFragment: route("/logbook/__jumps"),

@@ -280,9 +280,12 @@ export function $renderJumpImageGallery(options: {
         const alt = selected
             ? "Selected jump image preview"
             : `Jump image preview: ${draft.file.name}`;
-        const item = $renderTemplate(options.templateId, {
+        const container = document.createElement("div");
+        $renderTemplate(container, options.templateId, {
             meta: `${draft.file.name} · ${$formatJumpImageBytes(draft.file.size)}`,
         });
+        const item = container.firstElementChild;
+        $assertElement(item, HTMLElement);
         const selectButton = item.querySelector("[data-select-image]");
         const image = item.querySelector("img");
         const deleteButton = item.querySelector("[data-delete-image]");

@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $renderTemplate } from "@/utils";
+import { $assertElement, $renderTemplate } from "@/utils";
 
 function $showNavigationProgress(options: {
     mode: "form" | "link";
@@ -11,7 +11,10 @@ function $showNavigationProgress(options: {
     const isPost =
         options.mode === "form" &&
         (options.method ?? "get").toLowerCase() === "post";
-    const progress = $renderTemplate(options.templateId);
+    const container = document.createElement("div");
+    $renderTemplate(container, options.templateId);
+    const progress = container.firstElementChild;
+    $assertElement(progress, HTMLElement);
     progress.classList.toggle("form-submit-progress-post", isPost);
     progress.setAttribute(
         "aria-label",
@@ -51,10 +54,11 @@ function $disableFormOnSubmit(config: {
         if (submitter instanceof HTMLButtonElement) {
             submitter.classList.add("form-submit-pending");
             if (!submitter.querySelector(".form-submit-spinner")) {
-                submitter.insertBefore(
-                    $renderTemplate(config.spinnerTemplateId),
-                    submitter.firstChild,
-                );
+                const container = document.createElement("div");
+                $renderTemplate(container, config.spinnerTemplateId);
+                const spinner = container.firstElementChild;
+                $assertElement(spinner, HTMLElement);
+                submitter.insertBefore(spinner, submitter.firstChild);
             }
         }
         setTimeout(() => {
@@ -128,7 +132,11 @@ export function DisableFormOnSubmit() {
                 <span class="form-submit-spinner" aria-hidden="true"></span>
             </template>
             <Script
-                $deps={[$renderTemplate, $showNavigationProgress]}
+                $deps={[
+                    $renderTemplate,
+                    $assertElement,
+                    $showNavigationProgress,
+                ]}
                 $args={[{ progressTemplateId, spinnerTemplateId }]}
                 $exec={$disableFormOnSubmit}
             />
@@ -143,6 +151,7 @@ export function ShowProgressOnLinkClick() {
             <Script
                 $deps={[
                     $renderTemplate,
+                    $assertElement,
                     $showNavigationProgress,
                     $clearNavigationProgress,
                 ]}

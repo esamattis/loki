@@ -4,7 +4,11 @@ import { Script } from "@/components/script";
 import { $renderTemplate } from "@/utils";
 
 function $initTooltips(templateId: string) {
-    document.body.appendChild($renderTemplate(templateId));
+    const container = document.createElement("div");
+    $renderTemplate(container, templateId);
+    const tooltipElement = container.firstElementChild;
+    if (!(tooltipElement instanceof HTMLElement)) return;
+    document.body.appendChild(tooltipElement);
     const tooltipNode = document.getElementById("tooltip");
     const tooltipTextNode = tooltipNode?.querySelector("[data-tooltip-text]");
     $assertElement(tooltipNode, HTMLDivElement);

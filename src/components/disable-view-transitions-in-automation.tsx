@@ -4,7 +4,11 @@ import { $renderTemplate } from "@/utils";
 
 function $disableViewTransitionsInAutomation(templateId: string) {
     if (!navigator.webdriver) return;
-    document.head.appendChild($renderTemplate(templateId));
+    const container = document.createElement("div");
+    $renderTemplate(container, templateId);
+    const style = container.firstElementChild;
+    if (!(style instanceof HTMLStyleElement)) return;
+    document.head.appendChild(style);
 }
 
 export function DisableViewTransitionsInAutomation() {

@@ -604,6 +604,7 @@ const PUBLIC_PATHS = [
     routes.auth.login.route,
     routes.auth.register.route,
     routes.about.route,
+    routes.todo.route,
 ];
 const PUBLIC_ASSET_PREFIX = "/assets/";
 const PUBLIC_ROOT_ASSETS = new Set([
