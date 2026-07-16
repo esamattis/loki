@@ -15,7 +15,12 @@ import { createDefaultJumpItems } from "@/route-handlers/auth/register/default-j
 const RegisterFormSchema = z
     .object({
         invitationCode: z.string().optional(),
-        username: z.string().min(1, "Username is required"),
+        username: z
+            .string()
+            .min(1, "Username is required")
+            .refine((username) => !username.includes(":"), {
+                message: "Username cannot contain a colon",
+            }),
         displayName: z.string().optional(),
         email: z
             .string()

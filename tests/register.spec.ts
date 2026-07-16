@@ -86,6 +86,24 @@ test("registration form keeps field values when password is too short", async ({
     );
 });
 
+test("registration rejects a colon in the username", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("invalid:user");
+    await page.locator('input[name="email"]').fill("colon-user@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await expect(page).toHaveURL("/register");
+    await expect(
+        page.getByText("Username cannot contain a colon"),
+    ).toBeVisible();
+    await expect(page.locator('input[name="username"]')).toHaveValue(
+        "invalid:user",
+    );
+});
+
 test("registration form keeps field values when invitation code is wrong", async ({
     page,
 }) => {
