@@ -376,6 +376,7 @@ interface DetailedStatisticsResult {
     totalFreefallTime: number;
     totalFreefallDistance: number;
     longestFreefall: RecordJump | undefined;
+    longestFreefallDistance: RecordJump | undefined;
     highestExit: RecordJump | undefined;
     highestOpening: RecordJump | undefined;
     lowestOpening: RecordJump | undefined;
@@ -541,6 +542,21 @@ function fetchRecordStatistics(
                 uuid: jumps.uuid,
                 jumpNumber: jumps.jumpNumber,
                 jumpDate: jumps.jumpDate,
+                value: sql<number>`max(${jumps.exitAltitude} - ${jumps.openingAltitude}, 0)`,
+            })
+            .from(jumps)
+            .where(jumpCondition)
+            .orderBy(
+                desc(
+                    sql`max(${jumps.exitAltitude} - ${jumps.openingAltitude}, 0)`,
+                ),
+            )
+            .limit(1),
+        db
+            .select({
+                uuid: jumps.uuid,
+                jumpNumber: jumps.jumpNumber,
+                jumpDate: jumps.jumpDate,
                 value: jumps.exitAltitude,
             })
             .from(jumps)
@@ -621,6 +637,7 @@ async function fetchDetailedStatistics(
     const [
         yearRows,
         longestFreefallRows,
+        longestFreefallDistanceRows,
         highestExitRows,
         highestOpeningRows,
         lowestOpeningRows,
@@ -653,6 +670,15 @@ async function fetchDetailedStatistics(
             ? {
                   ...longestFreefallRows[0],
                   value: formatDuration(longestFreefallRows[0].value),
+              }
+            : undefined,
+        longestFreefallDistance: longestFreefallDistanceRows[0]
+            ? {
+                  ...longestFreefallDistanceRows[0],
+                  value: formatDistance(
+                      longestFreefallDistanceRows[0].value,
+                      getAppContext(c).getUser().options.altitudeUnits,
+                  ),
               }
             : undefined,
         highestExit: highestExitRows[0]
@@ -709,6 +735,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
         totalFreefallTime,
         totalFreefallDistance,
         longestFreefall,
+        longestFreefallDistance,
         highestExit,
         highestOpening,
         lowestOpening,
@@ -779,6 +806,10 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                         {
                             label: "Longest freefall time",
                             jump: longestFreefall,
+                        },
+                        {
+                            label: "Longest freefall distance",
+                            jump: longestFreefallDistance,
                         },
                         { label: "Highest jump altitude", jump: highestExit },
                         { label: "Highest opening", jump: highestOpening },

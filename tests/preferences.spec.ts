@@ -211,6 +211,9 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
         page.getByText("Total freefall distance").locator(".."),
     ).toContainText("9,843 ft");
     await expect(
+        page.getByText("Longest freefall distance").locator(".."),
+    ).toContainText("9,843 ft");
+    await expect(
         page.getByText("Highest jump altitude").locator(".."),
     ).toContainText("13123 ft");
     await expect(

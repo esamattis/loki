@@ -260,11 +260,38 @@ function FreefallTimeField(props: {
     );
 }
 
+function CalculatedValue(props: {
+    id: string;
+    labelId: string;
+    label: string;
+}) {
+    return (
+        <div>
+            <span
+                id={props.labelId}
+                className="block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+                {props.label}
+            </span>
+            <output
+                id={props.id}
+                aria-labelledby={props.labelId}
+                aria-live="polite"
+                className="mt-1 block text-xl font-semibold tabular-nums text-slate-900 dark:text-slate-100"
+            >
+                —
+            </output>
+        </div>
+    );
+}
+
 function AvgSpeed(props: { values: JumpFormValues }) {
     const options = useAppContext().getUser().options;
     const exitAltitudeId = useId();
     const openingAltitudeId = useId();
     const freefallTimeId = useId();
+    const freefallDistanceId = useId();
+    const freefallDistanceLabelId = useId();
     const avgSpeedId = useId();
     const avgSpeedLabelId = useId();
 
@@ -294,21 +321,17 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 altitudeUnits={options.altitudeUnits}
                 speedUnits={options.speedUnits}
             />
-            <div className="flex flex-col justify-end">
-                <span
-                    id={avgSpeedLabelId}
-                    className="block text-sm font-medium text-slate-700 dark:text-slate-300"
-                >
-                    Average speed
-                </span>
-                <output
+            <div className="col-span-full grid grid-cols-2 gap-5 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                <CalculatedValue
+                    id={freefallDistanceId}
+                    labelId={freefallDistanceLabelId}
+                    label="Freefall distance"
+                />
+                <CalculatedValue
                     id={avgSpeedId}
-                    aria-labelledby={avgSpeedLabelId}
-                    aria-live="polite"
-                    className="mt-1.5 flex min-h-11 items-center rounded-lg border border-slate-200 bg-slate-100 px-3.5 py-2.5 font-medium tabular-nums text-slate-700 shadow-inner dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200"
-                >
-                    —
-                </output>
+                    labelId={avgSpeedLabelId}
+                    label="Average speed"
+                />
             </div>
             <Script
                 $deps={[$assertElement]}
@@ -317,6 +340,7 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                         exitAltitudeId,
                         openingAltitudeId,
                         freefallTimeId,
+                        freefallDistanceId,
                         avgSpeedId,
                         altitudeUnits: options.altitudeUnits,
                         speedConversionFactor: String(
@@ -335,39 +359,56 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     const freefallTime = document.getElementById(
                         config.freefallTimeId,
                     );
+                    const freefallDistance = document.getElementById(
+                        config.freefallDistanceId,
+                    );
                     const avgSpeed = document.getElementById(config.avgSpeedId);
                     $assertElement(exitAltitude, HTMLInputElement);
                     $assertElement(openingAltitude, HTMLInputElement);
                     $assertElement(freefallTime, HTMLInputElement);
+                    $assertElement(freefallDistance, HTMLOutputElement);
                     $assertElement(avgSpeed, HTMLOutputElement);
                     const conversionFactor = Number(
                         config.speedConversionFactor,
                     );
 
-                    function updateAvgSpeed() {
+                    function updateFreefallStats() {
                         $assertElement(exitAltitude, HTMLInputElement);
                         $assertElement(openingAltitude, HTMLInputElement);
                         $assertElement(freefallTime, HTMLInputElement);
+                        $assertElement(freefallDistance, HTMLOutputElement);
                         $assertElement(avgSpeed, HTMLOutputElement);
                         const exit = Number(exitAltitude.value);
                         const opening = Number(openingAltitude.value);
+                        if (
+                            exitAltitude.value === "" ||
+                            openingAltitude.value === "" ||
+                            !Number.isFinite(exit) ||
+                            !Number.isFinite(opening)
+                        ) {
+                            freefallDistance.textContent = "—";
+                            avgSpeed.textContent = "—";
+                            return;
+                        }
+
+                        const distanceMeters =
+                            Math.max(0, exit - opening) *
+                            (config.altitudeUnits === "feet" ? 0.3048 : 1);
+                        freefallDistance.textContent =
+                            config.altitudeUnits === "feet"
+                                ? `${Math.round(distanceMeters / 0.3048).toLocaleString("en-US")} ft`
+                                : `${Math.round(distanceMeters).toLocaleString("en-US")} m`;
+
                         const time = Number(freefallTime.value);
                         if (
-                            !Number.isFinite(exit) ||
-                            !Number.isFinite(opening) ||
+                            freefallTime.value === "" ||
                             !Number.isFinite(time) ||
                             time <= 0
                         ) {
                             avgSpeed.textContent = "—";
                             return;
                         }
-
-                        const metersPerSecond =
-                            (Math.max(0, exit - opening) *
-                                (config.altitudeUnits === "feet"
-                                    ? 0.3048
-                                    : 1)) /
-                            time;
+                        const metersPerSecond = distanceMeters / time;
                         const convertedSpeed =
                             metersPerSecond * conversionFactor;
                         const formatted =
@@ -382,9 +423,9 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                         openingAltitude,
                         freefallTime,
                     ]) {
-                        input.addEventListener("input", updateAvgSpeed);
+                        input.addEventListener("input", updateFreefallStats);
                     }
-                    updateAvgSpeed();
+                    updateFreefallStats();
                 }}
             />
         </>

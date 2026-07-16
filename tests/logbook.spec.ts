@@ -152,6 +152,9 @@ test("a skydiver can register and record their first jump", async ({
     await page.locator('input[name="jumpDate"]').fill("2024-06-15");
     await page.locator('input[name="exitAltitude"]').fill("4000");
     await page.locator('input[name="openingAltitude"]').fill("1000");
+    await expect(
+        page.getByRole("status", { name: "Freefall distance" }),
+    ).toHaveText("3,000 m");
     await page.locator('input[name="freefallTime"]').fill("55");
     await selectJumpItems(page, "Location", ["Skydive Test Center"]);
     const aircraftDialog = await openJumpItemSelect(page, "Aircraft");
@@ -852,6 +855,9 @@ test("freefall time estimate respects feet altitude units", async ({
     // 13123 ft ≈ 4000 m, 3281 ft ≈ 1000 m → ~3000 m freefall
     await page.locator('input[name="exitAltitude"]').fill("13123");
     await page.locator('input[name="openingAltitude"]').fill("3281");
+    await expect(
+        page.getByRole("status", { name: "Freefall distance" }),
+    ).toHaveText("9,842 ft");
 
     await page.getByRole("button", { name: "Estimate" }).click();
     await page.getByRole("button", { name: "Belly · 50 m/s" }).click();

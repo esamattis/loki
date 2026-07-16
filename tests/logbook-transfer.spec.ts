@@ -110,6 +110,9 @@ test("statistics show recorded and total jump counts for every item", async ({
         page.getByText("Total freefall distance").locator(".."),
     ).toContainText("6 km");
     await expect(
+        page.getByText("Longest freefall distance").locator(".."),
+    ).toContainText("3 km");
+    await expect(
         page.getByRole("row").filter({ hasText: "Skydive Example" }),
     ).toContainText("2");
     await expect(
