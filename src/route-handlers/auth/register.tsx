@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { aircrafts, gear, jumpTypes, locations, users } from "@/schema";
+import { users } from "@/schema";
 import { z } from "zod";
 import { AuthFormShell } from "@/components/auth";
 import { hashPassword } from "@/auth";
@@ -8,52 +8,9 @@ import { Password, TextInput } from "@/route-handlers/auth/components";
 import { createSession } from "@/route-handlers/auth/sessions";
 import * as routes from "@/routes";
 import { createRegistrationUser } from "@/route-handlers/auth/register/user";
-import type { AppDatabase } from "@/db";
 import { UserOptionsSchema } from "@/options";
 import { RegistrationLocaleInputs } from "@/route-handlers/auth/register/locale-inputs";
-
-const DEFAULT_AIRCRAFT = [
-    "Cessna Caravan",
-    "OH-DZF",
-    "Cessna 182",
-    "OH-AIK",
-    "Cessna 206",
-    "OH-ARR",
-];
-
-const DEFAULT_LOCATIONS = ["EFUT", "EFJY", "EFAL", "EFSE", "EFLP"];
-
-const DEFAULT_GEAR = ["PD Navigator", "PD Sabre 2", "SQRL Freak 5"];
-
-const DEFAULT_JUMP_TYPES = [
-    "Cutaway",
-    "FS",
-    "Static Line",
-    "Wingsuit",
-    "Freefly",
-    "AFF",
-];
-
-async function createDefaultJumpItems(db: AppDatabase, userUuid: string) {
-    await Promise.all([
-        db
-            .insert(aircrafts)
-            .values(DEFAULT_AIRCRAFT.map((name) => ({ userUuid, name })))
-            .run(),
-        db
-            .insert(locations)
-            .values(DEFAULT_LOCATIONS.map((name) => ({ userUuid, name })))
-            .run(),
-        db
-            .insert(gear)
-            .values(DEFAULT_GEAR.map((name) => ({ userUuid, name })))
-            .run(),
-        db
-            .insert(jumpTypes)
-            .values(DEFAULT_JUMP_TYPES.map((name) => ({ userUuid, name })))
-            .run(),
-    ]);
-}
+import { createDefaultJumpItems } from "@/route-handlers/auth/register/default-jump-items";
 
 const RegisterFormSchema = z
     .object({
