@@ -16,7 +16,10 @@ const agents = [
     },
     { name: "Cline", url: "https://cline.bot/" },
     { name: "OpenAI Codex", url: "https://openai.com/codex/" },
-    { name: "OpenAI Codex CLI", url: "https://learn.chatgpt.com/docs/codex/cli" },
+    {
+        name: "OpenAI Codex CLI",
+        url: "https://learn.chatgpt.com/docs/codex/cli",
+    },
     { name: "Command Code", url: "https://commandcode.ai/" },
     { name: "Cursor", url: "https://cursor.com/" },
     {

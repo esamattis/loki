@@ -69,7 +69,8 @@ function ImportSection(props: TransferPageProps) {
                         Import a Loki exported CSV or Skydiving Logbook XML
                         (skydiving_logbook.xml) file. Existing gear, locations,
                         aircraft, and jump types are matched by name. Unknown
-                        jump items are created automatically. </p>
+                        jump items are created automatically.{" "}
+                    </p>
                 </div>
             </div>
             {props.notice && (

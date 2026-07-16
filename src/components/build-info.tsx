@@ -16,7 +16,11 @@ export function BuildInfo() {
                 </>
             )}{" "}
             (
-            <a href={commitUrl} className={linkClassName} data-tooltip="View commit on GitHub this version was built from">
+            <a
+                href={commitUrl}
+                className={linkClassName}
+                data-tooltip="View commit on GitHub this version was built from"
+            >
                 {shortGitRevision}
             </a>
             )
