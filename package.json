@@ -6,6 +6,7 @@
         "build": "vite build",
         "build:node": "vite build && vite build --config vite.node.config.ts",
         "build:executable": "$npm_execpath run build:node && node scripts/build-executable.ts",
+        "binary:release": "node scripts/binary-release.ts",
         "start": "node dist-server/node.js",
         "preview": "$npm_execpath run build && vite preview",
         "deploy": "$npm_execpath run db:export:remote && $npm_execpath run build && wrangler deploy",
