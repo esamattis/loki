@@ -169,6 +169,16 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(page.locator('input[name="openingAltitude"]')).toHaveValue(
         "900",
     );
+    await expect(jumpItemSummary(page, "Location")).toContainText(
+        "Image Drop Zone",
+    );
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText(
+        "Image Plane",
+    );
+    await expect(jumpItemSummary(page, "Gear used")).toContainText(
+        "Image Canopy",
+    );
+    await expect(jumpItemSummary(page, "Jump types")).toContainText("FS");
 
     await page.goto("/logbook/jumps/new/from-image");
     await page

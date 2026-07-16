@@ -512,6 +512,10 @@ function getPlaywrightMockJumpData(additionalContext: string): JumpImageData {
             jumpDate: null,
             jumpNumber: null,
             openingAltitude: null,
+            location: null,
+            aircraft: null,
+            gear: null,
+            jumpType: null,
         };
     }
     if (additionalContext === "Mock multiple jump items") {

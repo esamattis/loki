@@ -43,6 +43,14 @@ function splitQueryList(value: string | undefined): string[] {
         : [];
 }
 
+function queryProvidesJumpItem(
+    query: ReturnType<typeof routes.logbook.jumps.new.query>,
+    uuidKey: "locationUuid" | "aircraftUuids" | "gearUuids" | "jumpTypeUuids",
+    nameKey: "locationName" | "aircraftName" | "gearName" | "jumpTypeName",
+): boolean {
+    return Boolean(query[uuidKey] || query[nameKey]);
+}
+
 function applyJumpQueryPrefill(
     values: JumpFormValues,
     query: ReturnType<typeof routes.logbook.jumps.new.query>,
@@ -104,7 +112,11 @@ export async function renderNewJump(c: AppRequestContext) {
         query.description,
     );
     const latestJump = await db
-        .select({ uuid: jumps.uuid, jumpNumber: jumps.jumpNumber })
+        .select({
+            uuid: jumps.uuid,
+            jumpNumber: jumps.jumpNumber,
+            locationUuid: jumps.locationUuid,
+        })
         .from(jumps)
         .where(eq(jumps.userUuid, userUuid))
         .orderBy(desc(jumps.jumpNumber))
@@ -114,6 +126,38 @@ export async function renderNewJump(c: AppRequestContext) {
     let values: JumpFormValues = isImagePrefill
         ? { jumpNumber: "", jumpDate: "" }
         : { jumpNumber: nextJumpNumber, jumpDate: getToday() };
+    if (isImagePrefill && latestJump) {
+        const [aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
+            db
+                .select({ aircraftUuid: jumpsToAircrafts.aircraftUuid })
+                .from(jumpsToAircrafts)
+                .where(eq(jumpsToAircrafts.jumpUuid, latestJump.uuid)),
+            db
+                .select({ gearUuid: jumpsToGear.gearUuid })
+                .from(jumpsToGear)
+                .where(eq(jumpsToGear.jumpUuid, latestJump.uuid)),
+            db
+                .select({ jumpTypeUuid: jumpsToJumpTypes.jumpTypeUuid })
+                .from(jumpsToJumpTypes)
+                .where(eq(jumpsToJumpTypes.jumpUuid, latestJump.uuid)),
+        ]);
+        if (!queryProvidesJumpItem(query, "locationUuid", "locationName")) {
+            values.locationUuid = latestJump.locationUuid ?? undefined;
+        }
+        if (!queryProvidesJumpItem(query, "aircraftUuids", "aircraftName")) {
+            values.aircraftUuids = aircraftRows.map(
+                (item) => item.aircraftUuid,
+            );
+        }
+        if (!queryProvidesJumpItem(query, "gearUuids", "gearName")) {
+            values.gearUuids = gearRows.map((item) => item.gearUuid);
+        }
+        if (!queryProvidesJumpItem(query, "jumpTypeUuids", "jumpTypeName")) {
+            values.jumpTypeUuids = jumpTypeRows.map(
+                (item) => item.jumpTypeUuid,
+            );
+        }
+    }
     const sourceJumpUuid =
         query.from ?? (hasImagePrefill ? undefined : latestJump?.uuid);
     if (sourceJumpUuid) {
