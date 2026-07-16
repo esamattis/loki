@@ -14,6 +14,9 @@ export function parseCsvRows(content: string): CsvRow[] {
     let rowLine = 1;
     for (let i = 0; i < content.length; i++) {
         const ch = content[i]!;
+        if (i === 0 && ch === "\uFEFF") {
+            continue;
+        }
         if (inQuotes) {
             if (ch === '"') {
                 hasContent = true;
