@@ -45,6 +45,7 @@ export function buttonClassName(props: {
 
 export function Button(props: {
     type?: "button" | "submit" | "reset";
+    form?: string;
     variant?: ButtonVariant;
     size?: ButtonSize;
     className?: string;
@@ -63,6 +64,7 @@ export function Button(props: {
         <button
             id={props.id}
             type={props.type ?? "button"}
+            form={props.form}
             value={props.value}
             hidden={props.hidden}
             disabled={props.disabled}

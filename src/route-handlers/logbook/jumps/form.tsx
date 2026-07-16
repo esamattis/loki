@@ -5,7 +5,6 @@ import {
     ButtonLink,
     buttonClassName,
     controlClassName,
-    FormActions,
     Input,
     NumberInput,
     Textarea,
@@ -741,6 +740,7 @@ function JumpItemFields(props: {
 }
 
 function JumpForm(props: {
+    formId: string;
     values?: JumpFormValues;
     locations: Resource[];
     aircrafts: Resource[];
@@ -756,6 +756,7 @@ function JumpForm(props: {
 
     return (
         <form
+            id={props.formId}
             method="post"
             data-confirm={props.confirmationTitle}
             className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
@@ -788,10 +789,11 @@ function JumpForm(props: {
                 label="Notes"
                 value={values.description}
             />
-            <FormActions
-                submitLabel={props.submitLabel}
-                cancelHref={routes.logbook.index({})}
-            />
+            <div className="hidden sm:block">
+                <Button type="submit" variant="primary">
+                    {props.submitLabel}
+                </Button>
+            </div>
         </form>
     );
 }
@@ -813,9 +815,24 @@ export function JumpFormPage(props: {
     copyHref?: string;
     canDelete?: boolean;
 }) {
+    const formId = useId();
+
     return (
-        <LogbookPage title={props.title}>
+        <LogbookPage
+            title={props.title}
+            mobileAction={
+                <Button
+                    type="submit"
+                    form={formId}
+                    variant="primary"
+                    className="w-full"
+                >
+                    {props.submitLabel}
+                </Button>
+            }
+        >
             <JumpForm
+                formId={formId}
                 values={props.values}
                 errors={props.errors}
                 notices={props.notices}

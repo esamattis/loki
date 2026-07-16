@@ -33,7 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
-import { useId } from "hono/jsx";
+import clsx from "clsx";
+import { useId, type Child } from "hono/jsx";
 
 const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
@@ -323,7 +324,11 @@ function $initMobileHeader(headerId: string) {
     mobile.addEventListener("change", updateHeader);
 }
 
-export function LogbookPage(props: { title?: string; children: any }) {
+export function LogbookPage(props: {
+    title?: string;
+    mobileAction?: Child;
+    children: any;
+}) {
     const appContext = useAppContext();
     const user = appContext.getUser();
     const pathname = appContext.url().pathname;
@@ -333,7 +338,7 @@ export function LogbookPage(props: { title?: string; children: any }) {
         <div className="min-h-screen">
             <Style>
                 {`
-                    html { scroll-padding-top: 4rem; scroll-padding-bottom: 5rem; }
+                    html { scroll-padding-top: 4rem; scroll-padding-bottom: ${props.mobileAction ? "9rem" : "5rem"}; }
                     @media (min-width: 640px) {
                         html { scroll-padding-top: 8rem; scroll-padding-bottom: 0; }
                     }
@@ -381,7 +386,12 @@ export function LogbookPage(props: { title?: string; children: any }) {
                 $args={[headerId]}
                 $exec={$initMobileHeader}
             />
-            <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 pb-24 sm:py-8 sm:pb-8">
+            <main
+                className={clsx(
+                    "mx-auto max-w-3xl space-y-6 px-4 py-6 sm:py-8 sm:pb-8",
+                    props.mobileAction ? "pb-40" : "pb-24",
+                )}
+            >
                 {props.title && (
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
                         {props.title}
@@ -389,20 +399,32 @@ export function LogbookPage(props: { title?: string; children: any }) {
                 )}
                 {props.children}
             </main>
-            <nav
-                aria-label="Logbook actions"
-                className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md sm:hidden dark:border-slate-800 dark:bg-slate-900/85"
-            >
-                <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2">
-                    <div className="min-w-0 flex-1">
-                        <LogbookActions pathname={pathname} />
+            <div className="fixed bottom-0 left-0 right-0 z-30 sm:hidden">
+                {props.mobileAction && (
+                    <div
+                        aria-label="Form actions"
+                        className="border-t border-slate-200 bg-white/85 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85"
+                    >
+                        <div className="mx-auto max-w-3xl px-4 py-2">
+                            {props.mobileAction}
+                        </div>
                     </div>
-                    <MainMenu
-                        isAdmin={user.admin}
-                        menuClassName="bottom-full mb-2 max-h-[calc(100dvh-5rem)] overflow-y-auto"
-                    />
-                </div>
-            </nav>
+                )}
+                <nav
+                    aria-label="Logbook actions"
+                    className="border-t border-slate-200 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85"
+                >
+                    <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2">
+                        <div className="min-w-0 flex-1">
+                            <LogbookActions pathname={pathname} />
+                        </div>
+                        <MainMenu
+                            isAdmin={user.admin}
+                            menuClassName="bottom-full mb-2 max-h-[calc(100dvh-5rem)] overflow-y-auto"
+                        />
+                    </div>
+                </nav>
+            </div>
         </div>
     );
 }

@@ -69,6 +69,12 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
         .click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/new/);
     await expectActiveAction(bottomBar, "Add jump");
+    await expect(
+        page
+            .getByLabel("Form actions")
+            .getByRole("button", { name: "Add jump" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Cancel" })).toHaveCount(0);
 
     await page.goto("/logbook/jumps/new");
     await bottomBar.getByRole("link", { name: "Logbook", exact: true }).click();
@@ -79,6 +85,12 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
         .click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expectActiveAction(bottomBar, "Read image");
+    await expect(
+        page
+            .getByLabel("Form actions")
+            .getByRole("button", { name: "Read image" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Cancel" })).toHaveCount(0);
 
     await page.goto("/logbook");
     await openMainMenu(page);

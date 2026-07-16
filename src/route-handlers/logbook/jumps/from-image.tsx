@@ -9,7 +9,6 @@ import { ErrorList } from "@/components/feedback";
 import {
     Button,
     fileInputClassName,
-    FormActions,
     Select,
     Textarea,
 } from "@/components/form";
@@ -359,7 +358,19 @@ function JumpFromImagePage(props: {
     const formId = useId();
 
     return (
-        <LogbookPage title="Read jump from image">
+        <LogbookPage
+            title="Read jump from image"
+            mobileAction={
+                <Button
+                    type="submit"
+                    form={formId}
+                    variant="primary"
+                    className="w-full"
+                >
+                    Read image
+                </Button>
+            }
+        >
             <div className="space-y-6">
                 <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div>
@@ -446,10 +457,11 @@ function JumpFromImagePage(props: {
                                 .
                             </p>
                         </div>
-                        <FormActions
-                            submitLabel="Read image"
-                            cancelHref={routes.logbook.index({})}
-                        />
+                        <div className="hidden sm:block">
+                            <Button type="submit" variant="primary">
+                                Read image
+                            </Button>
+                        </div>
                     </form>
                 </section>
                 <AiUsageSummary
