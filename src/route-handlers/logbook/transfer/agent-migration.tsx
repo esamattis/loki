@@ -45,6 +45,8 @@ Write resource rows before jump rows. Resource row types are aircraft, gear, jum
 
 For aircraft, gear, or jumpTypes containing multiple values, join names with "; ". Escape a semicolon inside a name as ";;" before joining. Keep names consistent because jumps refer to resources by name. Unknown resources referenced by jumps are created automatically. Replace line breaks inside values with spaces because each CSV record must occupy one line. Use csv.DictWriter from the standard library so commas and quotes are escaped correctly.
 
+If the input file flags jumps with a cutaway, create a jumpType resource named Cutaway and assign it to those jumps.
+
 After creating and checking the CSV, save the following as upload.py. Replace PASSWORD with the Loki password supplied in my prompt, then run it with python3 upload.py <converted.csv> (or python upload.py <converted.csv>). This is a full migration, so reset is true and all existing Loki logbook data will be deleted before importing the CSV.
 
 \`\`\`python
