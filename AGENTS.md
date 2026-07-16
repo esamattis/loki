@@ -55,6 +55,8 @@ Always assert elements with `$assertElement(el, typeclass)`. Never use type cast
 
 Functions prefixed with `$` must be executable in the browser.
 
+When creating more than one dom element use the $renderTemplate helper from `@/utils/render-template`
+
 # Code Conventions
 
 Write named functions with the `function` keyword. Use arrow functions only for anonymous functions, including callbacks.

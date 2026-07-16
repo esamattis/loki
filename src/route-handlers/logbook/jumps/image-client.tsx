@@ -1,3 +1,5 @@
+import { useId } from "hono/jsx";
+import { Script } from "@/components/script";
 import { $assertElement, $renderTemplate } from "@/utils";
 import {
     $appendJumpImageDrafts,
@@ -28,6 +30,91 @@ interface JumpImageInputProps {
     dbName: string;
     storeName: string;
     storageKey: string;
+}
+
+export function ImageGallery(props: {
+    inputId: string;
+    uploadInputId: string;
+    formId: string;
+    cameraInputId: string;
+    cameraButtonId: string;
+    clipboardButtonId: string;
+}) {
+    const galleryId = useId();
+    const metaId = useId();
+    const resizeNoteId = useId();
+    const galleryItemTemplateId = useId();
+
+    return (
+        <>
+            <div
+                id={galleryId}
+                className="hidden grid grid-cols-2 gap-3 md:grid-cols-3"
+            />
+            <p
+                id={metaId}
+                className="hidden text-sm text-slate-500 dark:text-slate-400"
+            />
+            <p
+                id={resizeNoteId}
+                className="hidden rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-200"
+            />
+            <template id={galleryItemTemplateId}>
+                <div className="group relative min-w-0">
+                    <button type="button" data-select-image>
+                        <img className="h-36 w-full rounded object-contain sm:h-44" />
+                        <span
+                            data-template-slot="meta"
+                            className="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
+                        ></span>
+                    </button>
+                    <button
+                        type="button"
+                        data-delete-image
+                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/75 text-sm font-bold text-white shadow hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                    >
+                        X
+                    </button>
+                </div>
+            </template>
+            <Script
+                $deps={[
+                    $assertElement,
+                    $renderTemplate,
+                    $appendJumpImageDrafts,
+                    $loadJumpImageDrafts,
+                    $updateJumpImageDrafts,
+                    $resizeJumpImageIfNeeded,
+                    $formatJumpImageBytes,
+                    $getJumpImageElements,
+                    $renderJumpImageGallery,
+                    $prepareJumpImageFiles,
+                    $setupClipboardImageInput,
+                    $imageMimeTypeToExtension,
+                ]}
+                $args={[
+                    {
+                        inputId: props.inputId,
+                        uploadInputId: props.uploadInputId,
+                        formId: props.formId,
+                        cameraInputId: props.cameraInputId,
+                        cameraButtonId: props.cameraButtonId,
+                        clipboardButtonId: props.clipboardButtonId,
+                        galleryId,
+                        metaId,
+                        resizeNoteId,
+                        galleryItemTemplateId,
+                        maxDimension: JUMP_IMAGE_MAX_DIMENSION,
+                        targetBytes: JUMP_IMAGE_TARGET_BYTES,
+                        dbName: JUMP_IMAGE_DB_NAME,
+                        storeName: JUMP_IMAGE_STORE,
+                        storageKey: JUMP_IMAGE_KEY,
+                    },
+                ]}
+                $exec={$initJumpImageInput}
+            />
+        </>
+    );
 }
 
 export async function $resizeJumpImageIfNeeded(

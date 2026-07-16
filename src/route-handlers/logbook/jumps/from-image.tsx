@@ -13,7 +13,6 @@ import {
     Select,
     Textarea,
 } from "@/components/form";
-import { Script } from "@/components/script";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,
@@ -24,7 +23,6 @@ import {
 } from "@/options";
 import * as routes from "@/routes";
 import { aircrafts, gear, jumpTypes, locations } from "@/schema";
-import { $assertElement, $renderTemplate } from "@/utils";
 import {
     AiUsageSummary,
     buildAiUsageTitle,
@@ -33,26 +31,7 @@ import {
     type AiUsageRow,
     type AiUsageTotals,
 } from "@/route-handlers/logbook/components/ai-usage";
-import {
-    $formatJumpImageBytes,
-    $getJumpImageElements,
-    $imageMimeTypeToExtension,
-    $initJumpImageInput,
-    $prepareJumpImageFiles,
-    $renderJumpImageGallery,
-    $resizeJumpImageIfNeeded,
-    $setupClipboardImageInput,
-    JUMP_IMAGE_DB_NAME,
-    JUMP_IMAGE_KEY,
-    JUMP_IMAGE_MAX_DIMENSION,
-    JUMP_IMAGE_STORE,
-    JUMP_IMAGE_TARGET_BYTES,
-} from "@/route-handlers/logbook/jumps/image-client";
-import {
-    $appendJumpImageDrafts,
-    $loadJumpImageDrafts,
-    $updateJumpImageDrafts,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
+import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/authenticated-page";
 
 const MAX_JUMP_ITEM_NAME_LENGTH = 200;
@@ -251,10 +230,6 @@ function JumpImageField(props: { formId: string }) {
     const cameraInputId = useId();
     const cameraButtonId = useId();
     const clipboardButtonId = useId();
-    const galleryId = useId();
-    const metaId = useId();
-    const resizeNoteId = useId();
-    const galleryItemTemplateId = useId();
 
     return (
         <div className="space-y-2">
@@ -322,71 +297,13 @@ function JumpImageField(props: { formId: string }) {
                 </a>
                 .
             </p>
-            <div
-                id={galleryId}
-                className="hidden grid grid-cols-2 gap-3 md:grid-cols-3"
-            />
-            <p
-                id={metaId}
-                className="hidden text-sm text-slate-500 dark:text-slate-400"
-            />
-            <p
-                id={resizeNoteId}
-                className="hidden rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-200"
-            />
-            <template id={galleryItemTemplateId}>
-                <div className="group relative min-w-0">
-                    <button type="button" data-select-image>
-                        <img className="h-36 w-full rounded object-contain sm:h-44" />
-                        <span
-                            data-template-slot="meta"
-                            className="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
-                        ></span>
-                    </button>
-                    <button
-                        type="button"
-                        data-delete-image
-                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/75 text-sm font-bold text-white shadow hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                    >
-                        X
-                    </button>
-                </div>
-            </template>
-            <Script
-                $deps={[
-                    $assertElement,
-                    $renderTemplate,
-                    $appendJumpImageDrafts,
-                    $loadJumpImageDrafts,
-                    $updateJumpImageDrafts,
-                    $resizeJumpImageIfNeeded,
-                    $formatJumpImageBytes,
-                    $getJumpImageElements,
-                    $renderJumpImageGallery,
-                    $prepareJumpImageFiles,
-                    $setupClipboardImageInput,
-                    $imageMimeTypeToExtension,
-                ]}
-                $args={[
-                    {
-                        inputId,
-                        uploadInputId,
-                        formId: props.formId,
-                        cameraInputId,
-                        cameraButtonId,
-                        clipboardButtonId,
-                        galleryId,
-                        metaId,
-                        resizeNoteId,
-                        galleryItemTemplateId,
-                        maxDimension: JUMP_IMAGE_MAX_DIMENSION,
-                        targetBytes: JUMP_IMAGE_TARGET_BYTES,
-                        dbName: JUMP_IMAGE_DB_NAME,
-                        storeName: JUMP_IMAGE_STORE,
-                        storageKey: JUMP_IMAGE_KEY,
-                    },
-                ]}
-                $exec={$initJumpImageInput}
+            <ImageGallery
+                inputId={inputId}
+                uploadInputId={uploadInputId}
+                formId={props.formId}
+                cameraInputId={cameraInputId}
+                cameraButtonId={cameraButtonId}
+                clipboardButtonId={clipboardButtonId}
             />
         </div>
     );
