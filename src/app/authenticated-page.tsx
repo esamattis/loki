@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
 import { $assertElement } from "@/utils";
+import { commitUrl, releaseUrl, shortGitRevision, version } from "@/build-info";
 import { useId } from "hono/jsx";
 
 const menuIconClassName =
@@ -46,6 +47,29 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
             })}
             menuClassName={props.menuClassName}
         >
+            <div className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <span>Loki</span>
+                {version && releaseUrl && (
+                    <>
+                        {" "}
+                        <a
+                            href={releaseUrl}
+                            className="hover:text-indigo-600 hover:underline dark:hover:text-indigo-400"
+                        >
+                            {version}
+                        </a>
+                    </>
+                )}{" "}
+                (
+                <a
+                    href={commitUrl}
+                    className="hover:text-indigo-600 hover:underline dark:hover:text-indigo-400"
+                >
+                    {shortGitRevision}
+                </a>
+                )
+            </div>
+            <MenuDivider />
             <a
                 href={routes.logbook.aircraft.index({})}
                 className={menuItemClassName}

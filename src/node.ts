@@ -8,6 +8,7 @@ import { registerRoutes } from "@/app/register-routes";
 import { createSqliteDatabase } from "@/db-sqlite";
 import { migrateSqlite } from "@/migrate-sqlite";
 import { loadNodeNativeBinding, registerSeaStaticAssets } from "@/node-sea";
+import { buildTitle } from "@/build-info";
 
 function registerStaticAssets(): void {
     if (registerSeaStaticAssets(app)) {
@@ -56,6 +57,7 @@ function startServer(args: {
 
 const cli = command({
     name: "loki",
+    version: buildTitle,
     description: "Run Loki - Skydiving Logbook with SQLite",
     args: {
         port: option({

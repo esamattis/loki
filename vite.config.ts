@@ -2,6 +2,7 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
 import tailwindcss from "@tailwindcss/vite";
+import { buildInfoDefine } from "./vite.build-info";
 
 export default defineConfig({
     resolve: {
@@ -15,6 +16,7 @@ export default defineConfig({
         target: "esnext",
     },
     define: {
+        ...buildInfoDefine(),
         "process.env.PLAYWRIGHT_TEST": JSON.stringify(
             process.env.PLAYWRIGHT_TEST ?? "",
         ),
