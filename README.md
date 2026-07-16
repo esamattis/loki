@@ -1,5 +1,25 @@
 ## Loki - Skydiving Logbook
 
+## Binary release
+
+Download the latest self-contained Loki binary from the
+[GitHub Releases page](https://github.com/esamattis/loki/releases/latest). Builds
+are available for Linux (AMD64 and ARM64), macOS (ARM64), and Windows (AMD64).
+Node.js is not required.
+
+Extract the archive for your platform, then start Loki:
+
+```sh
+tar -xzf loki-<version>-<platform>-<architecture>.tar.gz
+./loki
+```
+
+On Windows, run `loki.exe` after extracting the archive. Loki starts at
+http://127.0.0.1:8787 by default. See [Options](#options) for host, port, and
+database location settings.
+
+## Development
+
 Development assumes [mise](https://mise.jdx.dev/) is installed and activated in
 your shell. The project configuration selects Node.js, reads the pnpm version
 from `package.json`.
