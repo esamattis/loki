@@ -271,6 +271,17 @@ function JumpImageField() {
                     Paste from clipboard
                 </Button>
             </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+                On Android, you can also share images to Loki directly from
+                gallery apps when Loki is{" "}
+                <a
+                    href={routes.install({})}
+                    className="font-medium text-sky-700 underline hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+                >
+                    installed as an app
+                </a>
+                .
+            </p>
             <img
                 id={previewId}
                 alt="Selected jump image preview"
