@@ -248,7 +248,7 @@ function splitJumpItemNames(value: string): string[] {
         return [];
     }
     return value
-        .split(",")
+        .split(/[;,]/)
         .map((item) => item.trim())
         .filter(Boolean);
 }

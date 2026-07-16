@@ -654,14 +654,20 @@ test("a skydiver can create jump items from the add jump form", async ({
     await page.locator('input[name="openingAltitude"]').fill("1000");
     await page.locator('input[name="freefallTime"]').fill("55");
     await page.locator('input[name="locationName"]').fill("Inline Drop Zone");
-    await page.locator('input[name="aircraftName"]').fill("Inline Plane");
-    await page.locator('input[name="gearName"]').fill("Inline Canopy");
-    await page.locator('input[name="jumpTypeName"]').fill("Inline Tracking");
+    await page
+        .locator('input[name="aircraftName"]')
+        .fill("Inline Plane; Inline Helicopter");
+    await page
+        .locator('input[name="gearName"]')
+        .fill("Inline Canopy; Inline Rig");
+    await page
+        .locator('input[name="jumpTypeName"]')
+        .fill("Inline Tracking; Inline Camera");
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expect(page).toHaveURL("/logbook");
     await expect(page.getByRole("link", { name: /#1/ })).toContainText(
-        "Inline Drop Zone / Inline Plane",
+        "Inline Drop Zone / Inline Helicopter, Inline Plane",
     );
     await expect(
         page.getByRole("link", { name: /#1/ }).getByText("Inline Tracking"),
@@ -674,11 +680,20 @@ test("a skydiver can create jump items from the add jump form", async ({
     await expect(jumpItemSummary(page, "Aircraft")).toContainText(
         "Inline Plane",
     );
+    await expect(jumpItemSummary(page, "Aircraft")).toContainText(
+        "Inline Helicopter",
+    );
     await expect(jumpItemSummary(page, "Gear used")).toContainText(
         "Inline Canopy",
     );
+    await expect(jumpItemSummary(page, "Gear used")).toContainText(
+        "Inline Rig",
+    );
     await expect(jumpItemSummary(page, "Jump types")).toContainText(
         "Inline Tracking",
+    );
+    await expect(jumpItemSummary(page, "Jump types")).toContainText(
+        "Inline Camera",
     );
 
     await openManageLogbook(page);

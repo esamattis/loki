@@ -579,7 +579,7 @@ function ResourceSelectWithName(props: {
                 name={props.nameField}
                 label={props.nameLabel}
                 value={props.nameValue ?? ""}
-                placeholder="Create or match by name"
+                placeholder="Separate multiple names with ;"
             />
         </section>
     );
@@ -630,7 +630,8 @@ function JumpItemFields(props: {
                     Jump items
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Select existing items or enter a new name to create one.
+                    Select existing items or enter new names. Separate multiple
+                    aircraft, gear, or jump types with ;.
                 </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">

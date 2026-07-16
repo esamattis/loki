@@ -7,7 +7,7 @@ Return only values that are clearly visible or confidently readable.
 - exitAltitude and openingAltitude as whole numbers in the unit specified in the user message
 - if openingAltitude is not found or unclear, use 900
 - freefallTime in whole seconds
-- location, aircraft, gear, and jump types as short names when present
+- location, aircraft, gear, and jump types as short names when present; separate multiple aircraft, gear, or jump types with ;
 - "WS" refers to jump type of "Wingsuit"
 - "Delay" refers to freefall fime
 - description for any other useful notes (weather, formation, instructors, etc.). Add description even if it is just a single word.
