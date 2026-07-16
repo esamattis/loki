@@ -8,38 +8,48 @@ const releasesUrl = `${repositoryUrl}/releases`;
 const linkClassName =
     "font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300";
 
-function AboutContent(props: { showBuildInfo: boolean }) {
+function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
     return (
-        <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            {props.showBuildInfo && (
-                <p
-                    aria-label="Build information"
-                    className="text-sm font-semibold text-slate-500 dark:text-slate-400"
-                >
-                    <BuildInfo />
-                </p>
-            )}
-            <div className="space-y-4 text-slate-700 dark:text-slate-300">
-                <p>
-                    Loki is open source software licensed under the GNU Affero
-                    General Public License (AGPL).
-                </p>
-                <p>
-                    The source code is available on{" "}
-                    <a href={repositoryUrl} className={linkClassName}>
-                        GitHub
-                    </a>
-                    .
-                </p>
-                <p>
-                    Pre-built releases for self-hosting or running Loki on your
-                    own computer are available from the{" "}
-                    <a href={releasesUrl} className={linkClassName}>
-                        releases page
-                    </a>
-                    .
-                </p>
+        <div className="space-y-6">
+            <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                {props.showBuildInfo && (
+                    <p
+                        aria-label="Build information"
+                        className="text-sm font-semibold text-slate-500 dark:text-slate-400"
+                    >
+                        <BuildInfo />
+                    </p>
+                )}
+                <div className="space-y-4 text-slate-700 dark:text-slate-300">
+                    <p>
+                        Loki is open source software licensed under the GNU
+                        Affero General Public License (AGPL).
+                    </p>
+                    <p>
+                        The source code is available on{" "}
+                        <a href={repositoryUrl} className={linkClassName}>
+                            GitHub
+                        </a>
+                        .
+                    </p>
+                    <p>
+                        Pre-built releases for self-hosting or running Loki on
+                        your own computer are available from the{" "}
+                        <a href={releasesUrl} className={linkClassName}>
+                            releases page
+                        </a>
+                        .
+                    </p>
+                </div>
             </div>
+            {props.sqlitePath && (
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <p className="break-all text-sm text-slate-500 dark:text-slate-400">
+                        <span className="font-semibold">SQLite database:</span>{" "}
+                        <code>{props.sqlitePath}</code>
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
@@ -82,12 +92,13 @@ function PublicAboutPage() {
 }
 
 function renderAboutPage(c: AppRequestContext) {
-    if (!getAppContext(c).user) {
+    const appContext = getAppContext(c);
+    if (!appContext.user) {
         return c.render(<PublicAboutPage />);
     }
     return c.render(
         <LogbookPage title="About">
-            <AboutContent showBuildInfo />
+            <AboutContent showBuildInfo sqlitePath={appContext.sqlitePath} />
         </LogbookPage>,
     );
 }

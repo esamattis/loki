@@ -386,14 +386,6 @@ export function LogbookPage(props: { title?: string; children: any }) {
                             </div>
                         </div>
                     </div>
-                    {user.admin && appContext.sqlitePath && (
-                        <p className="mt-2 break-all border-t border-slate-100 pt-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                            <span className="font-semibold">
-                                SQLite database:
-                            </span>{" "}
-                            <code>{appContext.sqlitePath}</code>
-                        </p>
-                    )}
                     <div className="mt-2 hidden border-t border-slate-100 pt-2 sm:block dark:border-slate-800">
                         <LogbookActions pathname={pathname} />
                     </div>
