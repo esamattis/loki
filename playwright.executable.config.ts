@@ -21,7 +21,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
     },
     webServer: {
-        command: `node scripts/reset-executable-test-state.ts && "${executablePath}" --host 127.0.0.1 --port 8790 --sqlite-dir "${sqliteDirectory}"`,
+        command: `node scripts/reset-executable-test-state.ts && "${executablePath}" --no-open --host 127.0.0.1 --port 8790 --sqlite-dir "${sqliteDirectory}"`,
         url: "http://127.0.0.1:8790",
         reuseExistingServer: false,
     },
