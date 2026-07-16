@@ -1,5 +1,4 @@
-import { $assertElement } from "@/utils";
-import { html } from "@/components/script";
+import { $assertElement, $renderTemplate } from "@/utils";
 import {
     $appendJumpImageDrafts,
     $loadJumpImageDrafts,
@@ -23,6 +22,7 @@ interface JumpImageInputProps {
     galleryId: string;
     metaId: string;
     resizeNoteId: string;
+    galleryItemTemplateId: string;
     maxDimension: number;
     targetBytes: number;
     dbName: string;
@@ -262,6 +262,7 @@ export function $renderJumpImageGallery(options: {
     drafts: JumpImageDraft[];
     selectedId: string | null;
     previewUrls: Map<string, string>;
+    templateId: string;
     selectDraft: (id: string) => void;
     deleteDraft: (id: string) => void;
 }) {
@@ -279,39 +280,23 @@ export function $renderJumpImageGallery(options: {
         const alt = selected
             ? "Selected jump image preview"
             : `Jump image preview: ${draft.file.name}`;
-        options.gallery.insertAdjacentHTML(
-            "beforeend",
-            html`
-                <div class="group relative min-w-0">
-                    <button
-                        type="button"
-                        class="${selectClass}"
-                        data-select-image="${draft.id}"
-                        aria-label="Select ${draft.file.name}"
-                    >
-                        <img
-                            src="${url}"
-                            alt="${alt}"
-                            class="h-36 w-full rounded object-contain sm:h-44"
-                        />
-                        <span
-                            class="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
-                        >
-                            ${draft.file.name} ·
-                            ${$formatJumpImageBytes(draft.file.size)}
-                        </span>
-                    </button>
-                    <button
-                        type="button"
-                        class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/75 text-sm font-bold text-white shadow hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                        data-delete-image="${draft.id}"
-                        aria-label="Delete ${draft.file.name}"
-                    >
-                        X
-                    </button>
-                </div>
-            `,
-        );
+        const item = $renderTemplate(options.templateId, {
+            meta: `${draft.file.name} · ${$formatJumpImageBytes(draft.file.size)}`,
+        });
+        const selectButton = item.querySelector("[data-select-image]");
+        const image = item.querySelector("img");
+        const deleteButton = item.querySelector("[data-delete-image]");
+        $assertElement(selectButton, HTMLButtonElement);
+        $assertElement(image, HTMLImageElement);
+        $assertElement(deleteButton, HTMLButtonElement);
+        selectButton.className = selectClass;
+        selectButton.dataset.selectImage = draft.id;
+        selectButton.setAttribute("aria-label", `Select ${draft.file.name}`);
+        image.src = url;
+        image.alt = alt;
+        deleteButton.dataset.deleteImage = draft.id;
+        deleteButton.setAttribute("aria-label", `Delete ${draft.file.name}`);
+        options.gallery.appendChild(item);
     }
     for (const button of options.gallery.querySelectorAll(
         "[data-select-image]",
@@ -453,6 +438,7 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
             drafts,
             selectedId,
             previewUrls,
+            templateId: props.galleryItemTemplateId,
             selectDraft,
             deleteDraft: (id) => void deleteDraft(id),
         });

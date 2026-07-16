@@ -3,23 +3,6 @@ import { useAppContext } from "@/app/app";
 type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
 const nameCache = new WeakMap<ClientFunction, string>();
 
-export function html(
-    strings: TemplateStringsArray,
-    ...values: unknown[]
-): string {
-    return strings.reduce((result, string, index) => {
-        const value = values[index];
-        const escapedValue =
-            value == null
-                ? ""
-                : String(value).replace(
-                      /[&<>"']/g,
-                      (character) => `&#${character.charCodeAt(0)};`,
-                  );
-        return result + string + escapedValue;
-    }, "");
-}
-
 function getGlobalName(fn: ClientFunction): string {
     const cachedName = nameCache.get(fn);
     if (cachedName) return cachedName;

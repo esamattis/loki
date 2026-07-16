@@ -1,25 +1,10 @@
+import { useId } from "hono/jsx";
 import { $assertElement } from "@/utils";
-import { html, Script } from "@/components/script";
+import { Script } from "@/components/script";
+import { $renderTemplate } from "@/utils";
 
-function $initTooltips() {
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        html`
-            <div
-                id="tooltip"
-                role="tooltip"
-                popover="manual"
-                hidden
-                class="pointer-events-none fixed inset-auto z-50 m-0 max-w-xs overflow-visible rounded-md border-0 bg-slate-900 px-2 py-1 text-xs font-medium text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
-            >
-                <span data-tooltip-text></span>
-                <span
-                    aria-hidden="true"
-                    class="absolute left-1/2 top-full -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-slate-900 dark:border-t-slate-100"
-                ></span>
-            </div>
-        `,
-    );
+function $initTooltips(templateId: string) {
+    document.body.appendChild($renderTemplate(templateId));
     const tooltipNode = document.getElementById("tooltip");
     const tooltipTextNode = tooltipNode?.querySelector("[data-tooltip-text]");
     $assertElement(tooltipNode, HTMLDivElement);
@@ -93,5 +78,29 @@ function $initTooltips() {
 }
 
 export function Tooltips() {
-    return <Script $deps={[html, $assertElement]} $exec={$initTooltips} />;
+    const templateId = useId();
+    return (
+        <>
+            <template id={templateId}>
+                <div
+                    id="tooltip"
+                    role="tooltip"
+                    popover="manual"
+                    hidden
+                    class="pointer-events-none fixed inset-auto z-50 m-0 max-w-xs overflow-visible rounded-md border-0 bg-slate-900 px-2 py-1 text-xs font-medium text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
+                >
+                    <span data-tooltip-text></span>
+                    <span
+                        aria-hidden="true"
+                        class="absolute left-1/2 top-full -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-slate-900 dark:border-t-slate-100"
+                    ></span>
+                </div>
+            </template>
+            <Script
+                $deps={[$renderTemplate, $assertElement]}
+                $args={[templateId]}
+                $exec={$initTooltips}
+            />
+        </>
+    );
 }

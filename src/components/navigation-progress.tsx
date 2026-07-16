@@ -1,32 +1,37 @@
-import { html, Script } from "@/components/script";
+import { useId } from "hono/jsx";
+import { Script } from "@/components/script";
+import { $renderTemplate } from "@/utils";
 
 function $showNavigationProgress(options: {
     mode: "form" | "link";
     method?: string;
+    templateId: string;
 }) {
     if (document.getElementById("form-submit-progress")) return;
     const isPost =
         options.mode === "form" &&
         (options.method ?? "get").toLowerCase() === "post";
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        html`
-            <div
-                id="form-submit-progress"
-                role="progressbar"
-                class="${isPost ? "form-submit-progress-post" : ""}"
-                aria-label="${options.mode === "form" ? "Submitting form" : "Loading page"}"
-                aria-valuetext="${options.mode === "form" ? "Submitting" : "Loading"}"
-            ></div>
-        `,
+    const progress = $renderTemplate(options.templateId);
+    progress.classList.toggle("form-submit-progress-post", isPost);
+    progress.setAttribute(
+        "aria-label",
+        options.mode === "form" ? "Submitting form" : "Loading page",
     );
+    progress.setAttribute(
+        "aria-valuetext",
+        options.mode === "form" ? "Submitting" : "Loading",
+    );
+    document.body.appendChild(progress);
 }
 
 function $clearNavigationProgress() {
     document.getElementById("form-submit-progress")?.remove();
 }
 
-function $disableFormOnSubmit() {
+function $disableFormOnSubmit(config: {
+    progressTemplateId: string;
+    spinnerTemplateId: string;
+}) {
     document.addEventListener("submit", (event) => {
         const form = event.target;
         if (!(form instanceof HTMLFormElement)) return;
@@ -37,19 +42,18 @@ function $disableFormOnSubmit() {
             "pointer-events-none",
             "select-none",
         );
-        $showNavigationProgress({ mode: "form", method: form.method });
+        $showNavigationProgress({
+            mode: "form",
+            method: form.method,
+            templateId: config.progressTemplateId,
+        });
         const submitter = event.submitter;
         if (submitter instanceof HTMLButtonElement) {
             submitter.classList.add("form-submit-pending");
             if (!submitter.querySelector(".form-submit-spinner")) {
-                submitter.insertAdjacentHTML(
-                    "afterbegin",
-                    html`
-                        <span
-                            class="form-submit-spinner"
-                            aria-hidden="true"
-                        ></span>
-                    `,
+                submitter.insertBefore(
+                    $renderTemplate(config.spinnerTemplateId),
+                    submitter.firstChild,
                 );
             }
         }
@@ -66,7 +70,7 @@ function $disableFormOnSubmit() {
     });
 }
 
-function $showProgressOnLinkClick() {
+function $showProgressOnLinkClick(templateId: string) {
     window.addEventListener("pageshow", $clearNavigationProgress);
     document.addEventListener("click", (event) => {
         if (
@@ -102,23 +106,49 @@ function $showProgressOnLinkClick() {
             (url.protocol !== "http:" && url.protocol !== "https:")
         )
             return;
-        $showNavigationProgress({ mode: "link" });
+        $showNavigationProgress({ mode: "link", templateId });
     });
 }
 
-export function DisableFormOnSubmit() {
+function NavigationProgressTemplate(props: { id: string }) {
     return (
-        <Script
-            $deps={[html, $showNavigationProgress]}
-            $exec={$disableFormOnSubmit}
-        />
+        <template id={props.id}>
+            <div id="form-submit-progress" role="progressbar"></div>
+        </template>
+    );
+}
+
+export function DisableFormOnSubmit() {
+    const progressTemplateId = useId();
+    const spinnerTemplateId = useId();
+    return (
+        <>
+            <NavigationProgressTemplate id={progressTemplateId} />
+            <template id={spinnerTemplateId}>
+                <span class="form-submit-spinner" aria-hidden="true"></span>
+            </template>
+            <Script
+                $deps={[$renderTemplate, $showNavigationProgress]}
+                $args={[{ progressTemplateId, spinnerTemplateId }]}
+                $exec={$disableFormOnSubmit}
+            />
+        </>
     );
 }
 export function ShowProgressOnLinkClick() {
+    const progressTemplateId = useId();
     return (
-        <Script
-            $deps={[html, $showNavigationProgress, $clearNavigationProgress]}
-            $exec={$showProgressOnLinkClick}
-        />
+        <>
+            <NavigationProgressTemplate id={progressTemplateId} />
+            <Script
+                $deps={[
+                    $renderTemplate,
+                    $showNavigationProgress,
+                    $clearNavigationProgress,
+                ]}
+                $args={[progressTemplateId]}
+                $exec={$showProgressOnLinkClick}
+            />
+        </>
     );
 }

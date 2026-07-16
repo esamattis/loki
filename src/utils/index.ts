@@ -7,3 +7,4 @@ export {
     type CsvRow,
 } from "@/utils/csv";
 export { getFormString } from "@/utils/get-form-string";
+export { $renderTemplate } from "@/utils/render-template";

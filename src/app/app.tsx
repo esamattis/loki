@@ -4,7 +4,7 @@ import { eq, lte } from "drizzle-orm";
 import { jsxRenderer, useRequestContext } from "hono/jsx-renderer";
 import { deleteCookie, getCookie } from "hono/cookie";
 import { ViteClient } from "vite-ssr-components/hono";
-import { html, Script } from "@/components/script";
+import { Script } from "@/components/script";
 import { htmxAsset, tailwindAsset } from "@/app-assets";
 import { Button } from "@/components/form";
 import { Dialog } from "@/components/ui/dialog";
@@ -179,141 +179,6 @@ export function $restoreFormScrollPosition() {
             storageKey,
             `${window.location.pathname},${window.scrollX},${window.scrollY}`,
         );
-    });
-}
-
-function $showNavigationProgress(options: {
-    mode: "form" | "link";
-    method?: string;
-}) {
-    if (document.getElementById("form-submit-progress")) {
-        return;
-    }
-
-    const isPost =
-        options.mode === "form" &&
-        (options.method ?? "get").toLowerCase() === "post";
-
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        html`
-            <div
-                id="form-submit-progress"
-                role="progressbar"
-                class="${isPost ? "form-submit-progress-post" : ""}"
-                aria-label="${options.mode === "form" ? "Submitting form" : "Loading page"}"
-                aria-valuetext="${options.mode === "form" ? "Submitting" : "Loading"}"
-            ></div>
-        `,
-    );
-}
-
-export function $disableFormOnSubmit() {
-    document.addEventListener("submit", (event) => {
-        const form = event.target;
-        if (!(form instanceof HTMLFormElement)) {
-            return;
-        }
-
-        form.setAttribute("aria-busy", "true");
-        form.classList.add(
-            "opacity-60",
-            "cursor-not-allowed",
-            "pointer-events-none",
-            "select-none",
-        );
-
-        $showNavigationProgress({
-            mode: "form",
-            method: form.method,
-        });
-
-        const submitter = event.submitter;
-        if (submitter instanceof HTMLButtonElement) {
-            submitter.classList.add("form-submit-pending");
-            if (!submitter.querySelector(".form-submit-spinner")) {
-                submitter.insertAdjacentHTML(
-                    "afterbegin",
-                    html`
-                        <span
-                            class="form-submit-spinner"
-                            aria-hidden="true"
-                        ></span>
-                    `,
-                );
-            }
-        }
-
-        // Disable after the browser builds the form data set so values still submit.
-        setTimeout(() => {
-            for (const element of form.elements) {
-                if (
-                    element instanceof HTMLInputElement ||
-                    element instanceof HTMLButtonElement ||
-                    element instanceof HTMLSelectElement ||
-                    element instanceof HTMLTextAreaElement
-                ) {
-                    element.disabled = true;
-                }
-            }
-        }, 0);
-    });
-}
-
-export function $showProgressOnLinkClick() {
-    document.addEventListener("click", (event) => {
-        if (event.defaultPrevented) {
-            return;
-        }
-        if (event.button !== 0) {
-            return;
-        }
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-            return;
-        }
-
-        const target = event.target;
-        if (!(target instanceof Element)) {
-            return;
-        }
-
-        const anchor = target.closest("a");
-        if (!(anchor instanceof HTMLAnchorElement)) {
-            return;
-        }
-
-        if (!anchor.href) {
-            return;
-        }
-        if (anchor.hasAttribute("download")) {
-            return;
-        }
-        if (anchor.target && anchor.target !== "_self") {
-            return;
-        }
-
-        let url: URL;
-        try {
-            url = new URL(anchor.href, window.location.href);
-        } catch {
-            return;
-        }
-
-        if (url.origin !== window.location.origin) {
-            return;
-        }
-        if (
-            url.pathname === window.location.pathname &&
-            url.search === window.location.search &&
-            url.hash !== ""
-        ) {
-            return;
-        }
-        if (url.protocol !== "http:" && url.protocol !== "https:") {
-            return;
-        }
-
-        $showNavigationProgress({ mode: "link" });
     });
 }
 
@@ -518,24 +383,6 @@ export function $applyStoredTheme() {
     } catch (error) {
         console.error("Failed to apply the stored theme", error);
     }
-}
-
-export function $disableViewTransitionsInAutomation() {
-    // Playwright/automation leaves view-transition snapshots that never
-    // settle for hit-testing; opt out so e2e clicks stay reliable.
-    if (!navigator.webdriver) {
-        return;
-    }
-    document.head.insertAdjacentHTML(
-        "beforeend",
-        html`
-            <style>
-                @view-transition {
-                    navigation: none;
-                }
-            </style>
-        `,
-    );
 }
 
 const UPDATE_TOAST_ID = "update-toast";

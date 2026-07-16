@@ -10,9 +10,9 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 import { Button } from "@/components/form";
-import { html, Script } from "@/components/script";
+import { Script } from "@/components/script";
 import { Dialog } from "@/components/ui/dialog";
-import { $assertElement } from "@/utils";
+import { $assertElement, $renderTemplate } from "@/utils";
 
 export interface JumpItemResource {
     uuid: string;
@@ -60,109 +60,134 @@ function JumpItemSelectScript(props: {
     summaryId: string;
     archivedButtonId: string;
     emptyText: string;
+    emptyTemplateId: string;
+    itemTemplateId: string;
 }) {
     return (
-        <Script
-            $deps={[html, $assertElement]}
-            $args={[props]}
-            $exec={(config) => {
-                const optionsEl = document.getElementById(config.optionsId);
-                const summaryEl = document.getElementById(config.summaryId);
-                $assertElement(optionsEl, HTMLDivElement);
-                $assertElement(summaryEl, HTMLDivElement);
-                const options: HTMLDivElement = optionsEl;
-                const summary: HTMLDivElement = summaryEl;
+        <>
+            <template id={props.emptyTemplateId}>
+                <span
+                    data-template-slot="emptyText"
+                    class="text-slate-500 dark:text-slate-400"
+                ></span>
+            </template>
+            <template id={props.itemTemplateId}>
+                <span
+                    data-template-slot="label"
+                    class="rounded-md bg-indigo-50 px-2 py-1 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-200"
+                ></span>
+            </template>
+            <Script
+                $deps={[$renderTemplate, $assertElement]}
+                $args={[props]}
+                $exec={(config) => {
+                    const optionsEl = document.getElementById(config.optionsId);
+                    const summaryEl = document.getElementById(config.summaryId);
+                    $assertElement(optionsEl, HTMLDivElement);
+                    $assertElement(summaryEl, HTMLDivElement);
+                    const options: HTMLDivElement = optionsEl;
+                    const summary: HTMLDivElement = summaryEl;
 
-                function selectedInputs() {
-                    return Array.from(
-                        options.querySelectorAll("[data-jump-item-input]"),
-                    ).filter(
-                        (element) =>
-                            element instanceof HTMLInputElement &&
-                            element.checked &&
-                            element.value !== "",
-                    );
-                }
-
-                function updateSummary() {
-                    const selected = selectedInputs();
-                    if (selected.length === 0) {
-                        summary.innerHTML = html`
-                            <span class="text-slate-500 dark:text-slate-400">
-                                ${config.emptyText}
-                            </span>
-                        `;
-                        return;
-                    }
-                    summary.innerHTML = selected
-                        .map(
-                            (input) => html`
-                                <span
-                                    data-tooltip="${input.getAttribute("data-description") ?? ""}"
-                                    class="rounded-md bg-indigo-50 px-2 py-1 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-200"
-                                >
-                                    ${input.getAttribute("data-label") ?? ""}
-                                </span>
-                            `,
-                        )
-                        .join("");
-                }
-
-                function setArchivedItemsVisible(visible: boolean) {
-                    let hasSelectedArchivedItem = false;
-                    for (const element of options.querySelectorAll(
-                        '[data-archived="true"]',
-                    )) {
-                        if (!(element instanceof HTMLLabelElement)) continue;
-                        const input = element.querySelector("input");
-                        const selected =
-                            input instanceof HTMLInputElement && input.checked;
-                        hasSelectedArchivedItem ||= selected;
-                        element.hidden = !(visible || selected);
-                    }
-                    const archivedSection = options.querySelector(
-                        "[data-archived-section]",
-                    );
-                    if (archivedSection instanceof HTMLElement) {
-                        archivedSection.hidden = !(
-                            visible || hasSelectedArchivedItem
+                    function selectedInputs() {
+                        return Array.from(
+                            options.querySelectorAll("[data-jump-item-input]"),
+                        ).filter(
+                            (element) =>
+                                element instanceof HTMLInputElement &&
+                                element.checked &&
+                                element.value !== "",
                         );
                     }
-                    if (config.archivedButtonId === "") return;
-                    const button = document.getElementById(
-                        config.archivedButtonId,
-                    );
-                    $assertElement(button, HTMLButtonElement);
-                    button.dataset.showingArchived = visible ? "true" : "false";
-                    button.textContent = visible
-                        ? "Hide archived items"
-                        : "Show archived items";
-                }
 
-                options.addEventListener("change", () => {
-                    updateSummary();
-                    if (config.archivedButtonId === "") return;
-                    const button = document.getElementById(
-                        config.archivedButtonId,
-                    );
-                    $assertElement(button, HTMLButtonElement);
-                    setArchivedItemsVisible(
-                        button.dataset.showingArchived === "true",
-                    );
-                });
-                if (config.archivedButtonId !== "") {
-                    const button = document.getElementById(
-                        config.archivedButtonId,
-                    );
-                    $assertElement(button, HTMLButtonElement);
-                    button.addEventListener("click", () => {
+                    function updateSummary() {
+                        const selected = selectedInputs();
+                        if (selected.length === 0) {
+                            summary.replaceChildren(
+                                $renderTemplate(config.emptyTemplateId, {
+                                    emptyText: config.emptyText,
+                                }),
+                            );
+                            return;
+                        }
+                        summary.replaceChildren(
+                            ...selected.map((input) => {
+                                const item = $renderTemplate(
+                                    config.itemTemplateId,
+                                    {
+                                        label:
+                                            input.getAttribute("data-label") ??
+                                            "",
+                                    },
+                                );
+                                const description =
+                                    input.getAttribute("data-description");
+                                if (description)
+                                    item.dataset.tooltip = description;
+                                return item;
+                            }),
+                        );
+                    }
+
+                    function setArchivedItemsVisible(visible: boolean) {
+                        let hasSelectedArchivedItem = false;
+                        for (const element of options.querySelectorAll(
+                            '[data-archived="true"]',
+                        )) {
+                            if (!(element instanceof HTMLLabelElement))
+                                continue;
+                            const input = element.querySelector("input");
+                            const selected =
+                                input instanceof HTMLInputElement &&
+                                input.checked;
+                            hasSelectedArchivedItem ||= selected;
+                            element.hidden = !(visible || selected);
+                        }
+                        const archivedSection = options.querySelector(
+                            "[data-archived-section]",
+                        );
+                        if (archivedSection instanceof HTMLElement) {
+                            archivedSection.hidden = !(
+                                visible || hasSelectedArchivedItem
+                            );
+                        }
+                        if (config.archivedButtonId === "") return;
+                        const button = document.getElementById(
+                            config.archivedButtonId,
+                        );
+                        $assertElement(button, HTMLButtonElement);
+                        button.dataset.showingArchived = visible
+                            ? "true"
+                            : "false";
+                        button.textContent = visible
+                            ? "Hide archived items"
+                            : "Show archived items";
+                    }
+
+                    options.addEventListener("change", () => {
+                        updateSummary();
+                        if (config.archivedButtonId === "") return;
+                        const button = document.getElementById(
+                            config.archivedButtonId,
+                        );
+                        $assertElement(button, HTMLButtonElement);
                         setArchivedItemsVisible(
-                            button.dataset.showingArchived !== "true",
+                            button.dataset.showingArchived === "true",
                         );
                     });
-                }
-            }}
-        />
+                    if (config.archivedButtonId !== "") {
+                        const button = document.getElementById(
+                            config.archivedButtonId,
+                        );
+                        $assertElement(button, HTMLButtonElement);
+                        button.addEventListener("click", () => {
+                            setArchivedItemsVisible(
+                                button.dataset.showingArchived !== "true",
+                            );
+                        });
+                    }
+                }}
+            />
+        </>
     );
 }
 
@@ -178,19 +203,21 @@ interface JumpItemSelectProps {
 }
 
 export function JumpItemSelect(props: JumpItemSelectProps) {
+    function isSelected(item: JumpItemResource) {
+        return props.selectedUuids.has(item.uuid);
+    }
+
     const buttonId = useId();
     const dialogId = useId();
     const optionsId = useId();
     const summaryId = useId();
     const archivedButtonId = useId();
-    const selectedItems = props.items.filter((item) =>
-        props.selectedUuids.has(item.uuid),
-    );
+    const emptyTemplateId = useId();
+    const itemTemplateId = useId();
+    const selectedItems = props.items.filter(isSelected);
     const activeItems = props.items.filter((item) => !item.archived);
     const archivedItems = props.items.filter((item) => item.archived);
-    const hasSelectedArchivedItems = archivedItems.some((item) =>
-        props.selectedUuids.has(item.uuid),
-    );
+    const hasSelectedArchivedItems = archivedItems.some(isSelected);
     const emptyText = "None selected";
 
     return (
@@ -265,9 +292,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                                 <JumpItemOption
                                     item={item}
                                     name={props.name}
-                                    selected={props.selectedUuids.has(
-                                        item.uuid,
-                                    )}
+                                    selected={isSelected(item)}
                                     multiple={props.multiple}
                                 />
                             ))}
@@ -287,9 +312,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                                     <JumpItemOption
                                         item={item}
                                         name={props.name}
-                                        selected={props.selectedUuids.has(
-                                            item.uuid,
-                                        )}
+                                        selected={isSelected(item)}
                                         multiple={props.multiple}
                                     />
                                 ))}
@@ -322,6 +345,8 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                     archivedItems.length > 0 ? archivedButtonId : ""
                 }
                 emptyText={emptyText}
+                emptyTemplateId={emptyTemplateId}
+                itemTemplateId={itemTemplateId}
             />
         </fieldset>
     );

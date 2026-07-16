@@ -13,7 +13,7 @@ import {
     Select,
     Textarea,
 } from "@/components/form";
-import { html, Script } from "@/components/script";
+import { Script } from "@/components/script";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     DEFAULT_JUMP_IMAGE_PROMPT,
@@ -24,7 +24,7 @@ import {
 } from "@/options";
 import * as routes from "@/routes";
 import { aircrafts, gear, jumpTypes, locations } from "@/schema";
-import { $assertElement } from "@/utils";
+import { $assertElement, $renderTemplate } from "@/utils";
 import {
     AiUsageSummary,
     buildAiUsageTitle,
@@ -254,6 +254,7 @@ function JumpImageField(props: { formId: string }) {
     const galleryId = useId();
     const metaId = useId();
     const resizeNoteId = useId();
+    const galleryItemTemplateId = useId();
 
     return (
         <div className="space-y-2">
@@ -333,10 +334,28 @@ function JumpImageField(props: { formId: string }) {
                 id={resizeNoteId}
                 className="hidden rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-200"
             />
+            <template id={galleryItemTemplateId}>
+                <div className="group relative min-w-0">
+                    <button type="button" data-select-image>
+                        <img className="h-36 w-full rounded object-contain sm:h-44" />
+                        <span
+                            data-template-slot="meta"
+                            className="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
+                        ></span>
+                    </button>
+                    <button
+                        type="button"
+                        data-delete-image
+                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/75 text-sm font-bold text-white shadow hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                    >
+                        X
+                    </button>
+                </div>
+            </template>
             <Script
                 $deps={[
                     $assertElement,
-                    html,
+                    $renderTemplate,
                     $appendJumpImageDrafts,
                     $loadJumpImageDrafts,
                     $updateJumpImageDrafts,
@@ -359,6 +378,7 @@ function JumpImageField(props: { formId: string }) {
                         galleryId,
                         metaId,
                         resizeNoteId,
+                        galleryItemTemplateId,
                         maxDimension: JUMP_IMAGE_MAX_DIMENSION,
                         targetBytes: JUMP_IMAGE_TARGET_BYTES,
                         dbName: JUMP_IMAGE_DB_NAME,
