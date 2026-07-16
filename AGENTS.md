@@ -87,6 +87,8 @@ After every change, run:
 pn test
 ```
 
+Note that this does automatic prettier formatting.
+
 # Lints
 
 Lint-skip comments are allowed only in test files. Production code must be lint-clean.
