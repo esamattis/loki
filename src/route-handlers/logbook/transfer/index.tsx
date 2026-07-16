@@ -54,22 +54,35 @@ const ImportRecordSchema = z.discriminatedUnion("type", [
             .string()
             .refine(isValidJumpDate, "Jump date must be valid")
             .optional(),
-        exitAltitude: z.coerce
-            .number()
-            .int("Exit altitude must be a whole number")
-            .positive("Exit altitude must be positive"),
-        openingAltitude: z.coerce
-            .number()
-            .int("Opening altitude must be a whole number")
-            .min(0, "Opening altitude cannot be negative"),
-        freefallTime: z.coerce
-            .number()
-            .int("Freefall time must be a whole number")
-            .min(0, "Freefall time cannot be negative"),
-        location: z.string().trim().min(1, "Location is required"),
-        aircraft: z
-            .array(z.string().trim().min(1))
-            .min(1, "Aircraft is required"),
+        exitAltitude: z.preprocess(
+            (value) => (value === "" ? undefined : value),
+            z.coerce
+                .number()
+                .int("Exit altitude must be a whole number")
+                .positive("Exit altitude must be positive")
+                .optional()
+                .default(0),
+        ),
+        openingAltitude: z.preprocess(
+            (value) => (value === "" ? undefined : value),
+            z.coerce
+                .number()
+                .int("Opening altitude must be a whole number")
+                .min(0, "Opening altitude cannot be negative")
+                .optional()
+                .default(0),
+        ),
+        freefallTime: z.preprocess(
+            (value) => (value === "" ? undefined : value),
+            z.coerce
+                .number()
+                .int("Freefall time must be a whole number")
+                .min(0, "Freefall time cannot be negative")
+                .optional()
+                .default(0),
+        ),
+        location: z.string().trim().default(""),
+        aircraft: z.array(z.string().trim().min(1)).default([]),
         gear: z.array(z.string().trim().min(1)).default([]),
         jumpTypes: z.array(z.string().trim().min(1)).default([]),
         description: z.string().trim().max(2_000).nullable().optional(),
@@ -736,14 +749,15 @@ class ImportState {
         const existingJumpUuid = this.jumpUuids.get(record.jumpNumber);
         const jumpUuid = existingJumpUuid ?? crypto.randomUUID();
         this.jumpUuids.set(record.jumpNumber, jumpUuid);
-        const locationUuid =
-            this.resources.location.get(normalizeName(record.location)) ??
-            this.queueResource({
-                type: "location",
-                name: record.location,
-                previousCount: 0,
-                description: null,
-            });
+        const locationUuid = record.location
+            ? (this.resources.location.get(normalizeName(record.location)) ??
+              this.queueResource({
+                  type: "location",
+                  name: record.location,
+                  previousCount: 0,
+                  description: null,
+              }))
+            : null;
         const aircraftByUuid = new Map<string, string>();
         for (const name of record.aircraft) {
             const aircraftUuid =

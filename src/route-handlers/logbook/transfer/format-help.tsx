@@ -90,11 +90,9 @@ export function TransferFormatHelp() {
                 <p>
                     Resource rows require <code>type</code>, <code>name</code>,
                     and <code>previousCount</code>. Jump rows require{" "}
-                    <code>type</code>, <code>jumpNumber</code>,{" "}
-                    <code>exitAltitude</code>, <code>openingAltitude</code>,{" "}
-                    <code>freefallTime</code>, <code>location</code>, and{" "}
-                    <code>aircraft</code>. Descriptions may be empty. Unknown
-                    jump items referenced by name are created automatically.
+                    <code>type</code> and <code>jumpNumber</code>. Other jump
+                    fields may be empty. Unknown jump items referenced by name
+                    are created automatically.
                 </p>
                 <p>Re-importing a jump with the same jump number updates it.</p>
             </div>

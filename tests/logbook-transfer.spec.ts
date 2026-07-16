@@ -26,11 +26,11 @@ function basicAuthHeader(username: string, password: string): string {
 
 function csvJumpRow(options: {
     jumpNumber: number;
-    exitAltitude: number;
-    openingAltitude: number;
-    freefallTime: number;
-    location: string;
-    aircraft: string;
+    exitAltitude?: number;
+    openingAltitude?: number;
+    freefallTime?: number;
+    location?: string;
+    aircraft?: string;
     gear?: string;
     jumpTypes?: string;
     description?: string;
@@ -41,11 +41,11 @@ function csvJumpRow(options: {
         "",
         options.jumpNumber,
         "",
-        options.exitAltitude,
-        options.openingAltitude,
-        options.freefallTime,
-        options.location,
-        options.aircraft,
+        options.exitAltitude ?? "",
+        options.openingAltitude ?? "",
+        options.freefallTime ?? "",
+        options.location ?? "",
+        options.aircraft ?? "",
         options.gear ?? "",
         options.jumpTypes ?? "",
         options.description ?? "",
@@ -127,6 +127,36 @@ test("statistics show recorded and total jump counts for every item", async ({
     await expect(
         page.getByRole("row").filter({ hasText: "Formation skydiving" }),
     ).toContainText("20");
+});
+
+test("a CSV jump can omit optional measurements and jump items", async ({
+    page,
+}) => {
+    await registerUser(page, "optional-import-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "optional-fields.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(
+            [CSV_HEADER, csvJumpRow({ jumpNumber: 7 })].join("\n") + "\n",
+        ),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 1 jump")).toBeVisible();
+
+    await page
+        .getByRole("link", { name: /optional-import-skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: /#7/ }).click();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("");
+    await expect(jumpItemSummary(page, "Location")).toHaveText("None selected");
+    await expect(jumpItemSummary(page, "Aircraft")).toHaveText("None selected");
+    await expect(jumpItemSummary(page, "Gear used")).toHaveText(
+        "None selected",
+    );
 });
 
 test("a logbook can be imported, edited, exported, and imported by another user", async ({

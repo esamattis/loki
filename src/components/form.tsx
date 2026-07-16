@@ -149,6 +149,7 @@ export function NumberInput(props: {
     name?: string;
     label: string;
     min?: string;
+    step?: string;
     required?: boolean;
     autofocus?: boolean;
     value?: string;
@@ -166,6 +167,7 @@ export function NumberInput(props: {
                 name={props.name}
                 type="number"
                 min={props.min}
+                step={props.step}
                 required={props.required}
                 autofocus={props.autofocus}
                 value={props.value}

@@ -27,6 +27,11 @@ test("speed can be displayed and entered in miles per hour", async ({
     );
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(page.getByLabel("Custom speed (mph)")).toHaveValue("111.8");
+    await page.getByRole("button", { name: "Add jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
     await page.locator('input[name="exitAltitude"]').fill("4000");
     await page.locator('input[name="openingAltitude"]').fill("1000");
     await page.getByRole("button", { name: "Estimate" }).click();

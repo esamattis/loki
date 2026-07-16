@@ -60,7 +60,8 @@ export async function renderEditJump(c: AppRequestContext) {
                     jump.openingAltitude,
                     altitudeUnits,
                 ),
-                freefallTime: String(jump.freefallTime),
+                freefallTime:
+                    jump.freefallTime === 0 ? "" : String(jump.freefallTime),
                 description: jump.description ?? undefined,
                 gearUuids: gearRows.map((item) => item.gearUuid),
                 jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),

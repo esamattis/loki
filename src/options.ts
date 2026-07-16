@@ -158,6 +158,9 @@ export function altitudeInputValue(
     meters: number,
     units: UserOptions["altitudeUnits"],
 ): string {
+    if (meters === 0) {
+        return "";
+    }
     if (units === "feet") {
         return String(Math.round(meters / METERS_PER_FOOT));
     }

@@ -510,6 +510,39 @@ test("a skydiver can register and record their first jump", async ({
     );
 });
 
+test("a jump can be added without measurements or jump items", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("optional-jump-fields");
+    await page.locator('input[name="displayName"]').fill("Optional fields");
+    await page
+        .locator('input[name="email"]')
+        .fill("optional-jump-fields@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("");
+    await page.getByRole("button", { name: "Add jump" }).click();
+
+    await expect(page).toHaveURL("/logbook");
+    await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
+
+    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("");
+    await page.getByRole("button", { name: "Add jump" }).click();
+
+    await expect(page).toHaveURL("/logbook");
+    await expect(page.getByRole("link", { name: /#2/ })).toBeVisible();
+});
+
 test("gear can be converted to a jump type with its jump references", async ({
     page,
 }) => {

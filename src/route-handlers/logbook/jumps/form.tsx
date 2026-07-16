@@ -181,7 +181,6 @@ function FreefallTimeField(props: {
                     name="freefallTime"
                     type="number"
                     min="0"
-                    required
                     value={props.value}
                     className={FIELD_INPUT_CLASS}
                 />
@@ -234,6 +233,7 @@ function FreefallTimeField(props: {
                             id={customSpeedId}
                             label={`Custom speed (${speedUnitLabel(options.speedUnits)})`}
                             min="1"
+                            step="any"
                             value={speedInputValue(50, options.speedUnits)}
                             persist={`freefall-speed-estimate-${options.speedUnits}`}
                         />
@@ -305,7 +305,6 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 name="exitAltitude"
                 label={`Exit altitude (${altitudeUnitLabel(options.altitudeUnits)})`}
                 min="1"
-                required
                 value={props.values.exitAltitude ?? ""}
             />
             <NumberInput
@@ -313,7 +312,6 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 name="openingAltitude"
                 label={`Opening altitude (${altitudeUnitLabel(options.altitudeUnits)})`}
                 min="0"
-                required
                 value={props.values.openingAltitude ?? ""}
             />
             <FreefallTimeField

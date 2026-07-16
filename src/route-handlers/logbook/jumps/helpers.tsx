@@ -27,18 +27,33 @@ const JumpSchema = z.object({
         .int("Jump number must be a whole number")
         .positive("Jump number must be positive"),
     jumpDate: z.string().refine(isValidJumpDate, "Jump date must be valid"),
-    exitAltitude: z.coerce
-        .number()
-        .int("Exit altitude must be a whole number")
-        .positive("Exit altitude must be positive"),
-    openingAltitude: z.coerce
-        .number()
-        .int("Opening altitude must be a whole number")
-        .min(0, "Opening altitude cannot be negative"),
-    freefallTime: z.coerce
-        .number()
-        .int("Freefall time must be a whole number")
-        .min(0, "Freefall time cannot be negative"),
+    exitAltitude: z.preprocess(
+        (value) => (value === "" ? undefined : value),
+        z.coerce
+            .number()
+            .int("Exit altitude must be a whole number")
+            .positive("Exit altitude must be positive")
+            .optional()
+            .default(0),
+    ),
+    openingAltitude: z.preprocess(
+        (value) => (value === "" ? undefined : value),
+        z.coerce
+            .number()
+            .int("Opening altitude must be a whole number")
+            .min(0, "Opening altitude cannot be negative")
+            .optional()
+            .default(0),
+    ),
+    freefallTime: z.preprocess(
+        (value) => (value === "" ? undefined : value),
+        z.coerce
+            .number()
+            .int("Freefall time must be a whole number")
+            .min(0, "Freefall time cannot be negative")
+            .optional()
+            .default(0),
+    ),
     description: z.string().trim().max(2_000).optional(),
     gearUuids: z.array(z.string()).default([]),
     jumpTypeUuids: z.array(z.string()).default([]),
