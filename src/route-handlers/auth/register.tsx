@@ -49,6 +49,20 @@ function RegisterForm(props: {
             alternateHref={routes.auth.login({})}
             alternateLabel="← Already have an account? Log in"
         >
+            {!props.invitationRequired && (
+                <section className="rounded-xl bg-indigo-50 p-4 text-sm text-indigo-950 ring-1 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-100 dark:ring-indigo-800">
+                    <h3 className="font-bold">First account: administrator</h3>
+                    <p className="mt-1">
+                        This first account can manage users, grant or remove
+                        administrator access, create and manage invitations, and
+                        sign in as another user.
+                    </p>
+                    <p className="mt-2 font-medium">
+                        All later accounts are normal non-admin users and
+                        require an invitation created by an administrator.
+                    </p>
+                </section>
+            )}
             <RegistrationLocaleInputs />
             {props.invitationRequired && (
                 <TextInput

@@ -4,7 +4,16 @@ import { expect, test } from "./fixtures";
 test("bootstrap admin and require invitations for later users", async ({
     page,
 }) => {
-    await page.goto("/register");
+    await page.goto("/");
+    await expect(page).toHaveURL("/register");
+    await expect(
+        page.getByRole("heading", { name: "First account: administrator" }),
+    ).toBeVisible();
+    await expect(
+        page.getByText(
+            "All later accounts are normal non-admin users and require an invitation created by an administrator.",
+        ),
+    ).toBeVisible();
     await expect(page.locator('input[name="invitationCode"]')).toHaveCount(0);
     await page.locator('input[name="username"]').fill("test-admin");
     await page.locator('input[name="displayName"]').fill("Test Admin");

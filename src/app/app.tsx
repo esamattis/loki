@@ -778,6 +778,15 @@ function basicAuthChallenge(c: AppRequestContext) {
     });
 }
 
+async function hasRegisteredUsers(db: AppDatabase): Promise<boolean> {
+    const user = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .limit(1)
+        .get();
+    return Boolean(user);
+}
+
 async function authenticateMiddleware(
     c: AppRequestContext,
     next: () => Promise<void>,
@@ -842,6 +851,14 @@ async function authenticateMiddleware(
                 sessionCookieOptions(c.req.url),
             );
         }
+    }
+
+    if (
+        !ctx.user &&
+        path !== routes.auth.register.route &&
+        !(await hasRegisteredUsers(ctx.db))
+    ) {
+        return c.redirect(routes.auth.register({}));
     }
 
     const isPublicPath = PUBLIC_PATHS.some((publicPath) => publicPath === path);
