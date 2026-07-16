@@ -192,7 +192,15 @@ function rowToImportValue(fields: string[]): unknown {
 function parseCsvImport(
     content: string,
 ): { errors: string[] } | { records: ImportRecord[] } {
-    const rows = parseCsvRows(content);
+    const parseResult = parseCsvRows(content);
+    if (!parseResult.success) {
+        return {
+            errors: [
+                `CSV line ${parseResult.error.line}: ${parseResult.error.message}`,
+            ],
+        };
+    }
+    const rows = parseResult.rows;
     if (rows.length === 0) {
         return { errors: ["The import file is empty"] };
     }

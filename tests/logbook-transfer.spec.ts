@@ -556,6 +556,20 @@ test("a logbook can be imported with the JSON API", async ({
     expect(await invalidResponse.json()).toEqual({
         errors: [`CSV header must be: ${CSV_HEADER}`],
     });
+
+    const malformedResponse = await request.post("/logbook/transfer", {
+        headers: {
+            Authorization: basicAuthHeader("json-import-skydiver", "parachute"),
+        },
+        data: {
+            csv: `${CSV_HEADER}\njump,,,3,,,,,,,,,"unfinished`,
+            reset: false,
+        },
+    });
+    expect(malformedResponse.status()).toBe(400);
+    expect(await malformedResponse.json()).toEqual({
+        errors: ["CSV line 2: Unterminated quoted field"],
+    });
 });
 
 test("Basic auth works for protected routes", async ({ page, request }) => {

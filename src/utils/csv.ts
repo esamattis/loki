@@ -3,12 +3,20 @@ export interface CsvRow {
     line: number;
 }
 
+export type CsvParseResult =
+    | { success: true; rows: CsvRow[] }
+    | {
+          success: false;
+          error: { line: number; message: string };
+      };
+
 /** Parses CSV content into fields while preserving each row's starting line. */
-export function parseCsvRows(content: string): CsvRow[] {
+export function parseCsvRows(content: string): CsvParseResult {
     const rows: CsvRow[] = [];
     let fields: string[] = [];
     let current = "";
     let inQuotes = false;
+    let quotedFieldLine = 1;
     let hasContent = false;
     let line = 1;
     let rowLine = 1;
@@ -38,6 +46,7 @@ export function parseCsvRows(content: string): CsvRow[] {
             }
         } else if (ch === '"') {
             inQuotes = true;
+            quotedFieldLine = line;
             hasContent = true;
         } else if (ch === ",") {
             fields.push(current);
@@ -61,11 +70,20 @@ export function parseCsvRows(content: string): CsvRow[] {
             hasContent ||= ch.trim().length > 0;
         }
     }
+    if (inQuotes) {
+        return {
+            success: false,
+            error: {
+                line: quotedFieldLine,
+                message: "Unterminated quoted field",
+            },
+        };
+    }
     if (hasContent) {
         fields.push(current);
         rows.push({ fields, line: rowLine });
     }
-    return rows;
+    return { success: true, rows };
 }
 
 /** Splits a semicolon-separated CSV field, treating doubled semicolons as one. */
