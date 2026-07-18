@@ -130,7 +130,8 @@ function Hero(props: { loggedIn: boolean }) {
                 Loki is an open source digital logbook for skydivers and BASE
                 jumpers. Self-host, run it locally on your laptop, or use the
                 invite-only hosted version. Export a portable backup whenever
-                you want - your logbook data always stays yours. </p>
+                you want - your logbook data always stays yours.{" "}
+            </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <LandingActions loggedIn={props.loggedIn} />
             </div>
@@ -201,6 +202,16 @@ const FEATURES: Feature[] = [
         title: "AI vision imports",
         description:
             "Snap a photo of a paper logbook page, altimeter, or audible readout and let AI vision build the jump entry using your own OpenAI API key (BYOK).",
+    },
+    {
+        icon: (
+            <span className="font-mono text-lg font-bold text-indigo-500">
+                &gt;_
+            </span>
+        ),
+        title: "AI agent imports",
+        description:
+            "Give an AI coding agent your existing logbook files and Loki's migration instructions. The agent can inspect, combine, convert, validate, and import your jumps automatically.",
     },
     {
         icon: <TransferIcon className="h-6 w-6 text-indigo-500" />,
