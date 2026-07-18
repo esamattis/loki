@@ -34,6 +34,11 @@ import {
 } from "@/auth";
 import { createD1Database, type AppDatabase } from "@/db";
 import { htmlCacheMiddleware } from "@/app/html-cache";
+import {
+    createServerTimings,
+    type ServerTimings,
+    updatePageServerTiming,
+} from "@/server-timing";
 import { $select } from "@/utils";
 import {
     createAltitudeFormatter,
@@ -60,6 +65,7 @@ export interface AppContext {
     requestContext: AppRequestContext;
     cssDupCache: Set<string>;
     jsDupCache: Set<object>;
+    serverTimings: ServerTimings;
     altitudeFormatter(): AltitudeFormatter;
     dateFormatter(): DateFormatter;
     distanceFormatter(): DistanceFormatter;
@@ -87,6 +93,8 @@ export interface Variables {
 export interface AppBindings extends CloudflareBindings {
     /** Pre-built Drizzle client for Node/self-host. When set, DB is unused. */
     APP_DB?: AppDatabase;
+    /** Build a request-scoped Drizzle client for Node/self-host. */
+    APP_DB_FACTORY?: (timings: ServerTimings) => AppDatabase;
     /** Absolute database path exposed by the self-contained Node binary. */
     APP_SQLITE_PATH?: string;
 }
@@ -548,8 +556,12 @@ async function setAppContextMiddleware(
     c: AppRequestContext,
     next: () => Promise<void>,
 ) {
+    const serverTimings = createServerTimings();
     c.set("appContext", {
-        db: c.env.APP_DB ?? createD1Database(c.env.DB),
+        db:
+            c.env.APP_DB_FACTORY?.(serverTimings) ??
+            c.env.APP_DB ??
+            createD1Database(c.env.DB, serverTimings),
         sqlitePath: c.env.APP_SQLITE_PATH,
         user: null,
         getUser() {
@@ -562,6 +574,7 @@ async function setAppContextMiddleware(
         requestContext: c,
         cssDupCache: new Set(),
         jsDupCache: new Set(),
+        serverTimings,
         altitudeFormatter() {
             const options = this.getUser().options;
             return createAltitudeFormatter(
@@ -595,7 +608,11 @@ async function setAppContextMiddleware(
             return new URL(c.req.url);
         },
     });
-    await next();
+    try {
+        await next();
+    } finally {
+        updatePageServerTiming(c, serverTimings);
+    }
 }
 
 app.use("*", setAppContextMiddleware);

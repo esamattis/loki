@@ -49,6 +49,9 @@ test("page caching invalidates on POST and can be disabled", async ({
     const cachedResponse = await page.request.get("/logbook");
     expect(cachedResponse.headers()["cache-control"]).toBe("private, no-store");
     expect(cachedResponse.headers()["x-loki-html-cache"]).toBe("HIT");
+    expect(cachedResponse.headers()["server-timing"]).toMatch(
+        /^sql;dur=\d+\.\d{2}, sql-longest;dur=\d+\.\d{2}, page;dur=\d+\.\d{2}$/,
+    );
     expect(await cachedResponse.text()).toContain(initialName);
 
     const updatedName = "Invalidated Skydiver";

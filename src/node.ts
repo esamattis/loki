@@ -9,7 +9,11 @@ import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
 import { app } from "@/app/app";
 import { registerRoutes } from "@/app/register-routes";
-import { createSqliteDatabase, defaultSqliteDirectory } from "@/db-sqlite";
+import {
+    createSqliteDatabase,
+    createSqliteDrizzleDatabase,
+    defaultSqliteDirectory,
+} from "@/db-sqlite";
 import { migrateSqlite } from "@/migrate-sqlite";
 import { registerSeaStaticAssets } from "@/node-sea";
 import { buildTitle } from "@/build-info";
@@ -138,7 +142,7 @@ async function startServer(args: {
 }): Promise<void> {
     registerRoutes(app);
 
-    const { db, sqlite, path } = createSqliteDatabase(
+    const { sqlite, path } = createSqliteDatabase(
         join(resolve(args.sqliteDir), "loki.sqlite"),
     );
     const selfContained = isSea();
@@ -153,7 +157,8 @@ async function startServer(args: {
         fetch(request, env) {
             return app.fetch(request, {
                 ...env,
-                APP_DB: db,
+                APP_DB_FACTORY: (timings) =>
+                    createSqliteDrizzleDatabase(sqlite, timings),
                 APP_SQLITE_PATH: selfContained ? path : undefined,
             });
         },

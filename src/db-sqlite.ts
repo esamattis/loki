@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import { dirname, join, posix, resolve, win32 } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { AppDatabase } from "@/db";
+import { measureSqlSync, type ServerTimings } from "@/server-timing";
 
 export function defaultSqliteDirectory(
     platform: NodeJS.Platform = process.platform,
@@ -81,7 +82,21 @@ export function createSqliteDatabase(path = resolveSqlitePath()): {
     sqlite.exec("PRAGMA foreign_keys = ON");
 
     // Shared SQLite dialect; cast to the app's D1-shaped client type.
-    const drizzleDb = drizzleSqlite({ client: sqlite });
+    const db = createSqliteDrizzleDatabase(sqlite);
+
+    return {
+        db,
+        sqlite,
+        path: absolutePath,
+    };
+}
+
+export function createSqliteDrizzleDatabase(
+    sqlite: DatabaseSync,
+    timings?: ServerTimings,
+): AppDatabase {
+    const client = timings ? timedSqliteClient(sqlite, timings) : sqlite;
+    const drizzleDb = drizzleSqlite({ client });
     Object.assign(drizzleDb, {
         batch: async function batch(queries: BatchableQuery[]) {
             sqlite.exec("BEGIN");
@@ -95,11 +110,49 @@ export function createSqliteDatabase(path = resolveSqlitePath()): {
             }
         },
     });
-    const db = drizzleDb as unknown as AppDatabase;
+    return drizzleDb as unknown as AppDatabase;
+}
 
-    return {
-        db,
-        sqlite,
-        path: absolutePath,
-    };
+function timedSqliteClient(
+    sqlite: DatabaseSync,
+    timings: ServerTimings,
+): DatabaseSync {
+    return new Proxy(sqlite, {
+        get(target, property) {
+            if (property === "prepare") {
+                return function prepare(sql: string) {
+                    const statement = target.prepare(sql);
+                    return new Proxy(statement, {
+                        get(statementTarget, statementProperty) {
+                            if (
+                                statementProperty === "run" ||
+                                statementProperty === "all" ||
+                                statementProperty === "get"
+                            ) {
+                                return function execute(...params: unknown[]) {
+                                    return measureSqlSync(timings, () =>
+                                        Reflect.apply(
+                                            statementTarget[statementProperty],
+                                            statementTarget,
+                                            params,
+                                        ),
+                                    );
+                                };
+                            }
+                            const value = Reflect.get(
+                                statementTarget,
+                                statementProperty,
+                                statementTarget,
+                            );
+                            return typeof value === "function"
+                                ? value.bind(statementTarget)
+                                : value;
+                        },
+                    });
+                };
+            }
+            const value = Reflect.get(target, property, target);
+            return typeof value === "function" ? value.bind(target) : value;
+        },
+    });
 }

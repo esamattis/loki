@@ -3,6 +3,7 @@ import { gitRevision } from "@/build-info";
 import { getAppContext, type AppRequestContext, type User } from "@/app/app";
 import * as routes from "@/routes";
 import { users } from "@/schema";
+import { setServerTiming } from "@/server-timing";
 
 const CACHE_NAME = "loki-html-v1";
 const CACHE_TTL_SECONDS = 5 * 60;
@@ -62,6 +63,7 @@ async function bypassCache(
 function responseForCache(response: Response): Response {
     const headers = new Headers(response.headers);
     headers.set("Cache-Control", `public, max-age=${CACHE_TTL_SECONDS}`);
+    headers.delete("Server-Timing");
     return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
@@ -141,6 +143,7 @@ export async function htmlCacheMiddleware(
         return;
     }
 
+    setServerTiming(c, getAppContext(c).serverTimings);
     const response = c.res;
     await cache.put(key, responseForCache(response.clone()));
     c.res = responseForClient(response, "MISS");
