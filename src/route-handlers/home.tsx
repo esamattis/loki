@@ -14,7 +14,7 @@ import * as routes from "@/routes";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
 const RELEASES_URL = `${REPOSITORY_URL}/releases`;
-const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/ABOUT_PLACEHOLDER";
+const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/wph46K999hQ";
 
 const cardClassName =
     "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900";
