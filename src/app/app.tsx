@@ -18,6 +18,7 @@ import { ServiceWorkerRegistration } from "@/components/service-worker-registrat
 import { ThemeScript } from "@/components/theme-script";
 import { Tooltips } from "@/components/tooltips";
 import { UnsavedChangesDialog as UnsavedChangesDialogComponent } from "@/components/unsaved-changes-dialog";
+import { ReturnAfterFormPost } from "@/components/return-after-form-post";
 import { UpdateToast as UpdateToastComponent } from "@/components/update-toast";
 import { sessions, users } from "@/schema";
 import * as routes from "@/routes";
@@ -843,6 +844,7 @@ app.use(
                     }}
                     className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200"
                 >
+                    <ReturnAfterFormPost />
                     <div className="min-h-screen">{props.children}</div>
                     <UnsavedChangesDialogComponent />
                     <UpdateToastComponent />

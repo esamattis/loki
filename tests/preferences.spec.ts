@@ -119,18 +119,31 @@ function deleteLogbookDataButton(page: Page) {
         .getByRole("button");
 }
 
-test("saving preferences returns to the originating pathname", async ({
+test("saving preferences returns to the originating route", async ({
     page,
 }) => {
     await registerUser(page, "preferences-back", "Preferences Back");
-    await page.getByRole("link", { name: "Add jump", exact: true }).click();
+    await page.goto("/logbook/jumps/new?jumpNumber=42");
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page).toHaveURL("/preferences?back=%2Flogbook%2Fjumps%2Fnew");
+    await expect(page).toHaveURL("/preferences");
+    expect(
+        await page.evaluate(() =>
+            sessionStorage.getItem("return-after-form-post"),
+        ),
+    ).toContain("/logbook/jumps/new?jumpNumber=42");
+    await expect(
+        page.locator('input[name="__loki_redirect_back_after_post"]'),
+    ).toHaveValue("true");
 
     await page.getByRole("button", { name: "Save preferences" }).click();
-    await expect(page).toHaveURL("/logbook/jumps/new");
+    await expect(page).toHaveURL("/logbook/jumps/new?jumpNumber=42");
+    expect(
+        await page.evaluate(() =>
+            sessionStorage.getItem("return-after-form-post"),
+        ),
+    ).toBeNull();
 });
 
 test("a skydiver can update preferences and account details", async ({
@@ -140,7 +153,7 @@ test("a skydiver can update preferences and account details", async ({
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page).toHaveURL("/preferences?back=%2Flogbook");
+    await expect(page).toHaveURL("/preferences");
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         /Treat "WS" as the jump type "Wingsuit"/,
     );
@@ -319,7 +332,7 @@ test("a skydiver can permanently delete their account and all jump items", async
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page).toHaveURL("/preferences?back=%2Flogbook");
+    await expect(page).toHaveURL("/preferences");
     await expect(page.getByText("Danger zone")).toBeVisible();
 
     const button = deleteAccountButton(page);

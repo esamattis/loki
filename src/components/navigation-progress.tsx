@@ -97,10 +97,11 @@ function $disableFormOnSubmit(config: {
         setTimeout(() => {
             for (const element of form.elements)
                 if (
-                    element instanceof HTMLInputElement ||
-                    element instanceof HTMLButtonElement ||
-                    element instanceof HTMLSelectElement ||
-                    element instanceof HTMLTextAreaElement
+                    (element instanceof HTMLInputElement ||
+                        element instanceof HTMLButtonElement ||
+                        element instanceof HTMLSelectElement ||
+                        element instanceof HTMLTextAreaElement) &&
+                    !element.hasAttribute("data-loki-keep-enabled-on-submit")
                 )
                     element.disabled = true;
         }, 0);

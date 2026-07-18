@@ -2,6 +2,7 @@ import { z } from "zod";
 import { getAppContext, type AppRequestContext, type User } from "@/app/app";
 import { FormActions, Input, NumberInput } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
+import { RedirectBackAfterPost } from "@/components/return-after-form-post";
 import * as routes from "@/routes";
 
 export function requireAdmin(c: AppRequestContext): User | null {
@@ -44,6 +45,7 @@ export function InvitationForm(props: {
             }
             className="max-w-xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
+            <RedirectBackAfterPost />
             <ErrorList
                 errors={props.errors ?? []}
                 className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"

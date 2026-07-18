@@ -1,7 +1,6 @@
 import { and, eq, ne } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { z } from "zod";
-import { isSafeRedirectPath } from "@/auth";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     Button,
@@ -13,6 +12,7 @@ import {
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Script } from "@/components/script";
+import { RedirectBackAfterPost } from "@/components/return-after-form-post";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
 import { hashPassword } from "@/auth";
@@ -367,17 +367,17 @@ function PasswordSection() {
 function PreferencesForm(props: {
     formId: string;
     values: PreferencesFormValues;
-    back?: string;
     errors?: string[];
 }) {
     return (
         <form
             id={props.formId}
             method="post"
-            action={routes.preferences({}, { back: props.back })}
+            action={routes.preferences({})}
             data-loki-confirm="Edit Preferences"
             className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
+            <RedirectBackAfterPost />
             <ErrorList
                 errors={props.errors ?? []}
                 className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
@@ -423,7 +423,6 @@ function PreferencesForm(props: {
 
 function PreferencesPage(props: {
     values: PreferencesFormValues;
-    back?: string;
     errors?: string[];
 }) {
     const formId = useId();
@@ -445,7 +444,6 @@ function PreferencesPage(props: {
             <PreferencesForm
                 formId={formId}
                 values={props.values}
-                back={props.back}
                 errors={props.errors}
             />
             <DangerZoneSection />
@@ -520,11 +518,7 @@ function renderPreferences(
     values = getFormValues(c),
     errors?: string[],
 ) {
-    const requestedBack = c.req.query("back");
-    const back = isSafeRedirectPath(requestedBack) ? requestedBack : undefined;
-    return c.render(
-        <PreferencesPage values={values} back={back} errors={errors} />,
-    );
+    return c.render(<PreferencesPage values={values} errors={errors} />);
 }
 
 function renderPreferencesPage(c: AppRequestContext) {
@@ -623,10 +617,7 @@ async function handlePreferences(c: AppRequestContext) {
         })
         .where(eq(users.uuid, user.uuid));
 
-    const back = c.req.query("back");
-    return c.redirect(
-        isSafeRedirectPath(back) ? back : routes.logbook.index({}),
-    );
+    return c.redirect(routes.logbook.index({}));
 }
 
 export function register(app: App) {

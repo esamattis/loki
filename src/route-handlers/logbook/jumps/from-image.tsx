@@ -274,7 +274,7 @@ function JumpFromImagePage(props: {
                         <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
                             Add an OpenAI API key in{" "}
                             <a
-                                href={`${routes.preferences({}, {})}#openai`}
+                                href={`${routes.preferences({})}#openai`}
                                 className="font-medium underline"
                             >
                                 Preferences
@@ -305,7 +305,7 @@ function JumpFromImagePage(props: {
                                 (e.g. RW means Formation Skydiving). Change the
                                 default image reading prompt in{" "}
                                 <a
-                                    href={routes.preferences({}, {})}
+                                    href={routes.preferences({})}
                                     className="font-medium text-indigo-600 underline dark:text-indigo-400"
                                 >
                                     Preferences
@@ -332,7 +332,7 @@ function JumpFromImagePage(props: {
                                 Prefills from your saved default. Change for
                                 this read, or set the default in{" "}
                                 <a
-                                    href={routes.preferences({}, {})}
+                                    href={routes.preferences({})}
                                     className="font-medium text-indigo-600 underline dark:text-indigo-400"
                                 >
                                     Preferences

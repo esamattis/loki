@@ -40,8 +40,6 @@ const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
 function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
-    const pathname = useAppContext().url().pathname;
-
     return (
         <DropdownMenu
             label="Menu"
@@ -88,7 +86,7 @@ function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
                     Admin
                 </MenuLink>
             )}
-            <MenuLink href={routes.preferences({}, { back: pathname })}>
+            <MenuLink href={routes.preferences({})}>
                 <PreferencesIcon className={menuIconClassName} />
                 Preferences
             </MenuLink>
