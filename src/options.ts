@@ -1,20 +1,8 @@
 import { z } from "zod";
+import { METERS_PER_FOOT } from "@/altitude";
+import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/jump-image";
 
-/** Fixed system instructions for structured jump image extraction. */
-export const JUMP_IMAGE_SYSTEM_PROMPT = `Extract structured data for exactly one skydiving jump from the provided image and return it using the output schema.
-
-If the image contains multiple jumps, use the user's additional context to select the requested jump. Never combine values from different jumps.
-
-Use only information that is clearly visible or confidently readable in the image. Return null for unreadable fields and never invent details.`;
-
-/** Default user-editable instructions for interpreting jump image content. */
-export const DEFAULT_JUMP_IMAGE_PROMPT = `- Read the jump number and full date without guessing any missing parts.
-- Read the exit and opening altitudes in my selected altitude unit.
-- Read the freefall duration in whole seconds.
-- Identify the drop zone or location, aircraft, gear, and jump types.
-- Prefer the names already used in my logbook.
-- Treat "WS" as the jump type "Wingsuit" and "Delay" as the freefall time.
-- Include any other clearly readable notes, such as weather, formation, instructors, or incidents, even if a note is only one word.`;
+export { altitudeToMeters } from "@/altitude";
 
 /** Vision-capable OpenAI models suited to structured logbook image extraction. */
 export const JUMP_IMAGE_MODEL_IDS = [
@@ -110,8 +98,6 @@ export type UserOptions = z.output<typeof UserOptionsSchema>;
 
 export const DEFAULT_USER_OPTIONS_JSON = JSON.stringify(DEFAULT_USER_OPTIONS);
 
-const METERS_PER_FOOT = 0.3048;
-
 export function numberFormatLocale(
     format: UserOptions["numberFormat"],
 ): string {
@@ -168,16 +154,6 @@ export function altitudeInputValue(
         return String(Math.round(meters / METERS_PER_FOOT));
     }
     return String(meters);
-}
-
-export function altitudeToMeters(
-    altitude: number,
-    units: UserOptions["altitudeUnits"],
-): number {
-    if (units === "feet") {
-        return Math.round(altitude * METERS_PER_FOOT);
-    }
-    return Math.round(altitude);
 }
 
 export function altitudeUnitLabel(units: UserOptions["altitudeUnits"]): string {

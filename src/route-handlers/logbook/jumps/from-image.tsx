@@ -3,7 +3,6 @@ import { generateText, Output, type LanguageModelUsage } from "ai";
 import clsx from "clsx";
 import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
-import { z } from "zod";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ErrorList } from "@/components/feedback";
 import { CameraIcon, ClipboardIcon } from "@/components/icons";
@@ -15,13 +14,18 @@ import {
 } from "@/components/form";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
-    DEFAULT_JUMP_IMAGE_PROMPT,
-    JUMP_IMAGE_SYSTEM_PROMPT,
     JUMP_IMAGE_MODELS,
-    altitudeUnitLabel,
+    altitudeInputValue,
     resolveJumpImageModel,
     type UserOptions,
 } from "@/options";
+import {
+    DEFAULT_JUMP_IMAGE_PROMPT,
+    JUMP_IMAGE_SYSTEM_PROMPT,
+    JumpImageDataSchema,
+    type JumpImageData,
+    type JumpImageInput,
+} from "@/jump-image";
 import * as routes from "@/routes";
 import { aircrafts, gear, jumpTypes, locations } from "@/schema";
 import {
@@ -34,98 +38,6 @@ import {
 } from "@/route-handlers/logbook/components/ai-usage";
 import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/authenticated-page";
-
-const MAX_JUMP_ITEM_NAME_LENGTH = 200;
-const MAX_JUMP_ITEMS_PER_TYPE = 20;
-
-function isValidJumpDate(value: string): boolean {
-    const date = new Date(`${value}T00:00:00.000Z`);
-    return (
-        !Number.isNaN(date.getTime()) &&
-        date.toISOString().slice(0, 10) === value
-    );
-}
-
-const JumpImageItemNameSchema = z
-    .string()
-    .trim()
-    .min(1)
-    .max(MAX_JUMP_ITEM_NAME_LENGTH);
-
-const JumpImageDataSchema = z.object({
-    jumpDate: z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/)
-        .refine(isValidJumpDate)
-        .nullable()
-        .describe("Jump date as YYYY-MM-DD, or null if not readable"),
-    jumpNumber: z
-        .number()
-        .int()
-        .positive()
-        .nullable()
-        .describe("Jump number if present, or null if not readable"),
-    exitAltitude: z
-        .number()
-        .int()
-        .positive()
-        .lt(10_000)
-        .nullable()
-        .describe(
-            "Exit altitude in the requested unit, less than 10,000, or null if not readable",
-        ),
-    openingAltitude: z
-        .number()
-        .int()
-        .min(0)
-        .lt(10_000)
-        .nullable()
-        .describe(
-            "Opening altitude in the requested unit, less than 10,000, or null if not readable",
-        ),
-    freefallTime: z
-        .number()
-        .int()
-        .min(0)
-        .lt(300)
-        .nullable()
-        .describe(
-            "Freefall time in whole seconds, less than 300, or null if not readable",
-        ),
-    location: z
-        .string()
-        .trim()
-        .min(1)
-        .max(MAX_JUMP_ITEM_NAME_LENGTH)
-        .nullable()
-        .describe("Drop zone or location name, or null if not readable"),
-    aircraft: z
-        .array(JumpImageItemNameSchema)
-        .max(MAX_JUMP_ITEMS_PER_TYPE)
-        .nullable()
-        .describe("Aircraft names, or null if not readable"),
-    gear: z
-        .array(JumpImageItemNameSchema)
-        .max(MAX_JUMP_ITEMS_PER_TYPE)
-        .nullable()
-        .describe("Gear names used on the jump, or null if not readable"),
-    jumpType: z
-        .array(JumpImageItemNameSchema)
-        .max(MAX_JUMP_ITEMS_PER_TYPE)
-        .nullable()
-        .describe("Jump type or discipline names, or null if not readable"),
-    description: z
-        .string()
-        .trim()
-        .min(1)
-        .max(2_000)
-        .nullable()
-        .describe(
-            "Any additional notes from the image, or null if not readable",
-        ),
-});
-
-type JumpImageData = z.infer<typeof JumpImageDataSchema>;
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -471,11 +383,11 @@ async function renderJumpFromImage(
     );
 }
 
-const PLAYWRIGHT_MOCK_JUMP_DATA: JumpImageData = {
+const PLAYWRIGHT_MOCK_JUMP_DATA: JumpImageInput = {
     jumpDate: "2024-06-15",
     jumpNumber: 42,
-    exitAltitude: 4000,
-    openingAltitude: 1200,
+    exitAltitude: { value: 13_123, unit: "feet" },
+    openingAltitude: { value: 3_937, unit: "feet" },
     freefallTime: 50,
     location: "Image Drop Zone",
     aircraft: ["Image Plane"],
@@ -514,7 +426,7 @@ function applyOpeningAltitudeFallback(
     };
 }
 
-function getPlaywrightMockJumpData(additionalContext: string): JumpImageData {
+function getPlaywrightMockJumpData(additionalContext: string): JumpImageInput {
     if (additionalContext === "Mock unreadable required fields") {
         return {
             ...PLAYWRIGHT_MOCK_JUMP_DATA,
@@ -551,7 +463,9 @@ async function extractJumpDataFromImage(options: {
     if (isPlaywrightTest()) {
         return {
             data: applyOpeningAltitudeFallback(
-                getPlaywrightMockJumpData(options.additionalContext),
+                JumpImageDataSchema.parse(
+                    getPlaywrightMockJumpData(options.additionalContext),
+                ),
                 options.altitudeUnits,
             ),
             usage: PLAYWRIGHT_MOCK_USAGE,
@@ -559,12 +473,11 @@ async function extractJumpDataFromImage(options: {
     }
 
     const openai = createOpenAI({ apiKey: options.apiKey });
-    const unitLabel = altitudeUnitLabel(options.altitudeUnits);
     const prompt = options.prompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT;
     const userText = [
         `User's image reading instructions:\n${prompt}`,
-        `Altitude unit for exitAltitude and openingAltitude: ${options.altitudeUnits} (${unitLabel}).`,
-        "Match names to these existing logbook items when possible:",
+        "Extract exitAltitude and openingAltitude as their visible values and source units. Supported source units are meters and feet. Do not convert them. If a source unit is not explicit in the image or supplied in the user's additional context, return null for that altitude.",
+        "Match a readable name to one of these existing logbook items only when the match is unambiguous; otherwise preserve the readable name from the image:",
         buildResourceHint("Locations", options.resources.locations),
         buildResourceHint("Aircraft", options.resources.aircrafts),
         buildResourceHint("Gear", options.resources.gear),
@@ -612,7 +525,10 @@ async function extractJumpDataFromImage(options: {
 function buildJumpNewQuery(
     data: JumpImageData,
     resources: Awaited<ReturnType<typeof getJumpItemResources>>,
-    imageId: string | undefined,
+    options: {
+        imageId: string | undefined;
+        altitudeUnits: UserOptions["altitudeUnits"];
+    },
 ) {
     const locationUuid = findResourceUuid(resources.locations, data.location);
     const aircraft = resolveResourceNames(resources.aircrafts, data.aircraft);
@@ -624,15 +540,20 @@ function buildJumpNewQuery(
 
     return {
         fromImage: "1",
-        imageId,
+        imageId: options.imageId,
         jumpDate: data.jumpDate ?? undefined,
         jumpNumber:
             data.jumpNumber != null ? String(data.jumpNumber) : undefined,
         exitAltitude:
-            data.exitAltitude != null ? String(data.exitAltitude) : undefined,
+            data.exitAltitude != null
+                ? altitudeInputValue(data.exitAltitude, options.altitudeUnits)
+                : undefined,
         openingAltitude:
             data.openingAltitude != null
-                ? String(data.openingAltitude)
+                ? altitudeInputValue(
+                      data.openingAltitude,
+                      options.altitudeUnits,
+                  )
                 : undefined,
         freefallTime:
             data.freefallTime != null ? String(data.freefallTime) : undefined,
@@ -740,7 +661,10 @@ async function handleJumpFromImage(c: AppRequestContext) {
         return c.redirect(
             routes.logbook.jumps.new(
                 {},
-                buildJumpNewQuery(data, resources, imageId),
+                buildJumpNewQuery(data, resources, {
+                    imageId,
+                    altitudeUnits: options.altitudeUnits,
+                }),
             ),
         );
     } catch (error) {

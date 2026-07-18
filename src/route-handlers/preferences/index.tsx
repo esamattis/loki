@@ -17,9 +17,9 @@ import { DangerZone } from "@/components/ui/danger-zone";
 import { hashPassword } from "@/auth";
 import { Password } from "@/route-handlers/auth/components";
 import { destroySession } from "@/route-handlers/auth/sessions";
+import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/jump-image";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
-    DEFAULT_JUMP_IMAGE_PROMPT,
     JUMP_IMAGE_MODELS,
     UserOptionsSchema,
     type UserOptions,
