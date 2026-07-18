@@ -1,7 +1,6 @@
 import { useId } from "hono/jsx";
-import { $assertElement } from "@/utils";
 import { Script } from "@/components/script";
-import { $renderTemplate } from "@/utils";
+import { $el, $elAll, $elById, $renderTemplate } from "@/utils";
 
 function $initTooltips(templateId: string) {
     const container = document.createElement("div");
@@ -9,20 +8,19 @@ function $initTooltips(templateId: string) {
     const tooltipElement = container.firstElementChild;
     if (!(tooltipElement instanceof HTMLElement)) return;
     document.body.appendChild(tooltipElement);
-    const tooltipNode = document.getElementById("tooltip");
-    const tooltipTextNode = tooltipNode?.querySelector(
+    const tooltipNode = $elById("tooltip", HTMLDivElement);
+    const tooltipTextNode = $el(
         "[data-loki-tooltip-text]",
+        HTMLSpanElement,
+        tooltipNode,
     );
-    $assertElement(tooltipNode, HTMLDivElement);
-    $assertElement(tooltipTextNode, HTMLSpanElement);
     const tooltip: HTMLDivElement = tooltipNode;
     const tooltipText: HTMLSpanElement = tooltipTextNode;
     let activeTarget: HTMLElement | null = null;
     function getTooltipTarget(target: EventTarget | null): HTMLElement | null {
         if (!(target instanceof Element)) return null;
         const tooltipTarget = target.closest("[data-loki-tooltip]");
-        if (!tooltipTarget) return null;
-        $assertElement(tooltipTarget, HTMLElement);
+        if (!(tooltipTarget instanceof HTMLElement)) return null;
         return tooltipTarget.dataset.lokiTooltip ? tooltipTarget : null;
     }
     function showTooltip(target: HTMLElement) {
@@ -103,7 +101,7 @@ export function Tooltips() {
                 </div>
             </template>
             <Script
-                $deps={[$renderTemplate, $assertElement]}
+                $deps={[$el, $elAll, $elById, $renderTemplate]}
                 $args={[templateId]}
                 $exec={$initTooltips}
             />

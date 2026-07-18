@@ -1,20 +1,26 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $assertElement, $renderTemplate } from "@/utils";
+import {
+    $el,
+    $elAll,
+    $elById,
+    $elByIdOrNull,
+    $elOrNull,
+    $renderTemplate,
+} from "@/utils";
 
 function $showNavigationProgress(options: {
     mode: "form" | "link";
     method?: string;
     templateId: string;
 }) {
-    if (document.getElementById("form-submit-progress")) return;
+    if ($elByIdOrNull("form-submit-progress", HTMLElement)) return;
     const isPost =
         options.mode === "form" &&
         (options.method ?? "get").toLowerCase() === "post";
     const container = document.createElement("div");
     $renderTemplate(container, options.templateId);
-    const progress = container.firstElementChild;
-    $assertElement(progress, HTMLElement);
+    const progress = $el(":scope > *", HTMLElement, container);
     progress.classList.toggle("form-submit-progress-post", isPost);
     progress.setAttribute(
         "aria-label",
@@ -28,7 +34,7 @@ function $showNavigationProgress(options: {
 }
 
 function $clearNavigationProgress() {
-    document.getElementById("form-submit-progress")?.remove();
+    $elByIdOrNull("form-submit-progress", HTMLElement)?.remove();
 }
 
 function $clearFormSubmitProgress(
@@ -44,7 +50,8 @@ function $clearFormSubmitProgress(
         "select-none",
     );
     submitter?.classList.remove("form-submit-pending");
-    submitter?.querySelector(".form-submit-spinner")?.remove();
+    if (submitter)
+        $elOrNull(".form-submit-spinner", HTMLElement, submitter)?.remove();
 }
 
 function $disableFormOnSubmit(config: {
@@ -69,11 +76,10 @@ function $disableFormOnSubmit(config: {
         const submitter = event.submitter;
         if (submitter instanceof HTMLButtonElement) {
             submitter.classList.add("form-submit-pending");
-            if (!submitter.querySelector(".form-submit-spinner")) {
+            if (!$elOrNull(".form-submit-spinner", HTMLElement, submitter)) {
                 const container = document.createElement("div");
                 $renderTemplate(container, config.spinnerTemplateId);
-                const spinner = container.firstElementChild;
-                $assertElement(spinner, HTMLElement);
+                const spinner = $el(":scope > *", HTMLElement, container);
                 submitter.insertBefore(spinner, submitter.firstChild);
             }
         }
@@ -156,7 +162,11 @@ export function DisableFormOnSubmit() {
             <Script
                 $deps={[
                     $renderTemplate,
-                    $assertElement,
+                    $el,
+                    $elAll,
+                    $elById,
+                    $elByIdOrNull,
+                    $elOrNull,
                     $showNavigationProgress,
                     $clearNavigationProgress,
                     $clearFormSubmitProgress,
@@ -175,7 +185,10 @@ export function ShowProgressOnLinkClick() {
             <Script
                 $deps={[
                     $renderTemplate,
-                    $assertElement,
+                    $el,
+                    $elAll,
+                    $elById,
+                    $elByIdOrNull,
                     $showNavigationProgress,
                     $clearNavigationProgress,
                 ]}

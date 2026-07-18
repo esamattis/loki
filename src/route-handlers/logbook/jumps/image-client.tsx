@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $assertElement, $renderTemplate } from "@/utils";
+import { $el, $elAll, $elById, $renderTemplate } from "@/utils";
 import * as routes from "@/routes";
 import {
     $appendJumpImageDrafts,
@@ -104,7 +104,9 @@ export function ImageGallery(props: {
             </template>
             <Script
                 $deps={[
-                    $assertElement,
+                    $el,
+                    $elAll,
+                    $elById,
                     $renderTemplate,
                     $appendJumpImageDrafts,
                     $loadImage,
@@ -357,26 +359,19 @@ export function $setupCameraImageInput(
 }
 
 export function $getJumpImageElements(props: JumpImageInputProps) {
-    const inputEl = document.getElementById(props.inputId);
-    const uploadInputEl = document.getElementById(props.uploadInputId);
-    const imageIdInputEl = document.getElementById(props.imageIdInputId);
-    const formEl = document.getElementById(props.formId);
-    const cameraInputEl = document.getElementById(props.cameraInputId);
-    const cameraButtonEl = document.getElementById(props.cameraButtonId);
-    const clipboardButtonEl = document.getElementById(props.clipboardButtonId);
-    const galleryEl = document.getElementById(props.galleryId);
-    const metaEl = document.getElementById(props.metaId);
-    const resizeNoteEl = document.getElementById(props.resizeNoteId);
-    $assertElement(inputEl, HTMLInputElement);
-    $assertElement(uploadInputEl, HTMLInputElement);
-    $assertElement(imageIdInputEl, HTMLInputElement);
-    $assertElement(formEl, HTMLFormElement);
-    $assertElement(cameraInputEl, HTMLInputElement);
-    $assertElement(cameraButtonEl, HTMLButtonElement);
-    $assertElement(clipboardButtonEl, HTMLButtonElement);
-    $assertElement(galleryEl, HTMLElement);
-    $assertElement(metaEl, HTMLElement);
-    $assertElement(resizeNoteEl, HTMLElement);
+    const inputEl = $elById(props.inputId, HTMLInputElement);
+    const uploadInputEl = $elById(props.uploadInputId, HTMLInputElement);
+    const imageIdInputEl = $elById(props.imageIdInputId, HTMLInputElement);
+    const formEl = $elById(props.formId, HTMLFormElement);
+    const cameraInputEl = $elById(props.cameraInputId, HTMLInputElement);
+    const cameraButtonEl = $elById(props.cameraButtonId, HTMLButtonElement);
+    const clipboardButtonEl = $elById(
+        props.clipboardButtonId,
+        HTMLButtonElement,
+    );
+    const galleryEl = $elById(props.galleryId, HTMLElement);
+    const metaEl = $elById(props.metaId, HTMLElement);
+    const resizeNoteEl = $elById(props.resizeNoteId, HTMLElement);
     return {
         input: inputEl,
         uploadInput: uploadInputEl,
@@ -421,22 +416,29 @@ export function $renderJumpImageGallery(options: {
         $renderTemplate(container, options.templateId, {
             meta: `${draft.file.name} · ${$formatJumpImageBytes(draft.file.size)}`,
         });
-        const item = container.firstElementChild;
-        $assertElement(item, HTMLElement);
-        const selectButton = item.querySelector("[data-loki-select-image]");
-        const image = item.querySelector("img");
-        const deleteButton = item.querySelector("[data-loki-delete-image]");
-        const readIndicator = item.querySelector("[data-loki-read-image]");
-        const createdJumps = item.querySelector("[data-loki-created-jumps]");
-        const createdJumpLinks = item.querySelector(
-            "[data-loki-created-jump-links]",
+        const item = $el(":scope > *", HTMLElement, container);
+        const selectButton = $el(
+            "[data-loki-select-image]",
+            HTMLButtonElement,
+            item,
         );
-        $assertElement(selectButton, HTMLButtonElement);
-        $assertElement(image, HTMLImageElement);
-        $assertElement(deleteButton, HTMLButtonElement);
-        $assertElement(readIndicator, HTMLElement);
-        $assertElement(createdJumps, HTMLElement);
-        $assertElement(createdJumpLinks, HTMLElement);
+        const image = $el("img", HTMLImageElement, item);
+        const deleteButton = $el(
+            "[data-loki-delete-image]",
+            HTMLButtonElement,
+            item,
+        );
+        const readIndicator = $el("[data-loki-read-image]", HTMLElement, item);
+        const createdJumps = $el(
+            "[data-loki-created-jumps]",
+            HTMLElement,
+            item,
+        );
+        const createdJumpLinks = $el(
+            "[data-loki-created-jump-links]",
+            HTMLElement,
+            item,
+        );
         selectButton.className = selectClass;
         selectButton.dataset.lokiSelectImage = draft.id;
         selectButton.setAttribute("aria-label", `Select ${draft.file.name}`);
@@ -448,8 +450,7 @@ export function $renderJumpImageGallery(options: {
             $renderTemplate(linkContainer, options.jumpLinkTemplateId, {
                 label: `Jump #${jump.jumpNumber}`,
             });
-            const link = linkContainer.firstElementChild;
-            $assertElement(link, HTMLAnchorElement);
+            const link = $el(":scope > *", HTMLAnchorElement, linkContainer);
             link.href = options.jumpEditUrlTemplate.replace(
                 "__JUMP_UUID__",
                 encodeURIComponent(jump.uuid),
@@ -467,18 +468,20 @@ export function $renderJumpImageGallery(options: {
         deleteButton.setAttribute("aria-label", `Delete ${draft.file.name}`);
         options.gallery.appendChild(item);
     }
-    for (const button of options.gallery.querySelectorAll(
+    for (const button of $elAll(
         "[data-loki-select-image]",
+        HTMLButtonElement,
+        options.gallery,
     )) {
-        $assertElement(button, HTMLButtonElement);
         button.addEventListener("click", () => {
             options.selectDraft(button.dataset.lokiSelectImage ?? "");
         });
     }
-    for (const button of options.gallery.querySelectorAll(
+    for (const button of $elAll(
         "[data-loki-delete-image]",
+        HTMLButtonElement,
+        options.gallery,
     )) {
-        $assertElement(button, HTMLButtonElement);
         button.addEventListener("click", () => {
             options.deleteDraft(button.dataset.lokiDeleteImage ?? "");
         });
@@ -538,8 +541,7 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
     const previewUrls = new Map<string, string>();
 
     function setProcessing(value: boolean) {
-        const submit = form.querySelector('button[type="submit"]');
-        $assertElement(submit, HTMLButtonElement);
+        const submit = $el('button[type="submit"]', HTMLButtonElement, form);
         processingCount += value ? 1 : -1;
         submit.disabled = processingCount > 0;
         if (processingCount > 0) {

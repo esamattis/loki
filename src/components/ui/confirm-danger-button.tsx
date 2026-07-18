@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 import { buttonClassName } from "@/components/form";
 import { Script } from "@/components/script";
 
@@ -18,8 +18,7 @@ function $initConfirmDangerButton(config: {
     confirmLabel: string;
     countdownSeconds: number;
 }) {
-    const button = document.getElementById(config.buttonId);
-    $assertElement(button, HTMLButtonElement);
+    const button = $elById(config.buttonId, HTMLButtonElement);
     const buttonElement = button;
     let state: "idle" | "ready" = "idle";
     let timer: ReturnType<typeof setInterval> | null = null;
@@ -101,7 +100,7 @@ function ConfirmDangerButtonScript(props: {
 }) {
     return (
         <Script
-            $deps={[$assertElement]}
+            $deps={[$elById]}
             $args={[
                 {
                     buttonId: props.buttonId,

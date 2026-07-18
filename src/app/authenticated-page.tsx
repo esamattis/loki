@@ -32,7 +32,7 @@ import {
     MenuLink,
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 
@@ -173,14 +173,10 @@ function $initThemeToggle(ids: {
     darkIconId: string;
     systemIconId: string;
 }) {
-    const buttonEl = document.getElementById(ids.buttonId);
-    $assertElement(buttonEl, HTMLButtonElement);
-    const lightIconEl = document.getElementById(ids.lightIconId);
-    $assertElement(lightIconEl, SVGSVGElement);
-    const darkIconEl = document.getElementById(ids.darkIconId);
-    $assertElement(darkIconEl, SVGSVGElement);
-    const systemIconEl = document.getElementById(ids.systemIconId);
-    $assertElement(systemIconEl, SVGSVGElement);
+    const buttonEl = $elById(ids.buttonId, HTMLButtonElement);
+    const lightIconEl = $elById(ids.lightIconId, SVGSVGElement);
+    const darkIconEl = $elById(ids.darkIconId, SVGSVGElement);
+    const systemIconEl = $elById(ids.systemIconId, SVGSVGElement);
     const button = buttonEl;
     const lightIcon = lightIconEl;
     const darkIcon = darkIconEl;
@@ -274,7 +270,7 @@ function ThemeToggle() {
                 <SystemThemeIcon id={systemIconId} className="h-4 w-4" />
             </Button>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elById]}
                 $args={[
                     {
                         buttonId: id,
@@ -290,8 +286,7 @@ function ThemeToggle() {
 }
 
 function $initMobileHeader(headerId: string) {
-    const headerEl = document.getElementById(headerId);
-    $assertElement(headerEl, HTMLElement);
+    const headerEl = $elById(headerId, HTMLElement);
     const header = headerEl;
     const smBreakpoint = getComputedStyle(document.documentElement)
         .getPropertyValue("--breakpoint-sm")
@@ -382,7 +377,7 @@ export function LogbookPage(props: {
                 </div>
             </header>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elById]}
                 $args={[headerId]}
                 $exec={$initMobileHeader}
             />

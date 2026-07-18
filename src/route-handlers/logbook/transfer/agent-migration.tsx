@@ -4,7 +4,7 @@ import { Code } from "@/components/ui/code";
 import { Details } from "@/components/ui/details";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 
 const agentLinkClassName =
     "font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300";
@@ -164,11 +164,10 @@ export function AgentMigrationCard() {
                     instructions to the agent.
                 </p>
                 <Script
-                    $deps={[$assertElement, $agentInstructions]}
+                    $deps={[$elById, $agentInstructions]}
                     $args={[codeId, username]}
                     $exec={(codeId, username) => {
-                        const code = document.getElementById(codeId);
-                        $assertElement(code, HTMLElement);
+                        const code = $elById(codeId, HTMLElement);
                         const uploadPath =
                             code.getAttribute("data-loki-upload-path") ?? "";
                         code.textContent = $agentInstructions(

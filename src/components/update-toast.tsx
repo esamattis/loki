@@ -1,15 +1,20 @@
-import { $assertElement } from "@/utils";
+import { $el, $elById } from "@/utils";
 import { Script } from "@/components/script";
 
 const UPDATE_TOAST_ID = "update-toast";
 function $initUpdateToast(toastId: string) {
-    const toast = document.getElementById(toastId);
-    $assertElement(toast, HTMLDivElement);
-    const reload = toast.querySelector("[data-loki-update-toast-reload]");
-    $assertElement(reload, HTMLButtonElement);
+    const toast = $elById(toastId, HTMLDivElement);
+    const reload = $el(
+        "[data-loki-update-toast-reload]",
+        HTMLButtonElement,
+        toast,
+    );
     reload.addEventListener("click", () => window.location.reload());
-    const dismiss = toast.querySelector("[data-loki-update-toast-dismiss]");
-    $assertElement(dismiss, HTMLButtonElement);
+    const dismiss = $el(
+        "[data-loki-update-toast-dismiss]",
+        HTMLButtonElement,
+        toast,
+    );
     dismiss.addEventListener("click", () => {
         toast.hidden = true;
     });
@@ -41,7 +46,7 @@ export function UpdateToast() {
                 Dismiss
             </button>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$el, $elById]}
                 $args={[UPDATE_TOAST_ID]}
                 $exec={$initUpdateToast}
             />

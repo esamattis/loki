@@ -33,7 +33,7 @@ import {
     type AuthenticatedUser,
 } from "@/auth";
 import { createD1Database, type AppDatabase } from "@/db";
-import { $assertElement } from "@/utils";
+import { $el, $elById, $elByIdOrNull } from "@/utils";
 import {
     createAltitudeFormatter,
     createDateFormatter,
@@ -313,8 +313,7 @@ export function $guardUnsavedFormChanges(dialogId: string) {
         event.returnValue = "";
     });
 
-    const dialog = document.getElementById(dialogId);
-    $assertElement(dialog, HTMLDialogElement);
+    const dialog = $elById(dialogId, HTMLDialogElement);
 
     dialog.addEventListener("click", (event) => {
         const target = event.target;
@@ -388,10 +387,8 @@ export function $applyStoredTheme() {
 const UPDATE_TOAST_ID = "update-toast";
 
 function $showUpdateToast(toastId: string) {
-    const toast = document.getElementById(toastId);
-    if (!(toast instanceof HTMLElement)) {
-        return;
-    }
+    const toast = $elByIdOrNull(toastId, HTMLElement);
+    if (!toast) return;
     toast.hidden = false;
 }
 
@@ -459,22 +456,23 @@ export function UpdateToast() {
                 Dismiss
             </button>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$el, $elById]}
                 $args={[UPDATE_TOAST_ID]}
                 $exec={(toastId: string) => {
-                    const toast = document.getElementById(toastId);
-                    $assertElement(toast, HTMLDivElement);
-                    const reload = toast.querySelector(
+                    const toast = $elById(toastId, HTMLDivElement);
+                    const reload = $el(
                         "[data-loki-update-toast-reload]",
+                        HTMLButtonElement,
+                        toast,
                     );
-                    $assertElement(reload, HTMLButtonElement);
                     reload.addEventListener("click", () => {
                         window.location.reload();
                     });
-                    const dismiss = toast.querySelector(
+                    const dismiss = $el(
                         "[data-loki-update-toast-dismiss]",
+                        HTMLButtonElement,
+                        toast,
                     );
-                    $assertElement(dismiss, HTMLButtonElement);
                     dismiss.addEventListener("click", () => {
                         toast.hidden = true;
                     });

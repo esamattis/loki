@@ -19,7 +19,7 @@ import {
     JumpItemSelect,
     type JumpItemResource,
 } from "@/components/jump-item-select";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/authenticated-page";
 import { formatCalendarDate } from "@/date-time";
@@ -75,39 +75,36 @@ function FreefallEstimateScript(props: {
 }) {
     return (
         <Script
-            $deps={[$assertElement]}
+            $deps={[$elById]}
             $args={[props]}
             $exec={(config) => {
-                const exitAltitude = document.getElementById(
+                const exitAltitude = $elById(
                     config.exitAltitudeId,
+                    HTMLInputElement,
                 );
-                const openingAltitude = document.getElementById(
+                const openingAltitude = $elById(
                     config.openingAltitudeId,
+                    HTMLInputElement,
                 );
-                const freefallTime = document.getElementById(
+                const freefallTime = $elById(
                     config.freefallTimeId,
+                    HTMLInputElement,
                 );
-                const estimateDialog = document.getElementById(
+                const estimateDialog = $elById(
                     config.estimateDialogId,
+                    HTMLDialogElement,
                 );
-                const customSpeed = document.getElementById(
+                const customSpeed = $elById(
                     config.customSpeedId,
+                    HTMLInputElement,
                 );
-                const customSpeedButton = document.getElementById(
+                const customSpeedButton = $elById(
                     config.customSpeedButtonId,
+                    HTMLButtonElement,
                 );
-                $assertElement(exitAltitude, HTMLInputElement);
-                $assertElement(openingAltitude, HTMLInputElement);
-                $assertElement(freefallTime, HTMLInputElement);
-                $assertElement(estimateDialog, HTMLDialogElement);
-                $assertElement(customSpeed, HTMLInputElement);
-                $assertElement(customSpeedButton, HTMLButtonElement);
                 const conversionFactor = Number(config.speedConversionFactor);
 
                 function estimateFreefallTime(speed: number) {
-                    $assertElement(exitAltitude, HTMLInputElement);
-                    $assertElement(openingAltitude, HTMLInputElement);
-                    $assertElement(freefallTime, HTMLInputElement);
                     const exit = Number(exitAltitude.value);
                     const opening = Number(openingAltitude.value);
                     if (
@@ -337,7 +334,7 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 />
             </div>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elById]}
                 $args={[
                     {
                         exitAltitudeId,
@@ -354,34 +351,31 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     },
                 ]}
                 $exec={(config) => {
-                    const exitAltitude = document.getElementById(
+                    const exitAltitude = $elById(
                         config.exitAltitudeId,
+                        HTMLInputElement,
                     );
-                    const openingAltitude = document.getElementById(
+                    const openingAltitude = $elById(
                         config.openingAltitudeId,
+                        HTMLInputElement,
                     );
-                    const freefallTime = document.getElementById(
+                    const freefallTime = $elById(
                         config.freefallTimeId,
+                        HTMLInputElement,
                     );
-                    const freefallDistance = document.getElementById(
+                    const freefallDistance = $elById(
                         config.freefallDistanceId,
+                        HTMLOutputElement,
                     );
-                    const avgSpeed = document.getElementById(config.avgSpeedId);
-                    $assertElement(exitAltitude, HTMLInputElement);
-                    $assertElement(openingAltitude, HTMLInputElement);
-                    $assertElement(freefallTime, HTMLInputElement);
-                    $assertElement(freefallDistance, HTMLOutputElement);
-                    $assertElement(avgSpeed, HTMLOutputElement);
+                    const avgSpeed = $elById(
+                        config.avgSpeedId,
+                        HTMLOutputElement,
+                    );
                     const conversionFactor = Number(
                         config.speedConversionFactor,
                     );
 
                     function updateFreefallStats() {
-                        $assertElement(exitAltitude, HTMLInputElement);
-                        $assertElement(openingAltitude, HTMLInputElement);
-                        $assertElement(freefallTime, HTMLInputElement);
-                        $assertElement(freefallDistance, HTMLOutputElement);
-                        $assertElement(avgSpeed, HTMLOutputElement);
                         const exit = Number(exitAltitude.value);
                         const opening = Number(openingAltitude.value);
                         if (
@@ -449,21 +443,17 @@ function JumpDateScript(props: {
 }) {
     return (
         <Script
-            $deps={[$assertElement]}
+            $deps={[$elById]}
             $args={[props]}
             $exec={(config) => {
-                const input = document.getElementById(config.inputId);
-                const value = document.getElementById(config.valueId);
-                const picker = document.getElementById(config.pickerId);
-                const pickerButton = document.getElementById(
+                const input = $elById(config.inputId, HTMLInputElement);
+                const value = $elById(config.valueId, HTMLInputElement);
+                const picker = $elById(config.pickerId, HTMLInputElement);
+                const pickerButton = $elById(
                     config.pickerButtonId,
+                    HTMLButtonElement,
                 );
-                const button = document.getElementById(config.buttonId);
-                $assertElement(input, HTMLInputElement);
-                $assertElement(value, HTMLInputElement);
-                $assertElement(picker, HTMLInputElement);
-                $assertElement(pickerButton, HTMLButtonElement);
-                $assertElement(button, HTMLButtonElement);
+                const button = $elById(config.buttonId, HTMLButtonElement);
 
                 function toIsoDate(displayValue: string) {
                     if (config.dateTimeFormat === "iso") return displayValue;
@@ -650,13 +640,11 @@ function JumpNumberField(props: { value: string; nextJumpNumber?: string }) {
                 </Button>
             </div>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elById]}
                 $args={[inputId, buttonId]}
                 $exec={(inputId, buttonId) => {
-                    const input = document.getElementById(inputId);
-                    const button = document.getElementById(buttonId);
-                    $assertElement(input, HTMLInputElement);
-                    $assertElement(button, HTMLButtonElement);
+                    const input = $elById(inputId, HTMLInputElement);
+                    const button = $elById(buttonId, HTMLButtonElement);
                     button.addEventListener("click", () => {
                         input.value =
                             input.getAttribute("data-loki-next-jump-number") ??

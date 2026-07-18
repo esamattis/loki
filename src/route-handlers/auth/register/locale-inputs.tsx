@@ -1,11 +1,10 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $assertElement } from "@/utils";
+import { $el, $elById } from "@/utils";
 import { DEFAULT_USER_OPTIONS } from "@/options";
 
 function $setRegistrationLocalePreferences(containerId: string) {
-    const container = document.getElementById(containerId);
-    $assertElement(container, HTMLDivElement);
+    const container = $elById(containerId, HTMLDivElement);
 
     const locale = navigator.language;
     const localeInfo = new Intl.Locale(locale).maximize();
@@ -40,10 +39,7 @@ function $setRegistrationLocalePreferences(containerId: string) {
     };
 
     for (const [name, value] of Object.entries(values)) {
-        const input: Element | null = container.querySelector(
-            `[name="${name}"]`,
-        );
-        $assertElement(input, HTMLInputElement);
+        const input = $el(`[name="${name}"]`, HTMLInputElement, container);
         input.value = value;
     }
 }
@@ -73,7 +69,7 @@ export function RegistrationLocaleInputs() {
                 value={DEFAULT_USER_OPTIONS.numberFormat}
             />
             <Script
-                $deps={[$assertElement]}
+                $deps={[$el, $elById]}
                 $args={[id]}
                 $exec={$setRegistrationLocalePreferences}
             />

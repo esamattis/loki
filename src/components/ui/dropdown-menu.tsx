@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 import { Script } from "@/components/script";
 
 const menuItemClassName =
@@ -30,10 +30,8 @@ export function MenuDivider() {
 }
 
 function $initDropdownMenu(buttonId: string, menuId: string) {
-    const button = document.getElementById(buttonId);
-    $assertElement(button, HTMLButtonElement);
-    const menu = document.getElementById(menuId);
-    $assertElement(menu, HTMLDivElement);
+    const button = $elById(buttonId, HTMLButtonElement);
+    const menu = $elById(menuId, HTMLDivElement);
     const buttonElement = button;
     const menuElement = menu;
 
@@ -67,7 +65,7 @@ function $initDropdownMenu(buttonId: string, menuId: string) {
 function DropdownMenuScript(props: { buttonId: string; menuId: string }) {
     return (
         <Script
-            $deps={[$assertElement]}
+            $deps={[$elById]}
             $args={[props.buttonId, props.menuId]}
             $exec={$initDropdownMenu}
         />

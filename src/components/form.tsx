@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 import { Script } from "@/components/script";
 
 export const labelClassName =
@@ -177,11 +177,10 @@ export function NumberInput(props: {
             />
             {props.persist ? (
                 <Script
-                    $deps={[$assertElement]}
+                    $deps={[$elById]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const input = document.getElementById(id);
-                        $assertElement(input, HTMLInputElement);
+                        const input = $elById(id, HTMLInputElement);
                         const storageKey = `number-input-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (stored !== null) {
@@ -230,11 +229,10 @@ export function Select(props: {
             </select>
             {props.persist ? (
                 <Script
-                    $deps={[$assertElement]}
+                    $deps={[$elById]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const select = document.getElementById(id);
-                        $assertElement(select, HTMLSelectElement);
+                        const select = $elById(id, HTMLSelectElement);
                         const storageKey = `select-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (
@@ -284,11 +282,10 @@ export function Textarea(props: {
             </textarea>
             {props.persist ? (
                 <Script
-                    $deps={[$assertElement]}
+                    $deps={[$elById]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const textarea = document.getElementById(id);
-                        $assertElement(textarea, HTMLTextAreaElement);
+                        const textarea = $elById(id, HTMLTextAreaElement);
                         const storageKey = `textarea-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (stored !== null) {

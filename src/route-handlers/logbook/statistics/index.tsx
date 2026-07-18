@@ -16,7 +16,7 @@ import {
     jumpsToGear,
     jumpsToJumpTypes,
 } from "@/schema";
-import { $assertElement } from "@/utils";
+import { $elAll, $elById } from "@/utils";
 import { LogbookPage } from "@/app/authenticated-page";
 import { JumpIssueList } from "@/route-handlers/logbook/statistics/jump-issue-list";
 
@@ -180,19 +180,19 @@ function YearlyJumpsHistogram(props: {
                 })}
             </div>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elAll, $elById]}
                 $args={[toggleId, containerId]}
                 $exec={(toggleId, containerId) => {
-                    const toggle = document.getElementById(toggleId);
-                    $assertElement(toggle, HTMLInputElement);
-                    const container = document.getElementById(containerId);
-                    $assertElement(container, HTMLDivElement);
+                    const toggle = $elById(toggleId, HTMLInputElement);
+                    const container = $elById(containerId, HTMLDivElement);
                     function applyGapVisibility(
                         checkbox: HTMLInputElement,
                         containerEl: HTMLDivElement,
                     ) {
-                        const gaps = containerEl.querySelectorAll<HTMLElement>(
+                        const gaps = $elAll(
                             ".histogram-gap-year",
+                            HTMLElement,
+                            containerEl,
                         );
                         const visible = checkbox.checked;
                         for (const gap of gaps) {

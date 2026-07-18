@@ -3,7 +3,7 @@ import { useId } from "hono/jsx";
 import { controlClassName } from "@/components/form";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { Script } from "@/components/script";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 
 export function Password(props: {
     name: string;
@@ -53,18 +53,16 @@ export function Password(props: {
                 </button>
             </div>
             <Script
-                $deps={[$assertElement]}
+                $deps={[$elById]}
                 $args={[{ inputId: id, toggleId, eyeIconId, eyeOffIconId }]}
                 $exec={(ids) => {
                     function togglePasswordVisibility() {
-                        const input = document.getElementById(ids.inputId);
-                        $assertElement(input, HTMLInputElement);
-                        const eyeIcon = document.getElementById(ids.eyeIconId);
-                        $assertElement(eyeIcon, SVGSVGElement);
-                        const eyeOffIcon = document.getElementById(
+                        const input = $elById(ids.inputId, HTMLInputElement);
+                        const eyeIcon = $elById(ids.eyeIconId, SVGSVGElement);
+                        const eyeOffIcon = $elById(
                             ids.eyeOffIconId,
+                            SVGSVGElement,
                         );
-                        $assertElement(eyeOffIcon, SVGSVGElement);
                         if (input.type === "password") {
                             input.type = "text";
                             eyeIcon.classList.add("hidden");
@@ -76,8 +74,10 @@ export function Password(props: {
                         }
                         input.focus();
                     }
-                    const toggleButton = document.getElementById(ids.toggleId);
-                    $assertElement(toggleButton, HTMLButtonElement);
+                    const toggleButton = $elById(
+                        ids.toggleId,
+                        HTMLButtonElement,
+                    );
                     toggleButton.addEventListener(
                         "click",
                         togglePasswordVisibility,

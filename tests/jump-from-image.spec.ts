@@ -335,7 +335,7 @@ test("from image form describes resized images", async ({ page }) => {
         };
     });
 
-    await page.evaluate(async () => {
+    await page.locator("input[multiple]").evaluate(async (input) => {
         const canvas = document.createElement("canvas");
         canvas.width = 4096;
         canvas.height = 4;
@@ -353,7 +353,6 @@ test("from image form describes resized images", async ({ page }) => {
                 }
             }, "image/png");
         });
-        const input = document.querySelector("input[multiple]");
         if (!(input instanceof HTMLInputElement)) {
             throw new Error("Image input is unavailable");
         }

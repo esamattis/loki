@@ -11,7 +11,7 @@ import { Code } from "@/components/ui/code";
 import { Details } from "@/components/ui/details";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
-import { $assertElement } from "@/utils";
+import { $elById } from "@/utils";
 
 /** Inline documentation for downloading the logbook export with curl over Basic auth. */
 export function ExportCurlHelp() {
@@ -46,12 +46,11 @@ export function ExportCurlHelp() {
                     with HTTP 401.
                 </p>
                 <Script
-                    $deps={[$assertElement]}
+                    $deps={[$elById]}
                     $args={[csvId, username]}
                     $exec={(csvId, username) => {
                         const origin = window.location.origin;
-                        const code = document.getElementById(csvId);
-                        $assertElement(code, HTMLElement);
+                        const code = $elById(csvId, HTMLElement);
                         const exportPath =
                             code.getAttribute("data-loki-export-path") ?? "";
                         code.textContent = `curl -OJ -u ${username}:<password> '${origin}${exportPath}'`;

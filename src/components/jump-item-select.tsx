@@ -12,7 +12,7 @@ import { useId, type Child } from "hono/jsx";
 import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import { Dialog } from "@/components/ui/dialog";
-import { $assertElement, $renderTemplate } from "@/utils";
+import { $el, $elAll, $elById, $elOrNull, $renderTemplate } from "@/utils";
 
 export interface JumpItemResource {
     uuid: string;
@@ -78,26 +78,24 @@ function JumpItemSelectScript(props: {
                 ></span>
             </template>
             <Script
-                $deps={[$renderTemplate, $assertElement]}
+                $deps={[$el, $elAll, $elById, $elOrNull, $renderTemplate]}
                 $args={[props]}
                 $exec={(config) => {
-                    const optionsEl = document.getElementById(config.optionsId);
-                    const summaryEl = document.getElementById(config.summaryId);
-                    $assertElement(optionsEl, HTMLDivElement);
-                    $assertElement(summaryEl, HTMLDivElement);
+                    const optionsEl = $elById(config.optionsId, HTMLDivElement);
+                    const summaryEl = $elById(config.summaryId, HTMLDivElement);
                     const options: HTMLDivElement = optionsEl;
                     const summary: HTMLDivElement = summaryEl;
 
                     function selectedInputs() {
                         return Array.from(
-                            options.querySelectorAll(
+                            $elAll(
                                 "[data-loki-jump-item-input]",
+                                HTMLInputElement,
+                                options,
                             ),
                         ).filter(
                             (element) =>
-                                element instanceof HTMLInputElement &&
-                                element.checked &&
-                                element.value !== "",
+                                element.checked && element.value !== "",
                         );
                     }
 
@@ -122,8 +120,11 @@ function JumpItemSelectScript(props: {
                                             ) ?? "",
                                     },
                                 );
-                                const item = container.firstElementChild;
-                                $assertElement(item, HTMLElement);
+                                const item = $el(
+                                    ":scope > *",
+                                    HTMLElement,
+                                    container,
+                                );
                                 const description = input.getAttribute(
                                     "data-loki-description",
                                 );
@@ -136,31 +137,35 @@ function JumpItemSelectScript(props: {
 
                     function setArchivedItemsVisible(visible: boolean) {
                         let hasSelectedArchivedItem = false;
-                        for (const element of options.querySelectorAll(
+                        for (const element of $elAll(
                             '[data-loki-archived="true"]',
+                            HTMLLabelElement,
+                            options,
                         )) {
-                            if (!(element instanceof HTMLLabelElement))
-                                continue;
-                            const input = element.querySelector("input");
-                            const selected =
-                                input instanceof HTMLInputElement &&
-                                input.checked;
+                            const input = $el(
+                                "input",
+                                HTMLInputElement,
+                                element,
+                            );
+                            const selected = input.checked;
                             hasSelectedArchivedItem ||= selected;
                             element.hidden = !(visible || selected);
                         }
-                        const archivedSection = options.querySelector(
+                        const archivedSection = $elOrNull(
                             "[data-loki-archived-section]",
+                            HTMLElement,
+                            options,
                         );
-                        if (archivedSection instanceof HTMLElement) {
+                        if (archivedSection) {
                             archivedSection.hidden = !(
                                 visible || hasSelectedArchivedItem
                             );
                         }
                         if (config.archivedButtonId === "") return;
-                        const button = document.getElementById(
+                        const button = $elById(
                             config.archivedButtonId,
+                            HTMLButtonElement,
                         );
-                        $assertElement(button, HTMLButtonElement);
                         button.dataset.lokiShowingArchived = visible
                             ? "true"
                             : "false";
@@ -172,19 +177,19 @@ function JumpItemSelectScript(props: {
                     options.addEventListener("change", () => {
                         updateSummary();
                         if (config.archivedButtonId === "") return;
-                        const button = document.getElementById(
+                        const button = $elById(
                             config.archivedButtonId,
+                            HTMLButtonElement,
                         );
-                        $assertElement(button, HTMLButtonElement);
                         setArchivedItemsVisible(
                             button.dataset.lokiShowingArchived === "true",
                         );
                     });
                     if (config.archivedButtonId !== "") {
-                        const button = document.getElementById(
+                        const button = $elById(
                             config.archivedButtonId,
+                            HTMLButtonElement,
                         );
-                        $assertElement(button, HTMLButtonElement);
                         button.addEventListener("click", () => {
                             setArchivedItemsVisible(
                                 button.dataset.lokiShowingArchived !== "true",
