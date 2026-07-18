@@ -46,10 +46,14 @@ function LoginForm(props: {
 
 async function renderLoginForm(c: AppRequestContext) {
     const user = getAppContext(c).user;
-    if (user) {
-        return c.redirect(routes.logbook.index({}));
-    }
     const back = c.req.query("back") ?? undefined;
+    if (user) {
+        const redirectTo =
+            isSafeRedirectPath(back) && back !== routes.auth.login.route
+                ? back
+                : routes.logbook.index({});
+        return c.redirect(redirectTo);
+    }
     return c.render(<LoginForm back={back} />);
 }
 
