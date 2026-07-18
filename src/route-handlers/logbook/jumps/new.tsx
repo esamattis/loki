@@ -24,7 +24,8 @@ import {
 function existingJumpNumberNotice(jumpNumber: number, existingUuid: string) {
     return (
         <>
-            Jump #{jumpNumber} already exists.{" "}
+            Jump #{jumpNumber} already exists. Creating new jump with the same
+            number will overwrite the existing jump.{" "}
             <a
                 href={routes.logbook.jumps.edit({ uuid: existingUuid })}
                 className="font-medium underline"
