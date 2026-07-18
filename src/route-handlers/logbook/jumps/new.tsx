@@ -12,7 +12,7 @@ import {
     JumpFormPage,
     type JumpFormValues,
 } from "@/route-handlers/logbook/jumps/form";
-import { JumpImageCreationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
+import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
 import * as routes from "@/routes";
 import {
     jumps,
@@ -332,10 +332,13 @@ export async function handleNewJump(c: AppRequestContext) {
     ]);
     if (sourceImageId) {
         return c.render(
-            <JumpImageCreationComplete
-                imageId={sourceImageId}
-                jumpUuid={jumpUuid}
-                jumpNumber={parsed.data.jumpNumber}
+            <JumpImageAssociationComplete
+                change={{
+                    action: "create",
+                    imageId: sourceImageId,
+                    jumpUuid,
+                    jumpNumber: parsed.data.jumpNumber,
+                }}
                 redirectUrl={routes.logbook.index({})}
             />,
         );

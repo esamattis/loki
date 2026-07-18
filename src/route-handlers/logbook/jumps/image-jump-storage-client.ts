@@ -1,21 +1,80 @@
 import {
     $loadJumpImageDrafts,
-    type CreatedJump,
     type JumpImageDraft,
+    type StoredJumpImage,
     type StoredJumpImages,
 } from "@/route-handlers/logbook/jumps/image-storage-client";
 
-export function $markImageJumpCreated(
-    imageId: string,
-    createdJump: CreatedJump,
+export type ImageJumpAssociationChange =
+    | {
+          action: "create";
+          imageId: string;
+          jumpUuid: string;
+          jumpNumber: number;
+      }
+    | { action: "update"; jumpUuid: string; jumpNumber: number }
+    | { action: "delete"; jumpUuid: string };
+
+export function $applyImageJumpAssociationChange(
+    image: StoredJumpImage,
+    change: ImageJumpAssociationChange,
+): StoredJumpImage {
+    const createdJumps = Array.isArray(image.createdJumps)
+        ? image.createdJumps
+        : [];
+    if (change.action === "delete") {
+        return {
+            ...image,
+            createdJumps: createdJumps.filter(
+                (jump) => jump.uuid !== change.jumpUuid,
+            ),
+        };
+    }
+    if (change.action === "update") {
+        return {
+            ...image,
+            createdJumps: createdJumps.map((jump) =>
+                jump.uuid === change.jumpUuid
+                    ? { ...jump, jumpNumber: change.jumpNumber }
+                    : jump,
+            ),
+        };
+    }
+    if (image.id !== change.imageId) {
+        return image;
+    }
+    return {
+        ...image,
+        createdJumps: [
+            ...createdJumps.filter((jump) => jump.uuid !== change.jumpUuid),
+            { uuid: change.jumpUuid, jumpNumber: change.jumpNumber },
+        ],
+    };
+}
+
+export function $updateImageJumpAssociation(
+    change: ImageJumpAssociationChange,
 ): Promise<void> {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("loki-jump-from-image", 1);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains("images")) {
+                db.createObjectStore("images");
+            }
+        };
         request.onerror = () =>
             reject(request.error ?? new Error("Failed to open IndexedDB"));
         request.onsuccess = () => {
             const db = request.result;
-            const tx = db.transaction("images", "readwrite");
+            let tx: IDBTransaction;
+            try {
+                tx = db.transaction("images", "readwrite");
+            } catch (error) {
+                db.close();
+                reject(error);
+                return;
+            }
             const store = tx.objectStore("images");
             const getRequest = store.get("draft");
             getRequest.onsuccess = () => {
@@ -23,20 +82,9 @@ export function $markImageJumpCreated(
                 if (!Array.isArray(current?.images)) {
                     return;
                 }
-                const images = current.images.map((image) => {
-                    if (image.id !== imageId) {
-                        return image;
-                    }
-                    const createdJumps = Array.isArray(image.createdJumps)
-                        ? image.createdJumps.filter(
-                              (jump) => jump.uuid !== createdJump.uuid,
-                          )
-                        : [];
-                    return {
-                        ...image,
-                        createdJumps: [...createdJumps, createdJump],
-                    };
-                });
+                const images = current.images.map((image) =>
+                    $applyImageJumpAssociationChange(image, change),
+                );
                 store.put({ ...current, images }, "draft");
             };
             tx.oncomplete = () => {
@@ -48,7 +96,7 @@ export function $markImageJumpCreated(
                 reject(
                     tx.error ??
                         new Error(
-                            "Failed to link the jump to its source image",
+                            "Failed to update the source image association",
                         ),
                 );
             };

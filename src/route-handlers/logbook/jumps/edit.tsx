@@ -8,6 +8,7 @@ import {
     parseAndResolveJumpForm,
 } from "@/route-handlers/logbook/jumps/helpers";
 import { JumpFormPage } from "@/route-handlers/logbook/jumps/form";
+import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
 import * as routes from "@/routes";
 import {
     jumps,
@@ -93,7 +94,14 @@ export async function handleEditJump(c: AppRequestContext) {
             .where(and(eq(jumps.uuid, uuid), eq(jumps.userUuid, userUuid)))
             .returning({ uuid: jumps.uuid })
             .get();
-        return deleted ? c.redirect(routes.logbook.index({})) : c.notFound();
+        return deleted
+            ? c.render(
+                  <JumpImageAssociationComplete
+                      change={{ action: "delete", jumpUuid: uuid }}
+                      redirectUrl={routes.logbook.index({})}
+                  />,
+              )
+            : c.notFound();
     }
     const parsed = await parseAndResolveJumpForm(c, formData);
     const jumpNumber = parsed.raw.jumpNumber;
@@ -167,7 +175,16 @@ export async function handleEditJump(c: AppRequestContext) {
                 .values({ jumpUuid: uuid, jumpTypeUuid }),
         ),
     ]);
-    return c.redirect(routes.logbook.index({}));
+    return c.render(
+        <JumpImageAssociationComplete
+            change={{
+                action: "update",
+                jumpUuid: uuid,
+                jumpNumber: parsed.data.jumpNumber,
+            }}
+            redirectUrl={routes.logbook.index({})}
+        />,
+    );
 }
 
 export function register(app: App) {

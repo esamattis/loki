@@ -188,6 +188,14 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
             .getByText(/1\s200/),
     ).toBeVisible();
 
+    await page.getByRole("link", { name: "Jump #42" }).click();
+    await page.locator('input[name="jumpNumber"]').fill("43");
+    await page.getByRole("button", { name: "Save jump" }).click();
+    await expect(page).toHaveURL("/logbook");
+    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await expect(page.getByRole("link", { name: "Jump #43" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Jump #42" })).toHaveCount(0);
+
     await page
         .locator('textarea[name="additionalContext"]')
         .fill("Mock unreadable required fields");
@@ -238,6 +246,21 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(page.locator('input[name="jumpTypeName"]')).toHaveValue(
         "Image Special",
     );
+
+    await page.goto("/logbook/jumps/new/from-image");
+    await page.getByRole("link", { name: "Jump #43" }).click();
+    const deleteButton = page
+        .locator("form")
+        .filter({
+            has: page.locator('input[name="action"][value="delete"]'),
+        })
+        .getByRole("button");
+    await deleteButton.click();
+    await expect(deleteButton).toHaveText("Confirm delete", { timeout: 1000 });
+    await deleteButton.click();
+    await expect(page).toHaveURL("/logbook");
+    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await expect(page.getByRole("link", { name: "Jump #43" })).toHaveCount(0);
 });
 
 test("from image form persists model and additional context after reload", async ({
