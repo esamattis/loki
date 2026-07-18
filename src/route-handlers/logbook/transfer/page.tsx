@@ -70,7 +70,7 @@ function ImportSection(props: TransferPageProps) {
                         Import
                     </h2>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Import a Loki exported CSV or Skydiving Logbook XML
+                        Import a Loki formatted CSV or Skydiving Logbook XML
                         (skydiving_logbook.xml) file. Existing gear, locations,
                         aircraft, and jump types are matched by name. Unknown
                         jump items are created automatically.{" "}

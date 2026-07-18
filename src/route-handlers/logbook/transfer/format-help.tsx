@@ -64,7 +64,7 @@ export function ExportCurlHelp() {
 export function TransferFormatHelp() {
     return (
         <Details
-            summary="Export file format"
+            summary="Loki CSV Format"
             className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300"
             summaryClassName="font-medium text-slate-900 dark:text-slate-100"
         >
