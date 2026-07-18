@@ -17,7 +17,7 @@ const RELEASES_URL = `${REPOSITORY_URL}/releases`;
 const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/wph46K999hQ";
 
 const cardClassName =
-    "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900";
+    "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900";
 const sectionHeadingClassName =
     "text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100";
 const sectionLeadClassName =
@@ -37,7 +37,13 @@ function LandingHeader(props: { loggedIn: boolean }) {
                         aria-hidden="true"
                         className="h-8 w-auto"
                     />
-                    <span>Loki – Skydiving Logbook</span>
+                    <span>
+                        Loki
+                        <span className="hidden sm:inline">
+                            {" "}
+                            – Skydiving Logbook
+                        </span>
+                    </span>
                 </a>
                 <div className="ml-auto flex shrink-0 items-center gap-2">
                     <ThemeToggle />
@@ -109,24 +115,24 @@ function LandingActions(props: { loggedIn: boolean }) {
 
 function Hero(props: { loggedIn: boolean }) {
     return (
-        <section className="mx-auto max-w-5xl px-4 pt-16 text-center sm:pt-24">
-            <h1 className="flex items-center justify-center gap-4 text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl dark:text-white">
+        <section className="mx-auto max-w-5xl px-4 pt-12 text-center sm:pt-24">
+            <h1 className="flex items-center justify-center gap-3 text-4xl font-bold tracking-tight text-slate-900 sm:gap-4 sm:text-6xl dark:text-white">
                 <img
                     src="/logo.svg"
                     alt=""
                     aria-hidden="true"
-                    className="h-16 w-auto sm:h-20"
+                    className="h-14 w-auto sm:h-20"
                 />
                 Loki
             </h1>
-            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600 sm:mt-6 sm:text-sm sm:tracking-[0.2em] dark:text-indigo-400">
                 Open source skydiving logbook
             </p>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
                 Your jumps, your gear,
                 <br className="hidden sm:block" /> your data.
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">
                 Loki is an open source digital logbook for skydivers and BASE
                 jumpers. Self-host, run it locally on your laptop, or use the
                 invite-only hosted version. Export a portable backup whenever
@@ -141,7 +147,7 @@ function Hero(props: { loggedIn: boolean }) {
 
 function VideoEmbed() {
     return (
-        <section className="mx-auto mt-16 max-w-5xl px-4">
+        <section className="mx-auto mt-12 max-w-5xl px-4 sm:mt-16">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="relative aspect-video w-full">
                     <iframe
@@ -239,7 +245,7 @@ function FeatureCard(props: { feature: Feature }) {
 
 function Features() {
     return (
-        <section className="mx-auto mt-20 max-w-5xl px-4">
+        <section className="mx-auto mt-16 max-w-5xl px-4 sm:mt-20">
             <h2 className={sectionHeadingClassName}>
                 Built for the way you jump
             </h2>
@@ -258,7 +264,7 @@ function Features() {
 
 function SelfHosting() {
     return (
-        <section className="mx-auto mt-20 max-w-5xl px-4">
+        <section className="mx-auto mt-16 max-w-5xl px-4 sm:mt-20">
             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
                 <div>
                     <h2 className={sectionHeadingClassName}>
@@ -311,11 +317,12 @@ function SelfHosting() {
                         version is also available. Ping Esa-Matti for invite. If
                         you know how to contact me, you might just get one :)
                     </p>
-                    <div className="mt-8 flex flex-wrap gap-3">
+                    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <ButtonLink
                             href={routes.about({})}
                             variant="secondary"
                             size="sm"
+                            className="w-full sm:w-auto"
                         >
                             About Loki
                         </ButtonLink>
@@ -324,6 +331,7 @@ function SelfHosting() {
                             className={buttonClassName({
                                 variant: "secondary",
                                 size: "sm",
+                                className: "w-full sm:w-auto",
                             })}
                         >
                             Source on GitHub
@@ -333,6 +341,7 @@ function SelfHosting() {
                             className={buttonClassName({
                                 variant: "secondary",
                                 size: "sm",
+                                className: "w-full sm:w-auto",
                             })}
                         >
                             Binary releases
@@ -340,7 +349,7 @@ function SelfHosting() {
                     </div>
                 </div>
                 <div className={cardClassName}>
-                    <pre className="overflow-x-auto rounded-lg bg-slate-50 p-4 text-xs leading-6 text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+                    <pre className="overflow-x-auto rounded-lg bg-slate-50 p-3 text-[0.6875rem] leading-5 text-slate-800 sm:p-4 sm:text-xs sm:leading-6 dark:bg-slate-950 dark:text-slate-200">
                         <code>{`# Download the binary for your platform
 ./loki
 
@@ -359,10 +368,10 @@ open http://localhost:8787`}</code>
 
 function FooterCta(props: { loggedIn: boolean }) {
     return (
-        <section className="mt-24">
+        <section className="mt-16 sm:mt-24">
             <div className="mx-auto max-w-5xl px-4">
-                <div className="rounded-3xl border border-indigo-200 bg-indigo-50 px-6 py-12 text-center sm:px-12 dark:border-indigo-900/60 dark:bg-indigo-950/40">
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+                <div className="rounded-3xl border border-indigo-200 bg-indigo-50 px-5 py-10 text-center sm:px-12 sm:py-12 dark:border-indigo-900/60 dark:bg-indigo-950/40">
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                         Start your digital logbook today
                     </h2>
                     <p className="mx-auto mt-4 max-w-xl text-slate-700 dark:text-slate-300">

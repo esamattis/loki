@@ -16,6 +16,18 @@ test("shows download and invite actions in both calls to action", async ({
     await expect(signups.first()).toHaveAttribute("href", "/register");
 });
 
+test("fits the landing page within a small viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+
+    await expect(page.getByText("Skydiving Logbook").first()).toBeHidden();
+    const pageWidth = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+    }));
+    expect(pageWidth.scroll).toBe(pageWidth.client);
+});
+
 test("the landing page remains visible after logging in", async ({ page }) => {
     await page.goto("/register");
     await page.locator('input[name="invitationCode"]').fill("test-invite");
