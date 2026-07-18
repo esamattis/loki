@@ -12,6 +12,7 @@ import {
     JumpFormPage,
     type JumpFormValues,
 } from "@/route-handlers/logbook/jumps/form";
+import { JumpNumberError } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
 import * as routes from "@/routes";
 import {
@@ -20,21 +21,6 @@ import {
     jumpsToGear,
     jumpsToJumpTypes,
 } from "@/schema";
-
-function existingJumpNumberNotice(jumpNumber: number, existingUuid: string) {
-    return (
-        <>
-            Jump #{jumpNumber} already exists. Creating new jump with the same
-            number will overwrite the existing jump.{" "}
-            <a
-                href={routes.logbook.jumps.edit({ uuid: existingUuid })}
-                className="font-medium underline"
-            >
-                Open existing jump
-            </a>
-        </>
-    );
-}
 
 function splitQueryList(value: string | undefined): string[] {
     return value
@@ -212,18 +198,7 @@ export async function renderNewJump(c: AppRequestContext) {
     if (hasImagePrefill) {
         values = applyJumpQueryPrefill(values, query);
     }
-    const notices: ReturnType<typeof existingJumpNumberNotice>[] = [];
-    if (query.jumpNumber) {
-        const jumpNumber = Number(query.jumpNumber);
-        if (Number.isInteger(jumpNumber) && jumpNumber > 0) {
-            const existingJump = await findJumpByNumber(c, jumpNumber);
-            if (existingJump) {
-                notices.push(
-                    existingJumpNumberNotice(jumpNumber, existingJump.uuid),
-                );
-            }
-        }
-    }
+    const jumpNumberError = await getJumpNumberError(c, query.jumpNumber);
     return c.render(
         <JumpFormPage
             title="Add jump"
@@ -231,13 +206,36 @@ export async function renderNewJump(c: AppRequestContext) {
             confirmationTitle="Add Jump"
             values={values}
             nextJumpNumber={nextJumpNumber}
-            notices={notices}
+            jumpNumberError={jumpNumberError}
             resources={await getJumpFormResources(c)}
             sourceImageId={query.imageId}
             isImagePrefill={isImagePrefill}
             dirty={isImagePrefill}
         />,
     );
+}
+
+async function getJumpNumberError(
+    c: AppRequestContext,
+    value: string | undefined,
+) {
+    if (!value || !/^\d+$/.test(value)) {
+        return undefined;
+    }
+    const jumpNumber = Number(value);
+    if (!Number.isSafeInteger(jumpNumber) || jumpNumber < 1) {
+        return undefined;
+    }
+    const existingJump = await findJumpByNumber(c, jumpNumber);
+    return existingJump
+        ? duplicateJumpNumberError(jumpNumber, existingJump.uuid)
+        : undefined;
+}
+
+export async function renderJumpNumberError(c: AppRequestContext) {
+    const query = routes.logbook.jumps.jumpNumberError.query(c);
+    const error = await getJumpNumberError(c, query.jumpNumber);
+    return c.render(<JumpNumberError error={error} />);
 }
 
 async function getNextJumpNumber(
@@ -348,5 +346,6 @@ export async function handleNewJump(c: AppRequestContext) {
 
 export function register(app: App) {
     app.get(routes.logbook.jumps.new.route, renderNewJump);
+    app.get(routes.logbook.jumps.jumpNumberError.route, renderJumpNumberError);
     app.post(routes.logbook.jumps.new.route, handleNewJump);
 }

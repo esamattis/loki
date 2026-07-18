@@ -24,6 +24,7 @@ import * as routes from "@/routes";
 import { LogbookPage } from "@/app/authenticated-page";
 import { formatCalendarDate } from "@/date-time";
 import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
+import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import {
     altitudeUnitLabel,
     numberFormatLocale,
@@ -594,68 +595,6 @@ function JumpDateField(props: { value: string }) {
     );
 }
 
-function JumpNumberField(props: { value: string; nextJumpNumber?: string }) {
-    const inputId = useId();
-    const buttonId = useId();
-
-    if (props.nextJumpNumber === undefined) {
-        return (
-            <NumberInput
-                name="jumpNumber"
-                label="Jump number"
-                min="1"
-                required
-                value={props.value}
-            />
-        );
-    }
-
-    return (
-        <div>
-            <label
-                htmlFor={inputId}
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
-            >
-                Jump number
-            </label>
-            <div className="mt-1.5 flex gap-2">
-                <input
-                    id={inputId}
-                    name="jumpNumber"
-                    type="number"
-                    min="1"
-                    required
-                    value={props.value}
-                    data-loki-next-jump-number={props.nextJumpNumber}
-                    className={FIELD_INPUT_CLASS}
-                />
-                <Button
-                    id={buttonId}
-                    type="button"
-                    variant="secondary"
-                    data-loki-tooltip="Set number to the next jump number. Ie. latest jump number + 1"
-                    className="shrink-0 px-3.5 py-2.5 text-sm"
-                >
-                    Next
-                </Button>
-            </div>
-            <Script
-                $deps={[$select]}
-                $args={[inputId, buttonId]}
-                $exec={(inputId, buttonId) => {
-                    const input = $select.id(inputId, HTMLInputElement);
-                    const button = $select.id(buttonId, HTMLButtonElement);
-                    button.addEventListener("click", () => {
-                        input.value =
-                            input.getAttribute("data-loki-next-jump-number") ??
-                            "";
-                    });
-                }}
-            />
-        </div>
-    );
-}
-
 function ResourceSelectWithName(props: {
     selectName: string;
     selectLabel: string;
@@ -855,6 +794,7 @@ function JumpForm(props: {
     submitLabel: string;
     confirmationTitle: string;
     nextJumpNumber?: string;
+    jumpNumberError?: Child;
     dirty?: boolean;
 }) {
     const values = props.values ?? {};
@@ -880,6 +820,7 @@ function JumpForm(props: {
                 <JumpNumberField
                     value={values.jumpNumber ?? ""}
                     nextJumpNumber={props.nextJumpNumber}
+                    error={props.jumpNumberError}
                 />
                 <AvgSpeed values={values} />
             </div>
@@ -918,6 +859,7 @@ export function JumpFormPage(props: {
         jumpTypes: Resource[];
     };
     nextJumpNumber?: string;
+    jumpNumberError?: Child;
     copyHref?: string;
     canDelete?: boolean;
     sourceImageId?: string;
@@ -970,6 +912,7 @@ export function JumpFormPage(props: {
                 submitLabel={props.submitLabel}
                 confirmationTitle={props.confirmationTitle}
                 nextJumpNumber={props.nextJumpNumber}
+                jumpNumberError={props.jumpNumberError}
                 dirty={props.dirty}
                 {...props.resources}
             />

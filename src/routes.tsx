@@ -64,6 +64,9 @@ export const logbook = {
     },
     jumps: {
         new: route("/logbook/jumps/new").query<JumpPrefillQuery>(),
+        jumpNumberError: route("/logbook/jumps/new/__jump-number-error").query<{
+            jumpNumber?: string;
+        }>(),
         fromImage: route("/logbook/jumps/new/from-image"),
         imageShare: route("/logbook/jumps/new/from-image/share"),
         edit: route("/logbook/jumps/:uuid"),

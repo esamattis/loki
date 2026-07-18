@@ -1,7 +1,7 @@
 import { expect, test } from "./fixtures";
 import { openManageLogbook, selectJumpItems } from "./helpers";
 
-test("new jump page shows a banner when jumpNumber query already exists", async ({
+test("new jump page dynamically shows an error when jump number already exists", async ({
     page,
 }) => {
     await page.goto("/register");
@@ -47,10 +47,19 @@ test("new jump page shows a banner when jumpNumber query already exists", async 
     await page.getByRole("button", { name: "Add jump" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await page.goto("/logbook/jumps/new?jumpNumber=357");
-    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("357");
-    await expect(page.getByText("Jump #357 already exists.")).toBeVisible();
-    await page.getByRole("link", { name: "Open existing jump" }).click();
-    await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
-    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("357");
+    await page.goto("/logbook/jumps/new");
+    const jumpNumber = page.locator('input[name="jumpNumber"]');
+    const duplicateError = page.getByText("Jump number 357 is already used.");
+
+    await jumpNumber.fill("357");
+    await expect(duplicateError).toBeVisible();
+
+    await jumpNumber.fill("123");
+    await expect(duplicateError).toBeHidden();
+
+    await jumpNumber.fill("357");
+    await expect(duplicateError).toBeVisible();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(jumpNumber).toHaveValue("358");
+    await expect(duplicateError).toBeHidden();
 });
