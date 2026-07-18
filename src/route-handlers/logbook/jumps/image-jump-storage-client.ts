@@ -1,5 +1,6 @@
 import {
     $loadJumpImageDrafts,
+    $migrateLegacyJumpImageDatabase,
     type JumpImageDraft,
     type StoredJumpImage,
     type StoredJumpImages,
@@ -55,39 +56,40 @@ export function $applyImageJumpAssociationChange(
 
 export async function $updateImageJumpAssociation(
     change: ImageJumpAssociationChange,
+    dbName: string,
 ): Promise<void> {
-    const db = await $idb.open("loki-jump-from-image", 1, (database) => {
+    const storeName = "images";
+    const storageKey = "draft";
+    await $migrateLegacyJumpImageDatabase(
+        { dbName, storeName, storageKey },
+        $idb,
+    );
+    const db = await $idb.open(dbName, 1, (database) => {
         if (!database.objectStoreNames.contains("images")) {
             database.createObjectStore("images");
         }
     });
     return $idb
-        .transaction(
-            db,
-            { storeName: "images", mode: "readwrite" },
-            async (store) => {
-                const current: StoredJumpImages | undefined =
-                    await $idb.request(store.get("draft"));
-                if (!Array.isArray(current?.images)) {
-                    return;
-                }
-                const images = current.images.map((image) =>
-                    $applyImageJumpAssociationChange(image, change),
-                );
-                await $idb.request(store.put({ ...current, images }, "draft"));
-            },
-        )
+        .transaction(db, { storeName, mode: "readwrite" }, async (store) => {
+            const current: StoredJumpImages | undefined = await $idb.request(
+                store.get(storageKey),
+            );
+            if (!Array.isArray(current?.images)) {
+                return;
+            }
+            const images = current.images.map((image) =>
+                $applyImageJumpAssociationChange(image, change),
+            );
+            await $idb.request(store.put({ ...current, images }, storageKey));
+        })
         .finally(() => db.close());
 }
 
 export async function $loadImageForJump(
     jumpUuid: string,
+    dbName: string,
 ): Promise<JumpImageDraft | null> {
-    const stored = await $loadJumpImageDrafts(
-        "loki-jump-from-image",
-        "images",
-        "draft",
-    );
+    const stored = await $loadJumpImageDrafts(dbName, "images", "draft");
     return (
         stored.drafts.find((draft) =>
             draft.createdJumps.some((jump) => jump.uuid === jumpUuid),

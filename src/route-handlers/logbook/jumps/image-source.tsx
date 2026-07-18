@@ -1,11 +1,14 @@
 import { useId } from "hono/jsx";
+import { useAppContext } from "@/app/app";
 import { Script } from "@/components/script";
 import { $idb, $select } from "@/utils";
 import {
     $loadImage,
     $loadJumpImageDrafts,
     $markImageRead,
+    $migrateLegacyJumpImageDatabase,
     $updateJumpImageDrafts,
+    jumpImageDbName,
 } from "@/route-handlers/logbook/jumps/image-storage-client";
 import { $loadImageForJump } from "@/route-handlers/logbook/jumps/image-jump-storage-client";
 
@@ -15,6 +18,7 @@ export function JumpImageSource(props: {
     title: string;
     formId?: string;
 }) {
+    const dbName = jumpImageDbName(useAppContext().getUser().uuid);
     const containerId = useId();
     const imageId = useId();
 
@@ -50,6 +54,7 @@ export function JumpImageSource(props: {
                     $loadJumpImageDrafts,
                     $loadImageForJump,
                     $markImageRead,
+                    $migrateLegacyJumpImageDatabase,
                     $updateJumpImageDrafts,
                 ]}
                 $args={[
@@ -58,6 +63,7 @@ export function JumpImageSource(props: {
                         jumpUuid: props.jumpUuid ?? null,
                         containerId,
                         imageId,
+                        dbName,
                     },
                 ]}
                 $exec={$showJumpImageSource}
@@ -71,21 +77,24 @@ function $showJumpImageSource(config: {
     jumpUuid: string | null;
     containerId: string;
     imageId: string;
+    dbName: string;
 }) {
     const container = $select.id(config.containerId, HTMLElement);
     const image = $select.id(config.imageId, HTMLImageElement);
     if (config.storedImageId) {
-        void $markImageRead(config.storedImageId).catch((error) => {
-            console.error(
-                "Failed to mark the source jump image as read",
-                error,
-            );
-        });
+        void $markImageRead(config.storedImageId, config.dbName).catch(
+            (error) => {
+                console.error(
+                    "Failed to mark the source jump image as read",
+                    error,
+                );
+            },
+        );
     }
     const loadImage = config.storedImageId
-        ? $loadImage(config.storedImageId)
+        ? $loadImage(config.storedImageId, config.dbName)
         : config.jumpUuid
-          ? $loadImageForJump(config.jumpUuid)
+          ? $loadImageForJump(config.jumpUuid, config.dbName)
           : Promise.resolve(null);
     void loadImage
         .then((draft) => {

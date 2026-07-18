@@ -15,6 +15,7 @@ import {
 } from "@/components/navigation-progress";
 import { RestoreFormScrollPosition } from "@/components/restore-form-scroll-position";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { JumpImageDatabaseMigration } from "@/route-handlers/logbook/jumps/image-database-migration";
 import { ThemeScript } from "@/components/theme-script";
 import { Tooltips } from "@/components/tooltips";
 import { UnsavedChangesDialog as UnsavedChangesDialogComponent } from "@/components/unsaved-changes-dialog";
@@ -801,6 +802,9 @@ app.use(
                     <ServiceWorkerRegistration
                         workerUrl={routes.serviceWorker({})}
                     />
+                    {user && (
+                        <JumpImageDatabaseMigration userUuid={user.uuid} />
+                    )}
                     <link
                         href={routes.assets.tailwindCss({
                             fingerprint: tailwindAsset.fingerprint,

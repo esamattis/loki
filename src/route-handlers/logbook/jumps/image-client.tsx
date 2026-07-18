@@ -1,4 +1,5 @@
 import { useId } from "hono/jsx";
+import { useAppContext } from "@/app/app";
 import { Script } from "@/components/script";
 import { $idb, $renderTemplate, $select } from "@/utils";
 import * as routes from "@/routes";
@@ -6,16 +7,22 @@ import {
     $appendJumpImageDrafts,
     $loadImage,
     $loadJumpImageDrafts,
+    $migrateLegacyJumpImageDatabase,
     $updateJumpImageDrafts,
+    JUMP_IMAGE_KEY,
+    JUMP_IMAGE_STORE,
+    jumpImageDbName,
     type JumpImageDraft,
+} from "@/route-handlers/logbook/jumps/image-storage-client";
+
+export {
+    JUMP_IMAGE_DB_NAME,
+    JUMP_IMAGE_KEY,
+    JUMP_IMAGE_STORE,
 } from "@/route-handlers/logbook/jumps/image-storage-client";
 
 export const JUMP_IMAGE_MAX_DIMENSION = 2048;
 export const JUMP_IMAGE_TARGET_BYTES = 2 * 1024 * 1024;
-export const JUMP_IMAGE_DB_NAME = "loki-jump-from-image";
-export const JUMP_IMAGE_STORE = "images";
-export const JUMP_IMAGE_KEY = "draft";
-
 interface JumpImageInputProps {
     inputId: string;
     uploadInputId: string;
@@ -46,6 +53,7 @@ export function ImageGallery(props: {
     cameraButtonId: string;
     clipboardButtonId: string;
 }) {
+    const dbName = jumpImageDbName(useAppContext().getUser().uuid);
     const galleryId = useId();
     const metaId = useId();
     const resizeNoteId = useId();
@@ -110,6 +118,7 @@ export function ImageGallery(props: {
                     $appendJumpImageDrafts,
                     $loadImage,
                     $loadJumpImageDrafts,
+                    $migrateLegacyJumpImageDatabase,
                     $updateJumpImageDrafts,
                     $resizeJumpImageIfNeeded,
                     $formatJumpImageBytes,
@@ -139,7 +148,7 @@ export function ImageGallery(props: {
                         }),
                         maxDimension: JUMP_IMAGE_MAX_DIMENSION,
                         targetBytes: JUMP_IMAGE_TARGET_BYTES,
-                        dbName: JUMP_IMAGE_DB_NAME,
+                        dbName,
                         storeName: JUMP_IMAGE_STORE,
                         storageKey: JUMP_IMAGE_KEY,
                     },
@@ -522,6 +531,7 @@ export async function $prepareJumpImageFiles(
             storageKey: props.storageKey,
         },
         $idb,
+        $migrateLegacyJumpImageDatabase,
     );
     const notes = results
         .filter((item) => item.result.resized)
