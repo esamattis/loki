@@ -2,13 +2,14 @@ import type { Child } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ButtonLink, buttonClassName } from "@/components/form";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { GearIcon, LocationIcon, JumpTypeIcon } from "@/components/menu-icons";
 import {
-    CameraIcon,
-    ClipboardIcon,
-    ExportIcon,
-    ImportIcon,
-} from "@/components/icons";
+    GearIcon,
+    LocationIcon,
+    JumpTypeIcon,
+    StatisticsIcon,
+    TransferIcon,
+} from "@/components/menu-icons";
+import { CameraIcon, ClipboardIcon } from "@/components/icons";
 import * as routes from "@/routes";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
@@ -129,9 +130,10 @@ function Hero(props: { loggedIn: boolean }) {
                 Loki is an open source digital logbook for skydivers and BASE
                 jumpers. Track every jump, monitor how much your gear has been
                 used, and import entries from photos of paper logbooks and
-                freefall computers using AI vision. Self-host, run it locally,
-                or use the invite-only hosted version. Export a portable backup
-                whenever you want - your logbook data always stays yours.
+                freefall computers using AI vision. Self-host, run it locally on
+                your laptop, or use the invite-only hosted version. Export a
+                portable backup whenever you want - your logbook data always
+                stays yours.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <LandingActions loggedIn={props.loggedIn} />
@@ -172,39 +174,40 @@ const FEATURES: Feature[] = [
         icon: <ClipboardIcon className="h-6 w-6 text-indigo-500" />,
         title: "Digital logbook",
         description:
-            "Capture every jump with exit and opening altitude, freefall time, description, and jump number. Searchable and sortable history at your fingertips.",
+            "Capture every jump with exit and opening altitude, freefall time, description, and jump number.",
     },
     {
         icon: <JumpTypeIcon className="h-6 w-6 text-indigo-500" />,
         title: "Customizable jump types",
         description:
-            "Define your own jump types and tags to match the way you jump — belly, freefly, wingsuit, HALO, BASE, whatever fits your sky.",
+            "Create your own jump types and assign multiple types to each jump, such as freefly with load organizer or cutaway.",
     },
     {
         icon: <LocationIcon className="h-6 w-6 text-indigo-500" />,
         title: "Locations, aircraft & gear",
         description:
-            "Track drop zones, aircraft, and rigs as reusable jump items. Assign them to jumps in seconds with quick, searchable selectors.",
+            "Track drop zones, aircraft, and rigs as reusable jump items. Assign multiple aircraft to a jump to record both the aircraft type and the individual aircraft.",
     },
     {
         icon: <GearIcon className="h-6 w-6 text-indigo-500" />,
         title: "Gear usage tracking",
         description:
-            "See how many jumps and how much time each canopy, wingsuit, and line set has accumulated. Know when it is time to retire or inspect.",
+            "See how many jumps each canopy, wingsuit or line set has accumulated. Know when it is time to retire or inspect.",
+    },
+    {
+        icon: <StatisticsIcon className="h-6 w-6 text-indigo-500" />,
+        title: "Total & yearly statistics",
+        description:
+            "Review all-time totals and jumps by year. Compare freefall time and distance, personal records, and jump counts by location, aircraft, gear, and jump type.",
     },
     {
         icon: <CameraIcon className="h-6 w-6 text-indigo-500" />,
         title: "AI vision imports",
         description:
-            "Snap a photo of a paper logbook page, altimeter, or freefall computer readout and let AI vision build the jump entry using your own OpenAI API key (BYOK).",
+            "Snap a photo of a paper logbook page, altimeter, or audible readout and let AI vision build the jump entry using your own OpenAI API key (BYOK).",
     },
     {
-        icon: (
-            <>
-                <ExportIcon className="h-6 w-6 text-indigo-500" />
-                <ImportIcon className="h-6 w-6 text-indigo-500" />
-            </>
-        ),
+        icon: <TransferIcon className="h-6 w-6 text-indigo-500" />,
         title: "CSV import & export",
         description:
             "Bring your existing logbook in via CSV and keep a portable backup. No lock-in — your data is always exportable.",
@@ -259,12 +262,7 @@ function SelfHosting() {
                         can run a single binary. Host it on your own server,
                         spin it up in the cloud, or just run it locally on your
                         laptop. Your logbook data never has to leave your
-                        machine. No configuration is needed: start the binary
-                        and Loki just works.
-                    </p>
-                    <p className={sectionLeadClassName}>
-                        Prefer not to manage it yourself? An invite-only hosted
-                        version is also available.
+                        machine.
                     </p>
                     <ul className="mt-6 space-y-3 text-sm text-slate-700 dark:text-slate-300">
                         <li className="flex items-start gap-3">
@@ -277,10 +275,35 @@ function SelfHosting() {
                         <li className="flex items-start gap-3">
                             <span className="mt-1 h-2 w-2 flex-none rounded-full bg-indigo-500" />
                             <span>
+                                No configuration is needed: start the binary and
+                                Loki just works.
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="mt-1 h-2 w-2 flex-none rounded-full bg-indigo-500" />
+                            <span>
                                 Local SQLite storage with optional CSV backups.
                             </span>
                         </li>
+                        <li className="flex items-start gap-3">
+                            <span className="mt-1 h-2 w-2 flex-none rounded-full bg-indigo-500" />
+                            <span>
+                                Deploy to{" "}
+                                <a
+                                    href="https://www.cloudflare.com/products/workers/"
+                                    className="font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300"
+                                >
+                                    Cloudflare Workers
+                                </a>{" "}
+                                using the free plan
+                            </span>
+                        </li>
                     </ul>
+                    <p className={sectionLeadClassName}>
+                        Prefer not to manage it yourself? An invite-only hosted
+                        version is also available. Ping Esa-Matti for invite. If
+                        you know how to contact me, you might just get one :)
+                    </p>
                     <div className="mt-8 flex flex-wrap gap-3">
                         <ButtonLink
                             href={routes.about({})}
