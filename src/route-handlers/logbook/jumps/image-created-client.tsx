@@ -1,4 +1,5 @@
 import { Script } from "@/components/script";
+import { $idb } from "@/utils";
 import {
     $applyImageJumpAssociationChange,
     $updateImageJumpAssociation,
@@ -19,6 +20,7 @@ export function JumpImageAssociationComplete(props: {
             </p>
             <Script
                 $deps={[
+                    $idb,
                     $applyImageJumpAssociationChange,
                     $updateImageJumpAssociation,
                 ]}

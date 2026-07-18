@@ -104,6 +104,13 @@ function serializeClientValue(
     return source;
 }
 
+export function serializeClientDependency(
+    dependency: ClientDependency,
+    dependencies: ClientDependency[] = [],
+): string {
+    return serializeClientValue(dependency, dependencies, new Set());
+}
+
 export function Script<T extends readonly unknown[] = []>(props: {
     $exec: ((...args: T) => void) & { displayName?: string };
     $deps?: ClientDependency[];
@@ -114,11 +121,7 @@ export function Script<T extends readonly unknown[] = []>(props: {
     for (const dep of props.$deps ?? []) {
         if (!jsDupCache.has(dep)) {
             jsDupCache.add(dep);
-            const depSource = serializeClientValue(
-                dep,
-                props.$deps ?? [],
-                new Set(),
-            );
+            const depSource = serializeClientDependency(dep, props.$deps ?? []);
             depsCode += `${getGlobalName(dep)} = ${depSource};\n`;
         }
     }

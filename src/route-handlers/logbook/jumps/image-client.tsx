@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $renderTemplate, $select } from "@/utils";
+import { $idb, $renderTemplate, $select } from "@/utils";
 import * as routes from "@/routes";
 import {
     $appendJumpImageDrafts,
@@ -104,6 +104,7 @@ export function ImageGallery(props: {
             </template>
             <Script
                 $deps={[
+                    $idb,
                     $select,
                     $renderTemplate,
                     $appendJumpImageDrafts,
@@ -513,12 +514,15 @@ export async function $prepareJumpImageFiles(
             ).then((result) => ({ original: file, result })),
         ),
     );
-    const appended = await $appendJumpImageDrafts({
-        files: results.map((item) => item.result.file),
-        dbName: props.dbName,
-        storeName: props.storeName,
-        storageKey: props.storageKey,
-    });
+    const appended = await $appendJumpImageDrafts(
+        {
+            files: results.map((item) => item.result.file),
+            dbName: props.dbName,
+            storeName: props.storeName,
+            storageKey: props.storageKey,
+        },
+        $idb,
+    );
     const notes = results
         .filter((item) => item.result.resized)
         .map(

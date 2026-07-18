@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $select } from "@/utils";
+import { $idb, $select } from "@/utils";
 import {
     $loadImage,
     $loadJumpImageDrafts,
@@ -44,6 +44,7 @@ export function JumpImageSource(props: {
             </p>
             <Script
                 $deps={[
+                    $idb,
                     $select,
                     $loadImage,
                     $loadJumpImageDrafts,

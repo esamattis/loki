@@ -1,4 +1,5 @@
 import { type App, type AppRequestContext } from "@/app/app";
+import { serializeClientDependency } from "@/components/script";
 import * as routes from "@/routes";
 import {
     JUMP_IMAGE_DB_NAME,
@@ -6,6 +7,7 @@ import {
     JUMP_IMAGE_STORE,
 } from "@/route-handlers/logbook/jumps/image-client";
 import { $appendJumpImageDrafts } from "@/route-handlers/logbook/jumps/image-storage-client";
+import { $idb } from "@/utils";
 
 interface ShareTargetWorkerConfig {
     shareTargetPath: string;
@@ -49,6 +51,7 @@ declare const self: ShareTargetServiceWorkerScope;
 function $installShareTargetServiceWorker(
     config: ShareTargetWorkerConfig,
     appendDrafts: typeof $appendJumpImageDrafts,
+    idb: typeof $idb,
 ) {
     self.addEventListener("install", () => {
         self.skipWaiting();
@@ -95,12 +98,15 @@ function $installShareTargetServiceWorker(
         }
 
         try {
-            await appendDrafts({
-                files,
-                dbName: config.dbName,
-                storeName: config.storeName,
-                storageKey: config.storageKey,
-            });
+            await appendDrafts(
+                {
+                    files,
+                    dbName: config.dbName,
+                    storeName: config.storeName,
+                    storageKey: config.storageKey,
+                },
+                idb,
+            );
         } catch (error) {
             console.error("Failed to save the shared image draft", error);
             return new Response("Failed to save shared image", {
@@ -125,7 +131,8 @@ function serviceWorker(c: AppRequestContext) {
         storeName: JUMP_IMAGE_STORE,
         storageKey: JUMP_IMAGE_KEY,
     };
-    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)}, ${$appendJumpImageDrafts.toString()});`;
+    const idbSource = serializeClientDependency($idb);
+    const workerSource = `(${$installShareTargetServiceWorker.toString()})(${JSON.stringify(config)}, ${$appendJumpImageDrafts.toString()}, ${idbSource});`;
     return c.body(workerSource, 200, {
         "Content-Type": "text/javascript; charset=utf-8",
         "Service-Worker-Allowed": "/",

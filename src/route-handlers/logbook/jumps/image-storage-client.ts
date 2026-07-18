@@ -1,3 +1,5 @@
+import { $idb } from "@/utils";
+
 export interface JumpImageDraft {
     id: string;
     file: File;
@@ -25,30 +27,26 @@ export interface StoredJumpImages {
     selectedId: string | null;
 }
 
-export function $appendJumpImageDrafts(config: {
-    files: File[];
-    dbName: string;
-    storeName: string;
-    storageKey: string;
-}): Promise<JumpImageDraft[]> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(config.dbName, 1);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains(config.storeName)) {
-                db.createObjectStore(config.storeName);
-            }
-        };
-        request.onerror = () =>
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        request.onsuccess = () => {
-            const db = request.result;
-            const tx = db.transaction(config.storeName, "readwrite");
-            const store = tx.objectStore(config.storeName);
-            const getRequest = store.get(config.storageKey);
-            let appended: JumpImageDraft[] = [];
-            getRequest.onsuccess = () => {
-                const current = getRequest.result;
+export async function $appendJumpImageDrafts(
+    config: {
+        files: File[];
+        dbName: string;
+        storeName: string;
+        storageKey: string;
+    },
+    idb: typeof $idb,
+): Promise<JumpImageDraft[]> {
+    const db = await idb.open(config.dbName, 1, (database) => {
+        if (!database.objectStoreNames.contains(config.storeName)) {
+            database.createObjectStore(config.storeName);
+        }
+    });
+    return idb
+        .transaction(
+            db,
+            { storeName: config.storeName, mode: "readwrite" },
+            async (store) => {
+                const current = await idb.request(store.get(config.storageKey));
                 let images: StoredJumpImage[] = [];
                 if (Array.isArray(current?.images)) {
                     images = current.images;
@@ -63,7 +61,7 @@ export function $appendJumpImageDrafts(config: {
                         },
                     ];
                 }
-                appended = config.files.map((file) => ({
+                const appended = config.files.map((file) => ({
                     id: crypto.randomUUID(),
                     file,
                     read: false,
@@ -78,38 +76,30 @@ export function $appendJumpImageDrafts(config: {
                     read: draft.read,
                     createdJumps: draft.createdJumps,
                 }));
-                store.put(
-                    {
-                        images: [...images, ...newImages],
-                        selectedId:
-                            appended[0]?.id ?? current?.selectedId ?? null,
-                    },
-                    config.storageKey,
+                await idb.request(
+                    store.put(
+                        {
+                            images: [...images, ...newImages],
+                            selectedId:
+                                appended[0]?.id ?? current?.selectedId ?? null,
+                        },
+                        config.storageKey,
+                    ),
                 );
-            };
-            tx.oncomplete = () => {
-                db.close();
-                resolve(appended);
-            };
-            tx.onerror = () => {
-                db.close();
-                reject(tx.error ?? new Error("Failed to append image drafts"));
-            };
-        };
-    });
+                return appended;
+            },
+        )
+        .finally(() => db.close());
 }
 
-export function $loadImage(id: string): Promise<JumpImageDraft | null> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open("loki-jump-from-image", 1);
-        request.onerror = () =>
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        request.onsuccess = () => {
-            const db = request.result;
-            const tx = db.transaction("images", "readonly");
-            const getRequest = tx.objectStore("images").get("draft");
-            getRequest.onsuccess = () => {
-                const value = getRequest.result;
+export async function $loadImage(id: string): Promise<JumpImageDraft | null> {
+    const db = await $idb.open("loki-jump-from-image", 1);
+    return $idb
+        .transaction(
+            db,
+            { storeName: "images", mode: "readonly" },
+            async (store) => {
+                const value = await $idb.request(store.get("draft"));
                 const record: StoredJumpImage | undefined = Array.isArray(
                     value?.images,
                 )
@@ -118,10 +108,9 @@ export function $loadImage(id: string): Promise<JumpImageDraft | null> {
                       )
                     : undefined;
                 if (!record || !(record.blob instanceof Blob)) {
-                    resolve(null);
-                    return;
+                    return null;
                 }
-                resolve({
+                return {
                     id: record.id,
                     file: new File(
                         [record.blob],
@@ -136,15 +125,10 @@ export function $loadImage(id: string): Promise<JumpImageDraft | null> {
                     createdJumps: Array.isArray(record.createdJumps)
                         ? record.createdJumps
                         : [],
-                });
-            };
-            getRequest.onerror = () =>
-                reject(
-                    getRequest.error ?? new Error("Failed to load image draft"),
-                );
-            tx.oncomplete = () => db.close();
-        };
-    });
+                };
+            },
+        )
+        .finally(() => db.close());
 }
 
 export function $markImageRead(id: string): Promise<void> {
@@ -157,82 +141,73 @@ export function $markImageRead(id: string): Promise<void> {
     });
 }
 
-export function $loadJumpImageDrafts(
+export async function $loadJumpImageDrafts(
     dbName: string,
     storeName: string,
     storageKey: string,
 ): Promise<{ drafts: JumpImageDraft[]; selectedId: string | null }> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(dbName, 1);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains(storeName)) {
-                db.createObjectStore(storeName);
-            }
-        };
-        request.onerror = () =>
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        request.onsuccess = () => {
-            const db = request.result;
-            const tx = db.transaction(storeName, "readwrite");
-            const store = tx.objectStore(storeName);
-            const getRequest = store.get(storageKey);
-            getRequest.onsuccess = () => {
-                db.close();
-                const value = getRequest.result;
-                const records: StoredJumpImage[] = Array.isArray(value?.images)
-                    ? value.images
-                    : value?.blob instanceof Blob
-                      ? [
-                            {
-                                id: crypto.randomUUID(),
-                                blob: value.blob,
-                                name: value.name ?? "jump-image.jpg",
-                                type: value.type ?? value.blob.type,
-                                lastModified: value.lastModified ?? Date.now(),
-                            },
-                        ]
-                      : [];
-                const draftIds = records
-                    .filter((record) => record.blob instanceof Blob)
-                    .map((record) => record.id);
-                if (value?.blob instanceof Blob && records[0]) {
+    const db = await $idb.open(dbName, 1, (database) => {
+        if (!database.objectStoreNames.contains(storeName)) {
+            database.createObjectStore(storeName);
+        }
+    });
+    return $idb
+        .transaction(db, { storeName, mode: "readwrite" }, async (store) => {
+            const value = await $idb.request(store.get(storageKey));
+            const records: StoredJumpImage[] = Array.isArray(value?.images)
+                ? value.images
+                : value?.blob instanceof Blob
+                  ? [
+                        {
+                            id: crypto.randomUUID(),
+                            blob: value.blob,
+                            name: value.name ?? "jump-image.jpg",
+                            type: value.type ?? value.blob.type,
+                            lastModified: value.lastModified ?? Date.now(),
+                        },
+                    ]
+                  : [];
+            if (value?.blob instanceof Blob && records[0]) {
+                await $idb.request(
                     store.put(
                         {
                             images: records,
                             selectedId: records[0].id,
                         },
                         storageKey,
-                    );
-                }
-                void Promise.all(draftIds.map((id) => $loadImage(id))).then(
-                    (loaded) => {
-                        const drafts = loaded.filter(
-                            (draft): draft is JumpImageDraft => draft !== null,
-                        );
-                        resolve({
-                            drafts,
-                            selectedId:
-                                typeof value?.selectedId === "string"
-                                    ? value.selectedId
-                                    : (drafts[0]?.id ?? null),
-                        });
-                    },
-                    reject,
+                    ),
                 );
+            }
+            const drafts = records
+                .filter((record) => record.blob instanceof Blob)
+                .map((record) => ({
+                    id: record.id,
+                    file: new File(
+                        [record.blob],
+                        record.name || "jump-image.jpg",
+                        {
+                            type:
+                                record.type || record.blob.type || "image/jpeg",
+                            lastModified: record.lastModified ?? Date.now(),
+                        },
+                    ),
+                    read: record.read === true,
+                    createdJumps: Array.isArray(record.createdJumps)
+                        ? record.createdJumps
+                        : [],
+                }));
+            return {
+                drafts,
+                selectedId:
+                    typeof value?.selectedId === "string"
+                        ? value.selectedId
+                        : (drafts[0]?.id ?? null),
             };
-            getRequest.onerror = () => {
-                db.close();
-                reject(
-                    getRequest.error ??
-                        new Error("Failed to load image drafts"),
-                );
-            };
-        };
-    });
+        })
+        .finally(() => db.close());
 }
 
-export function $updateJumpImageDrafts(config: {
+export async function $updateJumpImageDrafts(config: {
     dbName: string;
     storeName: string;
     storageKey: string;
@@ -240,17 +215,14 @@ export function $updateJumpImageDrafts(config: {
     deletedId?: string;
     readId?: string;
 }): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(config.dbName, 1);
-        request.onerror = () =>
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        request.onsuccess = () => {
-            const db = request.result;
-            const tx = db.transaction(config.storeName, "readwrite");
-            const store = tx.objectStore(config.storeName);
-            const getRequest = store.get(config.storageKey);
-            getRequest.onsuccess = () => {
-                const current: StoredJumpImages | undefined = getRequest.result;
+    const db = await $idb.open(config.dbName, 1);
+    return $idb
+        .transaction(
+            db,
+            { storeName: config.storeName, mode: "readwrite" },
+            async (store) => {
+                const current: StoredJumpImages | undefined =
+                    await $idb.request(store.get(config.storageKey));
                 const images = Array.isArray(current?.images)
                     ? current.images
                           .filter((image) => image.id !== config.deletedId)
@@ -261,22 +233,16 @@ export function $updateJumpImageDrafts(config: {
                           )
                     : [];
                 if (images.length === 0) {
-                    store.delete(config.storageKey);
+                    await $idb.request(store.delete(config.storageKey));
                     return;
                 }
-                store.put(
-                    { images, selectedId: config.selectedId },
-                    config.storageKey,
+                await $idb.request(
+                    store.put(
+                        { images, selectedId: config.selectedId },
+                        config.storageKey,
+                    ),
                 );
-            };
-            tx.oncomplete = () => {
-                db.close();
-                resolve();
-            };
-            tx.onerror = () => {
-                db.close();
-                reject(tx.error ?? new Error("Failed to update image drafts"));
-            };
-        };
-    });
+            },
+        )
+        .finally(() => db.close());
 }

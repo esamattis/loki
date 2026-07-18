@@ -4,6 +4,7 @@ import {
     type StoredJumpImage,
     type StoredJumpImages,
 } from "@/route-handlers/logbook/jumps/image-storage-client";
+import { $idb } from "@/utils";
 
 export type ImageJumpAssociationChange =
     | {
@@ -52,56 +53,31 @@ export function $applyImageJumpAssociationChange(
     };
 }
 
-export function $updateImageJumpAssociation(
+export async function $updateImageJumpAssociation(
     change: ImageJumpAssociationChange,
 ): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open("loki-jump-from-image", 1);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains("images")) {
-                db.createObjectStore("images");
-            }
-        };
-        request.onerror = () =>
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        request.onsuccess = () => {
-            const db = request.result;
-            let tx: IDBTransaction;
-            try {
-                tx = db.transaction("images", "readwrite");
-            } catch (error) {
-                db.close();
-                reject(error);
-                return;
-            }
-            const store = tx.objectStore("images");
-            const getRequest = store.get("draft");
-            getRequest.onsuccess = () => {
-                const current: StoredJumpImages | undefined = getRequest.result;
+    const db = await $idb.open("loki-jump-from-image", 1, (database) => {
+        if (!database.objectStoreNames.contains("images")) {
+            database.createObjectStore("images");
+        }
+    });
+    return $idb
+        .transaction(
+            db,
+            { storeName: "images", mode: "readwrite" },
+            async (store) => {
+                const current: StoredJumpImages | undefined =
+                    await $idb.request(store.get("draft"));
                 if (!Array.isArray(current?.images)) {
                     return;
                 }
                 const images = current.images.map((image) =>
                     $applyImageJumpAssociationChange(image, change),
                 );
-                store.put({ ...current, images }, "draft");
-            };
-            tx.oncomplete = () => {
-                db.close();
-                resolve();
-            };
-            tx.onerror = () => {
-                db.close();
-                reject(
-                    tx.error ??
-                        new Error(
-                            "Failed to update the source image association",
-                        ),
-                );
-            };
-        };
-    });
+                await $idb.request(store.put({ ...current, images }, "draft"));
+            },
+        )
+        .finally(() => db.close());
 }
 
 export async function $loadImageForJump(
