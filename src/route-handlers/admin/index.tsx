@@ -44,6 +44,7 @@ async function renderAdminPage(c: AppRequestContext) {
         db
             .select({
                 tokenHash: sessions.tokenHash,
+                userUuid: users.uuid,
                 username: users.username,
                 displayName: users.displayName,
                 createdAt: sessions.createdAt,

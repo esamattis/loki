@@ -16,6 +16,7 @@ export interface AdminUserRow {
 
 export interface AdminSessionRow {
     tokenHash: string;
+    userUuid: string;
     username: string;
     displayName: string | null;
     createdAt: number;
@@ -209,6 +210,10 @@ function UserActions(props: { user: AdminUserRow; currentUserUuid: string }) {
 export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
     const now = Math.floor(Date.now() / 1000);
     const formatDate = useDateFormatter();
+    const sessionsByUser = Map.groupBy(
+        props.sessions,
+        (session) => session.userUuid,
+    );
     return (
         <section id="sessions" className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -218,42 +223,62 @@ export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
                 <EmptyState>No sessions yet.</EmptyState>
             ) : (
                 <ul className="grid grid-cols-1 gap-3">
-                    {props.sessions.map((session) => (
-                        <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
-                                <div className="min-w-0">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                            {session.displayName ||
-                                                session.username}
-                                        </p>
-                                        {session.expiresAt <= now && (
-                                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                                                Expired
-                                            </span>
-                                        )}
-                                    </div>
+                    {[...sessionsByUser.values()].map((userSessions) => {
+                        const [firstSession] = userSessions;
+                        if (!firstSession) {
+                            return null;
+                        }
+                        return (
+                            <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                <div className="px-5 py-4">
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                        {firstSession.displayName ||
+                                            firstSession.username}
+                                    </p>
                                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        @{session.username}
+                                        @{firstSession.username}
                                     </p>
                                 </div>
-                                <p className="font-mono text-xs text-slate-400 dark:text-slate-500">
-                                    {session.tokenHash.slice(0, 12)}...
-                                </p>
-                            </div>
-                            <dl className="grid gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:grid-cols-3 dark:border-slate-800 dark:bg-slate-950/30">
-                                <MetadataItem label="Created">
-                                    {formatDate(session.createdAt)}
-                                </MetadataItem>
-                                <MetadataItem label="Last used">
-                                    {formatDate(session.lastUsedAt)}
-                                </MetadataItem>
-                                <MetadataItem label="Expires">
-                                    {formatDate(session.expiresAt)}
-                                </MetadataItem>
-                            </dl>
-                        </li>
-                    ))}
+                                <ul className="divide-y divide-slate-200 border-t border-slate-100 bg-slate-50/60 dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950/30">
+                                    {userSessions.map((session) => (
+                                        <li className="px-5 py-4">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                <p className="font-mono text-xs text-slate-400 dark:text-slate-500">
+                                                    {session.tokenHash.slice(
+                                                        0,
+                                                        12,
+                                                    )}
+                                                    ...
+                                                </p>
+                                                {session.expiresAt <= now && (
+                                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                        Expired
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+                                                <MetadataItem label="Created">
+                                                    {formatDate(
+                                                        session.createdAt,
+                                                    )}
+                                                </MetadataItem>
+                                                <MetadataItem label="Last used">
+                                                    {formatDate(
+                                                        session.lastUsedAt,
+                                                    )}
+                                                </MetadataItem>
+                                                <MetadataItem label="Expires">
+                                                    {formatDate(
+                                                        session.expiresAt,
+                                                    )}
+                                                </MetadataItem>
+                                            </dl>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>
