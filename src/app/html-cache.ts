@@ -110,7 +110,10 @@ export async function htmlCacheMiddleware(
     c: AppRequestContext,
     next: () => Promise<void>,
 ) {
-    if (!cacheApiAvailable()) {
+    if (
+        (import.meta.env.DEV && !process.env.PLAYWRIGHT_TEST) ||
+        !cacheApiAvailable()
+    ) {
         return bypassCache(c, next, "BYPASS");
     }
 

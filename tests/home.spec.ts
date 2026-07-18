@@ -1,0 +1,49 @@
+import { expect, test } from "./fixtures";
+
+test("shows download and invite actions in both calls to action", async ({
+    page,
+}) => {
+    await page.goto("/");
+
+    const downloads = page.getByRole("link", { name: "Download" });
+    const signups = page.getByRole("link", { name: "Sign up with invite" });
+    await expect(downloads).toHaveCount(2);
+    await expect(downloads.first()).toHaveAttribute(
+        "href",
+        "https://github.com/esamattis/loki/releases",
+    );
+    await expect(signups).toHaveCount(2);
+    await expect(signups.first()).toHaveAttribute("href", "/register");
+});
+
+test("the landing page remains visible after logging in", async ({ page }) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("landing-page-user");
+    await page
+        .locator('input[name="email"]')
+        .fill("landing-page-user@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page).toHaveURL("/logbook");
+
+    await page.goto("/");
+
+    await expect(page).toHaveURL("/");
+    await expect(
+        page.getByRole("heading", {
+            name: "Your jumps, your gear, your data.",
+        }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("invite-only hosted version").first(),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Log in" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Sign up" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Download" })).toHaveCount(2);
+    await expect(page.getByRole("link", { name: "Home" })).toHaveAttribute(
+        "href",
+        "/",
+    );
+});

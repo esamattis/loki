@@ -7,6 +7,7 @@ import { ViteClient } from "vite-ssr-components/hono";
 import { Script } from "@/components/script";
 import { htmxAsset, tailwindAsset } from "@/app-assets";
 import { Button } from "@/components/form";
+import { Footer } from "@/components/footer";
 import { Dialog } from "@/components/ui/dialog";
 import { DisableViewTransitionsInAutomation } from "@/components/disable-view-transitions-in-automation";
 import {
@@ -736,6 +737,10 @@ async function authenticateMiddleware(
         }
     }
 
+    if (ctx.sqlitePath && path === routes.home.route) {
+        return c.redirect(routes.auth.login({}));
+    }
+
     if (
         !ctx.user &&
         path !== routes.auth.register.route &&
@@ -843,10 +848,11 @@ app.use(
                     style={{
                         ["--animation-duration"]: "5000ms",
                     }}
-                    className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200"
+                    className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200"
                 >
                     <ReturnAfterFormPost />
-                    <div className="min-h-screen">{props.children}</div>
+                    <div className="flex-1">{props.children}</div>
+                    <Footer />
                     <UnsavedChangesDialogComponent />
                     <UpdateToastComponent />
                     <RestoreFormScrollPosition />

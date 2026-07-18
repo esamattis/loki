@@ -11,6 +11,14 @@ test("serves the app with an initialized SQLite database", async ({
     page,
     request,
 }) => {
+    const homeResponse = await request.get("/", { maxRedirects: 0 });
+    expect(homeResponse.status()).toBe(302);
+    expect(homeResponse.headers().location).toBe("/login");
+
+    const loginResponse = await request.get("/login", { maxRedirects: 0 });
+    expect(loginResponse.status()).toBe(302);
+    expect(loginResponse.headers().location).toBe("/register");
+
     await page.goto("/register");
     await expect(
         page.getByRole("heading", { name: "Create account" }),

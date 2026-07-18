@@ -1,6 +1,5 @@
 import { ErrorList } from "@/components/feedback";
 import { Button } from "@/components/form";
-import * as routes from "@/routes";
 
 export function AuthFormShell(props: {
     title: string;
@@ -46,14 +45,6 @@ export function AuthFormShell(props: {
                     </a>
                 </div>
             </form>
-            <div className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                <a
-                    href={routes.about({})}
-                    className="underline-offset-2 hover:text-indigo-700 hover:underline dark:hover:text-indigo-300"
-                >
-                    About Loki
-                </a>
-            </div>
         </div>
     );
 }

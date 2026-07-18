@@ -228,7 +228,7 @@ export function LogbookPage(props: {
     const headerId = useId();
 
     return (
-        <div className="min-h-screen">
+        <div>
             <Style>
                 {`
                     html { scroll-padding-top: 4rem; scroll-padding-bottom: ${props.mobileAction ? "9rem" : "5rem"}; }

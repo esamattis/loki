@@ -114,7 +114,7 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
 
 function PublicAboutPage() {
     return (
-        <main className="mx-auto min-h-screen max-w-3xl space-y-6 px-4 py-8 sm:py-16">
+        <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:py-16">
             <a
                 href={routes.auth.login({})}
                 className="flex items-center justify-center gap-2 text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100"
@@ -131,20 +131,6 @@ function PublicAboutPage() {
                 About
             </h1>
             <AboutContent showBuildInfo={false} />
-            <nav className="flex justify-center gap-4 text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                <a
-                    href={routes.auth.login({})}
-                    className="underline-offset-2 hover:underline"
-                >
-                    Log in
-                </a>
-                <a
-                    href={routes.auth.register({})}
-                    className="underline-offset-2 hover:underline"
-                >
-                    Create account
-                </a>
-            </nav>
         </main>
     );
 }
