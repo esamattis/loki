@@ -12,7 +12,7 @@ import { useId, type Child } from "hono/jsx";
 import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import { Dialog } from "@/components/ui/dialog";
-import { $el, $elAll, $elById, $elOrNull, $renderTemplate } from "@/utils";
+import { $renderTemplate, $select } from "@/utils";
 
 export interface JumpItemResource {
     uuid: string;
@@ -78,17 +78,23 @@ function JumpItemSelectScript(props: {
                 ></span>
             </template>
             <Script
-                $deps={[$el, $elAll, $elById, $elOrNull, $renderTemplate]}
+                $deps={[$select, $renderTemplate]}
                 $args={[props]}
                 $exec={(config) => {
-                    const optionsEl = $elById(config.optionsId, HTMLDivElement);
-                    const summaryEl = $elById(config.summaryId, HTMLDivElement);
+                    const optionsEl = $select.id(
+                        config.optionsId,
+                        HTMLDivElement,
+                    );
+                    const summaryEl = $select.id(
+                        config.summaryId,
+                        HTMLDivElement,
+                    );
                     const options: HTMLDivElement = optionsEl;
                     const summary: HTMLDivElement = summaryEl;
 
                     function selectedInputs() {
                         return Array.from(
-                            $elAll(
+                            $select.all(
                                 "[data-loki-jump-item-input]",
                                 HTMLInputElement,
                                 options,
@@ -120,7 +126,7 @@ function JumpItemSelectScript(props: {
                                             ) ?? "",
                                     },
                                 );
-                                const item = $el(
+                                const item = $select.el(
                                     ":scope > *",
                                     HTMLElement,
                                     container,
@@ -137,12 +143,12 @@ function JumpItemSelectScript(props: {
 
                     function setArchivedItemsVisible(visible: boolean) {
                         let hasSelectedArchivedItem = false;
-                        for (const element of $elAll(
+                        for (const element of $select.all(
                             '[data-loki-archived="true"]',
                             HTMLLabelElement,
                             options,
                         )) {
-                            const input = $el(
+                            const input = $select.el(
                                 "input",
                                 HTMLInputElement,
                                 element,
@@ -151,7 +157,7 @@ function JumpItemSelectScript(props: {
                             hasSelectedArchivedItem ||= selected;
                             element.hidden = !(visible || selected);
                         }
-                        const archivedSection = $elOrNull(
+                        const archivedSection = $select.elOrNull(
                             "[data-loki-archived-section]",
                             HTMLElement,
                             options,
@@ -162,7 +168,7 @@ function JumpItemSelectScript(props: {
                             );
                         }
                         if (config.archivedButtonId === "") return;
-                        const button = $elById(
+                        const button = $select.id(
                             config.archivedButtonId,
                             HTMLButtonElement,
                         );
@@ -177,7 +183,7 @@ function JumpItemSelectScript(props: {
                     options.addEventListener("change", () => {
                         updateSummary();
                         if (config.archivedButtonId === "") return;
-                        const button = $elById(
+                        const button = $select.id(
                             config.archivedButtonId,
                             HTMLButtonElement,
                         );
@@ -186,7 +192,7 @@ function JumpItemSelectScript(props: {
                         );
                     });
                     if (config.archivedButtonId !== "") {
-                        const button = $elById(
+                        const button = $select.id(
                             config.archivedButtonId,
                             HTMLButtonElement,
                         );

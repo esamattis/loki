@@ -1,8 +1,8 @@
 import { Script } from "@/components/script";
-import { $elByIdOrNull } from "@/utils";
+import { $select } from "@/utils";
 
 function $showUpdateToast(toastId: string) {
-    const toast = $elByIdOrNull(toastId, HTMLElement);
+    const toast = $select.idOrNull(toastId, HTMLElement);
     if (toast) toast.hidden = false;
 }
 function $registerServiceWorker(workerUrl: string, toastId: string) {
@@ -35,7 +35,7 @@ export function ServiceWorkerRegistration(props: { workerUrl: string }) {
     return (
         <Script
             $args={[props.workerUrl, "update-toast"]}
-            $deps={[$elByIdOrNull, $showUpdateToast]}
+            $deps={[$select, $showUpdateToast]}
             $exec={$registerServiceWorker}
         />
     );

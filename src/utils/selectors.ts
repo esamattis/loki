@@ -2,7 +2,7 @@ type ElementConstructor<T> = abstract new (...args: any[]) => T;
 type SelectorRoot = Pick<ParentNode, "querySelector" | "querySelectorAll">;
 type IdSelectorRoot = Pick<Document, "getElementById">;
 
-export function $el<T>(
+function $el<T>(
     selector: string,
     constructor: ElementConstructor<T>,
     root: SelectorRoot = document,
@@ -16,7 +16,7 @@ export function $el<T>(
     return element;
 }
 
-export function $elOrNull<T>(
+function $elOrNull<T>(
     selector: string,
     constructor: ElementConstructor<T>,
     root: SelectorRoot = document,
@@ -31,13 +31,23 @@ export function $elOrNull<T>(
     return element;
 }
 
-export function $elAll<T>(
+function $all(selector: string, root?: SelectorRoot): Element[];
+function $all<T>(
     selector: string,
     constructor: ElementConstructor<T>,
+    root?: SelectorRoot,
+): T[];
+function $all<T>(
+    selector: string,
+    constructorOrRoot: ElementConstructor<T> | SelectorRoot = document,
     root: SelectorRoot = document,
-): T[] {
-    const elements: T[] = [];
-    for (const element of root.querySelectorAll(selector)) {
+): any[] {
+    const constructor =
+        typeof constructorOrRoot === "function" ? constructorOrRoot : Element;
+    const selectorRoot =
+        typeof constructorOrRoot === "function" ? root : constructorOrRoot;
+    const elements: any[] = [];
+    for (const element of selectorRoot.querySelectorAll(selector)) {
         if (!(element instanceof constructor)) {
             throw new Error(
                 `Expected element of type ${constructor.name}, got ${element.constructor.name}`,
@@ -48,7 +58,7 @@ export function $elAll<T>(
     return elements;
 }
 
-export function $elById<T>(
+function $id<T>(
     id: string,
     constructor: ElementConstructor<T>,
     root: IdSelectorRoot = document,
@@ -62,7 +72,7 @@ export function $elById<T>(
     return element;
 }
 
-export function $elByIdOrNull<T>(
+function $idOrNull<T>(
     id: string,
     constructor: ElementConstructor<T>,
     root: IdSelectorRoot = document,
@@ -76,3 +86,15 @@ export function $elByIdOrNull<T>(
     }
     return element;
 }
+
+export const $select = Object.defineProperty(
+    {
+        el: $el,
+        elOrNull: $elOrNull,
+        all: $all,
+        id: $id,
+        idOrNull: $idOrNull,
+    },
+    "displayName",
+    { value: "$select" },
+);

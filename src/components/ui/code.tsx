@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import { Script } from "@/components/script";
 
 function $initCopyCode(codeId: string, buttonId: string) {
-    const code = $elById(codeId, HTMLElement);
-    const button = $elById(buttonId, HTMLButtonElement);
+    const code = $select.id(codeId, HTMLElement);
+    const button = $select.id(buttonId, HTMLButtonElement);
     button.addEventListener("click", () => {
         navigator.clipboard.writeText(code.textContent ?? "");
         const original = button.textContent;
@@ -19,7 +19,7 @@ function $initCopyCode(codeId: string, buttonId: string) {
 function CopyCodeScript(props: { codeId: string; buttonId: string }) {
     return (
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[props.codeId, props.buttonId]}
             $exec={$initCopyCode}
         />

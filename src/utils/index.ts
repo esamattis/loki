@@ -8,10 +8,4 @@ export {
 } from "@/utils/csv";
 export { getFormString } from "@/utils/get-form-string";
 export { $renderTemplate } from "@/utils/render-template";
-export {
-    $el,
-    $elAll,
-    $elById,
-    $elByIdOrNull,
-    $elOrNull,
-} from "@/utils/selectors";
+export { $select } from "@/utils/selectors";

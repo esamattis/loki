@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $elAll, $elById, $renderTemplate } from "@/utils";
+import { $renderTemplate, $select } from "@/utils";
 
 function $disableViewTransitionsInAutomation(templateId: string) {
     if (!navigator.webdriver) return;
@@ -19,7 +19,7 @@ export function DisableViewTransitionsInAutomation() {
                 <style>{`@view-transition { navigation: none; }`}</style>
             </template>
             <Script
-                $deps={[$elAll, $elById, $renderTemplate]}
+                $deps={[$select, $renderTemplate]}
                 $args={[templateId]}
                 $exec={$disableViewTransitionsInAutomation}
             />

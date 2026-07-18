@@ -3,7 +3,7 @@ import type { App } from "@/app/app";
 import { buttonClassName, controlClassName } from "@/components/form";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
-import { $el, $elAll, $elById, $renderTemplate } from "@/utils";
+import { $renderTemplate, $select } from "@/utils";
 
 function $initTodoApp(config: {
     emptyTemplateId: string;
@@ -13,7 +13,7 @@ function $initTodoApp(config: {
     listId: string;
     templateId: string;
 }) {
-    const hostEl = $elById(config.hostId, HTMLDivElement);
+    const hostEl = $select.id(config.hostId, HTMLDivElement);
     const host: HTMLDivElement = hostEl;
     const todos: { id: number; text: string; completed: boolean }[] = [];
     let nextId = 1;
@@ -23,7 +23,7 @@ function $initTodoApp(config: {
         if (todos.length === 0) {
             const container = document.createElement("div");
             $renderTemplate(container, config.emptyTemplateId);
-            const empty = $el(":scope > *", HTMLLIElement, container);
+            const empty = $select.el(":scope > *", HTMLLIElement, container);
             items.appendChild(empty);
         }
         for (const todo of todos) {
@@ -31,14 +31,18 @@ function $initTodoApp(config: {
             $renderTemplate(container, config.itemTemplateId, {
                 text: todo.text,
             });
-            const item = $el(":scope > *", HTMLLIElement, container);
-            const checkbox = $el(
+            const item = $select.el(":scope > *", HTMLLIElement, container);
+            const checkbox = $select.el(
                 "[data-loki-todo-toggle]",
                 HTMLInputElement,
                 item,
             );
-            const text = $el("[data-loki-todo-text]", HTMLSpanElement, item);
-            const remove = $el(
+            const text = $select.el(
+                "[data-loki-todo-text]",
+                HTMLSpanElement,
+                item,
+            );
+            const remove = $select.el(
                 "[data-loki-todo-delete]",
                 HTMLButtonElement,
                 item,
@@ -58,9 +62,9 @@ function $initTodoApp(config: {
     }
 
     render();
-    const inputEl = $elById(config.inputId, HTMLInputElement);
-    const listEl = $elById(config.listId, HTMLUListElement);
-    const addEl = $el("[data-loki-add-todo]", HTMLButtonElement, host);
+    const inputEl = $select.id(config.inputId, HTMLInputElement);
+    const listEl = $select.id(config.listId, HTMLUListElement);
+    const addEl = $select.el("[data-loki-add-todo]", HTMLButtonElement, host);
     const input: HTMLInputElement = inputEl;
     const list: HTMLUListElement = listEl;
     const add: HTMLButtonElement = addEl;
@@ -180,7 +184,7 @@ function TodoPage() {
                 </li>
             </template>
             <Script
-                $deps={[$el, $elAll, $elById, $renderTemplate]}
+                $deps={[$select, $renderTemplate]}
                 $args={[
                     {
                         emptyTemplateId,

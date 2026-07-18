@@ -1,16 +1,16 @@
-import { $el, $elById } from "@/utils";
+import { $select } from "@/utils";
 import { Script } from "@/components/script";
 
 const UPDATE_TOAST_ID = "update-toast";
 function $initUpdateToast(toastId: string) {
-    const toast = $elById(toastId, HTMLDivElement);
-    const reload = $el(
+    const toast = $select.id(toastId, HTMLDivElement);
+    const reload = $select.el(
         "[data-loki-update-toast-reload]",
         HTMLButtonElement,
         toast,
     );
     reload.addEventListener("click", () => window.location.reload());
-    const dismiss = $el(
+    const dismiss = $select.el(
         "[data-loki-update-toast-dismiss]",
         HTMLButtonElement,
         toast,
@@ -46,7 +46,7 @@ export function UpdateToast() {
                 Dismiss
             </button>
             <Script
-                $deps={[$el, $elById]}
+                $deps={[$select]}
                 $args={[UPDATE_TOAST_ID]}
                 $exec={$initUpdateToast}
             />

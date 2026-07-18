@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import {
     $loadImage,
     $loadJumpImageDrafts,
@@ -44,7 +44,7 @@ export function JumpImageSource(props: {
             </p>
             <Script
                 $deps={[
-                    $elById,
+                    $select,
                     $loadImage,
                     $loadJumpImageDrafts,
                     $loadImageForJump,
@@ -71,8 +71,8 @@ function $showJumpImageSource(config: {
     containerId: string;
     imageId: string;
 }) {
-    const container = $elById(config.containerId, HTMLElement);
-    const image = $elById(config.imageId, HTMLImageElement);
+    const container = $select.id(config.containerId, HTMLElement);
+    const image = $select.id(config.imageId, HTMLImageElement);
     if (config.storedImageId) {
         void $markImageRead(config.storedImageId).catch((error) => {
             console.error(

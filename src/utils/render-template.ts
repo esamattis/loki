@@ -1,4 +1,4 @@
-import { $elAll, $elById } from "@/utils/selectors";
+import { $select } from "@/utils/selectors";
 
 type TemplateValue = string | Node;
 
@@ -34,7 +34,7 @@ export function $renderTemplate(
         root = existingRoot;
         element = existingRoot;
     } else {
-        const template = $elById(templateId, HTMLTemplateElement);
+        const template = $select.id(templateId, HTMLTemplateElement);
         const clone = template.content.cloneNode(true);
         if (!(clone instanceof DocumentFragment)) {
             throw new Error(`Could not clone template: ${templateId}`);
@@ -48,12 +48,16 @@ export function $renderTemplate(
             throw new Error(`Template must have one HTML root: ${templateId}`);
         }
         element = cloneRoot;
-        for (const slot of $elAll("[data-loki-template-slot]", Element, root)) {
+        for (const slot of $select.all(
+            "[data-loki-template-slot]",
+            Element,
+            root,
+        )) {
             slot.setAttribute("data-loki-render-template-slot", templateId);
         }
     }
 
-    const slots = $elAll("[data-loki-template-slot]", Element, root);
+    const slots = $select.all("[data-loki-template-slot]", Element, root);
     if (
         root instanceof HTMLElement &&
         root.matches("[data-loki-template-slot]")

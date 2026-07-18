@@ -19,7 +19,7 @@ import {
     JumpItemSelect,
     type JumpItemResource,
 } from "@/components/jump-item-select";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/authenticated-page";
 import { formatCalendarDate } from "@/date-time";
@@ -75,30 +75,30 @@ function FreefallEstimateScript(props: {
 }) {
     return (
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[props]}
             $exec={(config) => {
-                const exitAltitude = $elById(
+                const exitAltitude = $select.id(
                     config.exitAltitudeId,
                     HTMLInputElement,
                 );
-                const openingAltitude = $elById(
+                const openingAltitude = $select.id(
                     config.openingAltitudeId,
                     HTMLInputElement,
                 );
-                const freefallTime = $elById(
+                const freefallTime = $select.id(
                     config.freefallTimeId,
                     HTMLInputElement,
                 );
-                const estimateDialog = $elById(
+                const estimateDialog = $select.id(
                     config.estimateDialogId,
                     HTMLDialogElement,
                 );
-                const customSpeed = $elById(
+                const customSpeed = $select.id(
                     config.customSpeedId,
                     HTMLInputElement,
                 );
-                const customSpeedButton = $elById(
+                const customSpeedButton = $select.id(
                     config.customSpeedButtonId,
                     HTMLButtonElement,
                 );
@@ -334,7 +334,7 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                 />
             </div>
             <Script
-                $deps={[$elById]}
+                $deps={[$select]}
                 $args={[
                     {
                         exitAltitudeId,
@@ -351,23 +351,23 @@ function AvgSpeed(props: { values: JumpFormValues }) {
                     },
                 ]}
                 $exec={(config) => {
-                    const exitAltitude = $elById(
+                    const exitAltitude = $select.id(
                         config.exitAltitudeId,
                         HTMLInputElement,
                     );
-                    const openingAltitude = $elById(
+                    const openingAltitude = $select.id(
                         config.openingAltitudeId,
                         HTMLInputElement,
                     );
-                    const freefallTime = $elById(
+                    const freefallTime = $select.id(
                         config.freefallTimeId,
                         HTMLInputElement,
                     );
-                    const freefallDistance = $elById(
+                    const freefallDistance = $select.id(
                         config.freefallDistanceId,
                         HTMLOutputElement,
                     );
-                    const avgSpeed = $elById(
+                    const avgSpeed = $select.id(
                         config.avgSpeedId,
                         HTMLOutputElement,
                     );
@@ -443,17 +443,17 @@ function JumpDateScript(props: {
 }) {
     return (
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[props]}
             $exec={(config) => {
-                const input = $elById(config.inputId, HTMLInputElement);
-                const value = $elById(config.valueId, HTMLInputElement);
-                const picker = $elById(config.pickerId, HTMLInputElement);
-                const pickerButton = $elById(
+                const input = $select.id(config.inputId, HTMLInputElement);
+                const value = $select.id(config.valueId, HTMLInputElement);
+                const picker = $select.id(config.pickerId, HTMLInputElement);
+                const pickerButton = $select.id(
                     config.pickerButtonId,
                     HTMLButtonElement,
                 );
-                const button = $elById(config.buttonId, HTMLButtonElement);
+                const button = $select.id(config.buttonId, HTMLButtonElement);
 
                 function toIsoDate(displayValue: string) {
                     if (config.dateTimeFormat === "iso") return displayValue;
@@ -640,11 +640,11 @@ function JumpNumberField(props: { value: string; nextJumpNumber?: string }) {
                 </Button>
             </div>
             <Script
-                $deps={[$elById]}
+                $deps={[$select]}
                 $args={[inputId, buttonId]}
                 $exec={(inputId, buttonId) => {
-                    const input = $elById(inputId, HTMLInputElement);
-                    const button = $elById(buttonId, HTMLButtonElement);
+                    const input = $select.id(inputId, HTMLInputElement);
+                    const button = $select.id(buttonId, HTMLButtonElement);
                     button.addEventListener("click", () => {
                         input.value =
                             input.getAttribute("data-loki-next-jump-number") ??

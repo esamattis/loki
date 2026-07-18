@@ -32,7 +32,7 @@ import {
     MenuLink,
 } from "@/components/ui/dropdown-menu";
 import * as routes from "@/routes";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 
@@ -173,10 +173,10 @@ function $initThemeToggle(ids: {
     darkIconId: string;
     systemIconId: string;
 }) {
-    const buttonEl = $elById(ids.buttonId, HTMLButtonElement);
-    const lightIconEl = $elById(ids.lightIconId, SVGSVGElement);
-    const darkIconEl = $elById(ids.darkIconId, SVGSVGElement);
-    const systemIconEl = $elById(ids.systemIconId, SVGSVGElement);
+    const buttonEl = $select.id(ids.buttonId, HTMLButtonElement);
+    const lightIconEl = $select.id(ids.lightIconId, SVGSVGElement);
+    const darkIconEl = $select.id(ids.darkIconId, SVGSVGElement);
+    const systemIconEl = $select.id(ids.systemIconId, SVGSVGElement);
     const button = buttonEl;
     const lightIcon = lightIconEl;
     const darkIcon = darkIconEl;
@@ -270,7 +270,7 @@ function ThemeToggle() {
                 <SystemThemeIcon id={systemIconId} className="h-4 w-4" />
             </Button>
             <Script
-                $deps={[$elById]}
+                $deps={[$select]}
                 $args={[
                     {
                         buttonId: id,
@@ -286,7 +286,7 @@ function ThemeToggle() {
 }
 
 function $initMobileHeader(headerId: string) {
-    const headerEl = $elById(headerId, HTMLElement);
+    const headerEl = $select.id(headerId, HTMLElement);
     const header = headerEl;
     const smBreakpoint = getComputedStyle(document.documentElement)
         .getPropertyValue("--breakpoint-sm")
@@ -377,7 +377,7 @@ export function LogbookPage(props: {
                 </div>
             </header>
             <Script
-                $deps={[$elById]}
+                $deps={[$select]}
                 $args={[headerId]}
                 $exec={$initMobileHeader}
             />

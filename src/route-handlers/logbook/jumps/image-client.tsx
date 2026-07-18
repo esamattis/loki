@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $el, $elAll, $elById, $renderTemplate } from "@/utils";
+import { $renderTemplate, $select } from "@/utils";
 import * as routes from "@/routes";
 import {
     $appendJumpImageDrafts,
@@ -104,9 +104,7 @@ export function ImageGallery(props: {
             </template>
             <Script
                 $deps={[
-                    $el,
-                    $elAll,
-                    $elById,
+                    $select,
                     $renderTemplate,
                     $appendJumpImageDrafts,
                     $loadImage,
@@ -359,19 +357,19 @@ export function $setupCameraImageInput(
 }
 
 export function $getJumpImageElements(props: JumpImageInputProps) {
-    const inputEl = $elById(props.inputId, HTMLInputElement);
-    const uploadInputEl = $elById(props.uploadInputId, HTMLInputElement);
-    const imageIdInputEl = $elById(props.imageIdInputId, HTMLInputElement);
-    const formEl = $elById(props.formId, HTMLFormElement);
-    const cameraInputEl = $elById(props.cameraInputId, HTMLInputElement);
-    const cameraButtonEl = $elById(props.cameraButtonId, HTMLButtonElement);
-    const clipboardButtonEl = $elById(
+    const inputEl = $select.id(props.inputId, HTMLInputElement);
+    const uploadInputEl = $select.id(props.uploadInputId, HTMLInputElement);
+    const imageIdInputEl = $select.id(props.imageIdInputId, HTMLInputElement);
+    const formEl = $select.id(props.formId, HTMLFormElement);
+    const cameraInputEl = $select.id(props.cameraInputId, HTMLInputElement);
+    const cameraButtonEl = $select.id(props.cameraButtonId, HTMLButtonElement);
+    const clipboardButtonEl = $select.id(
         props.clipboardButtonId,
         HTMLButtonElement,
     );
-    const galleryEl = $elById(props.galleryId, HTMLElement);
-    const metaEl = $elById(props.metaId, HTMLElement);
-    const resizeNoteEl = $elById(props.resizeNoteId, HTMLElement);
+    const galleryEl = $select.id(props.galleryId, HTMLElement);
+    const metaEl = $select.id(props.metaId, HTMLElement);
+    const resizeNoteEl = $select.id(props.resizeNoteId, HTMLElement);
     return {
         input: inputEl,
         uploadInput: uploadInputEl,
@@ -416,25 +414,29 @@ export function $renderJumpImageGallery(options: {
         $renderTemplate(container, options.templateId, {
             meta: `${draft.file.name} · ${$formatJumpImageBytes(draft.file.size)}`,
         });
-        const item = $el(":scope > *", HTMLElement, container);
-        const selectButton = $el(
+        const item = $select.el(":scope > *", HTMLElement, container);
+        const selectButton = $select.el(
             "[data-loki-select-image]",
             HTMLButtonElement,
             item,
         );
-        const image = $el("img", HTMLImageElement, item);
-        const deleteButton = $el(
+        const image = $select.el("img", HTMLImageElement, item);
+        const deleteButton = $select.el(
             "[data-loki-delete-image]",
             HTMLButtonElement,
             item,
         );
-        const readIndicator = $el("[data-loki-read-image]", HTMLElement, item);
-        const createdJumps = $el(
+        const readIndicator = $select.el(
+            "[data-loki-read-image]",
+            HTMLElement,
+            item,
+        );
+        const createdJumps = $select.el(
             "[data-loki-created-jumps]",
             HTMLElement,
             item,
         );
-        const createdJumpLinks = $el(
+        const createdJumpLinks = $select.el(
             "[data-loki-created-jump-links]",
             HTMLElement,
             item,
@@ -450,7 +452,11 @@ export function $renderJumpImageGallery(options: {
             $renderTemplate(linkContainer, options.jumpLinkTemplateId, {
                 label: `Jump #${jump.jumpNumber}`,
             });
-            const link = $el(":scope > *", HTMLAnchorElement, linkContainer);
+            const link = $select.el(
+                ":scope > *",
+                HTMLAnchorElement,
+                linkContainer,
+            );
             link.href = options.jumpEditUrlTemplate.replace(
                 "__JUMP_UUID__",
                 encodeURIComponent(jump.uuid),
@@ -468,7 +474,7 @@ export function $renderJumpImageGallery(options: {
         deleteButton.setAttribute("aria-label", `Delete ${draft.file.name}`);
         options.gallery.appendChild(item);
     }
-    for (const button of $elAll(
+    for (const button of $select.all(
         "[data-loki-select-image]",
         HTMLButtonElement,
         options.gallery,
@@ -477,7 +483,7 @@ export function $renderJumpImageGallery(options: {
             options.selectDraft(button.dataset.lokiSelectImage ?? "");
         });
     }
-    for (const button of $elAll(
+    for (const button of $select.all(
         "[data-loki-delete-image]",
         HTMLButtonElement,
         options.gallery,
@@ -541,7 +547,11 @@ export function $initJumpImageInput(props: JumpImageInputProps) {
     const previewUrls = new Map<string, string>();
 
     function setProcessing(value: boolean) {
-        const submit = $el('button[type="submit"]', HTMLButtonElement, form);
+        const submit = $select.el(
+            'button[type="submit"]',
+            HTMLButtonElement,
+            form,
+        );
         processingCount += value ? 1 : -1;
         submit.disabled = processingCount > 0;
         if (processingCount > 0) {

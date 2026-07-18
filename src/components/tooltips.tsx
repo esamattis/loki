@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $el, $elAll, $elById, $renderTemplate } from "@/utils";
+import { $renderTemplate, $select } from "@/utils";
 
 function $initTooltips(templateId: string) {
     const container = document.createElement("div");
@@ -8,8 +8,8 @@ function $initTooltips(templateId: string) {
     const tooltipElement = container.firstElementChild;
     if (!(tooltipElement instanceof HTMLElement)) return;
     document.body.appendChild(tooltipElement);
-    const tooltipNode = $elById("tooltip", HTMLDivElement);
-    const tooltipTextNode = $el(
+    const tooltipNode = $select.id("tooltip", HTMLDivElement);
+    const tooltipTextNode = $select.el(
         "[data-loki-tooltip-text]",
         HTMLSpanElement,
         tooltipNode,
@@ -101,7 +101,7 @@ export function Tooltips() {
                 </div>
             </template>
             <Script
-                $deps={[$el, $elAll, $elById, $renderTemplate]}
+                $deps={[$select, $renderTemplate]}
                 $args={[templateId]}
                 $exec={$initTooltips}
             />

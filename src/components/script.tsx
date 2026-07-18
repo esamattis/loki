@@ -1,33 +1,56 @@
 import { useAppContext } from "@/app/app";
 
 type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
-const nameCache = new WeakMap<ClientFunction, string>();
+type ClientValue =
+    | null
+    | boolean
+    | number
+    | string
+    | ClientFunction
+    | readonly ClientValue[]
+    | { readonly [key: string]: ClientValue };
+type ClientObject = { displayName?: string } & {
+    readonly [key: string]: ClientValue | undefined;
+};
+type ClientDependency = ClientFunction | ClientObject;
+const nameCache = new WeakMap<object, string>();
 
-function getGlobalName(fn: ClientFunction): string {
-    const cachedName = nameCache.get(fn);
+function getDependencyName(dependency: ClientDependency): string {
+    const name =
+        dependency.displayName ||
+        (typeof dependency === "function" ? dependency.name : "");
+    if (!name || !/^[$A-Z_a-z][$\w]*$/.test(name)) {
+        throw new Error(
+            "All client dependencies must have a valid name or displayName: " +
+                String(dependency),
+        );
+    }
+    return name;
+}
+
+function getGlobalName(dependency: ClientDependency): string {
+    const cachedName = nameCache.get(dependency);
     if (cachedName) return cachedName;
     let hash = 5381;
-    const input = fn.toString();
+    const input = serializeClientValue(dependency, [], new Set());
     for (let i = 0; i < input.length; i++)
         hash = ((hash << 5) + hash + input.charCodeAt(i)) & hash;
-    const name = fn.displayName || fn.name;
-    const globalName = name
-        ? `__${name}_${Math.abs(hash).toString(16)}`
-        : `__${Math.abs(hash).toString(16)}`;
-    nameCache.set(fn, globalName);
+    const globalName = `__${getDependencyName(dependency)}_${Math.abs(hash).toString(16)}`;
+    nameCache.set(dependency, globalName);
     return globalName;
 }
 
 function localizeDependencyReferences(
     source: string,
-    dependencies: ClientFunction[],
+    dependencies: ClientDependency[],
 ): string {
     for (const dependency of dependencies) {
         // Vite leaves imported functions as module references in Function#toString,
         // either `(0, module.fn)` for calls or `module.fn` for tagged templates.
         // Emitted browser scripts do not have those server-side module objects, so
         // replace both forms with the local dependency binding added by Script.
-        const escapedName = dependency.name.replace(
+        const dependencyName = getDependencyName(dependency);
+        const escapedName = dependencyName.replace(
             /[.*+?^${}()|[\]\\]/g,
             "\\$&",
         );
@@ -36,30 +59,65 @@ function localizeDependencyReferences(
                 `(?:\\(0,[\\w$]+\\.${escapedName}\\)|[\\w$]+\\.${escapedName})`,
                 "g",
             ),
-            dependency.name,
+            dependencyName,
         );
     }
     return source;
 }
 
+function serializeClientValue(
+    value: ClientValue | ClientObject,
+    dependencies: ClientDependency[],
+    ancestors: Set<object>,
+): string {
+    if (typeof value === "function") {
+        return localizeDependencyReferences(value.toString(), dependencies);
+    }
+    if (value === null || typeof value !== "object") {
+        const json = JSON.stringify(value);
+        if (json === undefined)
+            throw new Error(
+                `Unsupported client dependency value: ${String(value)}`,
+            );
+        return json;
+    }
+    if (ancestors.has(value))
+        throw new Error("Client dependencies cannot contain circular values");
+    ancestors.add(value);
+    let source: string;
+    if (Array.isArray(value)) {
+        source = `[${value
+            .map((item) => serializeClientValue(item, dependencies, ancestors))
+            .join(",")}]`;
+    } else {
+        source = `{${Object.entries(value)
+            .map(([key, item]) => {
+                if (item === undefined)
+                    throw new Error(
+                        `Unsupported client dependency value at ${key}: undefined`,
+                    );
+                return `${JSON.stringify(key)}:${serializeClientValue(item, dependencies, ancestors)}`;
+            })
+            .join(",")}}`;
+    }
+    ancestors.delete(value);
+    return source;
+}
+
 export function Script<T extends readonly unknown[] = []>(props: {
     $exec: ((...args: T) => void) & { displayName?: string };
-    $deps?: ClientFunction[];
+    $deps?: ClientDependency[];
     $args?: T;
 }) {
     const jsDupCache = useAppContext().jsDupCache;
     let depsCode = "";
     for (const dep of props.$deps ?? []) {
-        if (!dep.name)
-            throw new Error(
-                "All client dependencies must have a function name: " +
-                    dep.toString(),
-            );
         if (!jsDupCache.has(dep)) {
             jsDupCache.add(dep);
-            const depSource = localizeDependencyReferences(
-                dep.toString(),
+            const depSource = serializeClientValue(
+                dep,
                 props.$deps ?? [],
+                new Set(),
             );
             depsCode += `${getGlobalName(dep)} = ${depSource};\n`;
         }
@@ -72,7 +130,7 @@ export function Script<T extends readonly unknown[] = []>(props: {
         );
         for (const dep of props.$deps ?? []) {
             const globalName = getGlobalName(dep);
-            depsCode += `const ${dep.name} = ${globalName};\n`;
+            depsCode += `const ${getDependencyName(dep)} = ${globalName};\n`;
         }
         depsCode += `${getGlobalName(props.$exec)} = ${execSource};\n`;
     }

@@ -1,10 +1,10 @@
 import { useId } from "hono/jsx";
 import { Script } from "@/components/script";
-import { $el, $elById } from "@/utils";
+import { $select } from "@/utils";
 import { DEFAULT_USER_OPTIONS } from "@/options";
 
 function $setRegistrationLocalePreferences(containerId: string) {
-    const container = $elById(containerId, HTMLDivElement);
+    const container = $select.id(containerId, HTMLDivElement);
 
     const locale = navigator.language;
     const localeInfo = new Intl.Locale(locale).maximize();
@@ -39,7 +39,11 @@ function $setRegistrationLocalePreferences(containerId: string) {
     };
 
     for (const [name, value] of Object.entries(values)) {
-        const input = $el(`[name="${name}"]`, HTMLInputElement, container);
+        const input = $select.el(
+            `[name="${name}"]`,
+            HTMLInputElement,
+            container,
+        );
         input.value = value;
     }
 }
@@ -69,7 +73,7 @@ export function RegistrationLocaleInputs() {
                 value={DEFAULT_USER_OPTIONS.numberFormat}
             />
             <Script
-                $deps={[$el, $elById]}
+                $deps={[$select]}
                 $args={[id]}
                 $exec={$setRegistrationLocalePreferences}
             />

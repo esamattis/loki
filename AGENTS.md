@@ -40,10 +40,10 @@ return (
     <div>
         <button id={id}>example</button>
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[id]}
             $exec={(id) => {
-                const button = $elById(id, HTMLButtonElement);
+                const button = $select.id(id, HTMLButtonElement);
                 // ..rest of the code
             }}
         />
@@ -51,7 +51,7 @@ return (
 );
 ```
 
-Use `$el`, `$elAll`, and `$elById` from `@/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Pass a root as the third argument for scoped queries. Use `$elOrNull` and `$elByIdOrNull` when absence is valid.
+Use `$select` from `@/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Use `$select.el(selector, Constructor)`, `$select.all(selector)`, and `$select.id(id, Constructor)`. Pass a root as the third argument for scoped queries. Use `$select.elOrNull` and `$select.idOrNull` when absence is valid. Pass the complete `$select` object to `Script` with `$deps={[$select]}`, never individual methods.
 
 Use `$assertElement(el, typeclass)` for elements obtained through other APIs. Never use type casts or type arguments such as `el.closest<HTMLElement>("[data-loki-tooltip]");`.
 

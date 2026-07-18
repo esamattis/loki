@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import { Script } from "@/components/script";
 
 export const labelClassName =
@@ -177,10 +177,10 @@ export function NumberInput(props: {
             />
             {props.persist ? (
                 <Script
-                    $deps={[$elById]}
+                    $deps={[$select]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const input = $elById(id, HTMLInputElement);
+                        const input = $select.id(id, HTMLInputElement);
                         const storageKey = `number-input-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (stored !== null) {
@@ -229,10 +229,10 @@ export function Select(props: {
             </select>
             {props.persist ? (
                 <Script
-                    $deps={[$elById]}
+                    $deps={[$select]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const select = $elById(id, HTMLSelectElement);
+                        const select = $select.id(id, HTMLSelectElement);
                         const storageKey = `select-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (
@@ -282,10 +282,10 @@ export function Textarea(props: {
             </textarea>
             {props.persist ? (
                 <Script
-                    $deps={[$elById]}
+                    $deps={[$select]}
                     $args={[id, props.persist]}
                     $exec={(id, persistKey) => {
-                        const textarea = $elById(id, HTMLTextAreaElement);
+                        const textarea = $select.id(id, HTMLTextAreaElement);
                         const storageKey = `textarea-persist:${persistKey}`;
                         const stored = sessionStorage.getItem(storageKey);
                         if (stored !== null) {

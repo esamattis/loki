@@ -33,7 +33,7 @@ import {
     type AuthenticatedUser,
 } from "@/auth";
 import { createD1Database, type AppDatabase } from "@/db";
-import { $el, $elById, $elByIdOrNull } from "@/utils";
+import { $select } from "@/utils";
 import {
     createAltitudeFormatter,
     createDateFormatter,
@@ -58,7 +58,7 @@ export interface AppContext {
     getUser(): User;
     requestContext: AppRequestContext;
     cssDupCache: Set<string>;
-    jsDupCache: Set<(...args: any[]) => any>;
+    jsDupCache: Set<object>;
     altitudeFormatter(): AltitudeFormatter;
     dateFormatter(): DateFormatter;
     distanceFormatter(): DistanceFormatter;
@@ -313,7 +313,7 @@ export function $guardUnsavedFormChanges(dialogId: string) {
         event.returnValue = "";
     });
 
-    const dialog = $elById(dialogId, HTMLDialogElement);
+    const dialog = $select.id(dialogId, HTMLDialogElement);
 
     dialog.addEventListener("click", (event) => {
         const target = event.target;
@@ -387,7 +387,7 @@ export function $applyStoredTheme() {
 const UPDATE_TOAST_ID = "update-toast";
 
 function $showUpdateToast(toastId: string) {
-    const toast = $elByIdOrNull(toastId, HTMLElement);
+    const toast = $select.idOrNull(toastId, HTMLElement);
     if (!toast) return;
     toast.hidden = false;
 }
@@ -456,11 +456,11 @@ export function UpdateToast() {
                 Dismiss
             </button>
             <Script
-                $deps={[$el, $elById]}
+                $deps={[$select]}
                 $args={[UPDATE_TOAST_ID]}
                 $exec={(toastId: string) => {
-                    const toast = $elById(toastId, HTMLDivElement);
-                    const reload = $el(
+                    const toast = $select.id(toastId, HTMLDivElement);
+                    const reload = $select.el(
                         "[data-loki-update-toast-reload]",
                         HTMLButtonElement,
                         toast,
@@ -468,7 +468,7 @@ export function UpdateToast() {
                     reload.addEventListener("click", () => {
                         window.location.reload();
                     });
-                    const dismiss = $el(
+                    const dismiss = $select.el(
                         "[data-loki-update-toast-dismiss]",
                         HTMLButtonElement,
                         toast,

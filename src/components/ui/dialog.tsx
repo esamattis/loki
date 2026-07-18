@@ -1,12 +1,12 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import { Script } from "@/components/script";
 
 function $initDialog(dialogId: string, openButtonId: string) {
-    const dialog = $elById(dialogId, HTMLDialogElement);
+    const dialog = $select.id(dialogId, HTMLDialogElement);
     if (openButtonId !== "") {
-        const openButton = $elById(openButtonId, HTMLButtonElement);
+        const openButton = $select.id(openButtonId, HTMLButtonElement);
         openButton.addEventListener("click", () => dialog.showModal());
     }
     dialog.addEventListener("click", (event) => {
@@ -21,7 +21,7 @@ function $initDialog(dialogId: string, openButtonId: string) {
 function DialogScript(props: { dialogId: string; openButtonId: string }) {
     return (
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[props.dialogId, props.openButtonId]}
             $exec={$initDialog}
         />

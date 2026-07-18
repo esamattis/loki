@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 import { buttonClassName } from "@/components/form";
 import { Script } from "@/components/script";
 
@@ -18,7 +18,7 @@ function $initConfirmDangerButton(config: {
     confirmLabel: string;
     countdownSeconds: number;
 }) {
-    const button = $elById(config.buttonId, HTMLButtonElement);
+    const button = $select.id(config.buttonId, HTMLButtonElement);
     const buttonElement = button;
     let state: "idle" | "ready" = "idle";
     let timer: ReturnType<typeof setInterval> | null = null;
@@ -100,7 +100,7 @@ function ConfirmDangerButtonScript(props: {
 }) {
     return (
         <Script
-            $deps={[$elById]}
+            $deps={[$select]}
             $args={[
                 {
                     buttonId: props.buttonId,

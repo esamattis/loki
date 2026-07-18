@@ -4,7 +4,7 @@ import { LogbookPage } from "@/app/authenticated-page";
 import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 
 type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;
@@ -100,7 +100,7 @@ function InstallApp() {
             </div>
             <Script
                 $deps={[
-                    $elById,
+                    $select,
                     $showAndroidChromeHint,
                     $getInstallUnavailableMessage,
                     $getUninstallInstructions,
@@ -112,13 +112,16 @@ function InstallApp() {
                     hintId: string;
                     errorId: string;
                 }) => {
-                    const buttonEl = $elById(ids.buttonId, HTMLButtonElement);
+                    const buttonEl = $select.id(
+                        ids.buttonId,
+                        HTMLButtonElement,
+                    );
                     const button: HTMLButtonElement = buttonEl;
-                    const statusEl = $elById(ids.statusId, HTMLElement);
+                    const statusEl = $select.id(ids.statusId, HTMLElement);
                     const status: HTMLElement = statusEl;
-                    const hintEl = $elById(ids.hintId, HTMLParagraphElement);
+                    const hintEl = $select.id(ids.hintId, HTMLParagraphElement);
                     const hint: HTMLParagraphElement = hintEl;
-                    const errorEl = $elById(ids.errorId, HTMLDivElement);
+                    const errorEl = $select.id(ids.errorId, HTMLDivElement);
                     const error: HTMLDivElement = errorEl;
                     $showAndroidChromeHint(hint);
 

@@ -3,7 +3,7 @@ import { useId } from "hono/jsx";
 import { controlClassName } from "@/components/form";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { Script } from "@/components/script";
-import { $elById } from "@/utils";
+import { $select } from "@/utils";
 
 export function Password(props: {
     name: string;
@@ -53,13 +53,16 @@ export function Password(props: {
                 </button>
             </div>
             <Script
-                $deps={[$elById]}
+                $deps={[$select]}
                 $args={[{ inputId: id, toggleId, eyeIconId, eyeOffIconId }]}
                 $exec={(ids) => {
                     function togglePasswordVisibility() {
-                        const input = $elById(ids.inputId, HTMLInputElement);
-                        const eyeIcon = $elById(ids.eyeIconId, SVGSVGElement);
-                        const eyeOffIcon = $elById(
+                        const input = $select.id(ids.inputId, HTMLInputElement);
+                        const eyeIcon = $select.id(
+                            ids.eyeIconId,
+                            SVGSVGElement,
+                        );
+                        const eyeOffIcon = $select.id(
                             ids.eyeOffIconId,
                             SVGSVGElement,
                         );
@@ -74,7 +77,7 @@ export function Password(props: {
                         }
                         input.focus();
                     }
-                    const toggleButton = $elById(
+                    const toggleButton = $select.id(
                         ids.toggleId,
                         HTMLButtonElement,
                     );

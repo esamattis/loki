@@ -1,4 +1,4 @@
-import { $assertElement, $el, $elAll, $elById, $elOrNull } from "@/utils";
+import { $assertElement, $select } from "@/utils";
 import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import { Dialog } from "@/components/ui/dialog";
@@ -9,9 +9,11 @@ function $isFormDirty() {
 }
 function $clearFormDirty() {
     delete document.documentElement.dataset.lokiFormDirty;
-    $elAll("form[data-loki-form-dirty]", HTMLFormElement).forEach((form) => {
-        delete form.dataset.lokiFormDirty;
-    });
+    $select
+        .all("form[data-loki-form-dirty]", HTMLFormElement)
+        .forEach((form) => {
+            delete form.dataset.lokiFormDirty;
+        });
 }
 function $markFormDirtyFromEvent(event: Event) {
     const target = event.target;
@@ -69,7 +71,7 @@ function $navigationHrefFromClick(event: MouseEvent): string | null {
 function $guardUnsavedFormChanges(dialogId: string) {
     let pendingHref: string | null = null;
     let pendingForm: HTMLFormElement | null = null;
-    const initiallyDirtyForm = $elOrNull(
+    const initiallyDirtyForm = $select.elOrNull(
         'form[data-loki-dirty="true"]',
         HTMLFormElement,
     );
@@ -97,7 +99,7 @@ function $guardUnsavedFormChanges(dialogId: string) {
             event.returnValue = "";
         }
     });
-    const dialog = $elById(dialogId, HTMLDialogElement);
+    const dialog = $select.id(dialogId, HTMLDialogElement);
     dialog.addEventListener("click", (event) => {
         const target = event.target;
         if (!(target instanceof HTMLButtonElement)) return;
@@ -128,9 +130,12 @@ function $guardUnsavedFormChanges(dialogId: string) {
             event.preventDefault();
             event.stopImmediatePropagation();
             pendingHref = href;
-            const form = $el("form[data-loki-form-dirty]", HTMLFormElement);
+            const form = $select.el(
+                "form[data-loki-form-dirty]",
+                HTMLFormElement,
+            );
             pendingForm = form;
-            const title = $el("h2", HTMLHeadingElement, dialog);
+            const title = $select.el("h2", HTMLHeadingElement, dialog);
             title.textContent = form.dataset.lokiConfirm ?? "";
             dialog.showModal();
         },
@@ -142,10 +147,7 @@ function UnsavedChangesGuard() {
         <Script
             $deps={[
                 $assertElement,
-                $el,
-                $elAll,
-                $elById,
-                $elOrNull,
+                $select,
                 $isFormDirty,
                 $clearFormDirty,
                 $markFormDirtyFromEvent,
