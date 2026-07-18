@@ -1,7 +1,7 @@
 {
     "name": "Loki - Skydiving Logbook",
     "short_name": "Loki",
-    "start_url": "/login",
+    "start_url": "/logbook",
     "display": "standalone",
     "background_color": "#f8fafc",
     "theme_color": "#4f46e5",
