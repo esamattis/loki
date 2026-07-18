@@ -706,22 +706,22 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             : undefined;
 
     return c.render(
-        <LogbookPage title="Detailed statistics">
+        <LogbookPage title="Yearly statistics">
             <a
                 href={routes.logbook.statistics.index({})}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
             >
                 ← Back to statistics
             </a>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                {year === undefined ? "All Time" : `Jump from ${year}`}
-            </h2>
             <YearNavigationBar
                 year={year}
                 availableYears={availableYears}
                 previousYear={previousYear}
                 nextYear={nextYear}
             />
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                {year === undefined ? "All Time" : `Jumps from ${year}`}
+            </h2>
             {!filteredByYear && (
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                     Total jumps include jumps recorded before this logbook.

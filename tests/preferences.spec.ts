@@ -274,7 +274,7 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
 
     await page.getByRole("link", { name: /Units Skydiver's logbook/ }).click();
     await page.getByRole("link", { name: "Statistics", exact: true }).click();
-    await page.getByRole("link", { name: "View detailed statistics" }).click();
+    await page.getByRole("link", { name: "View yearly statistics" }).click();
     await expect(
         page.getByText("Total freefall distance").locator(".."),
     ).toContainText("1,9 mi");

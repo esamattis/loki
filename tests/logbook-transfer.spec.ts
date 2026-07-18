@@ -99,11 +99,11 @@ test("statistics show recorded and total jump counts for every item", async ({
     await expect(
         page.getByText("Jumps last month").locator(".."),
     ).toContainText("0");
-    await page.getByRole("link", { name: "View detailed statistics" }).click();
+    await page.getByRole("link", { name: "View yearly statistics" }).click();
 
     await expect(page).toHaveURL("/logbook/statistics/detailed");
     await expect(
-        page.getByRole("heading", { name: "Detailed statistics" }),
+        page.getByRole("heading", { name: "Yearly statistics" }),
     ).toBeVisible();
     await expect(
         page.getByRole("heading", { name: "All Time", exact: true }),
@@ -142,7 +142,7 @@ test("statistics show recorded and total jump counts for every item", async ({
     );
     await expect(
         page.getByRole("heading", {
-            name: `Jump from ${currentYear}`,
+            name: `Jumps from ${currentYear}`,
             exact: true,
         }),
     ).toBeVisible();

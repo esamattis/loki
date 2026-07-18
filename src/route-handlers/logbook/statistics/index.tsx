@@ -339,7 +339,7 @@ async function renderStatistics(c: AppRequestContext) {
                 variant="secondary"
                 className="gap-1.5"
             >
-                View detailed statistics
+                View yearly statistics
             </ButtonLink>
         </LogbookPage>,
     );
