@@ -28,6 +28,7 @@ test("edited forms warn before leaving via a link", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Leave" })).toBeVisible();
+    await expect(page.locator("#form-submit-progress")).toBeHidden();
     await expect(page).toHaveURL("/logbook/gear/new");
 
     await page.getByRole("button", { name: "Close" }).click();

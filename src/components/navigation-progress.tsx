@@ -110,6 +110,11 @@ function $disableFormOnSubmit(config: {
 
 function $showProgressOnLinkClick(templateId: string) {
     window.addEventListener("pageshow", $clearNavigationProgress);
+    if ("navigation" in window)
+        window.navigation.addEventListener(
+            "navigateerror",
+            $clearNavigationProgress,
+        );
     document.addEventListener("click", (event) => {
         if (
             event.defaultPrevented ||

@@ -77,6 +77,10 @@ function $returnAfterFormPost(config: {
             return;
         }
 
+        // The unsaved-changes guard may cancel this attempt. If the user later
+        // confirms leaving, it clears the dirty state and retries navigation.
+        if (document.documentElement.dataset.lokiFormDirty === "true") return;
+
         // Chromium may report the server redirect that follows a POST as
         // another navigation in the old document. Do not let that event replace
         // the return route while the marked POST is in flight.

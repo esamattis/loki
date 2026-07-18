@@ -33,43 +33,12 @@ function $markFormDirtyFromEvent(event: Event) {
     document.documentElement.dataset.lokiFormDirty = "true";
     form.dataset.lokiFormDirty = "true";
 }
-function $navigationHrefFromClick(event: MouseEvent): string | null {
-    if (
-        event.defaultPrevented ||
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
-    )
-        return null;
-    const target = event.target;
-    if (!(target instanceof Element)) return null;
-    const anchor = target.closest("a");
-    if (
-        !(anchor instanceof HTMLAnchorElement) ||
-        !anchor.href ||
-        anchor.hasAttribute("download") ||
-        (anchor.target && anchor.target !== "_self")
-    )
-        return null;
-    let url: URL;
-    try {
-        url = new URL(anchor.href, window.location.href);
-    } catch {
-        return null;
-    }
-    if (
-        (url.protocol !== "http:" && url.protocol !== "https:") ||
-        (url.origin === window.location.origin &&
-            url.pathname === window.location.pathname &&
-            url.search === window.location.search)
-    )
-        return null;
-    return anchor.href;
-}
 function $guardUnsavedFormChanges(dialogId: string) {
-    let pendingHref: string | null = null;
+    let pendingNavigation: {
+        url: string;
+        key: string;
+        type: NavigationType;
+    } | null = null;
     let pendingForm: HTMLFormElement | null = null;
     const initiallyDirtyForm = $select.elOrNull(
         'form[data-loki-dirty="true"]',
@@ -105,7 +74,7 @@ function $guardUnsavedFormChanges(dialogId: string) {
         if (!(target instanceof HTMLButtonElement)) return;
         if (target.value === "save") {
             event.preventDefault();
-            pendingHref = null;
+            pendingNavigation = null;
             const form = pendingForm;
             pendingForm = null;
             $assertElement(form, HTMLFormElement);
@@ -114,22 +83,40 @@ function $guardUnsavedFormChanges(dialogId: string) {
             return;
         }
         if (target.value !== "leave") return;
-        const href = pendingHref;
-        pendingHref = null;
+        const destination = pendingNavigation;
+        pendingNavigation = null;
         pendingForm = null;
         $clearFormDirty();
         dialog.close();
-        if (href) window.location.href = href;
+        if (!destination || !("navigation" in window)) return;
+        if (destination.type === "traverse") {
+            window.navigation.traverseTo(destination.key);
+        } else if (destination.type === "reload") {
+            window.navigation.reload();
+        } else {
+            window.navigation.navigate(destination.url, {
+                history: destination.type === "replace" ? "replace" : "push",
+            });
+        }
     });
-    document.addEventListener(
-        "click",
-        (event) => {
+    if ("navigation" in window) {
+        window.navigation.addEventListener("navigate", (event) => {
             if (!$isFormDirty()) return;
-            const href = $navigationHrefFromClick(event);
-            if (!href) return;
+            const destination = new URL(event.destination.url);
+            if (
+                !event.cancelable ||
+                !event.canIntercept ||
+                (destination.origin === window.location.origin &&
+                    destination.pathname === window.location.pathname &&
+                    destination.search === window.location.search)
+            )
+                return;
             event.preventDefault();
-            event.stopImmediatePropagation();
-            pendingHref = href;
+            pendingNavigation = {
+                url: event.destination.url,
+                key: event.destination.key,
+                type: event.navigationType,
+            };
             const form = $select.el(
                 "form[data-loki-form-dirty]",
                 HTMLFormElement,
@@ -138,9 +125,8 @@ function $guardUnsavedFormChanges(dialogId: string) {
             const title = $select.el("h2", HTMLHeadingElement, dialog);
             title.textContent = form.dataset.lokiConfirm ?? "";
             dialog.showModal();
-        },
-        true,
-    );
+        });
+    }
 }
 function UnsavedChangesGuard() {
     return (
@@ -151,7 +137,6 @@ function UnsavedChangesGuard() {
                 $isFormDirty,
                 $clearFormDirty,
                 $markFormDirtyFromEvent,
-                $navigationHrefFromClick,
             ]}
             $args={[UNSAVED_CHANGES_DIALOG_ID]}
             $exec={$guardUnsavedFormChanges}
