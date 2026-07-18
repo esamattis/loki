@@ -62,6 +62,24 @@ test("shows the invitation code used to register each user", async ({
     await expect(page).toHaveURL("/logbook");
     await page.goto("/admin");
 
+    const sectionNavigation = page.getByRole("navigation", {
+        name: "Admin sections",
+    });
+    await expect(
+        sectionNavigation.getByRole("link", { name: "Invitations" }),
+    ).toHaveAttribute("href", "#invitations");
+    await expect(
+        sectionNavigation.getByRole("link", { name: "Users" }),
+    ).toHaveAttribute("href", "#users");
+    await expect(
+        sectionNavigation.getByRole("link", { name: "Sessions" }),
+    ).toHaveAttribute("href", "#sessions");
+
+    const sections = page.locator("main > section");
+    await expect(sections.nth(0)).toHaveAttribute("id", "invitations");
+    await expect(sections.nth(1)).toHaveAttribute("id", "users");
+    await expect(sections.nth(2)).toHaveAttribute("id", "sessions");
+
     const usersSection = page.locator("section").filter({
         has: page.getByRole("heading", { name: "Users", exact: true }),
     });
@@ -69,6 +87,7 @@ test("shows the invitation code used to register each user", async ({
         hasText: "@invitation-tracked-user",
     });
     await expect(invitedUser).toContainText("Invitation code: test-invite");
+    await expect(invitedUser).toContainText("Last seen:");
 
     const seededAdmin = usersSection.getByRole("listitem").filter({
         hasText: "@test-admin",

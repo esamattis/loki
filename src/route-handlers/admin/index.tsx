@@ -1,240 +1,15 @@
 import { asc, desc, eq } from "drizzle-orm";
-import {
-    getAppContext,
-    useDateFormatter,
-    type App,
-    type AppRequestContext,
-} from "@/app/app";
-import { Button, ButtonLink } from "@/components/form";
+import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { LogbookPage } from "@/app/authenticated-page";
 import { requireAdmin } from "@/route-handlers/admin/helpers";
+import {
+    AdminInvitationsSection,
+    AdminSectionNavigation,
+    AdminSessionsSection,
+    AdminUsersSection,
+} from "@/route-handlers/admin/index/sections";
 import * as routes from "@/routes";
 import { invitations, sessions, users } from "@/schema";
-
-interface AdminUserRow {
-    uuid: string;
-    username: string;
-    displayName: string | null;
-    email: string;
-    invitationCode: string | null;
-    admin: boolean;
-}
-
-interface InvitationRow {
-    code: string;
-    count: number;
-}
-
-function AdminUsersSection(props: {
-    users: AdminUserRow[];
-    currentUserUuid: string;
-}) {
-    return (
-        <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                Users
-            </h2>
-            {props.users.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        No users yet.
-                    </p>
-                </div>
-            ) : (
-                <ul className="grid grid-cols-1 gap-3">
-                    {props.users.map((user) => (
-                        <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex flex-wrap items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                        {user.displayName || user.username}
-                                        {user.admin && (
-                                            <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-normal text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
-                                                Admin
-                                            </span>
-                                        )}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        @{user.username} · {user.email}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        Invitation code:{" "}
-                                        {user.invitationCode ?? "Not recorded"}
-                                    </p>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <form
-                                        method="post"
-                                        action={routes.admin.toggleAdmin({})}
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="uuid"
-                                            value={user.uuid}
-                                        />
-                                        <Button
-                                            type="submit"
-                                            variant="secondary"
-                                            size="sm"
-                                            className="px-3 py-2"
-                                        >
-                                            {user.admin
-                                                ? "Remove admin"
-                                                : "Make admin"}
-                                        </Button>
-                                    </form>
-                                    {user.uuid !== props.currentUserUuid && (
-                                        <form
-                                            method="post"
-                                            action={routes.admin.loginAs({})}
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="uuid"
-                                                value={user.uuid}
-                                            />
-                                            <Button
-                                                type="submit"
-                                                variant="secondary"
-                                                size="sm"
-                                                className="px-3 py-2"
-                                            >
-                                                Log in as
-                                            </Button>
-                                        </form>
-                                    )}
-                                </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </section>
-    );
-}
-
-interface AdminSessionRow {
-    tokenHash: string;
-    username: string;
-    displayName: string | null;
-    createdAt: number;
-    expiresAt: number;
-    lastUsedAt: number;
-}
-
-function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
-    const now = Math.floor(Date.now() / 1000);
-    const formatDate = useDateFormatter();
-    return (
-        <section className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                Sessions
-            </h2>
-            {props.sessions.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        No sessions yet.
-                    </p>
-                </div>
-            ) : (
-                <ul className="grid grid-cols-1 gap-3">
-                    {props.sessions.map((session) => {
-                        const expired = session.expiresAt <= now;
-                        return (
-                            <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                            {session.displayName ||
-                                                session.username}
-                                            {expired && (
-                                                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                                                    Expired
-                                                </span>
-                                            )}
-                                        </p>
-                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                            @{session.username}
-                                        </p>
-                                        <p className="mt-1 font-mono text-xs text-slate-400 dark:text-slate-500">
-                                            {session.tokenHash.slice(0, 12)}…
-                                        </p>
-                                    </div>
-                                    <div className="text-right text-sm text-slate-500 dark:text-slate-400">
-                                        <p>
-                                            Created{" "}
-                                            {formatDate(session.createdAt)}
-                                        </p>
-                                        <p className="mt-1">
-                                            Last used{" "}
-                                            {formatDate(session.lastUsedAt)}
-                                        </p>
-                                        <p className="mt-1">
-                                            Expires{" "}
-                                            {formatDate(session.expiresAt)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
-        </section>
-    );
-}
-
-function AdminInvitationsSection(props: { invitations: InvitationRow[] }) {
-    return (
-        <section className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Invitations
-                </h2>
-                <ButtonLink
-                    href={routes.admin.invitations.new({})}
-                    variant="primary"
-                    className="gap-1.5"
-                >
-                    Add invitation
-                </ButtonLink>
-            </div>
-            {props.invitations.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        No invitations yet.
-                    </p>
-                </div>
-            ) : (
-                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {props.invitations.map((invitation) => (
-                        <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/30">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                        {invitation.code}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        Remaining uses: {invitation.count}
-                                    </p>
-                                </div>
-                                <ButtonLink
-                                    href={routes.admin.invitations.edit({
-                                        code: invitation.code,
-                                    })}
-                                    variant="secondary"
-                                    size="sm"
-                                >
-                                    Edit
-                                </ButtonLink>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </section>
-    );
-}
 
 async function renderAdminPage(c: AppRequestContext) {
     const admin = requireAdmin(c);
@@ -252,6 +27,7 @@ async function renderAdminPage(c: AppRequestContext) {
                 email: users.email,
                 invitationCode: users.invitationCode,
                 admin: users.admin,
+                lastUsedAt: users.lastUsedAt,
             })
             .from(users)
             .orderBy(asc(users.username))
@@ -281,9 +57,10 @@ async function renderAdminPage(c: AppRequestContext) {
 
     return c.render(
         <LogbookPage title="Admin">
+            <AdminSectionNavigation />
+            <AdminInvitationsSection invitations={invitationRows} />
             <AdminUsersSection users={userRows} currentUserUuid={admin.uuid} />
             <AdminSessionsSection sessions={sessionRows} />
-            <AdminInvitationsSection invitations={invitationRows} />
         </LogbookPage>,
     );
 }
