@@ -74,7 +74,7 @@ export function ImageGallery(props: {
                             data-loki-read-image
                             className="absolute left-2 top-2 hidden rounded-full bg-emerald-700 px-2 py-1 text-xs font-semibold text-white shadow"
                         >
-                            Read once
+                            Read
                         </span>
                         <span
                             data-loki-template-slot="meta"

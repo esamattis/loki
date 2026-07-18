@@ -161,7 +161,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
 
     await page.getByRole("link", { name: "Read image", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
-    await expect(page.getByText("Read once", { exact: true })).toBeVisible();
+    await expect(page.getByText("Read", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Jump #42" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Jump #42" })).toHaveAttribute(
         "href",
