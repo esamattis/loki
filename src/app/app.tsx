@@ -859,7 +859,7 @@ app.use(
                 >
                     <ReturnAfterFormPost />
                     <div className="flex-1">{props.children}</div>
-                    <Footer />
+                    <Footer hasBottomNavigation={Boolean(user)} />
                     <UnsavedChangesDialogComponent />
                     <UpdateToastComponent />
                     <RestoreFormScrollPosition />

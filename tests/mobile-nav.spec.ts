@@ -84,6 +84,18 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
     await expect(bottomBar.getByRole("button", { name: "Menu" })).toBeVisible();
     await expectActiveAction(bottomBar, "Logbook");
 
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const footerLinksBox = await page
+        .getByRole("navigation", { name: "Footer" })
+        .boundingBox();
+    const bottomBarBox = await bottomBar.boundingBox();
+    expect(footerLinksBox).not.toBeNull();
+    expect(bottomBarBox).not.toBeNull();
+    expect(footerLinksBox!.y + footerLinksBox!.height).toBeLessThanOrEqual(
+        bottomBarBox!.y,
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+
     await bottomBar
         .getByRole("link", { name: "Add jump", exact: true })
         .click();
