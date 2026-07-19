@@ -201,7 +201,13 @@ const FEATURES: Feature[] = [
         icon: <StatisticsIcon className="h-6 w-6 text-indigo-500" />,
         title: "Total & yearly statistics",
         description:
-            "Review all-time totals and jumps by year. Compare freefall time and distance, personal records, and jump counts by location, aircraft, gear, and jump type.",
+            "Review all-time totals and jumps by year. Compare freefall time and distance, plus jump counts by location, aircraft, gear, and jump type.",
+    },
+    {
+        icon: <StatisticsIcon className="h-6 w-6 text-indigo-500" />,
+        title: "Record statistics",
+        description:
+            "Find your longest freefall, altitude and speed records, and the most jumps you have made in a day, week, or month.",
     },
     {
         icon: <CameraIcon className="h-6 w-6 text-indigo-500" />,
