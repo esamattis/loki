@@ -864,7 +864,7 @@ test("next jump number button restores max plus one", async ({ page }) => {
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("6");
 });
 
-test("adding a jump with an existing jump number shows an error and link", async ({
+test("adding a jump with an existing jump number shows an overwrite warning and link", async ({
     page,
 }) => {
     await page.goto("/register");
@@ -908,16 +908,10 @@ test("adding a jump with an existing jump number shows an error and link", async
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
     await page.locator('input[name="jumpNumber"]').fill("1");
-    await page.locator('input[name="exitAltitude"]').fill("3500");
-    await page.locator('input[name="openingAltitude"]').fill("900");
-    await page.locator('input[name="freefallTime"]').fill("45");
-    await selectJumpItems(page, "Location", ["Duplicate Drop Zone"]);
-    await selectJumpItems(page, "Aircraft", ["Duplicate Plane"]);
-    await page.getByRole("button", { name: "Add jump" }).click();
-
-    await expect(page).toHaveURL("/logbook/jumps/new");
     await expect(
-        page.getByText("Jump number 1 is already used."),
+        page.getByText(
+            "Jump #1 already exists. Saving will overwrite the existing jump.",
+        ),
     ).toBeVisible();
     await page.getByRole("link", { name: "Open existing jump" }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);

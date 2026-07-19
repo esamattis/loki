@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { altitudeInputValue, altitudeToMeters } from "@/options";
 import {
-    duplicateJumpNumberError,
+    existingJumpNumberOverwriteNotice,
     findJumpByNumber,
     getJumpFormResources,
     parseAndResolveJumpForm,
@@ -263,7 +263,7 @@ async function getJumpNumberError(
     }
     const existingJump = await findJumpByNumber(c, jumpNumber);
     return existingJump
-        ? duplicateJumpNumberError(jumpNumber, existingJump.uuid)
+        ? existingJumpNumberOverwriteNotice(jumpNumber, existingJump.uuid)
         : undefined;
 }
 
@@ -313,56 +313,58 @@ export async function handleNewJump(c: AppRequestContext) {
     }
     const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
     const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
-    if (existingJump) {
-        return c.render(
-            <JumpFormPage
-                title="Add jump"
-                submitLabel="Add jump"
-                confirmationTitle="Add Jump"
-                errors={[
-                    duplicateJumpNumberError(
-                        parsed.data.jumpNumber,
-                        existingJump.uuid,
-                    ),
-                ]}
-                values={parsed.raw}
-                nextJumpNumber={await getNextJumpNumber(c, userUuid)}
-                resources={parsed.resources}
-                sourceImageId={sourceImageId}
-                isImagePrefill={Boolean(sourceImageId)}
-            />,
-        );
-    }
     const db = getAppContext(c).db;
-    const jumpUuid = crypto.randomUUID();
-    await db.batch([
-        db.insert(jumps).values({
-            uuid: jumpUuid,
-            userUuid,
-            locationUuid: parsed.resolved.locationUuid,
-            jumpNumber: parsed.data.jumpNumber,
-            jumpDate: parsed.data.jumpDate,
-            exitAltitude: altitudeToMeters(
-                parsed.data.exitAltitude,
-                altitudeUnits,
+    const jumpUuid = existingJump?.uuid ?? crypto.randomUUID();
+    const jumpValues = {
+        locationUuid: parsed.resolved.locationUuid,
+        jumpNumber: parsed.data.jumpNumber,
+        jumpDate: parsed.data.jumpDate,
+        exitAltitude: altitudeToMeters(parsed.data.exitAltitude, altitudeUnits),
+        openingAltitude: altitudeToMeters(
+            parsed.data.openingAltitude,
+            altitudeUnits,
+        ),
+        freefallTime: parsed.data.freefallTime,
+        description: parsed.data.description || null,
+    };
+    if (existingJump) {
+        await db.batch([
+            db.update(jumps).set(jumpValues).where(eq(jumps.uuid, jumpUuid)),
+            db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, jumpUuid)),
+            db
+                .delete(jumpsToAircrafts)
+                .where(eq(jumpsToAircrafts.jumpUuid, jumpUuid)),
+            db
+                .delete(jumpsToJumpTypes)
+                .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
+            ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
+                db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
             ),
-            openingAltitude: altitudeToMeters(
-                parsed.data.openingAltitude,
-                altitudeUnits,
+            ...parsed.resolved.gearUuids.map((gearUuid) =>
+                db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
             ),
-            freefallTime: parsed.data.freefallTime,
-            description: parsed.data.description || null,
-        }),
-        ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
-            db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
-        ),
-        ...parsed.resolved.gearUuids.map((gearUuid) =>
-            db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
-        ),
-        ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
-            db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
-        ),
-    ]);
+            ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
+                db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
+            ),
+        ]);
+    } else {
+        await db.batch([
+            db.insert(jumps).values({
+                uuid: jumpUuid,
+                userUuid,
+                ...jumpValues,
+            }),
+            ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
+                db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
+            ),
+            ...parsed.resolved.gearUuids.map((gearUuid) =>
+                db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
+            ),
+            ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
+                db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
+            ),
+        ]);
+    }
     if (sourceImageId) {
         return c.render(
             <JumpImageAssociationComplete

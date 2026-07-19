@@ -434,3 +434,21 @@ export function duplicateJumpNumberError(
         </>
     );
 }
+
+export function existingJumpNumberOverwriteNotice(
+    jumpNumber: number,
+    existingUuid: string,
+) {
+    return (
+        <>
+            Jump #{jumpNumber} already exists. Saving will overwrite the
+            existing jump.{" "}
+            <a
+                href={routes.logbook.jumps.edit({ uuid: existingUuid })}
+                className="font-medium underline"
+            >
+                Open existing jump
+            </a>
+        </>
+    );
+}
