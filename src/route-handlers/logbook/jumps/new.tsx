@@ -76,6 +76,36 @@ function applyJumpQueryPrefill(
     return next;
 }
 
+function imageReadingWarningNotices(warning: string) {
+    return [
+        warning,
+        <>
+            Ambiguities can be fixed using the{" "}
+            <a
+                href={`${routes.preferences({})}#jump-image-prompt`}
+                className="font-medium underline"
+            >
+                Image reading prompt
+            </a>
+            ,{" "}
+            <a
+                href={`${routes.preferences({})}#openai`}
+                className="font-medium underline"
+            >
+                Preferences
+            </a>
+            , and the per-image{" "}
+            <a
+                href={`${routes.logbook.jumps.fromImage({})}#additional-context`}
+                className="font-medium underline"
+            >
+                Additional context
+            </a>
+            .
+        </>,
+    ];
+}
+
 export async function renderNewJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
@@ -210,7 +240,11 @@ export async function renderNewJump(c: AppRequestContext) {
             resources={await getJumpFormResources(c)}
             sourceImageId={query.imageId}
             isImagePrefill={isImagePrefill}
-            notices={query.warning ? [query.warning] : undefined}
+            notices={
+                query.warning
+                    ? imageReadingWarningNotices(query.warning)
+                    : undefined
+            }
             dirty={isImagePrefill}
         />,
     );

@@ -265,50 +265,52 @@ function JumpFromImageSection(props: { options: UserOptions }) {
                     </option>
                 ))}
             </Select>
-            <div id={promptContainerId}>
-                <Textarea
-                    name="jumpImagePrompt"
-                    label="Image reading prompt"
-                    rows={14}
-                    value={
-                        props.options.jumpImagePrompt ||
-                        DEFAULT_JUMP_IMAGE_PROMPT
-                    }
-                />
-                <Button
-                    id={restorePromptButtonId}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="mt-2"
-                >
-                    Restore default prompt
-                </Button>
-            </div>
-            <Script
-                $deps={[$select]}
-                $args={[
-                    promptContainerId,
-                    restorePromptButtonId,
-                    DEFAULT_JUMP_IMAGE_PROMPT,
-                ]}
-                $exec={(containerId, buttonId, defaultPrompt) => {
-                    const container = $select.id(containerId, HTMLElement);
-                    const textarea = $select.el(
-                        'textarea[name="jumpImagePrompt"]',
-                        HTMLTextAreaElement,
-                        container,
-                    );
-                    const button = $select.id(buttonId, HTMLButtonElement);
-                    button.addEventListener("click", () => {
-                        textarea.value = defaultPrompt;
-                        textarea.dispatchEvent(
-                            new Event("input", { bubbles: true }),
+            <div id="jump-image-prompt" className="scroll-mt-4">
+                <div id={promptContainerId}>
+                    <Textarea
+                        name="jumpImagePrompt"
+                        label="Image reading prompt"
+                        rows={14}
+                        value={
+                            props.options.jumpImagePrompt ||
+                            DEFAULT_JUMP_IMAGE_PROMPT
+                        }
+                    />
+                    <Button
+                        id={restorePromptButtonId}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="mt-2"
+                    >
+                        Restore default prompt
+                    </Button>
+                </div>
+                <Script
+                    $deps={[$select]}
+                    $args={[
+                        promptContainerId,
+                        restorePromptButtonId,
+                        DEFAULT_JUMP_IMAGE_PROMPT,
+                    ]}
+                    $exec={(containerId, buttonId, defaultPrompt) => {
+                        const container = $select.id(containerId, HTMLElement);
+                        const textarea = $select.el(
+                            'textarea[name="jumpImagePrompt"]',
+                            HTMLTextAreaElement,
+                            container,
                         );
-                        textarea.focus();
-                    });
-                }}
-            />
+                        const button = $select.id(buttonId, HTMLButtonElement);
+                        button.addEventListener("click", () => {
+                            textarea.value = defaultPrompt;
+                            textarea.dispatchEvent(
+                                new Event("input", { bubbles: true }),
+                            );
+                            textarea.focus();
+                        });
+                    }}
+                />
+            </div>
         </section>
     );
 }

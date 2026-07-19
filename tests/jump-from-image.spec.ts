@@ -119,7 +119,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     );
     await expect(jumpItemSummary(page, "Jump types")).toContainText("FS");
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
-        "From image mock",
+        "From image mock\n\nRead from a logbook using AI vision",
     );
     await expect(
         page.getByText("Opening altitude was difficult to read"),
@@ -161,7 +161,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     );
     await expect(jumpItemSummary(page, "Jump types")).toContainText("FS");
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
-        "From image mock",
+        "From image mock\n\nRead from a logbook using AI vision",
     );
 
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
@@ -270,6 +270,21 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
             "Opening altitude was difficult to read and may be inaccurate.",
         ),
     ).toBeVisible();
+    await expect(
+        page.getByText(/Ambiguities can be fixed using the/),
+    ).toBeVisible();
+    await expect(
+        page.getByRole("link", { name: "Image reading prompt" }),
+    ).toHaveAttribute("href", "/preferences#jump-image-prompt");
+    await expect(
+        page.getByRole("link", { name: "Preferences" }),
+    ).toHaveAttribute("href", "/preferences#openai");
+    await expect(
+        page.getByRole("link", { name: "Additional context" }),
+    ).toHaveAttribute(
+        "href",
+        "/logbook/jumps/new/from-image#additional-context",
+    );
 
     await page.goto("/logbook/jumps/new/from-image");
     await page

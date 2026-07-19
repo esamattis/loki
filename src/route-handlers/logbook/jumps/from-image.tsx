@@ -293,7 +293,10 @@ function JumpFromImagePage(props: {
                         className="space-y-5"
                     >
                         <JumpImageField formId={formId} />
-                        <div className="space-y-1.5">
+                        <div
+                            id="additional-context"
+                            className="scroll-mt-4 space-y-1.5"
+                        >
                             <Textarea
                                 name="additionalContext"
                                 label="Additional context"
@@ -309,7 +312,7 @@ function JumpFromImagePage(props: {
                                 (e.g. RW means Formation Skydiving). Change the
                                 default image reading prompt in{" "}
                                 <a
-                                    href={routes.preferences({})}
+                                    href={`${routes.preferences({})}#jump-image-prompt`}
                                     className="font-medium text-indigo-600 underline dark:text-indigo-400"
                                 >
                                     Preferences
@@ -554,6 +557,27 @@ async function extractJumpDataFromImage(options: {
     };
 }
 
+const AI_READ_NOTES_SUFFIX = "Read from a logbook using AI vision";
+const MAX_JUMP_NOTES_LENGTH = 2_000;
+
+function withAiReadNotes(description: string | null | undefined): string {
+    const notes = description?.trim() ?? "";
+    if (!notes) {
+        return AI_READ_NOTES_SUFFIX;
+    }
+    if (notes.endsWith(AI_READ_NOTES_SUFFIX)) {
+        return notes.slice(0, MAX_JUMP_NOTES_LENGTH);
+    }
+    const separator = "\n\n";
+    const maxNotesLength =
+        MAX_JUMP_NOTES_LENGTH - separator.length - AI_READ_NOTES_SUFFIX.length;
+    const truncatedNotes =
+        notes.length > maxNotesLength
+            ? notes.slice(0, maxNotesLength).trimEnd()
+            : notes;
+    return `${truncatedNotes}${separator}${AI_READ_NOTES_SUFFIX}`;
+}
+
 function buildJumpNewQuery(
     data: JumpImageData,
     resources: Awaited<ReturnType<typeof getJumpItemResources>>,
@@ -613,7 +637,7 @@ function buildJumpNewQuery(
             jumpTypeItems.unmatchedNames.length > 0
                 ? jumpTypeItems.unmatchedNames.join("; ")
                 : undefined,
-        description: data.description ?? undefined,
+        description: withAiReadNotes(data.description),
         warning: data.warning ?? undefined,
     };
 }
