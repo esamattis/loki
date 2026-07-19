@@ -179,6 +179,9 @@ test("a skydiver can update preferences and account details", async ({
     await expect(
         page.locator('textarea[name="jumpImagePrompt"]'),
     ).not.toHaveValue(/Do not combine values from different jumps/);
+    await expect(page.locator('input[name="username"]')).toHaveValue(
+        "preferences-skydiver",
+    );
     await page
         .locator('textarea[name="jumpImagePrompt"]')
         .fill("Custom image prompt");
@@ -186,6 +189,7 @@ test("a skydiver can update preferences and account details", async ({
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         /Treat "WS" as the jump type "Wingsuit"/,
     );
+    await page.locator('input[name="username"]').fill("feet-skydiver");
     await page.locator('input[name="displayName"]').fill("Feet Skydiver");
     await page.locator('input[name="email"]').fill("feet@example.test");
     await page.locator('select[name="altitudeUnits"]').selectOption("feet");
@@ -212,6 +216,9 @@ test("a skydiver can update preferences and account details", async ({
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await expect(page.locator('input[name="username"]')).toHaveValue(
+        "feet-skydiver",
+    );
     await expect(page.locator('input[name="displayName"]')).toHaveValue(
         "Feet Skydiver",
     );
@@ -233,12 +240,27 @@ test("a skydiver can update preferences and account details", async ({
 
     await logOut(page);
     await expect(page).toHaveURL("/login");
-    await page
-        .locator('input[name="usernameOrEmail"]')
-        .fill("feet@example.test");
+    await page.locator('input[name="usernameOrEmail"]').fill("feet-skydiver");
     await page.locator('input[name="password"]').fill("new-parachute");
     await page.getByRole("button", { name: "Log in" }).click();
     await expect(page).toHaveURL("/logbook");
+});
+
+test("a skydiver cannot use another account's username", async ({ page }) => {
+    await registerUser(page, "existing-username", "Existing User");
+    await logOut(page);
+    await registerUser(page, "preferences-username", "Preferences User");
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page.locator('input[name="username"]').fill("existing-username");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+
+    await expect(page).toHaveURL("/preferences");
+    await expect(page.getByText("Username is already in use")).toBeVisible();
+    await expect(page.locator('input[name="username"]')).toHaveValue(
+        "existing-username",
+    );
 });
 
 test("unit preferences apply throughout the logbook UI", async ({ page }) => {

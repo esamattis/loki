@@ -6,8 +6,6 @@ import { Button, Checkbox, Input, Select, Textarea } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Script } from "@/components/script";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";
-import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
-import { DangerZone } from "@/components/ui/danger-zone";
 import { hashPassword } from "@/auth";
 import { Password } from "@/route-handlers/auth/components";
 import { destroySession } from "@/route-handlers/auth/sessions";
@@ -30,9 +28,16 @@ import {
 } from "@/schema";
 import { LogbookPage } from "@/app/logbook-page";
 import { $select } from "@/utils";
+import { DangerZoneSection } from "@/route-handlers/preferences/danger-zone";
 
 const PreferencesSchema = z
     .object({
+        username: z
+            .string()
+            .min(1, "Username is required")
+            .refine((username) => !username.includes(":"), {
+                message: "Username cannot contain a colon",
+            }),
         displayName: z.string().trim(),
         email: z
             .string()
@@ -79,6 +84,7 @@ const PreferencesSchema = z
     });
 
 interface PreferencesFormValues {
+    username: string;
     displayName: string;
     email: string;
     options: UserOptions;
@@ -363,6 +369,12 @@ function PreferencesForm(props: {
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
                     <Input
+                        name="username"
+                        label="Username"
+                        required
+                        value={props.values.username}
+                    />
+                    <Input
                         name="displayName"
                         label="Display name"
                         value={props.values.displayName}
@@ -423,6 +435,7 @@ function PreferencesPage(props: {
 function getFormValues(c: AppRequestContext): PreferencesFormValues {
     const user = getAppContext(c).getUser();
     return {
+        username: user.username,
         displayName: user.displayName ?? "",
         email: user.email,
         options: user.options,
@@ -454,31 +467,6 @@ function optionsFromRawForm(
         htmlCacheEnabled: raw.htmlCacheEnabled === "true",
     });
     return partial.success ? partial.data : current;
-}
-
-function DangerZoneSection() {
-    return (
-        <DangerZone>
-            <div className="space-y-3">
-                <p className="text-sm text-red-700/90 dark:text-red-300/90">
-                    Permanently delete all jumps and jump items, including gear,
-                    locations, aircraft, and jump types. Your account and
-                    preferences will remain. This cannot be undone.
-                </p>
-                <ConfirmDeleteButton
-                    label="Delete logbook data"
-                    action="delete-logbook-data"
-                />
-            </div>
-            <div className="mt-5 space-y-3 border-t border-red-200 pt-5 dark:border-red-900/60">
-                <p className="text-sm text-red-700/90 dark:text-red-300/90">
-                    Permanently delete your account and all logbook data. This
-                    cannot be undone.
-                </p>
-                <ConfirmDeleteButton label="Delete account" />
-            </div>
-        </DangerZone>
-    );
 }
 
 function renderPreferences(
@@ -536,6 +524,7 @@ async function handlePreferences(c: AppRequestContext) {
     const raw = getFormDataValues(formData);
     const result = PreferencesSchema.safeParse(raw);
     const values = getFormValues(c);
+    values.username = raw.username ?? values.username;
     values.displayName = raw.displayName ?? values.displayName;
     values.email = raw.email ?? values.email;
     values.options = optionsFromRawForm(raw, values.options);
@@ -546,6 +535,20 @@ async function handlePreferences(c: AppRequestContext) {
 
     const ctx = getAppContext(c);
     const user = ctx.getUser();
+    const existingUsername = await ctx.db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(
+            and(
+                eq(users.username, result.data.username),
+                ne(users.uuid, user.uuid),
+            ),
+        )
+        .limit(1)
+        .get();
+    if (existingUsername) {
+        return renderPreferences(c, values, ["Username is already in use"]);
+    }
     const existingEmail = await ctx.db
         .select({ uuid: users.uuid })
         .from(users)
@@ -575,6 +578,7 @@ async function handlePreferences(c: AppRequestContext) {
     await ctx.db
         .update(users)
         .set({
+            username: result.data.username,
             displayName: result.data.displayName || null,
             email: result.data.email,
             options: JSON.stringify(options),
