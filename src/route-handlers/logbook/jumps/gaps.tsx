@@ -11,11 +11,17 @@ export function MissingJumpCard(props: {
     upperJumpNumber: number;
 }) {
     const gapCount = props.jumpNumbers.length;
+    const lowestMissing = Math.min(...props.jumpNumbers);
+    const highestMissing = Math.max(...props.jumpNumbers);
+    const title =
+        gapCount === 1
+            ? `Missing jump #${lowestMissing}`
+            : `Missing jumps #${lowestMissing} - #${highestMissing}`;
     return (
         <li className="col-span-full rounded-2xl border border-dashed border-indigo-300 bg-indigo-50/50 px-5 py-4 dark:border-indigo-800 dark:bg-indigo-950/20">
             <div>
                 <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                    Missing {gapCount === 1 ? "jump" : "jumps"}
+                    {title}
                 </h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Add {gapCount === 1 ? "this jump" : "these jumps"} to fill

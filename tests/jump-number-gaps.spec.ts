@@ -47,8 +47,11 @@ test("statistics page lists jump number gaps and insufficient data", async ({
         .click();
 
     await expect(
-        page.getByRole("heading", { name: "Missing jumps" }),
-    ).toHaveCount(2);
+        page.getByRole("heading", { name: "Missing jumps #3 - #4" }),
+    ).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: "Missing jumps #6 - #7" }),
+    ).toBeVisible();
     for (const jumpNumber of [3, 4, 6, 7]) {
         await expect(
             page.getByRole("link", { name: `Add jump #${jumpNumber}` }),
@@ -123,7 +126,10 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     );
     await expect(page.getByRole("link", { name: /^#6 / })).toBeVisible();
     await expect(
-        page.getByRole("heading", { name: "Missing jumps" }),
+        page.getByRole("heading", { name: "Missing jumps #3 - #4" }),
+    ).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: /Missing jumps/ }),
     ).toHaveCount(1);
 });
 
