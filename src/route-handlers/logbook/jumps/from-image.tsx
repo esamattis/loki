@@ -90,7 +90,11 @@ async function getJumpItemResources(c: AppRequestContext) {
     const [locationRows, aircraftRows, gearRows, jumpTypeRows] =
         await Promise.all([
             db
-                .select({ uuid: locations.uuid, name: locations.name })
+                .select({
+                    uuid: locations.uuid,
+                    name: locations.name,
+                    description: locations.description,
+                })
                 .from(locations)
                 .where(
                     and(
@@ -100,7 +104,11 @@ async function getJumpItemResources(c: AppRequestContext) {
                 )
                 .orderBy(locations.name),
             db
-                .select({ uuid: aircrafts.uuid, name: aircrafts.name })
+                .select({
+                    uuid: aircrafts.uuid,
+                    name: aircrafts.name,
+                    description: aircrafts.description,
+                })
                 .from(aircrafts)
                 .where(
                     and(
@@ -110,14 +118,22 @@ async function getJumpItemResources(c: AppRequestContext) {
                 )
                 .orderBy(aircrafts.name),
             db
-                .select({ uuid: gear.uuid, name: gear.name })
+                .select({
+                    uuid: gear.uuid,
+                    name: gear.name,
+                    description: gear.description,
+                })
                 .from(gear)
                 .where(
                     and(eq(gear.userUuid, userUuid), eq(gear.archived, false)),
                 )
                 .orderBy(gear.name),
             db
-                .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
+                .select({
+                    uuid: jumpTypes.uuid,
+                    name: jumpTypes.name,
+                    description: jumpTypes.description,
+                })
                 .from(jumpTypes)
                 .where(
                     and(
@@ -136,11 +152,25 @@ async function getJumpItemResources(c: AppRequestContext) {
     };
 }
 
-function buildResourceHint(label: string, items: { name: string }[]): string {
+function formatResourceHintItem(item: {
+    name: string;
+    description: string | null;
+}): string {
+    const description = item.description?.trim();
+    if (!description) {
+        return item.name;
+    }
+    return `${item.name} (${description})`;
+}
+
+function buildResourceHint(
+    label: string,
+    items: { name: string; description: string | null }[],
+): string {
     if (items.length === 0) {
         return `${label}: (none configured)`;
     }
-    return `${label}: ${items.map((item) => item.name).join(", ")}`;
+    return `${label}: ${items.map(formatResourceHintItem).join(", ")}`;
 }
 
 function JumpImageField(props: { formId: string }) {
@@ -512,7 +542,7 @@ async function extractJumpDataFromImage(options: {
     const userText = [
         `User's image reading instructions:\n${prompt}`,
         "Extract exitAltitude and openingAltitude as their visible values and source units. Supported source units are meters and feet. Do not convert them. If a source unit is not explicit in the image or supplied in the user's additional context, return null for that altitude.",
-        "Match a readable name to one of these existing logbook items only when the match is unambiguous. If none matches, return the readable name from the image so a new jump item can be created:",
+        "Match a readable name to one of these existing logbook items only when the match is unambiguous. Item descriptions may include alternative names or aliases; when matching, always return the item's primary name (before any parentheses), not the description. If none matches, return the readable name from the image so a new jump item can be created:",
         buildResourceHint("Locations", options.resources.locations),
         buildResourceHint("Aircraft", options.resources.aircrafts),
         buildResourceHint("Gear", options.resources.gear),
