@@ -369,3 +369,23 @@ export function EyeOffIcon(props: IconProps) {
         </svg>
     );
 }
+
+export function SortIcon(props: IconProps) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 7h12M3 12h8M3 17h4M17 5v14m0 0l-3-3m3 3l3-3"
+            />
+        </svg>
+    );
+}

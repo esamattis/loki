@@ -1,16 +1,4 @@
-import {
-    and,
-    asc,
-    desc,
-    eq,
-    gte,
-    inArray,
-    lt,
-    lte,
-    ne,
-    or,
-    sql,
-} from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte, or, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import * as routes from "@/routes";
 import {
@@ -32,7 +20,12 @@ import {
     type JumpListItem,
 } from "@/route-handlers/logbook/components/jump-list";
 import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
-import { JumpSearch } from "@/route-handlers/logbook/components/search";
+import {
+    appendLogbookFilterParams,
+    isDefaultLogbookSort,
+    JumpSearch,
+    logbookSortParam,
+} from "@/route-handlers/logbook/components/search";
 import { JumpItemSelect } from "@/components/jump-item-select";
 import { DateInput } from "@/components/date-input";
 
@@ -43,6 +36,9 @@ interface LogbookResource {
     description: string | null;
 }
 
+export type LogbookSortBy = "jumpNumber" | "createdAt";
+export type LogbookSortOrder = "asc" | "desc";
+
 export interface LogbookFilters {
     locationUuids: string[];
     gearUuids: string[];
@@ -50,35 +46,36 @@ export interface LogbookFilters {
     start: string;
     end: string;
     search: string;
+    sortBy: LogbookSortBy;
+    sortOrder: LogbookSortOrder;
 }
 
 const JUMPS_PER_PAGE = 24;
 
-function getLogbookJumpsUrl(filters: LogbookFilters, before?: number): string {
+function getLogbookJumpsUrl(filters: LogbookFilters, offset?: number): string {
     const query = new URLSearchParams();
-    for (const uuid of filters.locationUuids) {
-        query.append("locationUuids", uuid);
-    }
-    for (const uuid of filters.gearUuids) {
-        query.append("gearUuids", uuid);
-    }
-    for (const uuid of filters.jumpTypeUuids) {
-        query.append("jumpTypeUuids", uuid);
-    }
-    if (filters.start) {
-        query.set("start", filters.start);
-    }
-    if (filters.end) {
-        query.set("end", filters.end);
-    }
-    if (filters.search) {
-        query.set("search", filters.search);
-    }
-    if (before !== undefined) {
-        query.set("before", String(before));
+    appendLogbookFilterParams(query, filters);
+    if (offset !== undefined && offset > 0) {
+        query.set("offset", String(offset));
     }
     const queryString = query.toString();
     return `${routes.logbook.jumpFragment({})}${queryString ? `?${queryString}` : ""}`;
+}
+
+function parseLogbookSort(value: string | null): {
+    sortBy: LogbookSortBy;
+    sortOrder: LogbookSortOrder;
+} {
+    if (value === "jumpNumber-asc") {
+        return { sortBy: "jumpNumber", sortOrder: "asc" };
+    }
+    if (value === "createdAt-desc") {
+        return { sortBy: "createdAt", sortOrder: "desc" };
+    }
+    if (value === "createdAt-asc") {
+        return { sortBy: "createdAt", sortOrder: "asc" };
+    }
+    return { sortBy: "jumpNumber", sortOrder: "desc" };
 }
 
 function filterResourceUuids(
@@ -141,6 +138,13 @@ function JumpFilters(props: {
                         type="hidden"
                         name="search"
                         value={props.filters.search}
+                    />
+                )}
+                {!isDefaultLogbookSort(props.filters) && (
+                    <input
+                        type="hidden"
+                        name="sort"
+                        value={logbookSortParam(props.filters)}
                     />
                 )}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -274,6 +278,7 @@ export function getLogbookFilters(
 ): LogbookFilters {
     const query = new URL(c.req.url).searchParams;
     const search = (query.get("search") ?? "").trim().slice(0, 200);
+    const { sortBy, sortOrder } = parseLogbookSort(query.get("sort"));
     function getDate(name: string): string {
         const value = query.get(name) ?? "";
         if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
@@ -296,6 +301,8 @@ export function getLogbookFilters(
         start: getDate("start"),
         end: getDate("end"),
         search,
+        sortBy,
+        sortOrder,
     };
 }
 
@@ -371,7 +378,7 @@ function getLogbookJumpConditions(
 export async function getLogbookJumps(
     c: AppRequestContext,
     filters: LogbookFilters,
-    before?: number,
+    offset = 0,
 ) {
     const db = getAppContext(c).db;
     const searchedJumpNumber = /^\d+$/.test(filters.search)
@@ -380,18 +387,18 @@ export async function getLogbookJumps(
     const validSearchedJumpNumber = Number.isSafeInteger(searchedJumpNumber)
         ? searchedJumpNumber
         : undefined;
-    const conditions = [
-        ...getLogbookJumpConditions(c, filters),
-        ...(before === undefined ? [] : [lt(jumps.jumpNumber, before)]),
-        ...(before === undefined || validSearchedJumpNumber === undefined
-            ? []
-            : [ne(jumps.jumpNumber, validSearchedJumpNumber)]),
-    ];
+    const orderFn = filters.sortOrder === "asc" ? asc : desc;
+    const primaryOrder =
+        filters.sortBy === "createdAt" ? jumps.createdAt : jumps.jumpNumber;
+    const secondaryOrder =
+        filters.sortBy === "createdAt" ? jumps.jumpNumber : jumps.createdAt;
+    const conditions = getLogbookJumpConditions(c, filters);
     return db
         .select({
             uuid: jumps.uuid,
             jumpNumber: jumps.jumpNumber,
             jumpDate: jumps.jumpDate,
+            createdAt: jumps.createdAt,
             exitAltitude: jumps.exitAltitude,
             openingAltitude: jumps.openingAltitude,
             freefallTime: jumps.freefallTime,
@@ -403,16 +410,18 @@ export async function getLogbookJumps(
         .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
         .where(and(...conditions))
         .orderBy(
-            ...(before === undefined && validSearchedJumpNumber !== undefined
+            ...(offset === 0 && validSearchedJumpNumber !== undefined
                 ? [
                       asc(
                           sql`CASE WHEN ${jumps.jumpNumber} = ${validSearchedJumpNumber} THEN 0 ELSE 1 END`,
                       ),
                   ]
                 : []),
-            desc(jumps.jumpNumber),
+            orderFn(primaryOrder),
+            orderFn(secondaryOrder),
         )
-        .limit(JUMPS_PER_PAGE + 1);
+        .limit(JUMPS_PER_PAGE + 1)
+        .offset(offset);
 }
 
 export async function getJumpTypesByJump(
@@ -496,17 +505,20 @@ export async function getGearByJump(c: AppRequestContext, jumpUuids: string[]) {
 export function JumpList(props: {
     jumps: JumpListItem[];
     filters: LogbookFilters;
+    offset?: number;
 }) {
+    const offset = props.offset ?? 0;
     const hasMoreJumps = props.jumps.length > JUMPS_PER_PAGE;
     const visibleJumps = props.jumps.slice(0, JUMPS_PER_PAGE);
-    const lastVisibleJump = visibleJumps.at(-1);
     const showGaps =
+        props.filters.sortBy === "jumpNumber" &&
         props.filters.locationUuids.length === 0 &&
         props.filters.gearUuids.length === 0 &&
         props.filters.jumpTypeUuids.length === 0 &&
         props.filters.start === "" &&
         props.filters.end === "" &&
         props.filters.search === "";
+    const jumpNumberDescending = props.filters.sortOrder === "desc";
 
     return (
         <>
@@ -517,30 +529,48 @@ export function JumpList(props: {
                     return cards;
                 }
                 const missingJumpNumbers = [];
-                for (
-                    let jumpNumber = jump.jumpNumber - 1;
-                    jumpNumber > nextJump.jumpNumber;
-                    jumpNumber--
-                ) {
-                    missingJumpNumbers.push(jumpNumber);
+                if (jumpNumberDescending) {
+                    for (
+                        let jumpNumber = jump.jumpNumber - 1;
+                        jumpNumber > nextJump.jumpNumber;
+                        jumpNumber--
+                    ) {
+                        missingJumpNumbers.push(jumpNumber);
+                    }
+                } else {
+                    for (
+                        let jumpNumber = jump.jumpNumber + 1;
+                        jumpNumber < nextJump.jumpNumber;
+                        jumpNumber++
+                    ) {
+                        missingJumpNumbers.push(jumpNumber);
+                    }
                 }
                 if (missingJumpNumbers.length > 0) {
+                    const lowerJumpNumber = Math.min(
+                        jump.jumpNumber,
+                        nextJump.jumpNumber,
+                    );
+                    const upperJumpNumber = Math.max(
+                        jump.jumpNumber,
+                        nextJump.jumpNumber,
+                    );
                     cards.push(
                         <MissingJumpCard
                             jumpNumbers={missingJumpNumbers}
-                            lowerJumpNumber={nextJump.jumpNumber}
-                            upperJumpNumber={jump.jumpNumber}
+                            lowerJumpNumber={lowerJumpNumber}
+                            upperJumpNumber={upperJumpNumber}
                             key={`missing-after-${nextJump.jumpNumber}`}
                         />,
                     );
                 }
                 return cards;
             })}
-            {hasMoreJumps && lastVisibleJump && (
+            {hasMoreJumps && (
                 <li
                     hx-get={getLogbookJumpsUrl(
                         props.filters,
-                        lastVisibleJump.jumpNumber,
+                        offset + JUMPS_PER_PAGE,
                     )}
                     hx-trigger="intersect once"
                     hx-swap="outerHTML"
@@ -574,13 +604,23 @@ async function renderLogbook(c: AppRequestContext) {
         getJumpTypesByJump(c, jumpUuids),
         getGearByJump(c, jumpUuids),
     ]);
+    const showCreatedAt = filters.sortBy === "createdAt";
     const jumpCards = jumpRows.map((jump) => ({
         ...jump,
+        showCreatedAt,
         aircraftItems: aircraftsByJump.get(jump.uuid) ?? [],
         jumpTypeItems: jumpTypesByJump.get(jump.uuid) ?? [],
         gearItems: gearByJump.get(jump.uuid) ?? [],
         options,
     }));
+    const hasActiveFilters =
+        filters.locationUuids.length > 0 ||
+        filters.gearUuids.length > 0 ||
+        filters.jumpTypeUuids.length > 0 ||
+        filters.start !== "" ||
+        filters.end !== "" ||
+        filters.search !== "" ||
+        !isDefaultLogbookSort(filters);
 
     return c.render(
         <LogbookPage title={`${jumpNumberRow?.maxJumpNumber ?? 0} Jumps`}>
@@ -591,16 +631,11 @@ async function renderLogbook(c: AppRequestContext) {
                     gear={resources.gear}
                     jumpTypes={resources.jumpTypes}
                 />
-                {(jumpRows.length > 0 || filters.search !== "") && (
+                {(jumpRows.length > 0 || hasActiveFilters) && (
                     <JumpSearch filters={filters} />
                 )}
                 {jumpRows.length === 0 ? (
-                    filters.locationUuids.length > 0 ||
-                    filters.gearUuids.length > 0 ||
-                    filters.jumpTypeUuids.length > 0 ||
-                    filters.start !== "" ||
-                    filters.end !== "" ||
-                    filters.search !== "" ? (
+                    hasActiveFilters ? (
                         <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 No jumps match the selected filters or search.

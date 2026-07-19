@@ -84,6 +84,8 @@ export interface JumpListItem {
     uuid: string;
     jumpNumber: number;
     jumpDate: string;
+    createdAt: number;
+    showCreatedAt?: boolean;
     locationName: string;
     locationDescription: string | null;
     aircraftItems: JumpCardItem[];
@@ -205,17 +207,29 @@ export function JumpCard(props: JumpListItem) {
                 className="block px-5 py-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/50 dark:focus-visible:ring-indigo-400/50"
             >
                 <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-                    <div className="flex items-center gap-3">
-                        <span className="flex min-w-9 items-center justify-center rounded-xl bg-indigo-100 px-2 py-1.5 text-sm font-bold text-indigo-700 tabular-nums dark:bg-indigo-900/40 dark:text-indigo-300">
-                            #{props.jumpNumber}
-                        </span>
-                        <time
-                            dateTime={props.jumpDate}
-                            className="text-sm text-slate-500 tabular-nums dark:text-slate-400"
-                        >
-                            {weekday && `${weekday}, `}
-                            {formatDate(props.jumpDate)}
-                        </time>
+                    <div className="flex min-w-0 flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                            <span className="flex min-w-9 items-center justify-center rounded-xl bg-indigo-100 px-2 py-1.5 text-sm font-bold text-indigo-700 tabular-nums dark:bg-indigo-900/40 dark:text-indigo-300">
+                                #{props.jumpNumber}
+                            </span>
+                            <time
+                                dateTime={props.jumpDate}
+                                className="text-sm text-slate-500 tabular-nums dark:text-slate-400"
+                            >
+                                {weekday && `${weekday}, `}
+                                {formatDate(props.jumpDate)}
+                            </time>
+                        </div>
+                        {props.showCreatedAt && (
+                            <time
+                                dateTime={new Date(
+                                    props.createdAt * 1000,
+                                ).toISOString()}
+                                className="text-xs text-slate-400 tabular-nums dark:text-slate-500"
+                            >
+                                Added {formatDate(props.createdAt)}
+                            </time>
+                        )}
                     </div>
                     {props.jumpTypeItems.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
@@ -384,6 +398,7 @@ export async function getRecentJumpsForItem(config: {
             uuid: jumps.uuid,
             jumpNumber: jumps.jumpNumber,
             jumpDate: jumps.jumpDate,
+            createdAt: jumps.createdAt,
             exitAltitude: jumps.exitAltitude,
             openingAltitude: jumps.openingAltitude,
             freefallTime: jumps.freefallTime,
