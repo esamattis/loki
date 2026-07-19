@@ -18,6 +18,7 @@ import {
     JumpCard,
     type JumpListItem,
 } from "@/route-handlers/logbook/components/jump-list";
+import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
 import { JumpSearch } from "@/route-handlers/logbook/components/search";
 import { JumpItemSelect } from "@/components/jump-item-select";
 
@@ -426,12 +427,40 @@ export function JumpList(props: {
     const hasMoreJumps = props.jumps.length > JUMPS_PER_PAGE;
     const visibleJumps = props.jumps.slice(0, JUMPS_PER_PAGE);
     const lastVisibleJump = visibleJumps.at(-1);
+    const showGaps =
+        props.filters.locationUuids.length === 0 &&
+        props.filters.gearUuids.length === 0 &&
+        props.filters.jumpTypeUuids.length === 0 &&
+        props.filters.search === "";
 
     return (
         <>
-            {visibleJumps.map((jump) => (
-                <JumpCard {...jump} key={jump.uuid} />
-            ))}
+            {visibleJumps.flatMap((jump, index) => {
+                const cards = [<JumpCard {...jump} key={jump.uuid} />];
+                const nextJump = props.jumps[index + 1];
+                if (!showGaps || !nextJump) {
+                    return cards;
+                }
+                const missingJumpNumbers = [];
+                for (
+                    let jumpNumber = jump.jumpNumber - 1;
+                    jumpNumber > nextJump.jumpNumber;
+                    jumpNumber--
+                ) {
+                    missingJumpNumbers.push(jumpNumber);
+                }
+                if (missingJumpNumbers.length > 0) {
+                    cards.push(
+                        <MissingJumpCard
+                            jumpNumbers={missingJumpNumbers}
+                            lowerJumpNumber={nextJump.jumpNumber}
+                            upperJumpNumber={jump.jumpNumber}
+                            key={`missing-after-${nextJump.jumpNumber}`}
+                        />,
+                    );
+                }
+                return cards;
+            })}
             {hasMoreJumps && lastVisibleJump && (
                 <li
                     hx-get={getLogbookJumpsUrl(

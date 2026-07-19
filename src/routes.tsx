@@ -65,6 +65,7 @@ export const logbook = {
     },
     jumps: {
         new: route("/logbook/jumps/new").query<JumpPrefillQuery>(),
+        removeGaps: route("/logbook/jumps/remove-gaps"),
         jumpNumberError: route("/logbook/jumps/new/__jump-number-error").query<{
             jumpNumber?: string;
         }>(),

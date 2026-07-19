@@ -45,6 +45,33 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     await page
         .getByRole("link", { name: /jump-gaps-skydiver's logbook/ })
         .click();
+
+    await expect(
+        page.getByRole("heading", { name: "Missing jumps" }),
+    ).toHaveCount(2);
+    for (const jumpNumber of [3, 4, 6, 7]) {
+        await expect(
+            page.getByRole("link", { name: `Add jump #${jumpNumber}` }),
+        ).toBeVisible();
+    }
+    const upperGapCard = page.getByRole("listitem").filter({
+        has: page.getByRole("link", { name: "Add jump #7" }),
+    });
+    await expect(upperGapCard).toContainText(
+        "Add these jumps to fill the missing numbers in your logbook.",
+    );
+    await expect(upperGapCard).toContainText(
+        "Renumbers jump #8 and every jump after it down by 2. No jump records will be deleted.",
+    );
+    await expect(
+        upperGapCard.getByRole("link", { name: "Add jump #6" }),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: "Add jump #3" }).click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/new\?.*jumpNumber=3/);
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("3");
+
+    await page.goto("/logbook");
     await page.getByRole("link", { name: "Statistics", exact: true }).click();
     await expect(page).toHaveURL("/logbook/statistics");
 
@@ -75,6 +102,26 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     await insufficientDataSection.getByRole("link", { name: "#8" }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/[^/]+$/);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("8");
+
+    await page.goto("/logbook");
+    const removableGapCard = page.getByRole("listitem").filter({
+        has: page.getByRole("link", { name: "Add jump #7" }),
+    });
+    await removableGapCard.getByRole("button", { name: "Remove gaps" }).click();
+    await removableGapCard
+        .getByRole("button", { name: "Confirm remove gaps" })
+        .click();
+    await expect(page).toHaveURL("/logbook");
+    await expect(page.getByRole("link", { name: "Add jump #7" })).toHaveCount(
+        0,
+    );
+    await expect(page.getByRole("link", { name: "Add jump #6" })).toHaveCount(
+        0,
+    );
+    await expect(page.getByRole("link", { name: /^#6 / })).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: "Missing jumps" }),
+    ).toHaveCount(1);
 });
 
 test("a jump can be saved without jump items and is listed as insufficient", async ({
