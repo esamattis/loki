@@ -68,6 +68,43 @@ async function registerUser(page: Page, username: string) {
     await expect(page).toHaveURL("/logbook");
 }
 
+test("saving a record jump returns to yearly statistics", async ({ page }) => {
+    await registerUser(page, "record-jump-return");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles(fixturePath);
+    await page.getByRole("button", { name: "Import logbook" }).click();
+
+    await page
+        .getByRole("link", { name: /record-jump-return's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+    await page.getByRole("link", { name: "View yearly statistics" }).click();
+    const currentYear = new Date().getUTCFullYear();
+    await page
+        .getByRole("link", { name: String(currentYear), exact: true })
+        .click();
+    const yearlyStatisticsUrl = `/logbook/statistics/detailed?year=${currentYear}`;
+    await expect(page).toHaveURL(yearlyStatisticsUrl);
+
+    await page
+        .getByText("Longest freefall time")
+        .locator("..")
+        .getByRole("link")
+        .click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
+    await page.locator('textarea[name="description"]').fill("Updated record");
+    await page.getByRole("button", { name: "Save jump" }).click();
+
+    await expect(page).toHaveURL(yearlyStatisticsUrl);
+    await expect(
+        page.getByRole("heading", {
+            name: `Jumps from ${currentYear}`,
+            exact: true,
+        }),
+    ).toBeVisible();
+});
+
 test("statistics show recorded and total jump counts for every item", async ({
     page,
 }) => {

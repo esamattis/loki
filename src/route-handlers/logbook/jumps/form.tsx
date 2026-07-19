@@ -23,6 +23,7 @@ import { $select } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/logbook-page";
 import { DateInput } from "@/components/date-input";
+import { RedirectBackAfterPost } from "@/components/return-after-form-post";
 import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
 import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import {
@@ -636,6 +637,7 @@ function JumpForm(props: {
     jumpNumberError?: Child;
     dirty?: boolean;
     createdAt?: number;
+    redirectBackAfterPost?: boolean;
 }) {
     const values = props.values ?? {};
     const formatDate = useDateFormatter();
@@ -648,6 +650,7 @@ function JumpForm(props: {
             data-loki-dirty={props.dirty ? "true" : undefined}
             className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
+            {props.redirectBackAfterPost && <RedirectBackAfterPost />}
             <ErrorList
                 errors={props.notices ?? []}
                 className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200"
@@ -719,6 +722,7 @@ export function JumpFormPage(props: {
     isImagePrefill?: boolean;
     dirty?: boolean;
     createdAt?: number;
+    redirectBackAfterPost?: boolean;
 }) {
     const formId = useId();
 
@@ -768,6 +772,7 @@ export function JumpFormPage(props: {
                 jumpNumberError={props.jumpNumberError}
                 dirty={props.dirty}
                 createdAt={props.createdAt}
+                redirectBackAfterPost={props.redirectBackAfterPost}
                 {...props.resources}
             />
             {props.copyHref && (

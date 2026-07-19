@@ -71,6 +71,7 @@ export async function renderEditJump(c: AppRequestContext) {
             copyHref={routes.logbook.jumps.new({}, { from: jump.uuid })}
             jumpUuid={jump.uuid}
             createdAt={jump.createdAt}
+            redirectBackAfterPost
             canDelete
         />,
     );
@@ -116,6 +117,7 @@ export async function handleEditJump(c: AppRequestContext) {
                 resources={parsed.resources}
                 errors={parsed.errors}
                 createdAt={existing.createdAt}
+                redirectBackAfterPost
             />,
         );
     }
@@ -139,6 +141,7 @@ export async function handleEditJump(c: AppRequestContext) {
                     ),
                 ]}
                 createdAt={existing.createdAt}
+                redirectBackAfterPost
             />,
         );
     }
@@ -186,6 +189,7 @@ export async function handleEditJump(c: AppRequestContext) {
                 jumpNumber: parsed.data.jumpNumber,
             }}
             redirectUrl={routes.logbook.index({})}
+            returnAfterFormPost
         />,
     );
 }

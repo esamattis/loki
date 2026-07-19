@@ -7,10 +7,15 @@ import {
     type ImageJumpAssociationChange,
 } from "@/route-handlers/logbook/jumps/image-jump-storage-client";
 import { jumpImageDbName } from "@/route-handlers/logbook/jumps/image-storage-client";
+import {
+    $completeReturnAfterFormPost,
+    returnAfterFormPostStorage,
+} from "@/components/return-after-form-post";
 
 export function JumpImageAssociationComplete(props: {
     change: ImageJumpAssociationChange;
     redirectUrl: string;
+    returnAfterFormPost?: boolean;
 }) {
     const dbName = jumpImageDbName(useAppContext().getUser().uuid);
 
@@ -27,12 +32,15 @@ export function JumpImageAssociationComplete(props: {
                     $idb,
                     $applyImageJumpAssociationChange,
                     $updateImageJumpAssociation,
+                    $completeReturnAfterFormPost,
                 ]}
                 $args={[
                     {
                         change: props.change,
                         redirectUrl: props.redirectUrl,
                         dbName,
+                        returnAfterFormPost: props.returnAfterFormPost,
+                        returnAfterFormPostStorage,
                     },
                 ]}
                 $exec={async (config) => {
@@ -47,7 +55,16 @@ export function JumpImageAssociationComplete(props: {
                             error,
                         );
                     }
-                    window.location.replace(config.redirectUrl);
+                    // Jump edits cannot redirect on the server because this
+                    // browser-side association update must finish first.
+                    if (config.returnAfterFormPost) {
+                        $completeReturnAfterFormPost(
+                            config.redirectUrl,
+                            config.returnAfterFormPostStorage,
+                        );
+                    } else {
+                        window.location.replace(config.redirectUrl);
+                    }
                 }}
             />
         </main>

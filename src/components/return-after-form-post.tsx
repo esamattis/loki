@@ -3,6 +3,36 @@ import { $select } from "@/utils";
 
 const REDIRECT_BACK_AFTER_POST_FIELD = "__loki_redirect_back_after_post";
 const IGNORE_RETURN_ROUTE_SELECTOR = "[data-loki-ignore-return-route]";
+const CLEAR_RETURN_ROUTE_SELECTOR = "[data-loki-clear-return-route]";
+
+export const returnAfterFormPostStorage = {
+    storageKey: "return-after-form-post",
+    destinationStorageKey: "return-after-form-post-destination",
+    pendingStorageKey: "return-after-form-post-pending",
+};
+
+export function $completeReturnAfterFormPost(
+    fallbackUrl: string,
+    storage: typeof returnAfterFormPostStorage,
+) {
+    // Some successful POSTs render client-side completion work at the form URL
+    // instead of issuing a server redirect. The destination pair remains scoped
+    // to that URL and can be consumed once the completion work has finished.
+    const returnRoute = sessionStorage.getItem(storage.storageKey);
+    const expectedDestination = sessionStorage.getItem(
+        storage.destinationStorageKey,
+    );
+    const currentRoute = window.location.pathname + window.location.search;
+    const destination =
+        returnRoute && expectedDestination === currentRoute
+            ? returnRoute
+            : fallbackUrl;
+
+    sessionStorage.removeItem(storage.storageKey);
+    sessionStorage.removeItem(storage.destinationStorageKey);
+    sessionStorage.removeItem(storage.pendingStorageKey);
+    window.location.replace(destination);
+}
 
 function $returnAfterFormPost(config: {
     storageKey: string;
@@ -10,6 +40,7 @@ function $returnAfterFormPost(config: {
     pendingStorageKey: string;
     formFieldName: string;
     ignoreReturnRouteSelector: string;
+    clearReturnRouteSelector: string;
 }) {
     const storageKey = config.storageKey;
     const destinationStorageKey = config.destinationStorageKey;
@@ -94,6 +125,13 @@ function $returnAfterFormPost(config: {
             return;
         }
 
+        if ($select.elOrNull(config.clearReturnRouteSelector, HTMLElement)) {
+            sessionStorage.removeItem(storageKey);
+            sessionStorage.removeItem(destinationStorageKey);
+            sessionStorage.removeItem(pendingStorageKey);
+            return;
+        }
+
         const ignoresReturnRoute = $select.elOrNull(
             config.ignoreReturnRouteSelector,
             HTMLElement,
@@ -136,19 +174,15 @@ function $returnAfterFormPost(config: {
  * - The POST response loads, then the browser returns to the filtered logbook.
  */
 export function ReturnAfterFormPost() {
-    const storageKey = "return-after-form-post";
-    const destinationStorageKey = "return-after-form-post-destination";
-    const pendingStorageKey = "return-after-form-post-pending";
     return (
         <Script
             $deps={[$select]}
             $args={[
                 {
-                    storageKey,
-                    destinationStorageKey,
-                    pendingStorageKey,
+                    ...returnAfterFormPostStorage,
                     formFieldName: REDIRECT_BACK_AFTER_POST_FIELD,
                     ignoreReturnRouteSelector: IGNORE_RETURN_ROUTE_SELECTOR,
+                    clearReturnRouteSelector: CLEAR_RETURN_ROUTE_SELECTOR,
                 },
             ]}
             $exec={$returnAfterFormPost}
@@ -168,14 +202,16 @@ export function ReturnAfterFormPost() {
  * destination. Browsers without the Navigation API use the server redirect.
  */
 export function RedirectBackAfterPost() {
-    // Form submit progress disables controls asynchronously. This field must
-    // stay enabled so NavigateEvent.formData still contains it.
     return (
         <input
             type="hidden"
             name={REDIRECT_BACK_AFTER_POST_FIELD}
             value="true"
-            data-loki-keep-enabled-on-submit
+            data-loki-keep-enabled-on-submit={
+                // HTML submits only "successful" controls; disabled controls
+                // are not successful, so NavigateEvent.formData omits them.
+                true
+            }
         />
     );
 }
@@ -191,4 +227,9 @@ export function RedirectBackAfterPost() {
  */
 export function IgnoreReturnRoute() {
     return <template data-loki-ignore-return-route></template>;
+}
+
+/** Clears stored return navigation when leaving a page for a form. */
+export function ClearReturnRoute() {
+    return <template data-loki-clear-return-route></template>;
 }

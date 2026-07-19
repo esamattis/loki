@@ -38,6 +38,7 @@ import {
 } from "@/route-handlers/logbook/components/ai-usage";
 import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/logbook-page";
+import { ClearReturnRoute } from "@/components/return-after-form-post";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -254,6 +255,9 @@ function JumpFromImagePage(props: {
                 </Button>
             }
         >
+            {/* Edits opened from the image reader intentionally return to the
+            logbook rather than treating the reader as a form return route. */}
+            <ClearReturnRoute />
             <div className="space-y-6">
                 <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div>
