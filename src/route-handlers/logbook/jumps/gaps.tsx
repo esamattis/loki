@@ -1,10 +1,12 @@
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { isSafeRedirectPath } from "@/auth";
-import { ButtonLink } from "@/components/form";
+import { Button, ButtonLink, NumberInput } from "@/components/form";
 import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
 import * as routes from "@/routes";
 import { jumps } from "@/schema";
+
+const MAX_MISSING_JUMP_LINKS = 10;
 
 export function MissingJumpCard(props: {
     jumpNumbers: number[];
@@ -30,19 +32,39 @@ export function MissingJumpCard(props: {
                     the missing {gapCount === 1 ? "number" : "numbers"} in your
                     logbook.
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {props.jumpNumbers.map((jumpNumber) => (
-                        <ButtonLink
-                            href={routes.logbook.jumps.new(
-                                {},
-                                { jumpNumber: String(jumpNumber) },
-                            )}
-                            size="sm"
-                            key={jumpNumber}
+                <div className="mt-3 flex flex-wrap items-end gap-2">
+                    {gapCount > MAX_MISSING_JUMP_LINKS ? (
+                        <form
+                            action={routes.logbook.jumps.new({}, {})}
+                            method="get"
+                            className="flex flex-wrap items-end gap-2"
                         >
-                            Add jump #{jumpNumber}
-                        </ButtonLink>
-                    ))}
+                            <NumberInput
+                                name="jumpNumber"
+                                label="Jump number"
+                                min={String(lowestMissing)}
+                                max={String(highestMissing)}
+                                step="1"
+                                required
+                                value={String(lowestMissing)}
+                                className="w-36"
+                            />
+                            <Button type="submit">Add jump</Button>
+                        </form>
+                    ) : (
+                        props.jumpNumbers.map((jumpNumber) => (
+                            <ButtonLink
+                                href={routes.logbook.jumps.new(
+                                    {},
+                                    { jumpNumber: String(jumpNumber) },
+                                )}
+                                size="sm"
+                                key={jumpNumber}
+                            >
+                                Add jump #{jumpNumber}
+                            </ButtonLink>
+                        ))
+                    )}
                 </div>
             </div>
             <hr className="my-4 border-indigo-200 dark:border-indigo-900" />
