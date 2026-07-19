@@ -3,7 +3,12 @@ import { execFile as execFileCallback } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
 import { createRequire } from "node:module";
-import { logOut, openMainMenu, openManageLogbook } from "./helpers";
+import {
+    logOut,
+    openDangerZone,
+    openMainMenu,
+    openManageLogbook,
+} from "./helpers";
 
 const execFile = promisify(execFileCallback);
 const require = createRequire(import.meta.url);
@@ -299,6 +304,7 @@ test("a skydiver can delete all logbook data without deleting their account", as
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await openDangerZone(page);
     const button = deleteLogbookDataButton(page);
     await expect(button).toHaveText("Delete logbook data");
     await button.click();
@@ -341,7 +347,7 @@ test("a skydiver can permanently delete their account and all jump items", async
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await expect(page).toHaveURL("/preferences");
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     const button = deleteAccountButton(page);
     await expect(button).toHaveText("Delete account");

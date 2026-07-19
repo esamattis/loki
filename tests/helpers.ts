@@ -8,6 +8,10 @@ export async function openManageLogbook(page: Page) {
     await openMainMenu(page);
 }
 
+export async function openDangerZone(page: Page) {
+    await page.getByText("Show destructive actions", { exact: true }).click();
+}
+
 export async function logOut(page: Page) {
     await openMainMenu(page);
     await page.getByRole("button", { name: "Log out" }).click();

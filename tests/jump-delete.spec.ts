@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
-import { openManageLogbook, selectJumpItems } from "./helpers";
+import { openDangerZone, openManageLogbook, selectJumpItems } from "./helpers";
 
 async function registerAndAddFirstJump(
     page: Page,
@@ -65,9 +65,12 @@ test("a jump can be deleted from the edit view after the countdown elapses", asy
 
     await page.getByRole("link", { name: /#1/ }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\//);
-    await expect(page.getByText("Danger zone")).toBeVisible();
-
     const button = deleteButton(page);
+    await expect(page.getByText("Danger Zone", { exact: true })).toBeVisible();
+    await expect(button).toBeHidden();
+    await openDangerZone(page);
+    await expect(button).toBeVisible();
+
     await expect(button).toHaveText("Delete jump");
 
     // First click arms confirmation without deleting.
@@ -92,6 +95,7 @@ test("the first delete click only arms confirmation and does not delete", async 
     );
 
     await page.getByRole("link", { name: /#1/ }).click();
+    await openDangerZone(page);
     const button = deleteButton(page);
 
     await button.click();
@@ -105,12 +109,13 @@ test("clicking outside the confirm button resets it", async ({ page }) => {
     await registerAndAddFirstJump(page, "reset-skydiver", "Reset Skydiver");
 
     await page.getByRole("link", { name: /#1/ }).click();
+    await openDangerZone(page);
     const button = deleteButton(page);
 
     await button.click();
     await expect(button).toHaveText("Confirm delete", { timeout: 1000 });
 
-    await page.getByText("Danger zone").click();
+    await page.getByText("Doomed jump").click();
     await expect(button).toHaveText("Delete jump");
     await expect(page).toHaveURL(/\/logbook\/jumps\//);
     await expect(page.getByText("Doomed jump")).toBeVisible();

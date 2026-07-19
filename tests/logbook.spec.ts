@@ -1,6 +1,7 @@
 import { expect, test } from "./fixtures";
 import {
     jumpItemSummary,
+    openDangerZone,
     openMainMenu,
     openManageLogbook,
     openJumpItemSelect,
@@ -662,6 +663,7 @@ test("gear can be converted to a jump type with its jump references", async ({
         .filter({ hasText: "Convertible gear" })
         .getByRole("link", { name: "Edit" })
         .click();
+    await openDangerZone(page);
     const convertForm = page.locator("form").filter({
         has: page.locator('input[name="action"][value="convertToJumpType"]'),
     });

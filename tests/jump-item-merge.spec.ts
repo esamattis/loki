@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
-import { openManageLogbook, selectJumpItems } from "./helpers";
+import { openDangerZone, openManageLogbook, selectJumpItems } from "./helpers";
 
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");
@@ -56,7 +56,7 @@ async function mergeItem(
         .filter({ hasText: item.sourceName })
         .getByRole("link", { name: "Edit" })
         .click();
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
     const mergeForm = page.locator("form").filter({
         has: page.locator('input[name="action"][value="merge"]'),
     });

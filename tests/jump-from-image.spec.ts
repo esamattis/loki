@@ -2,7 +2,12 @@ import { expect, test } from "./fixtures";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { jumpItemSummary, openMainMenu, openManageLogbook } from "./helpers";
+import {
+    jumpItemSummary,
+    openDangerZone,
+    openMainMenu,
+    openManageLogbook,
+} from "./helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -284,6 +289,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
 
     await page.goto("/logbook/jumps/new/from-image");
     await page.getByRole("link", { name: "Jump #43" }).click();
+    await openDangerZone(page);
     const deleteButton = page
         .locator("form")
         .filter({

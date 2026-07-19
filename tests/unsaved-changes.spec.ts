@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { openManageLogbook } from "./helpers";
+import { openDangerZone, openManageLogbook } from "./helpers";
 
 test("edited forms warn before leaving via a link", async ({ page }) => {
     await page.goto("/register");
@@ -69,6 +69,7 @@ test("edited forms warn before leaving via a link", async ({ page }) => {
         .filter({ hasText: "Dirty canopy" })
         .getByRole("link", { name: "Edit" })
         .click();
+    await openDangerZone(page);
     const mergeForm = page.locator("form").filter({
         has: page.locator('input[name="action"][value="merge"]'),
     });

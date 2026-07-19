@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
-import { openManageLogbook, selectJumpItems } from "./helpers";
+import { openDangerZone, openManageLogbook, selectJumpItems } from "./helpers";
 
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");
@@ -59,7 +59,7 @@ test("gear can be deleted from the edit view with a confirm countdown", async ({
         .getByRole("link", { name: "Edit" })
         .click();
     await expect(page).toHaveURL(/\/logbook\/gear\/[^/]+$/);
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     await confirmDelete(page, "Delete gear");
 
@@ -86,7 +86,7 @@ test("jump types can be deleted from the edit view", async ({ page }) => {
         .filter({ hasText: "Disposable Jump Type" })
         .getByRole("link", { name: "Edit" })
         .click();
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     await confirmDelete(page, "Delete jump type");
 
@@ -136,11 +136,12 @@ test("aircraft cannot be deleted while used by jumps", async ({ page }) => {
         .filter({ hasText: "Guarded Plane" })
         .getByRole("link", { name: "Edit" })
         .click();
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     await confirmDelete(page, "Delete aircraft");
 
     await expect(page).toHaveURL(/\/logbook\/aircrafts\/[^/]+$/);
+    await openDangerZone(page);
     await expect(
         page.getByText(
             "Cannot delete an aircraft that is used by jumps. Archive it instead.",
@@ -190,6 +191,7 @@ test("aircraft can be deleted once no jumps use it", async ({ page }) => {
     // Delete the jump first so the aircraft is no longer referenced.
     await page.getByRole("link", { name: /#1/ }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\//);
+    await openDangerZone(page);
     const button = page
         .locator("form")
         .filter({
@@ -210,6 +212,7 @@ test("aircraft can be deleted once no jumps use it", async ({ page }) => {
         .filter({ hasText: "Free Plane" })
         .getByRole("link", { name: "Edit" })
         .click();
+    await openDangerZone(page);
     await confirmDelete(page, "Delete aircraft");
 
     await expect(page).toHaveURL("/logbook/aircrafts");
@@ -262,11 +265,12 @@ test("gear cannot be deleted while used by jumps", async ({ page }) => {
         .filter({ hasText: "Guarded Canopy" })
         .getByRole("link", { name: "Edit" })
         .click();
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     await confirmDelete(page, "Delete gear");
 
     await expect(page).toHaveURL(/\/logbook\/gear\/[^/]+$/);
+    await openDangerZone(page);
     await expect(
         page.getByText(
             "Cannot delete gear that is used by jumps. Archive it instead.",
@@ -330,11 +334,12 @@ test("jump types cannot be deleted while used by jumps", async ({ page }) => {
         .filter({ hasText: "Guarded Type" })
         .getByRole("link", { name: "Edit" })
         .click();
-    await expect(page.getByText("Danger zone")).toBeVisible();
+    await openDangerZone(page);
 
     await confirmDelete(page, "Delete jump type");
 
     await expect(page).toHaveURL(/\/logbook\/jump-types\/[^/]+$/);
+    await openDangerZone(page);
     await expect(
         page.getByText(
             "Cannot delete a jump type that is used by jumps. Archive it instead.",
@@ -386,9 +391,11 @@ test("locations cannot be deleted while used by jumps", async ({ page }) => {
         .filter({ hasText: "Guarded DZ" })
         .getByRole("link", { name: "Edit" })
         .click();
+    await openDangerZone(page);
     await confirmDelete(page, "Delete location");
 
     await expect(page).toHaveURL(/\/logbook\/locations\/[^/]+$/);
+    await openDangerZone(page);
     await expect(
         page.getByText(
             "Cannot delete a location that is used by jumps. Archive it instead.",
