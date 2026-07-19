@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     AircraftFormPage,
@@ -40,12 +40,15 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(aircrafts.name);
-    const recentJumps = await getRecentJumpsForItem({
-        c,
-        userUuid: app.getUser().uuid,
-        itemUuid: aircraft.uuid,
-        relation: "aircraft",
-    });
+    const [recentJumps, recordedUsageCount] = await Promise.all([
+        getRecentJumpsForItem({
+            c,
+            userUuid: app.getUser().uuid,
+            itemUuid: aircraft.uuid,
+            relation: "aircraft",
+        }),
+        getAircraftRecordedUsageCount(c, aircraft.uuid),
+    ]);
     return c.render(
         <AircraftFormPage
             title="Edit aircraft"
@@ -59,6 +62,7 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
             dangerError={dangerError}
             mergeOptions={mergeOptions}
             recentJumps={recentJumps}
+            recordedUsageCount={recordedUsageCount}
         />,
     );
 }
@@ -117,18 +121,22 @@ async function updateAircraft(c: AppRequestContext) {
     const values = getAircraftFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem({
-            c,
-            userUuid: app.getUser().uuid,
-            itemUuid: uuid,
-            relation: "aircraft",
-        });
+        const [recentJumps, recordedUsageCount] = await Promise.all([
+            getRecentJumpsForItem({
+                c,
+                userUuid: app.getUser().uuid,
+                itemUuid: uuid,
+                relation: "aircraft",
+            }),
+            getAircraftRecordedUsageCount(c, uuid),
+        ]);
         return c.render(
             <AircraftFormPage
                 title="Edit aircraft"
                 submitLabel="Save aircraft"
                 values={values}
                 recentJumps={recentJumps}
+                recordedUsageCount={recordedUsageCount}
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );
@@ -212,4 +220,16 @@ async function mergeAircraft(
         app.db.delete(aircrafts).where(eq(aircrafts.uuid, source.uuid)),
     ]);
     return c.redirect(routes.logbook.aircraft.edit({ uuid: target.uuid }));
+}
+
+async function getAircraftRecordedUsageCount(
+    c: AppRequestContext,
+    aircraftUuid: string,
+): Promise<number> {
+    const row = await getAppContext(c)
+        .db.select({ count: sql<number>`count(*)` })
+        .from(jumpsToAircrafts)
+        .where(eq(jumpsToAircrafts.aircraftUuid, aircraftUuid))
+        .get();
+    return row?.count ?? 0;
 }

@@ -73,6 +73,7 @@ export function AircraftFormPage(props: {
     dangerError?: string;
     mergeOptions?: { uuid: string; name: string }[];
     recentJumps?: JumpListItem[];
+    recordedUsageCount?: number;
 }) {
     return (
         <LogbookPage title={props.title}>
@@ -89,7 +90,7 @@ export function AircraftFormPage(props: {
                 confirmationTitle={props.title}
             />
             {props.canDelete && (
-                <DangerZone>
+                <DangerZone className="max-w-xl">
                     {props.dangerError && (
                         <ErrorList
                             errors={[props.dangerError]}
@@ -107,13 +108,15 @@ export function AircraftFormPage(props: {
                     <ConfirmDeleteButton label="Delete aircraft" />
                 </DangerZone>
             )}
-            {props.recentJumps !== undefined && (
-                <RecentJumpsSection
-                    title="Recent jumps with this aircraft"
-                    jumps={props.recentJumps}
-                    emptyMessage="No jumps use this aircraft yet."
-                />
-            )}
+            {props.recentJumps !== undefined &&
+                props.recordedUsageCount !== undefined && (
+                    <RecentJumpsSection
+                        title="Recent jumps with this aircraft"
+                        jumps={props.recentJumps}
+                        emptyMessage="No jumps use this aircraft yet."
+                        recordedUsageCount={props.recordedUsageCount}
+                    />
+                )}
         </LogbookPage>
     );
 }

@@ -27,6 +27,7 @@ export function GearFormPage(props: {
     dangerError?: string;
     mergeOptions?: { uuid: string; name: string }[];
     recentJumps?: JumpListItem[];
+    recordedUsageCount?: number;
 }) {
     const values = props.values ?? {};
     return (
@@ -72,7 +73,7 @@ export function GearFormPage(props: {
                 />
             </form>
             {props.canDelete && (
-                <DangerZone>
+                <DangerZone className="max-w-xl">
                     {props.dangerError && (
                         <ErrorList
                             errors={[props.dangerError]}
@@ -109,13 +110,15 @@ export function GearFormPage(props: {
                     <ConfirmDeleteButton label="Delete gear" />
                 </DangerZone>
             )}
-            {props.recentJumps !== undefined && (
-                <RecentJumpsSection
-                    title="Recent jumps with this gear"
-                    jumps={props.recentJumps}
-                    emptyMessage="No jumps use this gear yet."
-                />
-            )}
+            {props.recentJumps !== undefined &&
+                props.recordedUsageCount !== undefined && (
+                    <RecentJumpsSection
+                        title="Recent jumps with this gear"
+                        jumps={props.recentJumps}
+                        emptyMessage="No jumps use this gear yet."
+                        recordedUsageCount={props.recordedUsageCount}
+                    />
+                )}
         </LogbookPage>
     );
 }

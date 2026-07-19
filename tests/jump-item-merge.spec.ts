@@ -114,6 +114,9 @@ test("location can be merged into another location", async ({ page }) => {
     await expect(page).toHaveURL(/\/logbook\/locations\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue("Target DZ");
     await expect(page.locator('input[name="previousCount"]')).toHaveValue("8");
+    await expect(
+        page.getByText("1 jumps in total", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Recent jumps at this location")).toBeVisible();
     await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
 
@@ -170,6 +173,9 @@ test("aircraft can be merged into another aircraft", async ({ page }) => {
         "Target Plane",
     );
     await expect(page.locator('input[name="previousCount"]')).toHaveValue("6");
+    await expect(
+        page.getByText("1 jumps in total", { exact: true }),
+    ).toBeVisible();
     await expect(
         page.getByText("Recent jumps with this aircraft"),
     ).toBeVisible();
@@ -237,6 +243,9 @@ test("gear can be merged into another gear item", async ({ page }) => {
         "Target Canopy",
     );
     await expect(page.locator('input[name="previousCount"]')).toHaveValue("8");
+    await expect(
+        page.getByText("1 jumps in total", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Recent jumps with this gear")).toBeVisible();
     await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
 
@@ -302,6 +311,9 @@ test("jump type can be merged into another jump type", async ({ page }) => {
     await expect(page).toHaveURL(/\/logbook\/jump-types\/[^/]+$/);
     await expect(page.locator('input[name="name"]')).toHaveValue("Target Type");
     await expect(page.locator('input[name="previousCount"]')).toHaveValue("11");
+    await expect(
+        page.getByText("1 jumps in total", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Recent jumps of this type")).toBeVisible();
     await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
 

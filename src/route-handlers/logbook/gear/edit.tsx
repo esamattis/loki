@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     GearFormPage,
@@ -35,12 +35,15 @@ async function getEditGear(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(gear.name);
-    const recentJumps = await getRecentJumpsForItem({
-        c,
-        userUuid: app.getUser().uuid,
-        itemUuid: item.uuid,
-        relation: "gear",
-    });
+    const [recentJumps, recordedUsageCount] = await Promise.all([
+        getRecentJumpsForItem({
+            c,
+            userUuid: app.getUser().uuid,
+            itemUuid: item.uuid,
+            relation: "gear",
+        }),
+        getGearRecordedUsageCount(c, item.uuid),
+    ]);
     return c.render(
         <GearFormPage
             title="Edit gear"
@@ -54,6 +57,7 @@ async function getEditGear(c: AppRequestContext, dangerError?: string) {
             dangerError={dangerError}
             mergeOptions={mergeOptions}
             recentJumps={recentJumps}
+            recordedUsageCount={recordedUsageCount}
         />,
     );
 }
@@ -138,12 +142,15 @@ async function updateGear(c: AppRequestContext) {
     const values = getGearFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem({
-            c,
-            userUuid: app.getUser().uuid,
-            itemUuid: uuid,
-            relation: "gear",
-        });
+        const [recentJumps, recordedUsageCount] = await Promise.all([
+            getRecentJumpsForItem({
+                c,
+                userUuid: app.getUser().uuid,
+                itemUuid: uuid,
+                relation: "gear",
+            }),
+            getGearRecordedUsageCount(c, uuid),
+        ]);
         return c.render(
             <GearFormPage
                 title="Edit gear"
@@ -151,6 +158,7 @@ async function updateGear(c: AppRequestContext) {
                 values={values}
                 errors={result.error.issues.map((issue) => issue.message)}
                 recentJumps={recentJumps}
+                recordedUsageCount={recordedUsageCount}
             />,
         );
     }
@@ -236,4 +244,16 @@ function getGearFormValues(formData: FormData): GearFormValues {
         previousCount: getFormString(formData, "previousCount"),
         description: getFormString(formData, "description"),
     };
+}
+
+async function getGearRecordedUsageCount(
+    c: AppRequestContext,
+    gearUuid: string,
+): Promise<number> {
+    const row = await getAppContext(c)
+        .db.select({ count: sql<number>`count(*)` })
+        .from(jumpsToGear)
+        .where(eq(jumpsToGear.gearUuid, gearUuid))
+        .get();
+    return row?.count ?? 0;
 }

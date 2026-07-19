@@ -26,6 +26,7 @@ export function LocationFormPage(props: {
     dangerError?: string;
     mergeOptions?: { uuid: string; name: string }[];
     recentJumps?: JumpListItem[];
+    recordedUsageCount?: number;
 }) {
     const values = props.values ?? {};
     return (
@@ -71,7 +72,7 @@ export function LocationFormPage(props: {
                 />
             </form>
             {props.canDelete && (
-                <DangerZone>
+                <DangerZone className="max-w-xl">
                     {props.dangerError && (
                         <ErrorList
                             errors={[props.dangerError]}
@@ -89,13 +90,15 @@ export function LocationFormPage(props: {
                     <ConfirmDeleteButton label="Delete location" />
                 </DangerZone>
             )}
-            {props.recentJumps !== undefined && (
-                <RecentJumpsSection
-                    title="Recent jumps at this location"
-                    jumps={props.recentJumps}
-                    emptyMessage="No jumps use this location yet."
-                />
-            )}
+            {props.recentJumps !== undefined &&
+                props.recordedUsageCount !== undefined && (
+                    <RecentJumpsSection
+                        title="Recent jumps at this location"
+                        jumps={props.recentJumps}
+                        emptyMessage="No jumps use this location yet."
+                        recordedUsageCount={props.recordedUsageCount}
+                    />
+                )}
         </LogbookPage>
     );
 }

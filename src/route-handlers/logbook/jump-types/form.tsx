@@ -26,6 +26,7 @@ export function JumpTypeFormPage(props: {
     dangerError?: string;
     mergeOptions?: { uuid: string; name: string }[];
     recentJumps?: JumpListItem[];
+    recordedUsageCount?: number;
 }) {
     const values = props.values ?? {};
     return (
@@ -71,7 +72,7 @@ export function JumpTypeFormPage(props: {
                 />
             </form>
             {props.canDelete && (
-                <DangerZone>
+                <DangerZone className="max-w-xl">
                     {props.dangerError && (
                         <ErrorList
                             errors={[props.dangerError]}
@@ -89,13 +90,15 @@ export function JumpTypeFormPage(props: {
                     <ConfirmDeleteButton label="Delete jump type" />
                 </DangerZone>
             )}
-            {props.recentJumps !== undefined && (
-                <RecentJumpsSection
-                    title="Recent jumps of this type"
-                    jumps={props.recentJumps}
-                    emptyMessage="No jumps use this jump type yet."
-                />
-            )}
+            {props.recentJumps !== undefined &&
+                props.recordedUsageCount !== undefined && (
+                    <RecentJumpsSection
+                        title="Recent jumps of this type"
+                        jumps={props.recentJumps}
+                        emptyMessage="No jumps use this jump type yet."
+                        recordedUsageCount={props.recordedUsageCount}
+                    />
+                )}
         </LogbookPage>
     );
 }

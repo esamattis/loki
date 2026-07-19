@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     JumpTypeFormPage,
@@ -40,12 +40,15 @@ async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
             ),
         )
         .orderBy(jumpTypes.name);
-    const recentJumps = await getRecentJumpsForItem({
-        c,
-        userUuid: app.getUser().uuid,
-        itemUuid: item.uuid,
-        relation: "jumpType",
-    });
+    const [recentJumps, recordedUsageCount] = await Promise.all([
+        getRecentJumpsForItem({
+            c,
+            userUuid: app.getUser().uuid,
+            itemUuid: item.uuid,
+            relation: "jumpType",
+        }),
+        getJumpTypeRecordedUsageCount(c, item.uuid),
+    ]);
     return c.render(
         <JumpTypeFormPage
             title="Edit jump type"
@@ -59,6 +62,7 @@ async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
             dangerError={dangerError}
             mergeOptions={mergeOptions}
             recentJumps={recentJumps}
+            recordedUsageCount={recordedUsageCount}
         />,
     );
 }
@@ -115,12 +119,15 @@ async function updateJumpType(c: AppRequestContext) {
     const values = getJumpTypeFormValues(formData);
     const result = ResourceSchema.safeParse(values);
     if (!result.success) {
-        const recentJumps = await getRecentJumpsForItem({
-            c,
-            userUuid: app.getUser().uuid,
-            itemUuid: uuid,
-            relation: "jumpType",
-        });
+        const [recentJumps, recordedUsageCount] = await Promise.all([
+            getRecentJumpsForItem({
+                c,
+                userUuid: app.getUser().uuid,
+                itemUuid: uuid,
+                relation: "jumpType",
+            }),
+            getJumpTypeRecordedUsageCount(c, uuid),
+        ]);
         return c.render(
             <JumpTypeFormPage
                 title="Edit jump type"
@@ -128,6 +135,7 @@ async function updateJumpType(c: AppRequestContext) {
                 values={values}
                 errors={result.error.issues.map((issue) => issue.message)}
                 recentJumps={recentJumps}
+                recordedUsageCount={recordedUsageCount}
             />,
         );
     }
@@ -229,4 +237,16 @@ function getJumpTypeFormValues(formData: FormData): JumpTypeFormValues {
         previousCount: getFormString(formData, "previousCount"),
         description: getFormString(formData, "description"),
     };
+}
+
+async function getJumpTypeRecordedUsageCount(
+    c: AppRequestContext,
+    jumpTypeUuid: string,
+): Promise<number> {
+    const row = await getAppContext(c)
+        .db.select({ count: sql<number>`count(*)` })
+        .from(jumpsToJumpTypes)
+        .where(eq(jumpsToJumpTypes.jumpTypeUuid, jumpTypeUuid))
+        .get();
+    return row?.count ?? 0;
 }

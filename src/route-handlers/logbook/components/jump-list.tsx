@@ -314,17 +314,17 @@ export function RecentJumpsSection(props: {
     title: string;
     jumps: JumpListItem[];
     emptyMessage: string;
+    recordedUsageCount: number;
 }) {
     return (
         <section className="space-y-3">
-            <div className="flex items-baseline justify-between">
+            <div>
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                     {props.title}
                 </h2>
-                <span className="text-sm text-slate-400 dark:text-slate-500">
-                    Last {props.jumps.length} jump
-                    {props.jumps.length === 1 ? "" : "s"}
-                </span>
+                <p className="text-sm text-slate-400 dark:text-slate-500">
+                    {props.recordedUsageCount} jumps in total
+                </p>
             </div>
             <RecentJumpList
                 jumps={props.jumps}
