@@ -100,11 +100,18 @@ function $returnAfterFormPost(config: {
             // private implementation field from reaching route handlers.
             event.formData.delete(config.formFieldName);
 
-            // A direct page load has no previous client-side route to restore;
-            // in that case, preserve the server's normal POST destination.
+            // Always suppress the Chromium POST→redirect navigate in this
+            // document. Without this, a save with no stored return route
+            // records the form URL as the return route when the server
+            // redirects to the list, so the next edit/save chain jumps back
+            // to the previous edit page.
+            isPostPending = true;
+
+            // A direct page load (or ignored list with no earlier route) has
+            // no return route to restore; keep the server's normal POST
+            // destination.
             if (!sessionStorage.getItem(storageKey)) return;
             sessionStorage.setItem(pendingStorageKey, "true");
-            isPostPending = true;
             return;
         }
 
