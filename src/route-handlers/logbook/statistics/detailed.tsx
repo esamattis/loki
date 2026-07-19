@@ -26,6 +26,7 @@ interface RecordJump {
     jumpNumber: number;
     jumpDate: string;
     value: string;
+    tooltip?: string;
 }
 
 function RecordJumps(props: {
@@ -56,7 +57,11 @@ function RecordJumps(props: {
                                     })}
                                     className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-400"
                                 >
-                                    {record.jump.value}{" "}
+                                    <span
+                                        data-loki-tooltip={record.jump.tooltip}
+                                    >
+                                        {record.jump.value}
+                                    </span>{" "}
                                     <span className="text-sm text-slate-500 dark:text-slate-400">
                                         Jump #{record.jump.jumpNumber} (
                                         {formatDate(record.jump.jumpDate)})
@@ -623,6 +628,7 @@ async function fetchDetailedStatistics(
             ? {
                   ...longestFreefallRows[0],
                   value: formatDuration(longestFreefallRows[0].value),
+                  tooltip: `${longestFreefallRows[0].value}s`,
               }
             : undefined,
         longestFreefallDistance: longestFreefallDistanceRows[0]

@@ -203,7 +203,9 @@ export function JumpCard(props: JumpListItem) {
                         <Altitude meters={props.openingAltitude} />
                     </JumpStat>
                     <JumpStat label="Freefall">
-                        {formatDuration(props.freefallTime)}
+                        <span data-loki-tooltip={`${props.freefallTime}s`}>
+                            {formatDuration(props.freefallTime)}
+                        </span>
                     </JumpStat>
                     <JumpStat label="Avg speed">
                         <JumpAvgSpeed
