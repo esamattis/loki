@@ -2,14 +2,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { z } from "zod";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import {
-    Button,
-    Checkbox,
-    Input,
-    NumberInput,
-    Select,
-    Textarea,
-} from "@/components/form";
+import { Button, Checkbox, Input, Select, Textarea } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Script } from "@/components/script";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";
@@ -52,7 +45,6 @@ const PreferencesSchema = z
         speedUnits: UserOptionsSchema.shape.speedUnits,
         dateTimeFormat: UserOptionsSchema.shape.dateTimeFormat,
         numberFormat: UserOptionsSchema.shape.numberFormat,
-        previousJumpCount: UserOptionsSchema.shape.previousJumpCount,
         openaiApiKey: z.string(),
         jumpImagePrompt: z.string(),
         jumpImageModel: UserOptionsSchema.shape.jumpImageModel,
@@ -90,28 +82,6 @@ interface PreferencesFormValues {
     displayName: string;
     email: string;
     options: UserOptions;
-}
-
-function JumpHistorySection(props: { options: UserOptions }) {
-    return (
-        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
-            <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Jump history
-                </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Include jumps completed before this logbook in overall
-                    totals.
-                </p>
-            </div>
-            <NumberInput
-                name="previousJumpCount"
-                label="Previous jumps outside this logbook"
-                min="0"
-                value={String(props.options.previousJumpCount)}
-            />
-        </section>
-    );
 }
 
 function UnitsSection(props: { options: UserOptions }) {
@@ -406,12 +376,11 @@ function PreferencesForm(props: {
                     />
                 </div>
             </section>
-            <JumpHistorySection options={props.values.options} />
             <UnitsSection options={props.values.options} />
             <DateTimeSection options={props.values.options} />
-            <PerformanceSection options={props.values.options} />
             <JumpFromImageSection options={props.values.options} />
             <PasswordSection />
+            <PerformanceSection options={props.values.options} />
             <div className="hidden sm:block">
                 <Button type="submit" variant="primary">
                     Save preferences
@@ -479,7 +448,6 @@ function optionsFromRawForm(
         speedUnits: raw.speedUnits ?? current.speedUnits,
         dateTimeFormat: raw.dateTimeFormat ?? current.dateTimeFormat,
         numberFormat: raw.numberFormat ?? current.numberFormat,
-        previousJumpCount: raw.previousJumpCount ?? current.previousJumpCount,
         openaiApiKey: raw.openaiApiKey ?? current.openaiApiKey,
         jumpImagePrompt: raw.jumpImagePrompt ?? current.jumpImagePrompt,
         jumpImageModel: raw.jumpImageModel ?? current.jumpImageModel,
@@ -597,7 +565,6 @@ async function handlePreferences(c: AppRequestContext) {
         speedUnits: result.data.speedUnits,
         dateTimeFormat: result.data.dateTimeFormat,
         numberFormat: result.data.numberFormat,
-        previousJumpCount: result.data.previousJumpCount,
         openaiApiKey: result.data.openaiApiKey.trim(),
         jumpImagePrompt:
             result.data.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,

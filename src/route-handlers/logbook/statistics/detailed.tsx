@@ -298,13 +298,12 @@ async function fetchTotalJumps(config: {
     db: ReturnType<typeof getAppContext>["db"];
     userUuid: string;
     yearCondition: ReturnType<typeof and> | undefined;
-    previousJumpCount: number;
 }): Promise<number> {
     const [row] = await config.db
         .select({
-            totalJumps: sql<number>`count(*) + ${
-                config.yearCondition ? 0 : config.previousJumpCount
-            }`,
+            totalJumps: config.yearCondition
+                ? sql<number>`count(*)`
+                : sql<number>`coalesce(max(${jumps.jumpNumber}), 0)`,
         })
         .from(jumps)
         .where(
@@ -468,7 +467,6 @@ async function fetchDetailedStatistics(
         db,
         userUuid,
         yearCondition,
-        previousJumpCount: user.options.previousJumpCount,
     });
 
     return {
@@ -590,11 +588,6 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                 {year === undefined ? "All Time" : `Jumps from ${year}`}
             </h2>
-            {!filteredByYear && (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Total jumps include jumps recorded before this logbook.
-                </p>
-            )}
             <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <SummaryCard
                     label="Total jumps"

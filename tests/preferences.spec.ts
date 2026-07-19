@@ -172,6 +172,7 @@ test("a skydiver can update preferences and account details", async ({
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await expect(page).toHaveURL("/preferences");
+    await expect(page.locator('input[name="htmlCacheEnabled"]')).toBeChecked();
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         /Treat "WS" as the jump type "Wingsuit"/,
     );

@@ -74,6 +74,9 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     await page.goto("/logbook");
     await page.getByRole("link", { name: "Statistics", exact: true }).click();
     await expect(page).toHaveURL("/logbook/statistics");
+    await expect(page.getByText("Total jumps").locator("..")).toContainText(
+        "8",
+    );
 
     const section = page.locator("section").filter({
         has: page.getByRole("heading", { name: "Jump number gaps" }),

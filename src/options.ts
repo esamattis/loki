@@ -69,7 +69,6 @@ export const DEFAULT_USER_OPTIONS = {
     speedUnits: "kilometers-per-hour",
     dateTimeFormat: "iso",
     numberFormat: "space-comma",
-    previousJumpCount: 0,
     openaiApiKey: "",
     jumpImagePrompt: DEFAULT_JUMP_IMAGE_PROMPT,
     jumpImageModel: DEFAULT_JUMP_IMAGE_MODEL,
@@ -87,7 +86,6 @@ export const UserOptionsSchema = z.object({
     numberFormat: z
         .enum(["space-comma", "period-comma", "comma-period"])
         .default("space-comma"),
-    previousJumpCount: z.coerce.number().int().nonnegative().default(0),
     openaiApiKey: z.string().default(""),
     jumpImagePrompt: z.string().default(DEFAULT_JUMP_IMAGE_PROMPT),
     jumpImageModel: z

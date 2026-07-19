@@ -174,7 +174,7 @@ function LogbookActions(props: { pathname: string }) {
                 aria-current={
                     props.pathname === fromImagePath ? "page" : undefined
                 }
-                data-loki-tooltip="Create jump from image using AI image recognition"
+                data-loki-tooltip="AI Vision"
                 className="gap-1 rounded-md px-2 py-1.5 text-xs font-medium sm:gap-1.5 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-sm"
             >
                 <span className="hidden sm:inline">Read image</span>

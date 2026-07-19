@@ -250,7 +250,7 @@ async function renderStatistics(c: AppRequestContext) {
         await Promise.all([
             app.db
                 .select({
-                    totalJumps: sql<number>`count(*) + ${user.options.previousJumpCount}`,
+                    totalJumps: sql<number>`coalesce(max(${jumps.jumpNumber}), 0)`,
                     firstJumpDate: sql<string | null>`min(${jumps.jumpDate})`,
                     currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
                     lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
