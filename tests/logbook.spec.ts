@@ -109,6 +109,7 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: "Manage gear" }).click();
     await page.getByRole("link", { name: "Add gear" }).click();
     await page.locator('input[name="name"]').fill("Main canopy");
+    await page.locator('textarea[name="description"]').fill("Primary rig");
     await page.locator('input[name="previousCount"]').fill("12");
     await page.getByRole("button", { name: "Add gear" }).click();
     await expect(page).toHaveURL("/logbook");
@@ -130,6 +131,9 @@ test("a skydiver can register and record their first jump", async ({
 
     await page.getByRole("link", { name: "Add jump type" }).click();
     await page.locator('input[name="name"]').fill("Tracking");
+    await page
+        .locator('textarea[name="description"]')
+        .fill("Horizontal flight");
     await page.locator('input[name="previousCount"]').fill("4");
     await page.getByRole("button", { name: "Add jump type" }).click();
     await expect(page).toHaveURL("/logbook");
@@ -139,6 +143,7 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: "Manage locations" }).click();
     await page.getByRole("link", { name: "Add location" }).click();
     await page.locator('input[name="name"]').fill("Skydive Test Center");
+    await page.locator('textarea[name="description"]').fill("Home drop zone");
     await page.locator('input[name="previousCount"]').fill("50");
     await page.getByRole("button", { name: "Add location" }).click();
     await expect(page).toHaveURL("/logbook");
@@ -198,9 +203,25 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expect(page).toHaveURL("/logbook");
-    await expect(page.getByRole("link", { name: /#1/ })).toContainText(
-        "Skydive Test Center / Cessna 182, OH-DZF",
-    );
+    await expect(
+        page.getByRole("heading", { name: "1 Jumps", level: 1 }),
+    ).toBeVisible();
+    const firstJump = page.getByRole("link", { name: /#1/ });
+    await expect(firstJump).toContainText("Skydive Test Center");
+    await expect(firstJump).toContainText("Cessna 182, OH-DZF");
+    await expect(firstJump).toContainText("Gear: Main canopy");
+    await expect(
+        firstJump.getByText("Skydive Test Center", { exact: true }),
+    ).toHaveAttribute("data-loki-tooltip", "Home drop zone");
+    await expect(
+        firstJump.getByText("Cessna 182", { exact: true }),
+    ).toHaveAttribute("data-loki-tooltip", "Aircraft type");
+    await expect(
+        firstJump.getByText("Tracking", { exact: true }),
+    ).toHaveAttribute("data-loki-tooltip", "Horizontal flight");
+    await expect(
+        firstJump.getByText("Main canopy", { exact: true }),
+    ).toHaveAttribute("data-loki-tooltip", "Primary rig");
     await expect(page.getByText("First test jump")).toBeVisible();
     await expect(page.getByText(/4\s000 m/, { exact: true })).toBeVisible();
     await expect(page.getByText(/1\s000 m/, { exact: true })).toBeVisible();
@@ -216,7 +237,7 @@ test("a skydiver can register and record their first jump", async ({
         page.getByRole("link", { name: /#1/ }).getByText("Tracking"),
     ).toBeVisible();
 
-    await page.getByText("Filter jumps", { exact: true }).click();
+    await page.getByText("Filters", { exact: true }).click();
     await selectJumpItems(page, "Jump types", ["Freefly", "Tracking"]);
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page).toHaveURL(/\/logbook\?jumpTypeUuids=/);
@@ -289,9 +310,9 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expect(page).toHaveURL("/logbook");
-    await expect(page.getByRole("link", { name: /#2/ })).toContainText(
-        "Skydive Test Center / Cessna 182",
-    );
+    const secondJump = page.getByRole("link", { name: /#2/ });
+    await expect(secondJump).toContainText("Skydive Test Center");
+    await expect(secondJump).toContainText("Cessna 182");
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
 
@@ -700,9 +721,9 @@ test("a skydiver can create jump items from the add jump form", async ({
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expect(page).toHaveURL("/logbook");
-    await expect(page.getByRole("link", { name: /#1/ })).toContainText(
-        "Inline Drop Zone / Inline Helicopter, Inline Plane",
-    );
+    const jump = page.getByRole("link", { name: /#1/ });
+    await expect(jump).toContainText("Inline Drop Zone");
+    await expect(jump).toContainText("Inline Helicopter, Inline Plane");
     await expect(
         page.getByRole("link", { name: /#1/ }).getByText("Inline Tracking"),
     ).toBeVisible();

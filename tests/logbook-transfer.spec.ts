@@ -248,9 +248,9 @@ test("an exported logbook file preserves jumps and jump items when imported", as
     await expect(page.getByRole("link", { name: /#301/ })).toContainText(
         "Skydive Example",
     );
-    await expect(page.getByRole("link", { name: /#302/ })).toContainText(
-        "Coastal Drop Zone / Grand Caravan",
-    );
+    const secondImportedJump = page.getByRole("link", { name: /#302/ });
+    await expect(secondImportedJump).toContainText("Coastal Drop Zone");
+    await expect(secondImportedJump).toContainText("Grand Caravan");
     await expect(page.getByRole("link", { name: /#\d+/ })).toHaveCount(2);
     await page.getByRole("link", { name: /#301/ }).click();
     await expect(page.locator('textarea[name="description"]')).toHaveValue(
@@ -361,7 +361,8 @@ test("a Skydiving Logbook XML file can be imported", async ({ page }) => {
 
     await page.getByRole("link", { name: /xml-skydiver's logbook/ }).click();
     const importedJump = page.getByRole("link", { name: /#401/ });
-    await expect(importedJump).toContainText("Skydive XML / Caravan");
+    await expect(importedJump).toContainText("Skydive XML");
+    await expect(importedJump).toContainText("Caravan");
     await expect(importedJump).toContainText("2024-06-15");
     await importedJump.click();
     await expect(page.locator("[data-loki-jump-date-input]")).toHaveValue(

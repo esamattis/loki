@@ -1,6 +1,7 @@
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import {
     getAircraftsByJump,
+    getGearByJump,
     getJumpTypesByJump,
     getLogbookFilterResources,
     getLogbookFilters,
@@ -15,14 +16,16 @@ export async function renderLogbookJumps(c: AppRequestContext) {
     const filters = getLogbookFilters(c, resources);
     const jumpRows = await getLogbookJumps(c, filters, getFragmentBefore(c));
     const jumpUuids = jumpRows.map((jump) => jump.uuid);
-    const [aircraftsByJump, jumpTypesByJump] = await Promise.all([
+    const [aircraftsByJump, jumpTypesByJump, gearByJump] = await Promise.all([
         getAircraftsByJump(c, jumpUuids),
         getJumpTypesByJump(c, jumpUuids),
+        getGearByJump(c, jumpUuids),
     ]);
     const jumpCards = jumpRows.map((jump) => ({
         ...jump,
-        aircraftNames: aircraftsByJump.get(jump.uuid) ?? [],
-        jumpTypes: jumpTypesByJump.get(jump.uuid) ?? [],
+        aircraftItems: aircraftsByJump.get(jump.uuid) ?? [],
+        jumpTypeItems: jumpTypesByJump.get(jump.uuid) ?? [],
+        gearItems: gearByJump.get(jump.uuid) ?? [],
         options,
     }));
 

@@ -77,7 +77,7 @@ test("date format preferences apply to rendered jump dates", async ({
 
         await expect(page).toHaveURL("/logbook");
         await expect(page.getByRole("link", { name: /#401/ })).toContainText(
-            format.renderedDate,
+            `Sat, ${format.renderedDate}`,
         );
         await page.getByRole("link", { name: /#401/ }).click();
         await expect(page.locator("[data-loki-jump-date-input]")).toHaveValue(

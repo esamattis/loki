@@ -41,9 +41,8 @@ test("an existing and a new aircraft can be added to a new jump", async ({
 
     await expect(page).toHaveURL("/logbook");
     const jump = page.getByRole("link", { name: /#1/ });
-    await expect(jump).toContainText(
-        "Mixed Drop Zone / Existing Plane, New Plane",
-    );
+    await expect(jump).toContainText("Mixed Drop Zone");
+    await expect(jump).toContainText("Existing Plane, New Plane");
 
     await jump.click();
     await expect(jumpItemSummary(page, "Aircraft")).toContainText(

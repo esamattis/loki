@@ -16,6 +16,7 @@ import {
     jumpsToGear,
     jumpsToJumpTypes,
     jumpTypes,
+    gear,
     locations,
 } from "@/schema";
 import { formatDuration } from "@/utils/format-duration";
@@ -81,12 +82,31 @@ export interface JumpListItem {
     jumpNumber: number;
     jumpDate: string;
     locationName: string;
-    aircraftNames: string[];
+    locationDescription: string | null;
+    aircraftItems: JumpCardItem[];
     exitAltitude: number;
     openingAltitude: number;
     freefallTime: number;
     description: string | null;
-    jumpTypes: string[];
+    jumpTypeItems: JumpCardItem[];
+    gearItems: JumpCardItem[];
+}
+
+export interface JumpCardItem {
+    name: string;
+    description: string | null;
+}
+
+const shortWeekdayFormatter = new Intl.DateTimeFormat("en", {
+    weekday: "short",
+    timeZone: "UTC",
+});
+
+function formatShortWeekday(value: string): string {
+    const date = new Date(`${value}T00:00:00Z`);
+    return Number.isNaN(date.getTime())
+        ? ""
+        : shortWeekdayFormatter.format(date);
 }
 
 function JumpStat(props: { label: string; children: any }) {
@@ -102,15 +122,35 @@ function JumpStat(props: { label: string; children: any }) {
     );
 }
 
+function JumpItemNames(props: { items: JumpCardItem[]; fallback?: string }) {
+    if (props.items.length === 0) {
+        return <>{props.fallback}</>;
+    }
+    return (
+        <>
+            {props.items.map((item, index) => (
+                <span
+                    key={item.name}
+                    data-loki-tooltip={item.description || undefined}
+                >
+                    {index > 0 && ", "}
+                    {item.name}
+                </span>
+            ))}
+        </>
+    );
+}
+
 export function JumpCard(props: JumpListItem) {
     const formatDate = useDateFormatter();
+    const weekday = formatShortWeekday(props.jumpDate);
     return (
         <li>
             <a
                 href={routes.logbook.jumps.edit({ uuid: props.uuid })}
                 className="block h-full rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30 dark:focus-visible:ring-indigo-400/50"
             >
-                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                     <div className="flex items-center gap-3">
                         <span className="flex min-w-9 items-center justify-center rounded-xl bg-indigo-100 px-2 py-1.5 text-sm font-bold text-indigo-700 tabular-nums dark:bg-indigo-900/40 dark:text-indigo-300">
                             #{props.jumpNumber}
@@ -119,25 +159,41 @@ export function JumpCard(props: JumpListItem) {
                             dateTime={props.jumpDate}
                             className="text-sm text-slate-500 tabular-nums dark:text-slate-400"
                         >
+                            {weekday && `${weekday}, `}
                             {formatDate(props.jumpDate)}
                         </time>
-                        <span className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                            {props.locationName} /{" "}
-                            {props.aircraftNames.join(", ") || "Not set"}
-                        </span>
                     </div>
-                    {props.jumpTypes.length > 0 && (
+                    {props.jumpTypeItems.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                            {props.jumpTypes.map((name) => (
+                            {props.jumpTypeItems.map((item) => (
                                 <span
-                                    key={name}
+                                    key={item.name}
+                                    data-loki-tooltip={
+                                        item.description || undefined
+                                    }
                                     className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-indigo-200/60 dark:bg-indigo-900/30 dark:text-indigo-300 dark:ring-indigo-700/50"
                                 >
-                                    {name}
+                                    {item.name}
                                 </span>
                             ))}
                         </div>
                     )}
+                </div>
+                <div className="mt-3 min-w-0">
+                    <p
+                        data-loki-tooltip={
+                            props.locationDescription || undefined
+                        }
+                        className="break-words text-base font-semibold text-slate-900 dark:text-slate-100"
+                    >
+                        {props.locationName}
+                    </p>
+                    <p className="mt-0.5 break-words text-sm text-slate-500 dark:text-slate-400">
+                        <JumpItemNames
+                            items={props.aircraftItems}
+                            fallback="Not set"
+                        />
+                    </p>
                 </div>
                 <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <JumpStat label="Exit">
@@ -160,6 +216,14 @@ export function JumpCard(props: JumpListItem) {
                 {props.description && (
                     <p className="mt-3 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
                         {props.description}
+                    </p>
+                )}
+                {props.gearItems.length > 0 && (
+                    <p className="mt-3 border-t border-slate-200 pt-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                        <span className="font-medium text-slate-600 dark:text-slate-300">
+                            Gear:
+                        </span>{" "}
+                        <JumpItemNames items={props.gearItems} />
                     </p>
                 )}
             </a>
@@ -268,6 +332,7 @@ export async function getRecentJumpsForItem(config: {
             freefallTime: jumps.freefallTime,
             description: jumps.description,
             locationName: sql<string>`coalesce(${locations.name}, 'Not set')`,
+            locationDescription: locations.description,
         })
         .from(jumps)
         .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
@@ -280,11 +345,12 @@ export async function getRecentJumpsForItem(config: {
     }
 
     const jumpUuids = jumpRows.map((jump) => jump.uuid);
-    const [aircraftRows, jumpTypeRows] = await Promise.all([
+    const [aircraftRows, jumpTypeRows, gearRows] = await Promise.all([
         db
             .select({
                 jumpUuid: jumpsToAircrafts.jumpUuid,
                 name: aircrafts.name,
+                description: aircrafts.description,
             })
             .from(jumpsToAircrafts)
             .innerJoin(
@@ -297,6 +363,7 @@ export async function getRecentJumpsForItem(config: {
             .select({
                 jumpUuid: jumpsToJumpTypes.jumpUuid,
                 name: jumpTypes.name,
+                description: jumpTypes.description,
             })
             .from(jumpsToJumpTypes)
             .innerJoin(
@@ -305,24 +372,41 @@ export async function getRecentJumpsForItem(config: {
             )
             .where(inArray(jumpsToJumpTypes.jumpUuid, jumpUuids))
             .orderBy(jumpTypes.name),
+        db
+            .select({
+                jumpUuid: jumpsToGear.jumpUuid,
+                name: gear.name,
+                description: gear.description,
+            })
+            .from(jumpsToGear)
+            .innerJoin(gear, eq(jumpsToGear.gearUuid, gear.uuid))
+            .where(inArray(jumpsToGear.jumpUuid, jumpUuids))
+            .orderBy(gear.name),
     ]);
 
-    const aircraftsByJump = new Map<string, string[]>();
+    const aircraftsByJump = new Map<string, JumpCardItem[]>();
     for (const row of aircraftRows) {
         const list = aircraftsByJump.get(row.jumpUuid) ?? [];
-        list.push(row.name);
+        list.push({ name: row.name, description: row.description });
         aircraftsByJump.set(row.jumpUuid, list);
     }
-    const jumpTypesByJump = new Map<string, string[]>();
+    const jumpTypesByJump = new Map<string, JumpCardItem[]>();
     for (const row of jumpTypeRows) {
         const list = jumpTypesByJump.get(row.jumpUuid) ?? [];
-        list.push(row.name);
+        list.push({ name: row.name, description: row.description });
         jumpTypesByJump.set(row.jumpUuid, list);
+    }
+    const gearByJump = new Map<string, JumpCardItem[]>();
+    for (const row of gearRows) {
+        const list = gearByJump.get(row.jumpUuid) ?? [];
+        list.push({ name: row.name, description: row.description });
+        gearByJump.set(row.jumpUuid, list);
     }
 
     return jumpRows.map((jump) => ({
         ...jump,
-        aircraftNames: aircraftsByJump.get(jump.uuid) ?? [],
-        jumpTypes: jumpTypesByJump.get(jump.uuid) ?? [],
+        aircraftItems: aircraftsByJump.get(jump.uuid) ?? [],
+        jumpTypeItems: jumpTypesByJump.get(jump.uuid) ?? [],
+        gearItems: gearByJump.get(jump.uuid) ?? [],
     }));
 }

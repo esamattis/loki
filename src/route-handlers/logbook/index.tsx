@@ -16,6 +16,7 @@ import { Details } from "@/components/ui/details";
 import { LogbookPage } from "@/app/authenticated-page";
 import {
     JumpCard,
+    type JumpCardItem,
     type JumpListItem,
 } from "@/route-handlers/logbook/components/jump-list";
 import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
@@ -73,7 +74,7 @@ function filterResourceUuids(
 function JumpFiltersSummary(props: { hasFilters: boolean }) {
     return (
         <>
-            Filter jumps
+            Filters
             {props.hasFilters && (
                 <a
                     href={routes.logbook.index({})}
@@ -103,14 +104,14 @@ function JumpFilters(props: {
     return (
         <Details
             open={hasFilters}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
             summary={<JumpFiltersSummary hasFilters={hasFilters} />}
-            summaryClassName="font-semibold text-slate-900 dark:text-slate-100"
+            summaryClassName="h-10 px-4 font-semibold text-slate-900 dark:text-slate-100"
         >
             <form
                 action={routes.logbook.index({})}
                 method="get"
-                className="mt-5 space-y-5"
+                className="mx-5 mb-5 mt-3 space-y-5"
             >
                 {props.filters.search !== "" && (
                     <input
@@ -350,6 +351,7 @@ export async function getLogbookJumps(
             freefallTime: jumps.freefallTime,
             description: jumps.description,
             locationName: sql<string>`coalesce(${locations.name}, 'Not set')`,
+            locationDescription: locations.description,
         })
         .from(jumps)
         .leftJoin(locations, eq(jumps.locationUuid, locations.uuid))
@@ -372,7 +374,7 @@ export async function getJumpTypesByJump(
     jumpUuids: string[],
 ) {
     if (jumpUuids.length === 0) {
-        return new Map<string, string[]>();
+        return new Map<string, JumpCardItem[]>();
     }
 
     const db = getAppContext(c).db;
@@ -380,16 +382,17 @@ export async function getJumpTypesByJump(
         .select({
             jumpUuid: jumpsToJumpTypes.jumpUuid,
             name: jumpTypes.name,
+            description: jumpTypes.description,
         })
         .from(jumpsToJumpTypes)
         .innerJoin(jumpTypes, eq(jumpsToJumpTypes.jumpTypeUuid, jumpTypes.uuid))
         .where(inArray(jumpsToJumpTypes.jumpUuid, jumpUuids))
         .orderBy(jumpTypes.name);
 
-    const jumpTypesByJump = new Map<string, string[]>();
+    const jumpTypesByJump = new Map<string, JumpCardItem[]>();
     for (const row of rows) {
         const list = jumpTypesByJump.get(row.jumpUuid) ?? [];
-        list.push(row.name);
+        list.push({ name: row.name, description: row.description });
         jumpTypesByJump.set(row.jumpUuid, list);
     }
     return jumpTypesByJump;
@@ -400,24 +403,48 @@ export async function getAircraftsByJump(
     jumpUuids: string[],
 ) {
     if (jumpUuids.length === 0) {
-        return new Map<string, string[]>();
+        return new Map<string, JumpCardItem[]>();
     }
     const rows = await getAppContext(c)
         .db.select({
             jumpUuid: jumpsToAircrafts.jumpUuid,
             name: aircrafts.name,
+            description: aircrafts.description,
         })
         .from(jumpsToAircrafts)
         .innerJoin(aircrafts, eq(jumpsToAircrafts.aircraftUuid, aircrafts.uuid))
         .where(inArray(jumpsToAircrafts.jumpUuid, jumpUuids))
         .orderBy(aircrafts.name);
-    const aircraftsByJump = new Map<string, string[]>();
+    const aircraftsByJump = new Map<string, JumpCardItem[]>();
     for (const row of rows) {
         const list = aircraftsByJump.get(row.jumpUuid) ?? [];
-        list.push(row.name);
+        list.push({ name: row.name, description: row.description });
         aircraftsByJump.set(row.jumpUuid, list);
     }
     return aircraftsByJump;
+}
+
+export async function getGearByJump(c: AppRequestContext, jumpUuids: string[]) {
+    if (jumpUuids.length === 0) {
+        return new Map<string, JumpCardItem[]>();
+    }
+    const rows = await getAppContext(c)
+        .db.select({
+            jumpUuid: jumpsToGear.jumpUuid,
+            name: gear.name,
+            description: gear.description,
+        })
+        .from(jumpsToGear)
+        .innerJoin(gear, eq(jumpsToGear.gearUuid, gear.uuid))
+        .where(inArray(jumpsToGear.jumpUuid, jumpUuids))
+        .orderBy(gear.name);
+    const gearByJump = new Map<string, JumpCardItem[]>();
+    for (const row of rows) {
+        const list = gearByJump.get(row.jumpUuid) ?? [];
+        list.push({ name: row.name, description: row.description });
+        gearByJump.set(row.jumpUuid, list);
+    }
+    return gearByJump;
 }
 
 export function JumpList(props: {
@@ -479,36 +506,43 @@ export function JumpList(props: {
 }
 
 async function renderLogbook(c: AppRequestContext) {
-    const options = getAppContext(c).getUser().options;
+    const appContext = getAppContext(c);
+    const user = appContext.getUser();
+    const options = user.options;
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
-    const jumpRows = await getLogbookJumps(c, filters);
+    const [jumpRows, [jumpNumberRow]] = await Promise.all([
+        getLogbookJumps(c, filters),
+        appContext.db
+            .select({
+                maxJumpNumber: sql<number | null>`max(${jumps.jumpNumber})`,
+            })
+            .from(jumps)
+            .where(eq(jumps.userUuid, user.uuid)),
+    ]);
     const jumpUuids = jumpRows.map((jump) => jump.uuid);
-    const [aircraftsByJump, jumpTypesByJump] = await Promise.all([
+    const [aircraftsByJump, jumpTypesByJump, gearByJump] = await Promise.all([
         getAircraftsByJump(c, jumpUuids),
         getJumpTypesByJump(c, jumpUuids),
+        getGearByJump(c, jumpUuids),
     ]);
     const jumpCards = jumpRows.map((jump) => ({
         ...jump,
-        aircraftNames: aircraftsByJump.get(jump.uuid) ?? [],
-        jumpTypes: jumpTypesByJump.get(jump.uuid) ?? [],
+        aircraftItems: aircraftsByJump.get(jump.uuid) ?? [],
+        jumpTypeItems: jumpTypesByJump.get(jump.uuid) ?? [],
+        gearItems: gearByJump.get(jump.uuid) ?? [],
         options,
     }));
 
     return c.render(
-        <LogbookPage title="Your Jumps">
-            <JumpFilters
-                filters={filters}
-                locations={resources.locations}
-                gear={resources.gear}
-                jumpTypes={resources.jumpTypes}
-            />
+        <LogbookPage title={`${jumpNumberRow?.maxJumpNumber ?? 0} Jumps`}>
             <section className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Jumps
-                    </h2>
-                </div>
+                <JumpFilters
+                    filters={filters}
+                    locations={resources.locations}
+                    gear={resources.gear}
+                    jumpTypes={resources.jumpTypes}
+                />
                 {(jumpRows.length > 0 || filters.search !== "") && (
                     <JumpSearch filters={filters} />
                 )}

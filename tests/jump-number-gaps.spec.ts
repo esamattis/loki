@@ -136,9 +136,8 @@ test("a jump can be saved without jump items and is listed as insufficient", asy
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expect(page).toHaveURL("/logbook");
-    await expect(page.getByRole("link", { name: /#1/ })).toContainText(
-        "Not set / Not set",
-    );
+    const jump = page.getByRole("link", { name: /#1/ });
+    await expect(jump.getByText("Not set", { exact: true })).toHaveCount(2);
 
     await openManageLogbook(page);
     await page.getByRole("link", { name: "Statistics", exact: true }).click();
