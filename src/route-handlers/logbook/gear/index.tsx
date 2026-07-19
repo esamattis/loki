@@ -1,7 +1,7 @@
 import type { App, AppRequestContext } from "@/app/app";
 import { getAppContext } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
 import * as routes from "@/routes";
 import { gear } from "@/schema";

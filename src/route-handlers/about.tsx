@@ -1,5 +1,5 @@
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { BuildInfo } from "@/components/build-info";
 import * as routes from "@/routes";
 

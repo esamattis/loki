@@ -7,7 +7,7 @@ import {
 } from "@/components/form";
 import { ExportIcon, ImportIcon } from "@/components/icons";
 import * as routes from "@/routes";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import {
     ExportCurlHelp,
     TransferFormatHelp,

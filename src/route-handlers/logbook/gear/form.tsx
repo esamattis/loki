@@ -1,4 +1,4 @@
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { FormActions, Input, NumberInput, Textarea } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";

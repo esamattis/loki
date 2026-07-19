@@ -28,7 +28,7 @@ import {
     locations,
     users,
 } from "@/schema";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { $select } from "@/utils";
 
 const PreferencesSchema = z

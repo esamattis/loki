@@ -21,7 +21,7 @@ import {
 } from "@/components/jump-item-select";
 import { $select } from "@/utils";
 import * as routes from "@/routes";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { DateInput } from "@/components/date-input";
 import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
 import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";

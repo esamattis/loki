@@ -3,7 +3,7 @@ import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
 import { PlusIcon } from "@/components/icons";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import * as routes from "@/routes";
 import { aircrafts } from "@/schema";
 

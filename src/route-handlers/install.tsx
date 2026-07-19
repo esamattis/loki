@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
 import { type App, type AppRequestContext } from "@/app/app";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";

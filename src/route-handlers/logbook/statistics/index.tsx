@@ -18,7 +18,7 @@ import {
     jumpsToJumpTypes,
 } from "@/schema";
 import { $select } from "@/utils";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { JumpIssueList } from "@/route-handlers/logbook/statistics/jump-issue-list";
 
 function formatDate(date: Date): string {

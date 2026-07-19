@@ -37,7 +37,7 @@ import {
     type AiUsageTotals,
 } from "@/route-handlers/logbook/components/ai-usage";
 import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([

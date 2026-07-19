@@ -17,7 +17,7 @@ import {
     jumpTypes,
     locations,
 } from "@/schema";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import { formatDuration } from "@/utils/format-duration";
 import {
     fetchRecordStatistics,

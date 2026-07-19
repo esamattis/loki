@@ -25,7 +25,7 @@ import {
 } from "@/schema";
 import { Button } from "@/components/form";
 import { Details } from "@/components/ui/details";
-import { LogbookPage } from "@/app/authenticated-page";
+import { LogbookPage } from "@/app/logbook-page";
 import {
     JumpCard,
     type JumpCardItem,
