@@ -10,7 +10,7 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
-import { CalendarIcon, CopyIcon } from "@/components/icons";
+import { CopyIcon } from "@/components/icons";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
 import { Dialog } from "@/components/ui/dialog";
@@ -22,7 +22,7 @@ import {
 import { $select } from "@/utils";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/authenticated-page";
-import { formatCalendarDate } from "@/date-time";
+import { DateInput } from "@/components/date-input";
 import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
 import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import {
@@ -434,167 +434,6 @@ function AvgSpeed(props: { values: JumpFormValues }) {
     );
 }
 
-function JumpDateScript(props: {
-    inputId: string;
-    valueId: string;
-    pickerId: string;
-    pickerButtonId: string;
-    buttonId: string;
-    dateTimeFormat: UserOptions["dateTimeFormat"];
-}) {
-    return (
-        <Script
-            $deps={[$select]}
-            $args={[props]}
-            $exec={(config) => {
-                const input = $select.id(config.inputId, HTMLInputElement);
-                const value = $select.id(config.valueId, HTMLInputElement);
-                const picker = $select.id(config.pickerId, HTMLInputElement);
-                const pickerButton = $select.id(
-                    config.pickerButtonId,
-                    HTMLButtonElement,
-                );
-                const button = $select.id(config.buttonId, HTMLButtonElement);
-
-                function toIsoDate(displayValue: string) {
-                    if (config.dateTimeFormat === "iso") return displayValue;
-                    const separator =
-                        config.dateTimeFormat === "finnish" ? "." : "/";
-                    const parts = displayValue.split(separator);
-                    if (parts.length !== 3) return displayValue;
-                    const [first, second, year] = parts;
-                    const day =
-                        config.dateTimeFormat === "american" ? second : first;
-                    const month =
-                        config.dateTimeFormat === "american" ? first : second;
-                    if (!day || !month || !year) return displayValue;
-                    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-                }
-
-                function toDisplayDate(isoDate: string) {
-                    const [year, month, day] = isoDate.split("-");
-                    if (!year || !month || !day) return isoDate;
-                    if (config.dateTimeFormat === "finnish") {
-                        return `${Number(day)}.${Number(month)}.${year}`;
-                    }
-                    if (config.dateTimeFormat === "european") {
-                        return `${day}/${month}/${year}`;
-                    }
-                    if (config.dateTimeFormat === "american") {
-                        return `${month}/${day}/${year}`;
-                    }
-                    return isoDate;
-                }
-
-                input.addEventListener("input", () => {
-                    value.value = toIsoDate(input.value);
-                    picker.value = value.value;
-                });
-                picker.addEventListener("change", () => {
-                    if (!picker.value) return;
-                    value.value = picker.value;
-                    input.value = toDisplayDate(picker.value);
-                    input.dispatchEvent(new Event("input", { bubbles: true }));
-                });
-                pickerButton.addEventListener("click", () => {
-                    picker.showPicker();
-                });
-                button.addEventListener("click", () => {
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = String(now.getMonth() + 1).padStart(2, "0");
-                    const day = String(now.getDate()).padStart(2, "0");
-                    value.value = `${year}-${month}-${day}`;
-                    input.value = toDisplayDate(value.value);
-                    input.dispatchEvent(new Event("input", { bubbles: true }));
-                });
-            }}
-        />
-    );
-}
-
-function JumpDateField(props: { value: string }) {
-    const inputId = useId();
-    const valueId = useId();
-    const pickerId = useId();
-    const pickerButtonId = useId();
-    const buttonId = useId();
-    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
-    const placeholder =
-        dateTimeFormat === "finnish"
-            ? "D.M.YYYY"
-            : dateTimeFormat === "european"
-              ? "DD/MM/YYYY"
-              : dateTimeFormat === "american"
-                ? "MM/DD/YYYY"
-                : "YYYY-MM-DD";
-
-    return (
-        <div>
-            <label
-                htmlFor={inputId}
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300"
-            >
-                Jump date
-            </label>
-            <div className="mt-1.5 flex gap-2">
-                <input
-                    id={inputId}
-                    type="text"
-                    inputMode="numeric"
-                    data-loki-jump-date-input
-                    placeholder={placeholder}
-                    required
-                    value={formatCalendarDate(props.value, dateTimeFormat)}
-                    className={FIELD_INPUT_CLASS}
-                />
-                <input
-                    id={valueId}
-                    name="jumpDate"
-                    type="hidden"
-                    value={props.value}
-                />
-                <input
-                    id={pickerId}
-                    type="date"
-                    data-loki-jump-date-picker
-                    value={props.value}
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    className="sr-only"
-                />
-                <Button
-                    id={pickerButtonId}
-                    type="button"
-                    variant="secondary"
-                    aria-label="Choose jump date"
-                    data-loki-tooltip="Choose jump date"
-                    className="shrink-0 px-3.5 py-2.5"
-                >
-                    <CalendarIcon className="h-5 w-5" />
-                </Button>
-                <Button
-                    id={buttonId}
-                    type="button"
-                    variant="secondary"
-                    data-loki-tooltip="Set jump date to today"
-                    className="shrink-0 px-3.5 py-2.5 text-sm"
-                >
-                    Today
-                </Button>
-            </div>
-            <JumpDateScript
-                inputId={inputId}
-                valueId={valueId}
-                pickerId={pickerId}
-                pickerButtonId={pickerButtonId}
-                buttonId={buttonId}
-                dateTimeFormat={dateTimeFormat}
-            />
-        </div>
-    );
-}
-
 function ResourceSelectWithName(props: {
     selectName: string;
     selectLabel: string;
@@ -818,7 +657,13 @@ function JumpForm(props: {
                 className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
             />
             <div className="grid gap-5 sm:grid-cols-2">
-                <JumpDateField value={values.jumpDate ?? getToday()} />
+                <DateInput
+                    label="Jump date"
+                    name="jumpDate"
+                    value={values.jumpDate ?? getToday()}
+                    required
+                    showToday
+                />
                 <JumpNumberField
                     value={values.jumpNumber ?? ""}
                     nextJumpNumber={props.nextJumpNumber}

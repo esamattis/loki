@@ -238,9 +238,13 @@ test("a skydiver can register and record their first jump", async ({
     ).toBeVisible();
 
     await page.getByText("Filters", { exact: true }).click();
+    await page.getByRole("textbox", { name: "Start date" }).fill("2024-06-15");
+    await page.getByRole("textbox", { name: "End date" }).fill("2024-06-15");
     await selectJumpItems(page, "Jump types", ["Freefly", "Tracking"]);
     await page.getByRole("button", { name: "Apply filters" }).click();
-    await expect(page).toHaveURL(/\/logbook\?jumpTypeUuids=/);
+    await expect(page).toHaveURL(/\/logbook\?.*jumpTypeUuids=/);
+    await expect(page).toHaveURL(/start=2024-06-15/);
+    await expect(page).toHaveURL(/end=2024-06-15/);
     await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /#2/ })).toHaveCount(0);
 

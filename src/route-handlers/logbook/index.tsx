@@ -1,4 +1,16 @@
-import { and, asc, desc, eq, inArray, lt, ne, or, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    desc,
+    eq,
+    gte,
+    inArray,
+    lt,
+    lte,
+    ne,
+    or,
+    sql,
+} from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import * as routes from "@/routes";
 import {
@@ -22,6 +34,7 @@ import {
 import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
 import { JumpSearch } from "@/route-handlers/logbook/components/search";
 import { JumpItemSelect } from "@/components/jump-item-select";
+import { DateInput } from "@/components/date-input";
 
 interface LogbookResource {
     uuid: string;
@@ -34,6 +47,8 @@ export interface LogbookFilters {
     locationUuids: string[];
     gearUuids: string[];
     jumpTypeUuids: string[];
+    start: string;
+    end: string;
     search: string;
 }
 
@@ -49,6 +64,12 @@ function getLogbookJumpsUrl(filters: LogbookFilters, before?: number): string {
     }
     for (const uuid of filters.jumpTypeUuids) {
         query.append("jumpTypeUuids", uuid);
+    }
+    if (filters.start) {
+        query.set("start", filters.start);
+    }
+    if (filters.end) {
+        query.set("end", filters.end);
     }
     if (filters.search) {
         query.set("search", filters.search);
@@ -99,7 +120,9 @@ function JumpFilters(props: {
     const hasFilters =
         selectedLocations.size > 0 ||
         selectedGear.size > 0 ||
-        selectedJumpTypes.size > 0;
+        selectedJumpTypes.size > 0 ||
+        props.filters.start !== "" ||
+        props.filters.end !== "";
 
     return (
         <Details
@@ -120,6 +143,18 @@ function JumpFilters(props: {
                         value={props.filters.search}
                     />
                 )}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <DateInput
+                        label="Start date"
+                        name="start"
+                        value={props.filters.start}
+                    />
+                    <DateInput
+                        label="End date"
+                        name="end"
+                        value={props.filters.end}
+                    />
+                </div>
                 <JumpItemSelect
                     label="Locations"
                     dialogTitle="Select locations"
@@ -239,6 +274,13 @@ export function getLogbookFilters(
 ): LogbookFilters {
     const query = new URL(c.req.url).searchParams;
     const search = (query.get("search") ?? "").trim().slice(0, 200);
+    function getDate(name: string): string {
+        const value = query.get(name) ?? "";
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+        const date = new Date(`${value}T00:00:00Z`);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toISOString().slice(0, 10) === value ? value : "";
+    }
     return {
         locationUuids: filterResourceUuids(
             query,
@@ -251,6 +293,8 @@ export function getLogbookFilters(
             "jumpTypeUuids",
             resources.jumpTypes,
         ),
+        start: getDate("start"),
+        end: getDate("end"),
         search,
     };
 }
@@ -307,6 +351,8 @@ function getLogbookJumpConditions(
                   ),
               ]
             : []),
+        ...(filters.start ? [gte(jumps.jumpDate, filters.start)] : []),
+        ...(filters.end ? [lte(jumps.jumpDate, filters.end)] : []),
         ...(searchPattern
             ? [
                   or(
@@ -458,6 +504,8 @@ export function JumpList(props: {
         props.filters.locationUuids.length === 0 &&
         props.filters.gearUuids.length === 0 &&
         props.filters.jumpTypeUuids.length === 0 &&
+        props.filters.start === "" &&
+        props.filters.end === "" &&
         props.filters.search === "";
 
     return (
@@ -550,6 +598,8 @@ async function renderLogbook(c: AppRequestContext) {
                     filters.locationUuids.length > 0 ||
                     filters.gearUuids.length > 0 ||
                     filters.jumpTypeUuids.length > 0 ||
+                    filters.start !== "" ||
+                    filters.end !== "" ||
                     filters.search !== "" ? (
                         <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
                             <p className="text-sm text-slate-500 dark:text-slate-400">

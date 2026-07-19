@@ -18,6 +18,12 @@ export function buildLogbookUrl(
     for (const uuid of filters.jumpTypeUuids) {
         query.append("jumpTypeUuids", uuid);
     }
+    if (filters.start) {
+        query.set("start", filters.start);
+    }
+    if (filters.end) {
+        query.set("end", filters.end);
+    }
     const search = overrides.search ?? filters.search;
     if (search) {
         query.set("search", search);
@@ -59,6 +65,12 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                     value={uuid}
                 />
             ))}
+            {props.filters.start && (
+                <input type="hidden" name="start" value={props.filters.start} />
+            )}
+            {props.filters.end && (
+                <input type="hidden" name="end" value={props.filters.end} />
+            )}
             <div className="relative grow">
                 <input
                     type="search"
