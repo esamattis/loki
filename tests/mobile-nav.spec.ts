@@ -17,7 +17,7 @@ async function expectActiveAction(
     navigation: ReturnType<Page["getByRole"]>,
     activeLabel: string,
 ) {
-    const labels = ["Logbook", "Statistics", "Add jump", "Read image"];
+    const labels = ["Logbook", "Statistics", "Add jump", "AI Vision"];
 
     for (const label of labels) {
         const link = navigation.getByRole("link", { name: label, exact: true });
@@ -44,10 +44,9 @@ test("desktop header marks the active action", async ({ page }) => {
         "href",
         "/logbook/transfer",
     );
-    await expect(page.getByRole("link", { name: "AI vision" })).toHaveAttribute(
-        "href",
-        "/logbook/jumps/new/from-image",
-    );
+    await expect(
+        page.getByRole("link", { name: "AI vision", exact: true }),
+    ).toHaveAttribute("href", "/logbook/jumps/new/from-image");
 
     await page.goto("/logbook/statistics");
     await expectActiveAction(header, "Statistics");
@@ -56,7 +55,7 @@ test("desktop header marks the active action", async ({ page }) => {
     await expectActiveAction(header, "Add jump");
 
     await page.goto("/logbook/jumps/new/from-image");
-    await expectActiveAction(header, "Read image");
+    await expectActiveAction(header, "AI Vision");
 });
 
 test("mobile navigation uses the bottom bar for actions and menu", async ({
@@ -79,7 +78,7 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
         bottomBar.getByRole("link", { name: "Add jump", exact: true }),
     ).toBeVisible();
     await expect(
-        bottomBar.getByRole("link", { name: "Read image", exact: true }),
+        bottomBar.getByRole("link", { name: "AI Vision", exact: true }),
     ).toBeVisible();
     await expect(bottomBar.getByRole("button", { name: "Menu" })).toBeVisible();
     await expectActiveAction(bottomBar, "Logbook");
@@ -113,14 +112,14 @@ test("mobile navigation uses the bottom bar for actions and menu", async ({
     await expect(page).toHaveURL("/logbook");
 
     await bottomBar
-        .getByRole("link", { name: "Read image", exact: true })
+        .getByRole("link", { name: "AI Vision", exact: true })
         .click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
-    await expectActiveAction(bottomBar, "Read image");
+    await expectActiveAction(bottomBar, "AI Vision");
     await expect(
         page
             .getByLabel("Form actions")
-            .getByRole("button", { name: "Read image" }),
+            .getByRole("button", { name: "AI Vision" }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: "Cancel" })).toHaveCount(0);
 

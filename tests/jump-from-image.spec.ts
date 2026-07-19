@@ -49,7 +49,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expect(
         page.locator('textarea[name="additionalContext"]'),
@@ -72,7 +72,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page
         .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
     await expect(page).toHaveURL(/[?&]imageId=[^&]+/);
@@ -164,7 +164,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         "From image mock",
     );
 
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expect(page.getByText("Read", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Jump #42" })).toBeVisible();
@@ -200,7 +200,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page.locator('input[name="jumpNumber"]').fill("43");
     await page.getByRole("button", { name: "Save jump" }).click();
     await expect(page).toHaveURL("/logbook");
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page.getByRole("link", { name: "Jump #43" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Jump #42" })).toHaveCount(0);
 
@@ -210,7 +210,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page
         .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
     await expect(page.locator("[data-loki-jump-date-input]")).toHaveValue("");
@@ -236,7 +236,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page
         .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(jumpItemSummary(page, "Aircraft")).toContainText(
         "Image Plane",
@@ -262,7 +262,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page
         .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(page).toHaveURL(/[?&]warning=/);
     await expect(
@@ -278,7 +278,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page
         .locator("input[multiple]")
         .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expect(
@@ -300,7 +300,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(deleteButton).toHaveText("Confirm delete", { timeout: 1000 });
     await deleteButton.click();
     await expect(page).toHaveURL("/logbook");
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page.getByRole("link", { name: "Jump #43" })).toHaveCount(0);
 });
 
@@ -320,7 +320,7 @@ test("from image form persists model and additional context after reload", async
     await page.locator('input[name="confirmPassword"]').fill("parachute");
     await page.getByRole("button", { name: "Create account" }).click();
 
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
 
     const imageBuffer = fs.readFileSync(
@@ -384,7 +384,7 @@ test("from image form describes resized images", async ({ page }) => {
     await page.locator('input[name="password"]').fill("parachute");
     await page.locator('input[name="confirmPassword"]').fill("parachute");
     await page.getByRole("button", { name: "Create account" }).click();
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
 
     await page.evaluate(() => {
         const originalToBlob = HTMLCanvasElement.prototype.toBlob;
@@ -427,7 +427,7 @@ test("from image form describes resized images", async ({ page }) => {
     });
 
     await expect(
-        page.getByRole("button", { name: "Read image" }),
+        page.getByRole("button", { name: "AI Vision" }),
     ).toBeDisabled();
 
     await expect(
@@ -435,9 +435,7 @@ test("from image form describes resized images", async ({ page }) => {
             /^Resized from \d+(?:\.\d+)? (?:B|KB|MB) \(4096 x 4\) to \d+(?:\.\d+)? (?:B|KB|MB) \(2048 x 2\)\.$/,
         ),
     ).toBeVisible();
-    await expect(
-        page.getByRole("button", { name: "Read image" }),
-    ).toBeEnabled();
+    await expect(page.getByRole("button", { name: "AI Vision" })).toBeEnabled();
 });
 
 test("from image rejects oversized files on the server", async ({ page }) => {
@@ -456,7 +454,7 @@ test("from image rejects oversized files on the server", async ({ page }) => {
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
     await page.getByRole("button", { name: "Save preferences" }).click();
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
 
     const responseText = await page.evaluate(async () => {
         const formData = new FormData();
@@ -495,7 +493,7 @@ test("a skydiver can paste a jump image from the clipboard", async ({
     await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expect(page.getByRole("button", { name: "Paste" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Paste" })).toHaveAttribute(
@@ -531,7 +529,7 @@ test("a skydiver can paste a jump image from the clipboard", async ({
     ).toBeVisible();
     await expect(page.getByText(/pasted-image\.png/)).toBeVisible();
 
-    await page.getByRole("button", { name: "Read image" }).click();
+    await page.getByRole("button", { name: "AI Vision" }).click();
 
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
     await expect(page.locator("[data-loki-jump-date-input]")).toHaveValue(

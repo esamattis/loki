@@ -442,6 +442,6 @@ test("a skydiver can permanently delete their account and all jump items", async
     await expect(page.getByText("Doomed Type", { exact: true })).toHaveCount(0);
 
     await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
-    await page.getByRole("link", { name: "Read image", exact: true }).click();
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page.getByText("No image reads yet.")).toBeVisible();
 });

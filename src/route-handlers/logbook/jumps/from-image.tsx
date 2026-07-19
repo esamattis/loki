@@ -251,7 +251,7 @@ function JumpFromImagePage(props: {
                     variant="primary"
                     className="w-full"
                 >
-                    Read image
+                    AI Vision
                 </Button>
             }
         >
@@ -346,7 +346,7 @@ function JumpFromImagePage(props: {
                         </div>
                         <div className="hidden sm:block">
                             <Button type="submit" variant="primary">
-                                Read image
+                                AI Vision
                             </Button>
                         </div>
                     </form>
