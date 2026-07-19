@@ -118,6 +118,31 @@ test("statistics show recorded and total jump counts for every item", async ({
     await expect(
         page.getByText("Longest freefall distance").locator(".."),
     ).toContainText("3 km");
+    const mostJumpsDay = page.getByText("Most jumps in a day").locator("..");
+    await expect(mostJumpsDay).toContainText("2 jumps");
+    const mostJumpsDayLink = mostJumpsDay.getByRole("link");
+    const mostJumpsDayHref = await mostJumpsDayLink.getAttribute("href");
+    if (!mostJumpsDayHref) throw new Error("Most jumps day link has no href");
+    const mostJumpsDayUrl = new URL(mostJumpsDayHref, page.url());
+    const mostJumpsDate = mostJumpsDayUrl.searchParams.get("start");
+    expect(mostJumpsDayUrl.pathname).toBe("/logbook");
+    expect(mostJumpsDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(mostJumpsDayUrl.searchParams.get("end")).toBe(mostJumpsDate);
+
+    await mostJumpsDayLink.click();
+    await expect(page).toHaveURL(mostJumpsDayUrl.toString());
+    await expect(page.getByRole("textbox", { name: "Start date" })).toHaveValue(
+        mostJumpsDate!,
+    );
+    await expect(page.getByRole("textbox", { name: "End date" })).toHaveValue(
+        mostJumpsDate!,
+    );
+    await expect(page.getByRole("link", { name: /#301/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /#302/ })).toBeVisible();
+    await page.goBack();
+    await expect(
+        page.getByRole("heading", { name: "Yearly statistics" }),
+    ).toBeVisible();
     await expect(
         page.getByRole("row").filter({ hasText: "Skydive Example" }),
     ).toContainText("2");

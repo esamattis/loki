@@ -29,10 +29,17 @@ interface RecordJump {
     tooltip?: string;
 }
 
+interface RecordDay {
+    jumpDate: string;
+    jumpCount: number;
+}
+
 function RecordJumps(props: {
     records: Array<{ label: string; jump: RecordJump | undefined }>;
+    mostJumpsDay: RecordDay | undefined;
 }) {
     const formatDate = useDateFormatter();
+    const formatNumber = useNumberFormatter();
     return (
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-800">
@@ -75,6 +82,37 @@ function RecordJumps(props: {
                         </dd>
                     </div>
                 ))}
+                <div className="flex items-center justify-between gap-4 px-5 py-3.5">
+                    <dt className="text-sm text-slate-600 dark:text-slate-400">
+                        Most jumps in a day
+                    </dt>
+                    <dd className="text-right">
+                        {props.mostJumpsDay ? (
+                            <a
+                                href={routes.logbook.index(
+                                    {},
+                                    {
+                                        start: props.mostJumpsDay.jumpDate,
+                                        end: props.mostJumpsDay.jumpDate,
+                                    },
+                                )}
+                                className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-400"
+                            >
+                                {formatNumber(props.mostJumpsDay.jumpCount)}{" "}
+                                {props.mostJumpsDay.jumpCount === 1
+                                    ? "jump"
+                                    : "jumps"}{" "}
+                                <span className="text-sm text-slate-500 dark:text-slate-400">
+                                    ({formatDate(props.mostJumpsDay.jumpDate)})
+                                </span>
+                            </a>
+                        ) : (
+                            <span className="text-sm text-slate-400 dark:text-slate-500">
+                                No recorded jump
+                            </span>
+                        )}
+                    </dd>
+                </div>
             </dl>
         </section>
     );
@@ -335,6 +373,7 @@ interface DetailedStatisticsResult {
     highestOpening: RecordJump | undefined;
     lowestOpening: RecordJump | undefined;
     highestAverageSpeed: RecordJump | undefined;
+    mostJumpsDay: RecordDay | undefined;
 }
 
 interface StatisticsItemRow {
@@ -482,6 +521,16 @@ function fetchRecordStatistics(
             .orderBy(sql`substr(${jumps.jumpDate}, 1, 4) desc`),
         db
             .select({
+                jumpDate: jumps.jumpDate,
+                jumpCount: sql<number>`count(*)`,
+            })
+            .from(jumps)
+            .where(jumpCondition)
+            .groupBy(jumps.jumpDate)
+            .orderBy(desc(sql`count(*)`), desc(jumps.jumpDate))
+            .limit(1),
+        db
+            .select({
                 uuid: jumps.uuid,
                 jumpNumber: jumps.jumpNumber,
                 jumpDate: jumps.jumpDate,
@@ -594,6 +643,7 @@ async function fetchDetailedStatistics(
     const [locationRows, aircraftRows, gearRows, jumpTypeRows] = resourceRows;
     const [
         yearRows,
+        mostJumpsDayRows,
         longestFreefallRows,
         longestFreefallDistanceRows,
         highestExitRows,
@@ -621,6 +671,7 @@ async function fetchDetailedStatistics(
         gearRows,
         jumpTypeRows,
         years,
+        mostJumpsDay: mostJumpsDayRows[0],
         totalJumps,
         totalFreefallTime: freefallTotals?.totalFreefallTime ?? 0,
         totalFreefallDistance: freefallTotals?.totalFreefallDistance ?? 0,
@@ -687,6 +738,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
         highestOpening,
         lowestOpening,
         highestAverageSpeed,
+        mostJumpsDay,
     } = await fetchDetailedStatistics(c, year);
 
     const locationsWithCounts = toStatisticsItems(locationRows, (uuid) =>
@@ -749,6 +801,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             </dl>
             <div className="space-y-6">
                 <RecordJumps
+                    mostJumpsDay={mostJumpsDay}
                     records={[
                         {
                             label: "Longest freefall time",
