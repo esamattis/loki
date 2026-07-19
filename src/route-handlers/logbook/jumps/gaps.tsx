@@ -1,5 +1,6 @@
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import { isSafeRedirectPath } from "@/auth";
 import { ButtonLink } from "@/components/form";
 import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
 import * as routes from "@/routes";
@@ -9,6 +10,7 @@ export function MissingJumpCard(props: {
     jumpNumbers: number[];
     lowerJumpNumber: number;
     upperJumpNumber: number;
+    returnTo: string;
 }) {
     const gapCount = props.jumpNumbers.length;
     const lowestMissing = Math.min(...props.jumpNumbers);
@@ -55,6 +57,7 @@ export function MissingJumpCard(props: {
                     name="upperJumpNumber"
                     value={String(props.upperJumpNumber)}
                 />
+                <input type="hidden" name="back" value={props.returnTo} />
                 <ConfirmDangerButton
                     label="Remove gaps"
                     confirmLabel="Confirm remove gaps"
@@ -134,7 +137,12 @@ export async function handleRemoveJumpGaps(c: AppRequestContext) {
                 ),
             ),
     ]);
-    return c.redirect(routes.logbook.index({}));
+    const back = formData.get("back");
+    const returnTo =
+        typeof back === "string" && isSafeRedirectPath(back)
+            ? back
+            : routes.logbook.index({});
+    return c.redirect(returnTo);
 }
 
 export function register(app: App) {

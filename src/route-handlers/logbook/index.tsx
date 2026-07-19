@@ -22,6 +22,7 @@ import {
 import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
 import {
     appendLogbookFilterParams,
+    buildLogbookUrl,
     isDefaultLogbookSort,
     JumpSearch,
     logbookSortParam,
@@ -560,6 +561,7 @@ export function JumpList(props: {
                             jumpNumbers={missingJumpNumbers}
                             lowerJumpNumber={lowerJumpNumber}
                             upperJumpNumber={upperJumpNumber}
+                            returnTo={buildLogbookUrl(props.filters)}
                             key={`missing-after-${nextJump.jumpNumber}`}
                         />,
                     );

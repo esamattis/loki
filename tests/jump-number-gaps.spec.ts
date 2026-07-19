@@ -133,6 +133,54 @@ test("statistics page lists jump number gaps and insufficient data", async ({
     ).toHaveCount(1);
 });
 
+test("removing gaps keeps jump number low-first sort", async ({ page }) => {
+    await registerUser(page, "jump-gaps-low-first");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "jump-gaps-low-first.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(fixtureCsv),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 4 jumps")).toBeVisible();
+    await page
+        .getByRole("link", { name: /jump-gaps-low-first's logbook/ })
+        .click();
+
+    await page.getByLabel("Sort jumps").selectOption("Jump # · low first");
+    await expect(page).toHaveURL(/sort=jumpNumber-asc/);
+    const jumpLinks = page.getByRole("link", { name: /#\d+/ });
+    await expect(jumpLinks.first()).toHaveAccessibleName(/^#1 /);
+
+    const removableGapCard = page.getByRole("listitem").filter({
+        has: page.getByRole("link", { name: "Add jump #7" }),
+    });
+    await expect(removableGapCard).toContainText(
+        "Renumbers jump #8 and every jump after it down by 2. No jump records will be deleted.",
+    );
+    await removableGapCard.getByRole("button", { name: "Remove gaps" }).click();
+    await removableGapCard
+        .getByRole("button", { name: "Confirm remove gaps" })
+        .click();
+
+    await expect(page).toHaveURL(/\/logbook\?sort=jumpNumber-asc$/);
+    await expect(jumpLinks.first()).toHaveAccessibleName(/^#1 /);
+    await expect(page.getByRole("link", { name: "Add jump #7" })).toHaveCount(
+        0,
+    );
+    await expect(page.getByRole("link", { name: "Add jump #6" })).toHaveCount(
+        0,
+    );
+    await expect(page.getByRole("link", { name: /^#6 / })).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: "Missing jumps #3 - #4" }),
+    ).toBeVisible();
+    await expect(
+        page.getByRole("heading", { name: /Missing jumps/ }),
+    ).toHaveCount(1);
+});
+
 test("a jump can be saved without jump items and is listed as insufficient", async ({
     page,
 }) => {
