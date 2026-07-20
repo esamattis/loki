@@ -151,7 +151,7 @@ function Hero(props: { loggedIn: boolean }) {
 
 function InstallCommand() {
     return (
-        <section className="mx-auto mt-8 max-w-3xl px-4">
+        <section className="mx-auto mt-8 w-fit max-w-full px-4">
             <p className="mb-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">
                 Install on Linux or macOS with
             </p>
