@@ -4,10 +4,7 @@ import { StatisticsIcon } from "@/components/menu-icons";
 import * as routes from "@/routes";
 import type { Child } from "hono/jsx";
 
-export function LogbookActions(props: {
-    pathname: string;
-    end?: Child;
-}) {
+export function LogbookActions(props: { pathname: string; end?: Child }) {
     const logbookPath = routes.logbook.index({});
     const statisticsPath = routes.logbook.statistics.index({});
     const newJumpPath = routes.logbook.jumps.new({}, {});

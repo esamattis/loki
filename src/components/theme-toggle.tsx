@@ -1,5 +1,4 @@
 import { useId } from "hono/jsx";
-import { Button } from "@/components/form";
 import { Script } from "@/components/script";
 import {
     DarkThemeIcon,
@@ -89,18 +88,17 @@ export function ThemeToggle() {
 
     return (
         <>
-            <Button
+            <button
                 id={id}
                 type="button"
-                variant="secondary"
                 aria-label="Toggle theme"
                 data-loki-tooltip="Toggle theme"
-                className="px-3 py-2 text-sm"
+                className="mr-3 inline-flex text-slate-500 transition hover:text-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:text-slate-400 dark:hover:text-slate-100 dark:focus-visible:ring-indigo-400/40"
             >
-                <LightThemeIcon id={lightIconId} className="hidden h-4 w-4" />
-                <DarkThemeIcon id={darkIconId} className="hidden h-4 w-4" />
-                <SystemThemeIcon id={systemIconId} className="h-4 w-4" />
-            </Button>
+                <LightThemeIcon id={lightIconId} className="hidden h-6 w-6" />
+                <DarkThemeIcon id={darkIconId} className="hidden h-6 w-6" />
+                <SystemThemeIcon id={systemIconId} className="h-6 w-6" />
+            </button>
             <Script
                 $deps={[$select]}
                 $args={[
