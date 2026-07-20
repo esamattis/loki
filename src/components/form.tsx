@@ -12,7 +12,7 @@ export const controlClassName =
 const labeledControlClassName = clsx("mt-1.5", controlClassName);
 
 export const fileInputClassName =
-    "block h-10 w-full cursor-pointer rounded-lg border border-slate-300 bg-slate-50 text-sm text-slate-700 file:mr-3 file:h-full file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600";
+    "block h-10 w-full cursor-pointer overflow-hidden rounded-lg border border-slate-300 bg-slate-50 p-0 text-sm leading-10 text-slate-700 file:mr-3 file:h-10 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:font-medium file:leading-10 file:text-white hover:file:bg-indigo-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600";
 
 type ButtonVariant = "primary" | "secondary" | "danger";
 type ButtonSize = "md" | "sm";
