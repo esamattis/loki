@@ -44,6 +44,7 @@ import {
 import { JumpItemSelect } from "@/components/jump-item-select";
 import { DateInput } from "@/components/date-input";
 import { Script } from "@/components/script";
+import { ScrollToTop } from "@/route-handlers/logbook/components/scroll-to-top";
 import { $select } from "@/utils";
 
 interface LogbookResource {
@@ -828,6 +829,7 @@ async function renderLogbook(c: AppRequestContext) {
                     </ul>
                 )}
                 <ScrollToJumpHash />
+                <ScrollToTop />
             </section>
         </LogbookPage>,
     );

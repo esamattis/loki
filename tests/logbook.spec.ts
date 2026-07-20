@@ -77,11 +77,17 @@ test("the log book loads additional jumps while scrolling", async ({
 
     await page.goto("/logbook");
     await expect(page.getByRole("link", { name: /#\d+/ })).toHaveCount(24);
+    const scrollToTop = page.getByRole("button", { name: "Scroll to top" });
+    await expect(scrollToTop).toBeHidden();
     const loadMore = page.getByText("Loading more jumps...");
     await loadMore.scrollIntoViewIfNeeded();
     await expect(page.getByRole("link", { name: /#\d+/ })).toHaveCount(25);
     await expect(page.getByRole("link", { name: /^#1 / })).toBeVisible();
     await expect(loadMore).toHaveCount(0);
+    await expect(scrollToTop).toBeVisible();
+    await scrollToTop.click();
+    await expect.poll(async () => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(scrollToTop).toBeHidden();
 
     const searchInput = page.getByRole("searchbox", { name: "Search jumps" });
     await searchInput.fill("2");
