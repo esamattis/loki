@@ -3,6 +3,12 @@ import { Script } from "@/components/script";
 import { $renderTemplate, $select } from "@/utils";
 
 function $initTooltips(templateId: string) {
+    const EDGE_MARGIN = 8;
+    const TARGET_GAP = 8;
+    const ARROW_ABOVE =
+        "absolute -translate-x-1/2 top-full border-x-4 border-t-4 border-x-transparent border-t-slate-900 dark:border-t-slate-100";
+    const ARROW_BELOW =
+        "absolute -translate-x-1/2 bottom-full border-x-4 border-b-4 border-x-transparent border-b-slate-900 dark:border-b-slate-100";
     const container = document.createElement("div");
     $renderTemplate(container, templateId);
     const tooltipElement = container.firstElementChild;
@@ -14,8 +20,14 @@ function $initTooltips(templateId: string) {
         HTMLSpanElement,
         tooltipNode,
     );
+    const tooltipArrowNode = $select.el(
+        "[data-loki-tooltip-arrow]",
+        HTMLSpanElement,
+        tooltipNode,
+    );
     const tooltip: HTMLDivElement = tooltipNode;
     const tooltipText: HTMLSpanElement = tooltipTextNode;
+    const tooltipArrow: HTMLSpanElement = tooltipArrowNode;
     let activeTarget: HTMLElement | null = null;
     function getTooltipTarget(target: EventTarget | null): HTMLElement | null {
         if (!(target instanceof Element)) return null;
@@ -23,15 +35,37 @@ function $initTooltips(templateId: string) {
         if (!(tooltipTarget instanceof HTMLElement)) return null;
         return tooltipTarget.dataset.lokiTooltip ? tooltipTarget : null;
     }
+    function positionTooltip(target: HTMLElement) {
+        const targetRect = target.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const left = Math.max(
+            EDGE_MARGIN,
+            Math.min(
+                targetRect.left + (targetRect.width - tooltipRect.width) / 2,
+                window.innerWidth - tooltipRect.width - EDGE_MARGIN,
+            ),
+        );
+        const spaceAbove = targetRect.top - EDGE_MARGIN;
+        const spaceBelow = window.innerHeight - targetRect.bottom - EDGE_MARGIN;
+        const needed = tooltipRect.height + TARGET_GAP;
+        const placeBelow = spaceAbove < needed && spaceBelow >= spaceAbove;
+        const top = placeBelow
+            ? targetRect.bottom + TARGET_GAP
+            : Math.max(
+                  EDGE_MARGIN,
+                  targetRect.top - tooltipRect.height - TARGET_GAP,
+              );
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltipArrow.className = placeBelow ? ARROW_BELOW : ARROW_ABOVE;
+        tooltipArrow.style.left = `${targetRect.left + targetRect.width / 2 - left}px`;
+    }
     function showTooltip(target: HTMLElement) {
         activeTarget = target;
         tooltipText.textContent = target.dataset.lokiTooltip!;
         tooltip.hidden = false;
         if (!tooltip.matches(":popover-open")) tooltip.showPopover();
-        const targetRect = target.getBoundingClientRect();
-        const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.left = `${Math.max(8, Math.min(targetRect.left + (targetRect.width - tooltipRect.width) / 2, window.innerWidth - tooltipRect.width - 8))}px`;
-        tooltip.style.top = `${Math.max(8, targetRect.top - tooltipRect.height - 8)}px`;
+        positionTooltip(target);
     }
     function hideTooltip(target?: HTMLElement | null) {
         if (target && target !== activeTarget) return;
@@ -96,7 +130,8 @@ export function Tooltips() {
                     <span data-loki-tooltip-text></span>
                     <span
                         aria-hidden="true"
-                        class="absolute left-1/2 top-full -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-slate-900 dark:border-t-slate-100"
+                        data-loki-tooltip-arrow
+                        class="absolute -translate-x-1/2 top-full border-x-4 border-t-4 border-x-transparent border-t-slate-900 dark:border-t-slate-100"
                     ></span>
                 </div>
             </template>
