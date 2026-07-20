@@ -208,3 +208,47 @@ test("a jump can be saved without jump items and is listed as insufficient", asy
         insufficientDataSection.getByRole("link", { name: "#1" }),
     ).toBeVisible();
 });
+
+test("zero freefall time is allowed when exit and opening altitude match", async ({
+    page,
+}) => {
+    await registerUser(page, "zero-ff-same-alt");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "zero-ff-same-alt.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(
+            [
+                CSV_HEADER,
+                "aircraft,Plane,0,,,,,,,,,,",
+                "gear,Rig,0,,,,,,,,,,",
+                "jumpType,Hop and Pop,0,,,,,,,,,,",
+                "location,DZ,0,,,,,,,,,,",
+                "jump,,,1,2021-06-15,1000,1000,0,DZ,Plane,Rig,Hop and Pop,Same altitude",
+                "jump,,,2,2021-07-15,4000,1000,0,DZ,Plane,Rig,Hop and Pop,Missing freefall",
+            ].join("\n"),
+        ),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 2 jumps")).toBeVisible();
+
+    await page
+        .getByRole("link", { name: /zero-ff-same-alt's logbook/ })
+        .click();
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+
+    const insufficientDataSection = page.locator("section").filter({
+        has: page.getByRole("heading", {
+            name: "Jumps with insufficient data",
+        }),
+    });
+    await expect(insufficientDataSection.getByText("1 jump")).toBeVisible();
+    await expect(
+        insufficientDataSection.getByRole("link", { name: "#2" }),
+    ).toBeVisible();
+    await expect(
+        insufficientDataSection.getByRole("link", { name: "#1" }),
+    ).toHaveCount(0);
+});

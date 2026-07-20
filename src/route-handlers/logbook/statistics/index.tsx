@@ -230,17 +230,13 @@ function YearlyJumpsHistogram(props: {
     );
 }
 
-async function renderStatistics(c: AppRequestContext) {
-    const app = getAppContext(c);
-    const user = app.getUser();
-    const userUuid = user.uuid;
-    const startOfCurrentYear = getStartOfCurrentYear();
-    const startOfCurrentMonth = getStartOfCurrentMonth();
-    const startOfPreviousMonth = getStartOfPreviousMonth();
-    const twelveMonthsAgo = getTwelveMonthsAgo();
-    const insufficientDataCondition = or(
+function insufficientJumpDataCondition() {
+    return or(
         isNull(jumps.freefallTime),
-        eq(jumps.freefallTime, 0),
+        and(
+            eq(jumps.freefallTime, 0),
+            sql`${jumps.exitAltitude} != ${jumps.openingAltitude}`,
+        ),
         sql`${jumps.freefallTime} = ''`,
         isNull(jumps.exitAltitude),
         eq(jumps.exitAltitude, 0),
@@ -262,6 +258,17 @@ async function renderStatistics(c: AppRequestContext) {
             where ${jumpsToJumpTypes.jumpUuid} = ${jumps.uuid}
         )`,
     );
+}
+
+async function renderStatistics(c: AppRequestContext) {
+    const app = getAppContext(c);
+    const user = app.getUser();
+    const userUuid = user.uuid;
+    const startOfCurrentYear = getStartOfCurrentYear();
+    const startOfCurrentMonth = getStartOfCurrentMonth();
+    const startOfPreviousMonth = getStartOfPreviousMonth();
+    const twelveMonthsAgo = getTwelveMonthsAgo();
+    const insufficientDataCondition = insufficientJumpDataCondition();
     const [[stats], yearlyRows, jumpNumberRows, insufficientDataJumps] =
         await Promise.all([
             app.db
