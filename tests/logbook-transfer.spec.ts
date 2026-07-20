@@ -287,6 +287,43 @@ test("a CSV jump can omit optional measurements and jump items", async ({
     );
 });
 
+test("a CSV jump can use zero for optional measurements", async ({ page }) => {
+    await registerUser(page, "zero-measurements-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "zero-measurements.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(
+            [
+                CSV_HEADER,
+                csvJumpRow({
+                    jumpNumber: 3,
+                    exitAltitude: 0,
+                    openingAltitude: 0,
+                    freefallTime: 0,
+                }),
+            ].join("\n") + "\n",
+        ),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await expect(page.getByText("Imported 1 jump")).toBeVisible();
+    await expect(
+        page.getByText("Exit altitude cannot be negative"),
+    ).toHaveCount(0);
+    await expect(page.getByText("Exit altitude must be positive")).toHaveCount(
+        0,
+    );
+
+    await page
+        .getByRole("link", { name: /zero-measurements-skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: /#3/ }).click();
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="openingAltitude"]')).toHaveValue("");
+    await expect(page.locator('input[name="freefallTime"]')).toHaveValue("");
+});
+
 test("an exported logbook file preserves jumps and jump items when imported", async ({
     page,
 }) => {

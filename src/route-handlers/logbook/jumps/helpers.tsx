@@ -90,7 +90,7 @@ const JumpSchema = z.object({
         z.coerce
             .number()
             .int("Exit altitude must be a whole number")
-            .positive("Exit altitude must be positive")
+            .min(0, "Exit altitude cannot be negative")
             .optional()
             .default(0),
     ),
