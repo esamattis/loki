@@ -50,7 +50,7 @@ export function JumpNumberError(props: {
                     <div className="mt-2">
                         <Select
                             name="jumpNumberConflict"
-                            label="Existing jump number"
+                            label="How to handle this"
                         >
                             <option
                                 value=""
