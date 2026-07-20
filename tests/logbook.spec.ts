@@ -236,7 +236,9 @@ test("a skydiver can register and record their first jump", async ({
     await expect(
         page.getByRole("heading", { name: "1 Jumps", level: 1 }),
     ).toBeVisible();
-    const firstJump = page.getByRole("link", { name: /#1/ });
+    const firstJump = page
+        .getByRole("listitem")
+        .filter({ has: page.getByRole("link", { name: /#1/ }) });
     await expect(firstJump).toContainText("Skydive Test Center");
     await expect(firstJump).toContainText("Cessna 182, OH-DZF");
     await expect(firstJump).toContainText("Gear: Main canopy");
@@ -255,17 +257,9 @@ test("a skydiver can register and record their first jump", async ({
     await expect(page.getByText("First test jump")).toBeVisible();
     await expect(page.getByText(/4\s000 m/, { exact: true })).toBeVisible();
     await expect(page.getByText(/1\s000 m/, { exact: true })).toBeVisible();
-    await expect(
-        page
-            .getByRole("link", { name: /#1/ })
-            .getByText("55s", { exact: true }),
-    ).toBeVisible();
-    await expect(
-        page.getByRole("link", { name: /#1/ }).getByText("Freefly"),
-    ).toBeVisible();
-    await expect(
-        page.getByRole("link", { name: /#1/ }).getByText("Tracking"),
-    ).toBeVisible();
+    await expect(firstJump.getByText("55s", { exact: true })).toBeVisible();
+    await expect(firstJump.getByText("Freefly")).toBeVisible();
+    await expect(firstJump.getByText("Tracking")).toBeVisible();
 
     await page.getByText("Filters", { exact: true }).click();
     await page.getByRole("textbox", { name: "Start date" }).fill("2024-06-15");
