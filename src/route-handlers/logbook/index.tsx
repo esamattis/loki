@@ -36,11 +36,14 @@ import {
     appendLogbookFilterParams,
     buildLogbookUrl,
     isDefaultLogbookSort,
+    jumpAnchorId,
     JumpSearch,
     logbookSortParam,
 } from "@/route-handlers/logbook/components/search";
 import { JumpItemSelect } from "@/components/jump-item-select";
 import { DateInput } from "@/components/date-input";
+import { Script } from "@/components/script";
+import { $select } from "@/utils";
 
 interface LogbookResource {
     uuid: string;
@@ -185,6 +188,7 @@ function JumpFilters(props: {
                             ? String(props.filters.around)
                             : ""
                     }
+                    tooltip={`Show ${AROUND_JUMP_WINDOW} jumps before and after this jump number`}
                 />
                 <JumpItemSelect
                     label="Locations"
@@ -682,7 +686,43 @@ export function JumpList(props: {
                     Loading more jumps...
                 </li>
             )}
+            {aroundActive && (
+                <li className="col-span-full py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                    <a
+                        href={buildLogbookUrl(props.filters, { around: null })}
+                        className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                    >
+                        Clear around filter
+                    </a>
+                    {" to load more jumps"}
+                </li>
+            )}
         </>
+    );
+}
+
+function ScrollToAroundJump(props: { around: number }) {
+    const anchorId = jumpAnchorId(props.around);
+    return (
+        <Script
+            $deps={[$select]}
+            $args={[anchorId]}
+            $exec={(anchorId) => {
+                const target = $select.idOrNull(anchorId, HTMLElement);
+                if (!target) {
+                    return;
+                }
+                const hash = `#${anchorId}`;
+                if (window.location.hash !== hash) {
+                    history.replaceState(
+                        null,
+                        "",
+                        `${window.location.pathname}${window.location.search}${hash}`,
+                    );
+                }
+                target.scrollIntoView();
+            }}
+        />
     );
 }
 
@@ -780,6 +820,9 @@ async function renderLogbook(c: AppRequestContext) {
                     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <JumpList jumps={jumpCards} filters={filters} />
                     </ul>
+                )}
+                {filters.around !== null && (
+                    <ScrollToAroundJump around={filters.around} />
                 )}
             </section>
         </LogbookPage>,

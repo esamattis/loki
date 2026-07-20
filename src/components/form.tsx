@@ -191,12 +191,17 @@ export function NumberInput(props: {
     className?: string;
     inputClassName?: string;
     persist?: string;
+    tooltip?: string;
 }) {
     const generatedId = useId();
     const id = props.id ?? generatedId;
     return (
         <label className={clsx(labelClassName, props.className)}>
-            {props.label}
+            {props.tooltip ? (
+                <span data-loki-tooltip={props.tooltip}>{props.label}</span>
+            ) : (
+                props.label
+            )}
             <input
                 id={id}
                 name={props.name}
