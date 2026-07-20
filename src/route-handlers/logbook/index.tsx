@@ -810,6 +810,16 @@ async function renderLogbook(c: AppRequestContext) {
                     )
                 ) : (
                     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {offset > 0 && (
+                            <li className="col-span-full text-center text-sm">
+                                <a
+                                    href={buildLogbookUrl(filters)}
+                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                >
+                                    Show jumps from the start
+                                </a>
+                            </li>
+                        )}
                         <JumpList
                             jumps={jumpCards}
                             filters={filters}
