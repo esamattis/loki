@@ -76,3 +76,19 @@ case ":${PATH}:" in
         log "Note: ${INSTALL_DIR} is not in your PATH. Add it to run loki from any directory."
         ;;
 esac
+
+if [[ ! -t 0 ]]; then
+    exit 0
+fi
+
+printf 'Start Loki now? [Y/n] '
+read -r reply || reply=n
+case "${reply}" in
+    "" | y | Y | yes | YES)
+        log "Starting ${dest}..."
+        exec "${dest}"
+        ;;
+    *)
+        log "Skipped. Run ${dest} when ready."
+        ;;
+esac
