@@ -191,10 +191,78 @@ export function JumpSort(props: { filters: LogbookFilters }) {
     );
 }
 
+function $initJumpSearch(
+    goToJumpId: string,
+    searchInputId: string,
+    clearSearchId: string,
+) {
+    const button = $select.id(goToJumpId, HTMLButtonElement);
+    const searchInput = $select.id(searchInputId, HTMLInputElement);
+    const clearSearch = $select.id(clearSearchId, HTMLAnchorElement);
+    function syncClearSearch() {
+        clearSearch.hidden = searchInput.value === "";
+    }
+    function searchUrlNeedsClear() {
+        const url = new URL(window.location.href);
+        return (
+            url.searchParams.has("search") ||
+            url.searchParams.has("offset") ||
+            url.searchParams.has("goto") ||
+            /^#jump-\d+$/.test(url.hash)
+        );
+    }
+    if (searchInput.value === "") {
+        const match = /^#jump-(\d+)$/.exec(window.location.hash);
+        if (match?.[1]) {
+            searchInput.value = match[1];
+        }
+    }
+    syncClearSearch();
+    searchInput.addEventListener("input", syncClearSearch);
+    clearSearch.addEventListener("click", (event) => {
+        if (searchUrlNeedsClear()) {
+            return;
+        }
+        event.preventDefault();
+        searchInput.value = "";
+        syncClearSearch();
+        searchInput.focus();
+    });
+    button.addEventListener("click", () => {
+        const form = button.form;
+        if (!form) {
+            return;
+        }
+        const value = searchInput.value.trim();
+        if (!/^\d+$/.test(value) || Number(value) < 1) {
+            searchInput.focus();
+            return;
+        }
+        const url = new URL(form.action, window.location.origin);
+        const formData = new FormData(form);
+        for (const [name, fieldValue] of formData) {
+            if (
+                name === "search" ||
+                name === "goto" ||
+                name === "offset" ||
+                typeof fieldValue !== "string"
+            ) {
+                continue;
+            }
+            url.searchParams.append(name, fieldValue);
+        }
+        url.searchParams.set("goto", value);
+        url.hash = `jump-${value}`;
+        window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+    });
+}
+
 export function JumpSearch(props: { filters: LogbookFilters }) {
     const hasSearch = props.filters.search !== "";
     const goToJumpId = useId();
     const searchInputId = useId();
+    const clearSearchId = useId();
+    const clearSearchHref = buildLogbookUrl(props.filters, { search: "" });
     const goToJumpTooltip =
         "Go to jump number · open the page that contains it";
     return (
@@ -227,17 +295,15 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                             "h-10 rounded-r-none pr-9 text-sm focus:ring-indigo-500/40 [&::-webkit-search-cancel-button]:appearance-none",
                         )}
                     />
-                    {hasSearch && (
-                        <a
-                            href={buildLogbookUrl(props.filters, {
-                                search: "",
-                            })}
-                            aria-label="Clear search"
-                            className="absolute right-2.5 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                        >
-                            <CloseIcon className="h-4 w-4" />
-                        </a>
-                    )}
+                    <a
+                        id={clearSearchId}
+                        href={clearSearchHref}
+                        aria-label="Clear search"
+                        hidden={!hasSearch}
+                        className="absolute right-2.5 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                    >
+                        <CloseIcon className="h-4 w-4" />
+                    </a>
                 </div>
                 <Button
                     id={goToJumpId}
@@ -258,57 +324,8 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                 </Button>
                 <Script
                     $deps={[$select]}
-                    $args={[goToJumpId, searchInputId]}
-                    $exec={(goToJumpId, searchInputId) => {
-                        const button = $select.id(
-                            goToJumpId,
-                            HTMLButtonElement,
-                        );
-                        const searchInput = $select.id(
-                            searchInputId,
-                            HTMLInputElement,
-                        );
-                        if (searchInput.value === "") {
-                            const match = /^#jump-(\d+)$/.exec(
-                                window.location.hash,
-                            );
-                            if (match?.[1]) {
-                                searchInput.value = match[1];
-                            }
-                        }
-                        button.addEventListener("click", () => {
-                            const form = button.form;
-                            if (!form) {
-                                return;
-                            }
-                            const value = searchInput.value.trim();
-                            if (!/^\d+$/.test(value) || Number(value) < 1) {
-                                searchInput.focus();
-                                return;
-                            }
-                            const url = new URL(
-                                form.action,
-                                window.location.origin,
-                            );
-                            const formData = new FormData(form);
-                            for (const [name, fieldValue] of formData) {
-                                if (
-                                    name === "search" ||
-                                    name === "goto" ||
-                                    name === "offset" ||
-                                    typeof fieldValue !== "string"
-                                ) {
-                                    continue;
-                                }
-                                url.searchParams.append(name, fieldValue);
-                            }
-                            url.searchParams.set("goto", value);
-                            url.hash = `jump-${value}`;
-                            window.location.assign(
-                                `${url.pathname}${url.search}${url.hash}`,
-                            );
-                        });
-                    }}
+                    $args={[goToJumpId, searchInputId, clearSearchId]}
+                    $exec={$initJumpSearch}
                 />
             </form>
             <JumpSort filters={props.filters} />

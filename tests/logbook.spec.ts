@@ -97,6 +97,18 @@ test("the log book loads additional jumps while scrolling", async ({
     await expect(
         page.getByRole("button", { name: "Search", exact: true }),
     ).toHaveAttribute("data-loki-tooltip", "Search · default action on Enter");
+    await page.getByRole("link", { name: "Clear search" }).click();
+    await expect(page).not.toHaveURL(/search=/);
+    await expect(searchInput).toHaveValue("");
+
+    await searchInput.fill("1");
+    await page.getByRole("button", { name: "Go to jump number" }).click();
+    await expectLogbookAroundJump(page, 1);
+    await expect(searchInput).toHaveValue("1");
+    await page.getByRole("link", { name: "Clear search" }).click();
+    await expect(page).not.toHaveURL(/[?&](search|offset|goto)=/);
+    await expect(page).not.toHaveURL(/#jump-/);
+    await expect(searchInput).toHaveValue("");
 });
 
 test("truncated jump notes can be fully shown", async ({ page }) => {
