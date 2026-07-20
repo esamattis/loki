@@ -1,11 +1,19 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
 import { Button, controlClassName } from "@/components/form";
-import { CloseIcon, SearchIcon, SortIcon } from "@/components/icons";
+import {
+    CloseIcon,
+    GoToJumpIcon,
+    SearchIcon,
+    SortIcon,
+} from "@/components/icons";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
 import type { LogbookFilters } from "@/route-handlers/logbook/index";
 import { $select } from "@/utils";
+
+/** Jumps to load before the target when seeking to a jump number. */
+export const JUMP_SEEK_BEFORE = 20;
 
 const SORT_OPTIONS = [
     {
@@ -37,7 +45,7 @@ export function isDefaultLogbookSort(filters: LogbookFilters): boolean {
 export function appendLogbookFilterParams(
     query: URLSearchParams,
     filters: LogbookFilters,
-    overrides: { search?: string; around?: number | null } = {},
+    overrides: { search?: string } = {},
 ): void {
     for (const uuid of filters.locationUuids) {
         query.append("locationUuids", uuid);
@@ -58,11 +66,6 @@ export function appendLogbookFilterParams(
     if (search) {
         query.set("search", search);
     }
-    const around =
-        overrides.around !== undefined ? overrides.around : filters.around;
-    if (around !== null) {
-        query.set("around", String(around));
-    }
     if (!isDefaultLogbookSort(filters)) {
         query.set("sort", logbookSortParam(filters));
     }
@@ -70,10 +73,14 @@ export function appendLogbookFilterParams(
 
 export function buildLogbookUrl(
     filters: LogbookFilters,
-    overrides: { search?: string; around?: number | null } = {},
+    overrides: { search?: string; offset?: number } = {},
 ): string {
     const query = new URLSearchParams();
     appendLogbookFilterParams(query, filters, overrides);
+    const offset = overrides.offset ?? 0;
+    if (offset > 0) {
+        query.set("offset", String(offset));
+    }
     const queryString = query.toString();
     return `${routes.logbook.index({})}${queryString ? `?${queryString}` : ""}`;
 }
@@ -82,18 +89,10 @@ export function jumpAnchorId(jumpNumber: number): string {
     return `jump-${jumpNumber}`;
 }
 
-export function buildLogbookAroundJumpUrl(jumpNumber: number): string {
-    return `${buildLogbookUrl({
-        locationUuids: [],
-        gearUuids: [],
-        jumpTypeUuids: [],
-        start: "",
-        end: "",
-        search: "",
-        around: jumpNumber,
-        sortBy: "jumpNumber",
-        sortOrder: "desc",
-    })}#${jumpAnchorId(jumpNumber)}`;
+export function buildLogbookGoToJumpUrl(jumpNumber: number): string {
+    const query = new URLSearchParams();
+    query.set("goto", String(jumpNumber));
+    return `${routes.logbook.index({})}?${query.toString()}#${jumpAnchorId(jumpNumber)}`;
 }
 
 function FilterResourceHiddenFields(props: { filters: LogbookFilters }) {
@@ -128,13 +127,6 @@ function FilterResourceHiddenFields(props: { filters: LogbookFilters }) {
             )}
             {props.filters.end && (
                 <input type="hidden" name="end" value={props.filters.end} />
-            )}
-            {props.filters.around !== null && (
-                <input
-                    type="hidden"
-                    name="around"
-                    value={String(props.filters.around)}
-                />
             )}
         </>
     );
@@ -201,6 +193,10 @@ export function JumpSort(props: { filters: LogbookFilters }) {
 
 export function JumpSearch(props: { filters: LogbookFilters }) {
     const hasSearch = props.filters.search !== "";
+    const goToJumpId = useId();
+    const searchInputId = useId();
+    const goToJumpTooltip =
+        "Go to jump number · open the page that contains it";
     return (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <form
@@ -219,10 +215,11 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                 )}
                 <div className="relative grow">
                     <input
+                        id={searchInputId}
                         type="search"
                         name="search"
                         value={props.filters.search}
-                        placeholder="Search jumps..."
+                        placeholder="Search terms or jump number"
                         aria-label="Search jumps"
                         maxLength={200}
                         className={clsx(
@@ -243,12 +240,67 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                     )}
                 </div>
                 <Button
+                    id={goToJumpId}
+                    type="button"
+                    aria-label="Go to jump number"
+                    data-loki-tooltip={goToJumpTooltip}
+                    className="-ml-px h-10 rounded-none px-3"
+                >
+                    <GoToJumpIcon className="h-4 w-4" />
+                </Button>
+                <Button
                     type="submit"
                     aria-label="Search"
-                    className="-ml-px h-10 rounded-l-none px-3"
+                    className="h-10 rounded-l-none border-l border-indigo-400 px-3 dark:border-indigo-300/50"
                 >
                     <SearchIcon className="h-4 w-4" />
                 </Button>
+                <Script
+                    $deps={[$select]}
+                    $args={[goToJumpId, searchInputId]}
+                    $exec={(goToJumpId, searchInputId) => {
+                        const button = $select.id(
+                            goToJumpId,
+                            HTMLButtonElement,
+                        );
+                        const searchInput = $select.id(
+                            searchInputId,
+                            HTMLInputElement,
+                        );
+                        button.addEventListener("click", () => {
+                            const form = button.form;
+                            if (!form) {
+                                return;
+                            }
+                            const value = searchInput.value.trim();
+                            if (!/^\d+$/.test(value) || Number(value) < 1) {
+                                searchInput.focus();
+                                return;
+                            }
+                            const url = new URL(
+                                form.action,
+                                window.location.origin,
+                            );
+                            const formData = new FormData(form);
+                            for (const [name, fieldValue] of formData) {
+                                if (
+                                    name === "search" ||
+                                    name === "goto" ||
+                                    name === "offset" ||
+                                    typeof fieldValue !== "string"
+                                ) {
+                                    continue;
+                                }
+                                url.searchParams.append(name, fieldValue);
+                            }
+                            url.searchParams.set("goto", value);
+                            url.hash = `jump-${value}`;
+                            window.location.assign(
+                                `${url.pathname}${url.search}${url.hash}`,
+                            );
+                        });
+                    }}
+                />
             </form>
             <JumpSort filters={props.filters} />
         </div>

@@ -23,7 +23,7 @@ import {
     jumpsToJumpTypes,
     locations,
 } from "@/schema";
-import { Button, NumberInput } from "@/components/form";
+import { Button } from "@/components/form";
 import { Details } from "@/components/ui/details";
 import { LogbookPage } from "@/app/logbook-page";
 import {
@@ -33,6 +33,7 @@ import {
 } from "@/route-handlers/logbook/components/jump-list";
 import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
 import {
+    JUMP_SEEK_BEFORE,
     appendLogbookFilterParams,
     buildLogbookUrl,
     isDefaultLogbookSort,
@@ -62,13 +63,11 @@ export interface LogbookFilters {
     start: string;
     end: string;
     search: string;
-    around: number | null;
     sortBy: LogbookSortBy;
     sortOrder: LogbookSortOrder;
 }
 
 const JUMPS_PER_PAGE = 24;
-export const AROUND_JUMP_WINDOW = 20;
 
 function getLogbookJumpsUrl(filters: LogbookFilters, offset?: number): string {
     const query = new URLSearchParams();
@@ -137,8 +136,7 @@ function JumpFilters(props: {
         selectedGear.size > 0 ||
         selectedJumpTypes.size > 0 ||
         props.filters.start !== "" ||
-        props.filters.end !== "" ||
-        props.filters.around !== null;
+        props.filters.end !== "";
 
     return (
         <Details
@@ -178,18 +176,6 @@ function JumpFilters(props: {
                         value={props.filters.end}
                     />
                 </div>
-                <NumberInput
-                    label="Around jump #"
-                    name="around"
-                    min="1"
-                    step="1"
-                    value={
-                        props.filters.around !== null
-                            ? String(props.filters.around)
-                            : ""
-                    }
-                    tooltip={`Show ${AROUND_JUMP_WINDOW} jumps before and after this jump number`}
-                />
                 <JumpItemSelect
                     label="Locations"
                     dialogTitle="Select locations"
@@ -303,12 +289,20 @@ export async function getLogbookFilterResources(c: AppRequestContext) {
     };
 }
 
-function parseAroundJump(value: string | null): number | null {
+function parsePositiveInt(value: string | null): number | null {
     if (value === null || !/^\d+$/.test(value)) {
         return null;
     }
-    const around = Number(value);
-    return Number.isSafeInteger(around) && around >= 1 ? around : null;
+    const parsed = Number(value);
+    return Number.isSafeInteger(parsed) && parsed >= 1 ? parsed : null;
+}
+
+function parseOffset(value: string | null): number {
+    if (value === null || !/^\d+$/.test(value)) {
+        return 0;
+    }
+    const offset = Number(value);
+    return Number.isSafeInteger(offset) && offset > 0 ? offset : 0;
 }
 
 export function getLogbookFilters(
@@ -340,7 +334,6 @@ export function getLogbookFilters(
         start: getDate("start"),
         end: getDate("end"),
         search,
-        around: parseAroundJump(query.get("around")),
         sortBy,
         sortOrder,
     };
@@ -428,55 +421,91 @@ const logbookJumpSelect = {
     locationDescription: locations.description,
 };
 
-function sortLogbookJumps<T extends { jumpNumber: number; createdAt: number }>(
-    rows: T[],
+function jumpsBeforeSeekCondition(
     filters: LogbookFilters,
-): T[] {
-    const direction = filters.sortOrder === "asc" ? 1 : -1;
-    return [...rows].sort((a, b) => {
-        if (filters.sortBy === "createdAt") {
-            if (a.createdAt !== b.createdAt) {
-                return (a.createdAt - b.createdAt) * direction;
-            }
-            return (a.jumpNumber - b.jumpNumber) * direction;
+    jumpNumber: number,
+    anchor: { jumpNumber: number; createdAt: number } | undefined,
+) {
+    const descending = filters.sortOrder === "desc";
+    if (!anchor) {
+        if (filters.sortBy !== "jumpNumber") {
+            return null;
         }
-        if (a.jumpNumber !== b.jumpNumber) {
-            return (a.jumpNumber - b.jumpNumber) * direction;
+        if (descending) {
+            return gt(jumps.jumpNumber, jumpNumber);
         }
-        return (a.createdAt - b.createdAt) * direction;
-    });
+        return lt(jumps.jumpNumber, jumpNumber);
+    }
+    if (filters.sortBy === "createdAt") {
+        if (descending) {
+            return or(
+                gt(jumps.createdAt, anchor.createdAt),
+                and(
+                    eq(jumps.createdAt, anchor.createdAt),
+                    gt(jumps.jumpNumber, anchor.jumpNumber),
+                ),
+            );
+        }
+        return or(
+            lt(jumps.createdAt, anchor.createdAt),
+            and(
+                eq(jumps.createdAt, anchor.createdAt),
+                lt(jumps.jumpNumber, anchor.jumpNumber),
+            ),
+        );
+    }
+    if (descending) {
+        return or(
+            gt(jumps.jumpNumber, anchor.jumpNumber),
+            and(
+                eq(jumps.jumpNumber, anchor.jumpNumber),
+                gt(jumps.createdAt, anchor.createdAt),
+            ),
+        );
+    }
+    return or(
+        lt(jumps.jumpNumber, anchor.jumpNumber),
+        and(
+            eq(jumps.jumpNumber, anchor.jumpNumber),
+            lt(jumps.createdAt, anchor.createdAt),
+        ),
+    );
 }
 
-async function getLogbookJumpsAround(
+async function countJumpsBeforeSeek(
     c: AppRequestContext,
     filters: LogbookFilters,
-    around: number,
-) {
+    jumpNumber: number,
+): Promise<number> {
     const db = getAppContext(c).db;
     const conditions = getLogbookJumpConditions(c, filters);
-    const baseQuery = () =>
-        db
-            .select(logbookJumpSelect)
-            .from(jumps)
-            .leftJoin(locations, eq(jumps.locationUuid, locations.uuid));
-    const [beforeRows, anchorRows, afterRows] = await Promise.all([
-        baseQuery()
-            .where(and(...conditions, lt(jumps.jumpNumber, around)))
-            .orderBy(desc(jumps.jumpNumber), desc(jumps.createdAt))
-            .limit(AROUND_JUMP_WINDOW),
-        baseQuery()
-            .where(and(...conditions, eq(jumps.jumpNumber, around)))
-            .limit(1),
-        baseQuery()
-            .where(and(...conditions, gt(jumps.jumpNumber, around)))
-            .orderBy(asc(jumps.jumpNumber), asc(jumps.createdAt))
-            .limit(AROUND_JUMP_WINDOW),
-    ]);
-    const byUuid = new Map<string, (typeof beforeRows)[number]>();
-    for (const row of [...beforeRows, ...anchorRows, ...afterRows]) {
-        byUuid.set(row.uuid, row);
+    const orderFn = filters.sortOrder === "asc" ? asc : desc;
+    const primaryOrder =
+        filters.sortBy === "createdAt" ? jumps.createdAt : jumps.jumpNumber;
+    const secondaryOrder =
+        filters.sortBy === "createdAt" ? jumps.jumpNumber : jumps.createdAt;
+    const [anchor] = await db
+        .select({
+            jumpNumber: jumps.jumpNumber,
+            createdAt: jumps.createdAt,
+        })
+        .from(jumps)
+        .where(and(...conditions, eq(jumps.jumpNumber, jumpNumber)))
+        .orderBy(orderFn(primaryOrder), orderFn(secondaryOrder))
+        .limit(1);
+    const beforeCondition = jumpsBeforeSeekCondition(
+        filters,
+        jumpNumber,
+        anchor,
+    );
+    if (!beforeCondition) {
+        return 0;
     }
-    return sortLogbookJumps([...byUuid.values()], filters);
+    const [row] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(jumps)
+        .where(and(...conditions, beforeCondition));
+    return Number(row?.count ?? 0);
 }
 
 export async function getLogbookJumps(
@@ -484,9 +513,6 @@ export async function getLogbookJumps(
     filters: LogbookFilters,
     offset = 0,
 ) {
-    if (filters.around !== null) {
-        return getLogbookJumpsAround(c, filters, filters.around);
-    }
     const db = getAppContext(c).db;
     const searchedJumpNumber = /^\d+$/.test(filters.search)
         ? Number(filters.search)
@@ -604,11 +630,8 @@ export function JumpList(props: {
     offset?: number;
 }) {
     const offset = props.offset ?? 0;
-    const aroundActive = props.filters.around !== null;
-    const hasMoreJumps = !aroundActive && props.jumps.length > JUMPS_PER_PAGE;
-    const visibleJumps = aroundActive
-        ? props.jumps
-        : props.jumps.slice(0, JUMPS_PER_PAGE);
+    const hasMoreJumps = props.jumps.length > JUMPS_PER_PAGE;
+    const visibleJumps = props.jumps.slice(0, JUMPS_PER_PAGE);
     const showGaps =
         props.filters.sortBy === "jumpNumber" &&
         props.filters.locationUuids.length === 0 &&
@@ -618,19 +641,12 @@ export function JumpList(props: {
         props.filters.end === "" &&
         props.filters.search === "";
     const jumpNumberDescending = props.filters.sortOrder === "desc";
-    const aroundJumpNumber = props.filters.around;
 
     return (
         <>
             {visibleJumps.flatMap((jump, index) => {
-                const cards = [
-                    <JumpCard
-                        {...jump}
-                        key={jump.uuid}
-                        highlight={jump.jumpNumber === aroundJumpNumber}
-                    />,
-                ];
-                const nextJump = props.jumps[index + 1];
+                const cards = [<JumpCard {...jump} key={jump.uuid} />];
+                const nextJump = visibleJumps[index + 1];
                 if (!showGaps || !nextJump) {
                     return cards;
                 }
@@ -686,39 +702,22 @@ export function JumpList(props: {
                     Loading more jumps...
                 </li>
             )}
-            {aroundActive && (
-                <li className="col-span-full py-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                    <a
-                        href={buildLogbookUrl(props.filters, { around: null })}
-                        className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                    >
-                        Clear around filter
-                    </a>
-                    {" to load more jumps"}
-                </li>
-            )}
         </>
     );
 }
 
-function ScrollToAroundJump(props: { around: number }) {
-    const anchorId = jumpAnchorId(props.around);
+function ScrollToJumpHash() {
     return (
         <Script
             $deps={[$select]}
-            $args={[anchorId]}
-            $exec={(anchorId) => {
-                const target = $select.idOrNull(anchorId, HTMLElement);
-                if (!target) {
+            $exec={() => {
+                const hash = window.location.hash;
+                if (!hash.startsWith("#jump-")) {
                     return;
                 }
-                const hash = `#${anchorId}`;
-                if (window.location.hash !== hash) {
-                    history.replaceState(
-                        null,
-                        "",
-                        `${window.location.pathname}${window.location.search}${hash}`,
-                    );
+                const target = $select.idOrNull(hash.slice(1), HTMLElement);
+                if (!target) {
+                    return;
                 }
                 target.scrollIntoView();
             }}
@@ -732,8 +731,18 @@ async function renderLogbook(c: AppRequestContext) {
     const options = user.options;
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
+    const query = new URL(c.req.url).searchParams;
+    const gotoJump = parsePositiveInt(query.get("goto"));
+    if (gotoJump !== null) {
+        const beforeCount = await countJumpsBeforeSeek(c, filters, gotoJump);
+        const offset = Math.max(0, beforeCount - JUMP_SEEK_BEFORE);
+        return c.redirect(
+            `${buildLogbookUrl(filters, { offset })}#${jumpAnchorId(gotoJump)}`,
+        );
+    }
+    const offset = parseOffset(query.get("offset"));
     const [jumpRows, [jumpNumberRow]] = await Promise.all([
-        getLogbookJumps(c, filters),
+        getLogbookJumps(c, filters, offset),
         appContext.db
             .select({
                 maxJumpNumber: sql<number | null>`max(${jumps.jumpNumber})`,
@@ -763,7 +772,6 @@ async function renderLogbook(c: AppRequestContext) {
         filters.start !== "" ||
         filters.end !== "" ||
         filters.search !== "" ||
-        filters.around !== null ||
         !isDefaultLogbookSort(filters);
 
     return c.render(
@@ -818,12 +826,14 @@ async function renderLogbook(c: AppRequestContext) {
                     )
                 ) : (
                     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <JumpList jumps={jumpCards} filters={filters} />
+                        <JumpList
+                            jumps={jumpCards}
+                            filters={filters}
+                            offset={offset}
+                        />
                     </ul>
                 )}
-                {filters.around !== null && (
-                    <ScrollToAroundJump around={filters.around} />
-                )}
+                <ScrollToJumpHash />
             </section>
         </LogbookPage>,
     );

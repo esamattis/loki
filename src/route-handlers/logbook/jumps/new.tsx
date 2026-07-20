@@ -21,7 +21,7 @@ import {
 } from "@/route-handlers/logbook/jumps/form";
 import { JumpNumberError } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
-import { buildLogbookAroundJumpUrl } from "@/route-handlers/logbook/components/search";
+import { buildLogbookGoToJumpUrl } from "@/route-handlers/logbook/components/search";
 import * as routes from "@/routes";
 import {
     jumps,
@@ -380,7 +380,7 @@ export async function handleNewJump(c: AppRequestContext) {
                 : writeQueries,
         );
     }
-    const redirectUrl = buildLogbookAroundJumpUrl(parsed.data.jumpNumber);
+    const redirectUrl = buildLogbookGoToJumpUrl(parsed.data.jumpNumber);
     if (sourceImageId) {
         return c.render(
             <JumpImageAssociationComplete

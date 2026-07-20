@@ -199,21 +199,15 @@ function ClampedDescription(props: { description: string; jumpUuid: string }) {
     );
 }
 
-export function JumpCard(
-    props: JumpListItem & {
-        highlight?: boolean;
-    },
-) {
+export function JumpCard(props: JumpListItem) {
     const formatDate = useDateFormatter();
     const weekday = formatShortWeekday(props.jumpDate);
     return (
         <li
             id={jumpAnchorId(props.jumpNumber)}
             className={clsx(
-                "scroll-mt-24 overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30",
-                props.highlight
-                    ? "border-indigo-400 ring-2 ring-indigo-300/70 dark:border-indigo-500 dark:ring-indigo-500/40"
-                    : "border-slate-200 dark:border-slate-800",
+                "scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30",
+                "target:border-indigo-400 target:ring-2 target:ring-indigo-300/70 dark:target:border-indigo-500 dark:target:ring-indigo-500/40",
             )}
         >
             <a

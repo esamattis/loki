@@ -285,6 +285,28 @@ export function SearchIcon(props: IconProps) {
     );
 }
 
+export function GoToJumpIcon(props: IconProps) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 3v3m0 12v3M3 12h3m12 0h3"
+            />
+            <circle cx="12" cy="12" r="3" />
+            <circle cx="12" cy="12" r="7" />
+        </svg>
+    );
+}
+
 export function CloseIcon(props: IconProps) {
     return (
         <svg

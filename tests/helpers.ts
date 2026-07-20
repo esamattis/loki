@@ -1,14 +1,11 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-export function logbookAroundJumpPath(jumpNumber: number): RegExp {
-    return new RegExp(`/logbook\\?around=${jumpNumber}(?:#.*)?$`);
-}
-
 export async function expectLogbookAroundJump(
     page: Page,
     jumpNumber: number,
 ): Promise<void> {
-    await expect(page).toHaveURL(logbookAroundJumpPath(jumpNumber));
+    await expect(page).toHaveURL(/\/logbook/);
+    await expect(page).not.toHaveURL(/[?&]goto=/);
     await expect(page.locator(`#jump-${jumpNumber}`)).toBeVisible();
 }
 

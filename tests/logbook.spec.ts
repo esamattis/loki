@@ -274,7 +274,6 @@ test("a skydiver can register and record their first jump", async ({
     await expect(page).toHaveURL(/\/logbook\?.*jumpTypeUuids=/);
     await expect(page).toHaveURL(/start=2024-06-15/);
     await expect(page).toHaveURL(/end=2024-06-15/);
-    await expect(page).toHaveURL(/around=1/);
     await expect(page.getByRole("link", { name: /#1/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /#2/ })).toHaveCount(0);
 
