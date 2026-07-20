@@ -12,7 +12,7 @@ import {
     missingJumpNumberConflictError,
     parseAndResolveJumpForm,
     parseJumpNumberConflictAction,
-    shiftJumpNumbersFrom,
+    shiftJumpNumberQueries,
     type JumpWriteLinks,
     type JumpWriteValues,
 } from "@/route-handlers/logbook/jumps/helpers";
@@ -127,17 +127,22 @@ async function saveEditedJump(
             />,
         );
     }
-    if (options.shiftConflict) {
-        await shiftJumpNumbersFrom(c, options.jumpValues.jumpNumber);
-    }
-    await db.batch([
+    const writeQueries = [
         db
             .update(jumps)
             .set(options.jumpValues)
             .where(eq(jumps.uuid, options.uuid)),
         ...jumpRelationDeletes(db, options.uuid),
         ...jumpRelationInserts(db, options.uuid, options.links),
-    ]);
+    ] as const;
+    await db.batch(
+        options.shiftConflict
+            ? [
+                  ...shiftJumpNumberQueries(c, options.jumpValues.jumpNumber),
+                  ...writeQueries,
+              ]
+            : writeQueries,
+    );
     return c.render(
         <JumpImageAssociationComplete
             change={{

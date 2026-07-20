@@ -12,7 +12,7 @@ import {
     missingJumpNumberConflictError,
     parseAndResolveJumpForm,
     parseJumpNumberConflictAction,
-    shiftJumpNumbersFrom,
+    shiftJumpNumberQueries,
 } from "@/route-handlers/logbook/jumps/helpers";
 import {
     getToday,
@@ -361,18 +361,23 @@ export async function handleNewJump(c: AppRequestContext) {
             ...jumpRelationInserts(db, jumpUuid, links),
         ]);
     } else {
-        if (existingJump && conflictAction === JUMP_NUMBER_CONFLICT_SHIFT) {
-            await shiftJumpNumbersFrom(c, parsed.data.jumpNumber);
-        }
         jumpUuid = crypto.randomUUID();
-        await db.batch([
+        const writeQueries = [
             db.insert(jumps).values({
                 uuid: jumpUuid,
                 userUuid,
                 ...jumpValues,
             }),
             ...jumpRelationInserts(db, jumpUuid, links),
-        ]);
+        ] as const;
+        await db.batch(
+            existingJump && conflictAction === JUMP_NUMBER_CONFLICT_SHIFT
+                ? [
+                      ...shiftJumpNumberQueries(c, parsed.data.jumpNumber),
+                      ...writeQueries,
+                  ]
+                : writeQueries,
+        );
     }
     if (sourceImageId) {
         return c.render(

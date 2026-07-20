@@ -38,13 +38,13 @@ export function missingJumpNumberConflictError() {
     return "Choose how to handle the existing jump number";
 }
 
-export async function shiftJumpNumbersFrom(
+export function shiftJumpNumberQueries(
     c: AppRequestContext,
     fromJumpNumber: number,
 ) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    await db.batch([
+    return [
         db
             .update(jumps)
             .set({ jumpNumber: sql`-${jumps.jumpNumber}` })
@@ -63,7 +63,7 @@ export async function shiftJumpNumbersFrom(
                     lte(jumps.jumpNumber, -fromJumpNumber),
                 ),
             ),
-    ]);
+    ] as const;
 }
 
 function isValidJumpDate(value: string): boolean {

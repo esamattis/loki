@@ -907,7 +907,9 @@ test("adding a jump with an existing jump number shows an overwrite warning and 
     await expect(page).toHaveURL("/logbook");
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
-    await page.locator('input[name="jumpNumber"]').fill("1");
+    const jumpNumber = page.locator('input[name="jumpNumber"]');
+    await jumpNumber.fill("2");
+    await jumpNumber.fill("1");
     await expect(page.getByText("Jump #1 already exists.")).toBeVisible();
     await expect(
         page.locator('select[name="jumpNumberConflict"]'),
