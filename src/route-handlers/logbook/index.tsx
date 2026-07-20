@@ -816,7 +816,7 @@ async function renderLogbook(c: AppRequestContext) {
                                     href={buildLogbookUrl(filters)}
                                     className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
                                 >
-                                    Show jumps from the start
+                                    Clear offset
                                 </a>
                             </li>
                         )}
