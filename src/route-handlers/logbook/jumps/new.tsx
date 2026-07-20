@@ -2,10 +2,17 @@ import { and, desc, eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { altitudeInputValue, altitudeToMeters } from "@/options";
 import {
-    existingJumpNumberOverwriteNotice,
     findJumpByNumber,
     getJumpFormResources,
+    getJumpNumberConflict,
+    JUMP_NUMBER_CONFLICT_REPLACE,
+    JUMP_NUMBER_CONFLICT_SHIFT,
+    jumpRelationDeletes,
+    jumpRelationInserts,
+    missingJumpNumberConflictError,
     parseAndResolveJumpForm,
+    parseJumpNumberConflictAction,
+    shiftJumpNumbersFrom,
 } from "@/route-handlers/logbook/jumps/helpers";
 import {
     getToday,
@@ -228,7 +235,9 @@ export async function renderNewJump(c: AppRequestContext) {
     if (hasImagePrefill) {
         values = applyJumpQueryPrefill(values, query);
     }
-    const jumpNumberError = await getJumpNumberError(c, query.jumpNumber);
+    const jumpNumberConflict = await getJumpNumberConflict(c, {
+        value: query.jumpNumber,
+    });
     return c.render(
         <JumpFormPage
             title="Add jump"
@@ -236,7 +245,7 @@ export async function renderNewJump(c: AppRequestContext) {
             confirmationTitle="Add Jump"
             values={values}
             nextJumpNumber={nextJumpNumber}
-            jumpNumberError={jumpNumberError}
+            jumpNumberConflict={jumpNumberConflict}
             resources={await getJumpFormResources(c)}
             sourceImageId={query.imageId}
             isImagePrefill={isImagePrefill}
@@ -250,27 +259,13 @@ export async function renderNewJump(c: AppRequestContext) {
     );
 }
 
-async function getJumpNumberError(
-    c: AppRequestContext,
-    value: string | undefined,
-) {
-    if (!value || !/^\d+$/.test(value)) {
-        return undefined;
-    }
-    const jumpNumber = Number(value);
-    if (!Number.isSafeInteger(jumpNumber) || jumpNumber < 1) {
-        return undefined;
-    }
-    const existingJump = await findJumpByNumber(c, jumpNumber);
-    return existingJump
-        ? existingJumpNumberOverwriteNotice(jumpNumber, existingJump.uuid)
-        : undefined;
-}
-
 export async function renderJumpNumberError(c: AppRequestContext) {
     const query = routes.logbook.jumps.jumpNumberError.query(c);
-    const error = await getJumpNumberError(c, query.jumpNumber);
-    return c.render(<JumpNumberError error={error} />);
+    const conflict = await getJumpNumberConflict(c, {
+        value: query.jumpNumber,
+        excludeUuid: query.excludeJumpUuid,
+    });
+    return c.render(<JumpNumberError conflict={conflict} />);
 }
 
 async function getNextJumpNumber(
@@ -294,6 +289,9 @@ export async function handleNewJump(c: AppRequestContext) {
         typeof sourceImageIdValue === "string" && sourceImageIdValue
             ? sourceImageIdValue
             : undefined;
+    const conflictAction = parseJumpNumberConflictAction(
+        formData.get("jumpNumberConflict"),
+    );
     const parsed = await parseAndResolveJumpForm(c, formData);
     const userUuid = getAppContext(c).getUser().uuid;
     if (!parsed.ok) {
@@ -305,6 +303,10 @@ export async function handleNewJump(c: AppRequestContext) {
                 errors={parsed.errors}
                 values={parsed.raw}
                 nextJumpNumber={await getNextJumpNumber(c, userUuid)}
+                jumpNumberConflict={await getJumpNumberConflict(c, {
+                    value: parsed.raw.jumpNumber,
+                    selected: conflictAction,
+                })}
                 resources={parsed.resources}
                 sourceImageId={sourceImageId}
                 isImagePrefill={Boolean(sourceImageId)}
@@ -313,8 +315,26 @@ export async function handleNewJump(c: AppRequestContext) {
     }
     const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
     const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
+    if (existingJump && !conflictAction) {
+        return c.render(
+            <JumpFormPage
+                title="Add jump"
+                submitLabel="Add jump"
+                confirmationTitle="Add Jump"
+                errors={[missingJumpNumberConflictError()]}
+                values={parsed.raw}
+                nextJumpNumber={await getNextJumpNumber(c, userUuid)}
+                jumpNumberConflict={{
+                    jumpNumber: parsed.data.jumpNumber,
+                    existingUuid: existingJump.uuid,
+                }}
+                resources={parsed.resources}
+                sourceImageId={sourceImageId}
+                isImagePrefill={Boolean(sourceImageId)}
+            />,
+        );
+    }
     const db = getAppContext(c).db;
-    const jumpUuid = existingJump?.uuid ?? crypto.randomUUID();
     const jumpValues = {
         locationUuid: parsed.resolved.locationUuid,
         jumpNumber: parsed.data.jumpNumber,
@@ -327,42 +347,31 @@ export async function handleNewJump(c: AppRequestContext) {
         freefallTime: parsed.data.freefallTime,
         description: parsed.data.description || null,
     };
-    if (existingJump) {
+    const links = {
+        aircraftUuids: parsed.resolved.aircraftUuids,
+        gearUuids: parsed.resolved.gearUuids,
+        jumpTypeUuids: parsed.resolved.jumpTypeUuids,
+    };
+    let jumpUuid: string;
+    if (existingJump && conflictAction === JUMP_NUMBER_CONFLICT_REPLACE) {
+        jumpUuid = existingJump.uuid;
         await db.batch([
             db.update(jumps).set(jumpValues).where(eq(jumps.uuid, jumpUuid)),
-            db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, jumpUuid)),
-            db
-                .delete(jumpsToAircrafts)
-                .where(eq(jumpsToAircrafts.jumpUuid, jumpUuid)),
-            db
-                .delete(jumpsToJumpTypes)
-                .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
-            ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
-                db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
-            ),
-            ...parsed.resolved.gearUuids.map((gearUuid) =>
-                db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
-            ),
-            ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
-                db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
-            ),
+            ...jumpRelationDeletes(db, jumpUuid),
+            ...jumpRelationInserts(db, jumpUuid, links),
         ]);
     } else {
+        if (existingJump && conflictAction === JUMP_NUMBER_CONFLICT_SHIFT) {
+            await shiftJumpNumbersFrom(c, parsed.data.jumpNumber);
+        }
+        jumpUuid = crypto.randomUUID();
         await db.batch([
             db.insert(jumps).values({
                 uuid: jumpUuid,
                 userUuid,
                 ...jumpValues,
             }),
-            ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
-                db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
-            ),
-            ...parsed.resolved.gearUuids.map((gearUuid) =>
-                db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
-            ),
-            ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
-                db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
-            ),
+            ...jumpRelationInserts(db, jumpUuid, links),
         ]);
     }
     if (sourceImageId) {

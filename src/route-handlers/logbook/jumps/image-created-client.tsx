@@ -13,11 +13,13 @@ import {
 } from "@/components/return-after-form-post";
 
 export function JumpImageAssociationComplete(props: {
-    change: ImageJumpAssociationChange;
+    change?: ImageJumpAssociationChange;
+    changes?: ImageJumpAssociationChange[];
     redirectUrl: string;
     returnAfterFormPost?: boolean;
 }) {
     const dbName = jumpImageDbName(useAppContext().getUser().uuid);
+    const changes = props.changes ?? (props.change ? [props.change] : []);
 
     return (
         <main className="mx-auto max-w-lg p-6 text-slate-700 dark:text-slate-200">
@@ -36,7 +38,7 @@ export function JumpImageAssociationComplete(props: {
                 ]}
                 $args={[
                     {
-                        change: props.change,
+                        changes,
                         redirectUrl: props.redirectUrl,
                         dbName,
                         returnAfterFormPost: props.returnAfterFormPost,
@@ -45,10 +47,12 @@ export function JumpImageAssociationComplete(props: {
                 ]}
                 $exec={async (config) => {
                     try {
-                        await $updateImageJumpAssociation(
-                            config.change,
-                            config.dbName,
-                        );
+                        for (const change of config.changes) {
+                            await $updateImageJumpAssociation(
+                                change,
+                                config.dbName,
+                            );
+                        }
                     } catch (error) {
                         console.error(
                             "Failed to update the source image association",

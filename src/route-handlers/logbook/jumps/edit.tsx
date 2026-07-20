@@ -2,10 +2,19 @@ import { and, eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { altitudeInputValue, altitudeToMeters } from "@/options";
 import {
-    duplicateJumpNumberError,
     findJumpByNumber,
     getJumpFormResources,
+    getJumpNumberConflict,
+    JUMP_NUMBER_CONFLICT_REPLACE,
+    JUMP_NUMBER_CONFLICT_SHIFT,
+    jumpRelationDeletes,
+    jumpRelationInserts,
+    missingJumpNumberConflictError,
     parseAndResolveJumpForm,
+    parseJumpNumberConflictAction,
+    shiftJumpNumbersFrom,
+    type JumpWriteLinks,
+    type JumpWriteValues,
 } from "@/route-handlers/logbook/jumps/helpers";
 import { JumpFormPage } from "@/route-handlers/logbook/jumps/form";
 import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
@@ -70,9 +79,74 @@ export async function renderEditJump(c: AppRequestContext) {
             resources={await getJumpFormResources(c)}
             copyHref={routes.logbook.jumps.new({}, { from: jump.uuid })}
             jumpUuid={jump.uuid}
+            excludeJumpUuid={jump.uuid}
             createdAt={jump.createdAt}
             redirectBackAfterPost
             canDelete
+        />,
+    );
+}
+
+async function saveEditedJump(
+    c: AppRequestContext,
+    options: {
+        uuid: string;
+        jumpValues: JumpWriteValues;
+        links: JumpWriteLinks;
+        conflictingJumpUuid?: string;
+        replaceConflict: boolean;
+        shiftConflict: boolean;
+    },
+) {
+    const db = getAppContext(c).db;
+    if (options.replaceConflict && options.conflictingJumpUuid) {
+        await db.batch([
+            db.delete(jumps).where(eq(jumps.uuid, options.conflictingJumpUuid)),
+            db
+                .update(jumps)
+                .set(options.jumpValues)
+                .where(eq(jumps.uuid, options.uuid)),
+            ...jumpRelationDeletes(db, options.uuid),
+            ...jumpRelationInserts(db, options.uuid, options.links),
+        ]);
+        return c.render(
+            <JumpImageAssociationComplete
+                changes={[
+                    {
+                        action: "delete",
+                        jumpUuid: options.conflictingJumpUuid,
+                    },
+                    {
+                        action: "update",
+                        jumpUuid: options.uuid,
+                        jumpNumber: options.jumpValues.jumpNumber,
+                    },
+                ]}
+                redirectUrl={routes.logbook.index({})}
+                returnAfterFormPost
+            />,
+        );
+    }
+    if (options.shiftConflict) {
+        await shiftJumpNumbersFrom(c, options.jumpValues.jumpNumber);
+    }
+    await db.batch([
+        db
+            .update(jumps)
+            .set(options.jumpValues)
+            .where(eq(jumps.uuid, options.uuid)),
+        ...jumpRelationDeletes(db, options.uuid),
+        ...jumpRelationInserts(db, options.uuid, options.links),
+    ]);
+    return c.render(
+        <JumpImageAssociationComplete
+            change={{
+                action: "update",
+                jumpUuid: options.uuid,
+                jumpNumber: options.jumpValues.jumpNumber,
+            }}
+            redirectUrl={routes.logbook.index({})}
+            returnAfterFormPost
         />,
     );
 }
@@ -105,6 +179,9 @@ export async function handleEditJump(c: AppRequestContext) {
               )
             : c.notFound();
     }
+    const conflictAction = parseJumpNumberConflictAction(
+        formData.get("jumpNumberConflict"),
+    );
     const parsed = await parseAndResolveJumpForm(c, formData);
     const jumpNumber = parsed.raw.jumpNumber;
     if (!parsed.ok) {
@@ -116,17 +193,23 @@ export async function handleEditJump(c: AppRequestContext) {
                 values={parsed.raw}
                 resources={parsed.resources}
                 errors={parsed.errors}
+                jumpNumberConflict={await getJumpNumberConflict(c, {
+                    value: parsed.raw.jumpNumber,
+                    excludeUuid: uuid,
+                    selected: conflictAction,
+                })}
+                excludeJumpUuid={uuid}
                 createdAt={existing.createdAt}
                 redirectBackAfterPost
             />,
         );
     }
-    const existingJump = await findJumpByNumber(
+    const conflictingJump = await findJumpByNumber(
         c,
         parsed.data.jumpNumber,
         uuid,
     );
-    if (existingJump) {
+    if (conflictingJump && !conflictAction) {
         return c.render(
             <JumpFormPage
                 title={`Edit jump #${jumpNumber}`}
@@ -134,64 +217,47 @@ export async function handleEditJump(c: AppRequestContext) {
                 confirmationTitle="Edit Jump"
                 values={parsed.raw}
                 resources={parsed.resources}
-                errors={[
-                    duplicateJumpNumberError(
-                        parsed.data.jumpNumber,
-                        existingJump.uuid,
-                    ),
-                ]}
+                errors={[missingJumpNumberConflictError()]}
+                jumpNumberConflict={{
+                    jumpNumber: parsed.data.jumpNumber,
+                    existingUuid: conflictingJump.uuid,
+                }}
+                excludeJumpUuid={uuid}
                 createdAt={existing.createdAt}
                 redirectBackAfterPost
             />,
         );
     }
-    await db.batch([
-        db
-            .update(jumps)
-            .set({
-                locationUuid: parsed.resolved.locationUuid,
-                jumpNumber: parsed.data.jumpNumber,
-                jumpDate: parsed.data.jumpDate,
-                exitAltitude: altitudeToMeters(
-                    parsed.data.exitAltitude,
-                    altitudeUnits,
-                ),
-                openingAltitude: altitudeToMeters(
-                    parsed.data.openingAltitude,
-                    altitudeUnits,
-                ),
-                freefallTime: parsed.data.freefallTime,
-                description: parsed.data.description || null,
-            })
-            .where(eq(jumps.uuid, uuid)),
-        db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, uuid)),
-        db.delete(jumpsToAircrafts).where(eq(jumpsToAircrafts.jumpUuid, uuid)),
-        db.delete(jumpsToJumpTypes).where(eq(jumpsToJumpTypes.jumpUuid, uuid)),
-        ...parsed.resolved.aircraftUuids.map((aircraftUuid) =>
-            db
-                .insert(jumpsToAircrafts)
-                .values({ jumpUuid: uuid, aircraftUuid }),
-        ),
-        ...parsed.resolved.gearUuids.map((gearUuid) =>
-            db.insert(jumpsToGear).values({ jumpUuid: uuid, gearUuid }),
-        ),
-        ...parsed.resolved.jumpTypeUuids.map((jumpTypeUuid) =>
-            db
-                .insert(jumpsToJumpTypes)
-                .values({ jumpUuid: uuid, jumpTypeUuid }),
-        ),
-    ]);
-    return c.render(
-        <JumpImageAssociationComplete
-            change={{
-                action: "update",
-                jumpUuid: uuid,
-                jumpNumber: parsed.data.jumpNumber,
-            }}
-            redirectUrl={routes.logbook.index({})}
-            returnAfterFormPost
-        />,
-    );
+    return saveEditedJump(c, {
+        uuid,
+        jumpValues: {
+            locationUuid: parsed.resolved.locationUuid,
+            jumpNumber: parsed.data.jumpNumber,
+            jumpDate: parsed.data.jumpDate,
+            exitAltitude: altitudeToMeters(
+                parsed.data.exitAltitude,
+                altitudeUnits,
+            ),
+            openingAltitude: altitudeToMeters(
+                parsed.data.openingAltitude,
+                altitudeUnits,
+            ),
+            freefallTime: parsed.data.freefallTime,
+            description: parsed.data.description || null,
+        },
+        links: {
+            aircraftUuids: parsed.resolved.aircraftUuids,
+            gearUuids: parsed.resolved.gearUuids,
+            jumpTypeUuids: parsed.resolved.jumpTypeUuids,
+        },
+        conflictingJumpUuid: conflictingJump?.uuid,
+        replaceConflict:
+            Boolean(conflictingJump) &&
+            conflictAction === JUMP_NUMBER_CONFLICT_REPLACE,
+        shiftConflict:
+            Boolean(conflictingJump) &&
+            conflictAction === JUMP_NUMBER_CONFLICT_SHIFT,
+    });
 }
 
 export function register(app: App) {

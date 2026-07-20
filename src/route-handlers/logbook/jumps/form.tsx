@@ -26,6 +26,7 @@ import { DateInput } from "@/components/date-input";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";
 import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
 import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";
+import type { JumpNumberConflictAction } from "@/route-handlers/logbook/jumps/helpers";
 import {
     altitudeUnitLabel,
     numberFormatLocale,
@@ -41,6 +42,7 @@ export interface JumpFormValues {
     locationUuid?: string;
     aircraftUuids?: string[];
     jumpNumber?: string;
+    jumpNumberConflict?: string;
     jumpDate?: string;
     exitAltitude?: string;
     openingAltitude?: string;
@@ -635,6 +637,12 @@ function JumpForm(props: {
     confirmationTitle: string;
     nextJumpNumber?: string;
     jumpNumberError?: Child;
+    jumpNumberConflict?: {
+        jumpNumber: number;
+        existingUuid: string;
+        selected?: JumpNumberConflictAction;
+    };
+    excludeJumpUuid?: string;
     dirty?: boolean;
     createdAt?: number;
     redirectBackAfterPost?: boolean;
@@ -671,6 +679,8 @@ function JumpForm(props: {
                     value={values.jumpNumber ?? ""}
                     nextJumpNumber={props.nextJumpNumber}
                     error={props.jumpNumberError}
+                    conflict={props.jumpNumberConflict}
+                    excludeJumpUuid={props.excludeJumpUuid}
                 />
                 <AvgSpeed values={values} />
             </div>
@@ -715,6 +725,12 @@ export function JumpFormPage(props: {
     };
     nextJumpNumber?: string;
     jumpNumberError?: Child;
+    jumpNumberConflict?: {
+        jumpNumber: number;
+        existingUuid: string;
+        selected?: JumpNumberConflictAction;
+    };
+    excludeJumpUuid?: string;
     copyHref?: string;
     canDelete?: boolean;
     sourceImageId?: string;
@@ -770,6 +786,8 @@ export function JumpFormPage(props: {
                 confirmationTitle={props.confirmationTitle}
                 nextJumpNumber={props.nextJumpNumber}
                 jumpNumberError={props.jumpNumberError}
+                jumpNumberConflict={props.jumpNumberConflict}
+                excludeJumpUuid={props.excludeJumpUuid}
                 dirty={props.dirty}
                 createdAt={props.createdAt}
                 redirectBackAfterPost={props.redirectBackAfterPost}
@@ -806,6 +824,7 @@ export function getJumpFormValues(formData: FormData): JumpFormValues {
             .getAll("aircraftUuids")
             .filter((value): value is string => typeof value === "string"),
         jumpNumber: getValue("jumpNumber"),
+        jumpNumberConflict: getValue("jumpNumberConflict"),
         jumpDate: getValue("jumpDate"),
         exitAltitude: getValue("exitAltitude"),
         openingAltitude: getValue("openingAltitude"),

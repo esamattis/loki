@@ -1,12 +1,70 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getAppContext, type AppRequestContext } from "@/app/app";
-import * as routes from "@/routes";
-import { aircrafts, gear, jumps, jumpTypes, locations } from "@/schema";
+import {
+    aircrafts,
+    gear,
+    jumps,
+    jumpsToAircrafts,
+    jumpsToGear,
+    jumpsToJumpTypes,
+    jumpTypes,
+    locations,
+} from "@/schema";
 import {
     getJumpFormValues,
     type JumpFormValues,
 } from "@/route-handlers/logbook/jumps/form";
+
+export const JUMP_NUMBER_CONFLICT_REPLACE = "replace";
+export const JUMP_NUMBER_CONFLICT_SHIFT = "shift";
+
+export type JumpNumberConflictAction =
+    typeof JUMP_NUMBER_CONFLICT_REPLACE | typeof JUMP_NUMBER_CONFLICT_SHIFT;
+
+export function parseJumpNumberConflictAction(
+    value: FormDataEntryValue | null | undefined,
+): JumpNumberConflictAction | undefined {
+    if (value === JUMP_NUMBER_CONFLICT_REPLACE) {
+        return JUMP_NUMBER_CONFLICT_REPLACE;
+    }
+    if (value === JUMP_NUMBER_CONFLICT_SHIFT) {
+        return JUMP_NUMBER_CONFLICT_SHIFT;
+    }
+    return undefined;
+}
+
+export function missingJumpNumberConflictError() {
+    return "Choose how to handle the existing jump number";
+}
+
+export async function shiftJumpNumbersFrom(
+    c: AppRequestContext,
+    fromJumpNumber: number,
+) {
+    const db = getAppContext(c).db;
+    const userUuid = getAppContext(c).getUser().uuid;
+    await db.batch([
+        db
+            .update(jumps)
+            .set({ jumpNumber: sql`-${jumps.jumpNumber}` })
+            .where(
+                and(
+                    eq(jumps.userUuid, userUuid),
+                    gte(jumps.jumpNumber, fromJumpNumber),
+                ),
+            ),
+        db
+            .update(jumps)
+            .set({ jumpNumber: sql`-${jumps.jumpNumber} + 1` })
+            .where(
+                and(
+                    eq(jumps.userUuid, userUuid),
+                    lte(jumps.jumpNumber, -fromJumpNumber),
+                ),
+            ),
+    ]);
+}
 
 function isValidJumpDate(value: string): boolean {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -187,7 +245,7 @@ export async function parseAndResolveJumpForm(
           ok: false;
           raw: JumpFormValues;
           resources: JumpFormResources;
-          errors: (string | ReturnType<typeof duplicateJumpNumberError>)[];
+          errors: string[];
       }
 > {
     const raw = getJumpFormValues(formData);
@@ -418,37 +476,86 @@ export async function findJumpByNumber(
         .get();
 }
 
-export function duplicateJumpNumberError(
-    jumpNumber: number,
-    existingUuid: string,
-) {
-    return (
-        <>
-            Jump number {jumpNumber} is already used.{" "}
-            <a
-                href={routes.logbook.jumps.edit({ uuid: existingUuid })}
-                className="font-medium underline"
-            >
-                Open existing jump
-            </a>
-        </>
+export type JumpNumberConflict = {
+    jumpNumber: number;
+    existingUuid: string;
+    selected?: JumpNumberConflictAction;
+};
+
+export async function getJumpNumberConflict(
+    c: AppRequestContext,
+    options: {
+        value: string | undefined;
+        excludeUuid?: string;
+        selected?: JumpNumberConflictAction;
+    },
+): Promise<JumpNumberConflict | undefined> {
+    if (!options.value || !/^\d+$/.test(options.value)) {
+        return undefined;
+    }
+    const jumpNumber = Number(options.value);
+    if (!Number.isSafeInteger(jumpNumber) || jumpNumber < 1) {
+        return undefined;
+    }
+    const existingJump = await findJumpByNumber(
+        c,
+        jumpNumber,
+        options.excludeUuid,
     );
+    return existingJump
+        ? {
+              jumpNumber,
+              existingUuid: existingJump.uuid,
+              selected: options.selected,
+          }
+        : undefined;
 }
 
-export function existingJumpNumberOverwriteNotice(
-    jumpNumber: number,
-    existingUuid: string,
+export type JumpWriteValues = {
+    locationUuid: string | null;
+    jumpNumber: number;
+    jumpDate: string;
+    exitAltitude: number;
+    openingAltitude: number;
+    freefallTime: number;
+    description: string | null;
+};
+
+export type JumpWriteLinks = {
+    aircraftUuids: string[];
+    gearUuids: string[];
+    jumpTypeUuids: string[];
+};
+
+export function jumpRelationInserts(
+    db: ReturnType<typeof getAppContext>["db"],
+    jumpUuid: string,
+    links: JumpWriteLinks,
 ) {
-    return (
-        <>
-            Jump #{jumpNumber} already exists. Saving will overwrite the
-            existing jump.{" "}
-            <a
-                href={routes.logbook.jumps.edit({ uuid: existingUuid })}
-                className="font-medium underline"
-            >
-                Open existing jump
-            </a>
-        </>
-    );
+    return [
+        ...links.aircraftUuids.map((aircraftUuid) =>
+            db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid }),
+        ),
+        ...links.gearUuids.map((gearUuid) =>
+            db.insert(jumpsToGear).values({ jumpUuid, gearUuid }),
+        ),
+        ...links.jumpTypeUuids.map((jumpTypeUuid) =>
+            db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid }),
+        ),
+    ];
+}
+
+export function jumpRelationDeletes(
+    db: ReturnType<typeof getAppContext>["db"],
+    jumpUuid: string,
+) {
+    return [
+        db.delete(jumpsToGear).where(eq(jumpsToGear.jumpUuid, jumpUuid)),
+        db
+            .delete(jumpsToAircrafts)
+            .where(eq(jumpsToAircrafts.jumpUuid, jumpUuid)),
+        db
+            .delete(jumpsToJumpTypes)
+            .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
+    ];
 }
