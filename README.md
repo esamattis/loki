@@ -14,6 +14,13 @@ tar -xzf loki-<version>-<platform>-<architecture>.tar.gz
 ./loki
 ```
 
+On Linux and macOS, you can use this shortcut instead to install the latest
+binary to `~/.local/bin/loki`:
+
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/esamattis/loki/main/install.sh)"
+```
+
 On Windows, run `loki.exe` after extracting the archive. Loki starts at
 http://127.0.0.1:8787 by default. See [Options](#options) for host, port, and
 database location settings.
