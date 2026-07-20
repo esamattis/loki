@@ -32,10 +32,23 @@ export const DEFAULT_JUMP_IMAGE_PROMPT = `- Extract the jump number, complete da
 
 function isValidJumpDate(value: string): boolean {
     const date = new Date(`${value}T00:00:00.000Z`);
-    return (
-        !Number.isNaN(date.getTime()) &&
-        date.toISOString().slice(0, 10) === value
+    if (
+        Number.isNaN(date.getTime()) ||
+        date.toISOString().slice(0, 10) !== value
+    ) {
+        return false;
+    }
+    const year = date.getUTCFullYear();
+    if (year <= 1980) {
+        return false;
+    }
+    const today = new Date();
+    const todayUtc = Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth(),
+        today.getUTCDate(),
     );
+    return date.getTime() <= todayUtc;
 }
 
 const JumpImageItemNameSchema = z
@@ -80,7 +93,9 @@ export const JumpImageDataSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/)
         .refine(isValidJumpDate)
         .nullable()
-        .describe("Jump date as YYYY-MM-DD, or null if not readable"),
+        .describe(
+            "Jump date as YYYY-MM-DD with year after 1980 and not in the future, or null if not readable",
+        ),
     jumpNumber: z
         .number()
         .int()
