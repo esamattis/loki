@@ -1,5 +1,6 @@
 import { Button, ButtonLink, Checkbox, FileInput } from "@/components/form";
 import { ExportIcon, ImportIcon } from "@/components/icons";
+import { SectionHeader } from "@/components/ui/section-header";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/logbook-page";
 import {
@@ -17,25 +18,12 @@ interface TransferPageProps {
 function ExportSection() {
     return (
         <div>
-            <div className="flex items-center gap-3">
-                <span
-                    aria-hidden="true"
-                    className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                >
-                    <ExportIcon className="h-5 w-5" />
-                </span>
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Export
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Download your logbook as CSV. The format uses names
-                        instead of internal IDs and can be re-imported. It also
-                        opens in Excel, LibreOffice, Google Docs, and other
-                        spreadsheet tools.
-                    </p>
-                </div>
-            </div>
+            <SectionHeader
+                icon={<ExportIcon className="h-5 w-5" />}
+                iconClassName="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                title="Export"
+                description="Download your logbook as CSV. The format uses names instead of internal IDs and can be re-imported. It also opens in Excel, LibreOffice, Google Docs, and other spreadsheet tools."
+            />
             <ButtonLink
                 href={routes.logbook.transfer.export({})}
                 download
@@ -52,25 +40,12 @@ function ExportSection() {
 function ImportSection(props: TransferPageProps) {
     return (
         <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
-            <div className="flex items-center gap-3">
-                <span
-                    aria-hidden="true"
-                    className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                >
-                    <ImportIcon className="h-5 w-5" />
-                </span>
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Import
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Import a Loki formatted CSV or Skydiving Logbook XML
-                        (skydiving_logbook.xml) file. Existing gear, locations,
-                        aircraft, and jump types are matched by name. Unknown
-                        jump items are created automatically.{" "}
-                    </p>
-                </div>
-            </div>
+            <SectionHeader
+                icon={<ImportIcon className="h-5 w-5" />}
+                iconClassName="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                title="Import"
+                description="Import a Loki formatted CSV or Skydiving Logbook XML (skydiving_logbook.xml) file. Existing gear, locations, aircraft, and jump types are matched by name. Unknown jump items are created automatically."
+            />
             {props.notice && (
                 <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                     {props.notice}

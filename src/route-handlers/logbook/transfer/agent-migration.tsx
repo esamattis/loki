@@ -2,6 +2,7 @@ import { useId } from "hono/jsx";
 import { useAppContext } from "@/app/app";
 import { Code } from "@/components/ui/code";
 import { Details } from "@/components/ui/details";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
 import { $select } from "@/utils";
@@ -102,43 +103,33 @@ export function AgentMigrationCard() {
     const uploadPath = routes.logbook.transfer.index({});
     return (
         <section className="rounded-2xl border border-violet-200 bg-white p-6 shadow-sm dark:border-violet-900/60 dark:bg-slate-900">
-            <div className="flex items-center gap-3">
-                <span
-                    aria-hidden="true"
-                    className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-violet-100 font-mono text-sm font-bold text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
+            <SectionHeader
+                icon={
+                    <span className="font-mono text-sm font-bold">&gt;_</span>
+                }
+                iconClassName="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
+                title="AI Agent Import"
+                description="Import one or more existing data files with an AI agent. Give the agent your files, Loki password and paste the instructions below. Export native spreadsheet files as CSV or TSV first."
+            >
+                <Details
+                    summary="Common AI agents"
+                    className="mt-2 text-sm text-slate-500 dark:text-slate-400"
+                    summaryClassName="font-medium text-slate-700 dark:text-slate-300"
                 >
-                    &gt;_
-                </span>
-                <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        AI Agent Import
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Import one or more existing data files with an AI agent.
-                        Give the agent your files, Loki password and paste the
-                        instructions below. Export native spreadsheet files as
-                        CSV or TSV first.
-                    </p>
-                    <Details
-                        summary="Common AI agents"
-                        className="mt-2 text-sm text-slate-500 dark:text-slate-400"
-                        summaryClassName="font-medium text-slate-700 dark:text-slate-300"
-                    >
-                        <ul className="mt-2 grid list-disc gap-x-6 gap-y-1 pl-9 sm:grid-cols-2">
-                            {agents.map((agent) => (
-                                <li>
-                                    <a
-                                        href={agent.url}
-                                        className={agentLinkClassName}
-                                    >
-                                        {agent.name}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </Details>
-                </div>
-            </div>
+                    <ul className="mt-2 grid list-disc gap-x-6 gap-y-1 pl-9 sm:grid-cols-2">
+                        {agents.map((agent) => (
+                            <li>
+                                <a
+                                    href={agent.url}
+                                    className={agentLinkClassName}
+                                >
+                                    {agent.name}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </Details>
+            </SectionHeader>
             <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
                 <p className="font-semibold">Warning</p>
                 <p className="mt-1">
