@@ -1,10 +1,4 @@
-import clsx from "clsx";
-import {
-    Button,
-    ButtonLink,
-    Checkbox,
-    fileInputClassName,
-} from "@/components/form";
+import { Button, ButtonLink, Checkbox, FileInput } from "@/components/form";
 import { ExportIcon, ImportIcon } from "@/components/icons";
 import * as routes from "@/routes";
 import { LogbookPage } from "@/app/logbook-page";
@@ -95,17 +89,18 @@ function ImportSection(props: TransferPageProps) {
                 className="mt-5 space-y-4"
             >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-                    <label className="block flex-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Logbook file
-                        <input
-                            type="file"
-                            name="file"
-                            accept=".csv,.xml,text/csv,application/xml,text/xml"
-                            required
-                            className={clsx(fileInputClassName, "mt-1.5")}
-                        />
-                    </label>
-                    <Button type="submit" variant="secondary">
+                    <FileInput
+                        name="file"
+                        label="Logbook file"
+                        accept=".csv,.xml,text/csv,application/xml,text/xml"
+                        required
+                        className="min-w-0 flex-1"
+                    />
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        className="h-10 shrink-0"
+                    >
                         Import logbook
                     </Button>
                 </div>

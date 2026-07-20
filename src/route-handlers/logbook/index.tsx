@@ -125,14 +125,14 @@ function JumpFilters(props: {
     return (
         <Details
             open={hasFilters}
-            className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
             summary={<JumpFiltersSummary hasFilters={hasFilters} />}
-            summaryClassName="h-10 px-4 font-semibold text-slate-900 dark:text-slate-100"
+            summaryClassName="h-10 px-4 text-sm font-medium text-slate-900 dark:text-slate-100"
         >
             <form
                 action={routes.logbook.index({})}
                 method="get"
-                className="mx-5 mb-5 mt-3 space-y-5"
+                className="mx-4 mb-4 mt-2 space-y-4 border-t border-slate-200 pt-3 dark:border-slate-800"
             >
                 {props.filters.search !== "" && (
                     <input

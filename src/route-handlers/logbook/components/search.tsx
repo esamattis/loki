@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { buttonClassName, controlClassName } from "@/components/form";
+import { Button, controlClassName } from "@/components/form";
 import { CloseIcon, SearchIcon, SortIcon } from "@/components/icons";
 import { Script } from "@/components/script";
 import * as routes from "@/routes";
@@ -172,7 +172,7 @@ export function JumpSort(props: { filters: LogbookFilters }) {
 export function JumpSearch(props: { filters: LogbookFilters }) {
     const hasSearch = props.filters.search !== "";
     return (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <form
                 action={routes.logbook.index({})}
                 method="get"
@@ -212,15 +212,13 @@ export function JumpSearch(props: { filters: LogbookFilters }) {
                         </a>
                     )}
                 </div>
-                <button
+                <Button
                     type="submit"
                     aria-label="Search"
-                    className={buttonClassName({
-                        className: "-ml-px h-10 rounded-l-none px-3",
-                    })}
+                    className="-ml-px h-10 rounded-l-none px-3"
                 >
                     <SearchIcon className="h-4 w-4" />
-                </button>
+                </Button>
             </form>
             <JumpSort filters={props.filters} />
         </div>

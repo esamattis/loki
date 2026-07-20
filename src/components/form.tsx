@@ -12,7 +12,7 @@ export const controlClassName =
 const labeledControlClassName = clsx("mt-1.5", controlClassName);
 
 export const fileInputClassName =
-    "block w-full cursor-pointer rounded-lg border border-slate-300 bg-slate-50 text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600";
+    "block h-10 w-full cursor-pointer rounded-lg border border-slate-300 bg-slate-50 text-sm text-slate-700 file:mr-3 file:h-full file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-indigo-600 file:px-4 file:font-medium file:text-white hover:file:bg-indigo-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:file:bg-indigo-500 dark:hover:file:bg-indigo-600";
 
 type ButtonVariant = "primary" | "secondary" | "danger";
 type ButtonSize = "md" | "sm";
@@ -143,6 +143,36 @@ export function Input(props: {
                 value={props.value}
                 placeholder={props.placeholder}
                 className={clsx(labeledControlClassName, props.inputClassName)}
+            />
+        </label>
+    );
+}
+
+export function FileInput(props: {
+    id?: string;
+    name?: string;
+    label: string;
+    accept?: string;
+    required?: boolean;
+    multiple?: boolean;
+    className?: string;
+    inputClassName?: string;
+}) {
+    return (
+        <label className={clsx(labelClassName, props.className)}>
+            {props.label}
+            <input
+                id={props.id}
+                name={props.name}
+                type="file"
+                accept={props.accept}
+                required={props.required}
+                multiple={props.multiple}
+                className={clsx(
+                    "mt-1.5",
+                    fileInputClassName,
+                    props.inputClassName,
+                )}
             />
         </label>
     );
