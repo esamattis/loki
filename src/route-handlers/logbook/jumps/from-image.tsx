@@ -5,12 +5,13 @@ import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ErrorList } from "@/components/feedback";
-import { CameraIcon, ClipboardIcon } from "@/components/icons";
+import { CameraIcon, ClipboardIcon, CloseIcon } from "@/components/icons";
 import {
     Button,
+    controlClassName,
     fileInputClassName,
+    labelClassName,
     Select,
-    Textarea,
 } from "@/components/form";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
@@ -27,7 +28,7 @@ import {
     type JumpImageInput,
 } from "@/jump-image";
 import * as routes from "@/routes";
-import { aircrafts, gear, jumpTypes, locations } from "@/schema";
+import { aircrafts, gear, jumpTypes, locations, users } from "@/schema";
 import {
     AiUsageSummary,
     buildAiUsageTitle,
@@ -39,6 +40,8 @@ import {
 import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/logbook-page";
 import { ClearReturnRoute } from "@/components/return-after-form-post";
+import { Script } from "@/components/script";
+import { $select } from "@/utils";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -261,6 +264,77 @@ function JumpImageField(props: { formId: string }) {
     );
 }
 
+function AdditionalContextField(props: { value: string }) {
+    const textareaId = useId();
+    const clearButtonId = useId();
+    return (
+        <div id="additional-context" className="scroll-mt-4 space-y-1.5">
+            <label htmlFor={textareaId} className={labelClassName}>
+                Additional context
+            </label>
+            <div className="relative">
+                <textarea
+                    id={textareaId}
+                    name="additionalContext"
+                    rows={2}
+                    placeholder="Jump 41"
+                    className={clsx("resize-y pr-10", controlClassName)}
+                >
+                    {props.value}
+                </textarea>
+                <button
+                    type="button"
+                    id={clearButtonId}
+                    aria-label="Clear additional context"
+                    className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                >
+                    <CloseIcon className="h-4 w-4" />
+                </button>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+                Optional instructions for the AI. Use this to specify which jump
+                to pick if the image contains multiple jumps, or to explain
+                abbreviations (e.g. RW means Formation Skydiving). Change the
+                default image reading prompt in{" "}
+                <a
+                    href={`${routes.preferences({})}#jump-image-prompt`}
+                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
+                >
+                    Preferences
+                </a>
+                .
+            </p>
+            <Script
+                $deps={[$select]}
+                $args={[textareaId, clearButtonId]}
+                $exec={(textareaId, clearButtonId) => {
+                    const textarea = $select.id(
+                        textareaId,
+                        HTMLTextAreaElement,
+                    );
+                    const clearButton = $select.id(
+                        clearButtonId,
+                        HTMLButtonElement,
+                    );
+                    function syncClearButton() {
+                        clearButton.hidden = textarea.value.length === 0;
+                    }
+                    clearButton.addEventListener("click", () => {
+                        textarea.value = "";
+                        textarea.dispatchEvent(
+                            new Event("input", { bubbles: true }),
+                        );
+                        textarea.focus();
+                        syncClearButton();
+                    });
+                    textarea.addEventListener("input", syncClearButton);
+                    syncClearButton();
+                }}
+            />
+        </div>
+    );
+}
+
 function JumpFromImagePage(props: {
     errors?: string[];
     hasApiKey: boolean;
@@ -323,39 +397,11 @@ function JumpFromImagePage(props: {
                         className="space-y-5"
                     >
                         <JumpImageField formId={formId} />
-                        <div
-                            id="additional-context"
-                            className="scroll-mt-4 space-y-1.5"
-                        >
-                            <Textarea
-                                name="additionalContext"
-                                label="Additional context"
-                                rows={4}
-                                value={props.additionalContext}
-                                placeholder="Jump 41"
-                                persist="jump-from-image-additional-context"
-                            />
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Optional instructions for the AI. Use this to
-                                specify which jump to pick if the image contains
-                                multiple jumps, or to explain abbreviations
-                                (e.g. RW means Formation Skydiving). Change the
-                                default image reading prompt in{" "}
-                                <a
-                                    href={`${routes.preferences({})}#jump-image-prompt`}
-                                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
-                                >
-                                    Preferences
-                                </a>
-                                .
-                            </p>
-                        </div>
+                        <AdditionalContextField
+                            value={props.additionalContext}
+                        />
                         <div className="space-y-1.5">
-                            <Select
-                                name="model"
-                                label="AI model"
-                                persist="jump-from-image-model"
-                            >
+                            <Select name="model" label="AI model">
                                 {JUMP_IMAGE_MODELS.map((model) => (
                                     <option
                                         value={model.id}
@@ -366,15 +412,8 @@ function JumpFromImagePage(props: {
                                 ))}
                             </Select>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Prefills from your saved default. Change for
-                                this read, or set the default in{" "}
-                                <a
-                                    href={routes.preferences({})}
-                                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
-                                >
-                                    Preferences
-                                </a>
-                                .
+                                Remembers the model you last used to read an
+                                image.
                             </p>
                         </div>
                         <div className="hidden sm:block">
@@ -393,6 +432,27 @@ function JumpFromImagePage(props: {
     );
 }
 
+async function saveJumpImageReadOptions(
+    c: AppRequestContext,
+    options: {
+        model: UserOptions["jumpImageModel"];
+        additionalContext: string;
+    },
+) {
+    const ctx = getAppContext(c);
+    const user = ctx.getUser();
+    const nextOptions: UserOptions = {
+        ...user.options,
+        jumpImageModel: options.model,
+        jumpImageAdditionalContext: options.additionalContext,
+    };
+    user.options = nextOptions;
+    await ctx.db
+        .update(users)
+        .set({ options: JSON.stringify(nextOptions) })
+        .where(eq(users.uuid, user.uuid));
+}
+
 async function renderJumpFromImage(
     c: AppRequestContext,
     options?: {
@@ -407,12 +467,16 @@ async function renderJumpFromImage(
         options?.model ??
         userOptions.jumpImageModel ??
         DEFAULT_JUMP_IMAGE_MODEL;
+    const additionalContext =
+        options?.additionalContext ??
+        userOptions.jumpImageAdditionalContext ??
+        "";
     const usage = await getAiUsageForUser(c);
     return c.render(
         <JumpFromImagePage
             errors={options?.errors}
             hasApiKey={hasApiKey}
-            additionalContext={options?.additionalContext ?? ""}
+            additionalContext={additionalContext}
             model={model}
             usageTotals={usage.totals}
             usageRows={usage.rows}
@@ -686,6 +750,7 @@ async function handleJumpFromImage(c: AppRequestContext) {
         formData.get("model"),
         options.jumpImageModel ?? DEFAULT_JUMP_IMAGE_MODEL,
     );
+    await saveJumpImageReadOptions(c, { model, additionalContext });
 
     if (!apiKey) {
         return renderJumpFromImage(c, {

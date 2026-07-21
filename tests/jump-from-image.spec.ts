@@ -56,6 +56,9 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(
         page.locator('textarea[name="additionalContext"]'),
     ).toHaveValue("");
+    await expect(
+        page.getByRole("button", { name: "Clear additional context" }),
+    ).toBeHidden();
     await expect(page.locator('select[name="model"]')).toHaveValue(
         "gpt-5.6-luna",
     );
@@ -321,7 +324,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(page.getByRole("link", { name: "Jump #43" })).toHaveCount(0);
 });
 
-test("from image form persists model and additional context after reload", async ({
+test("from image form lists latest images first and can clear them", async ({
     page,
 }) => {
     await page.goto("/register");
@@ -356,7 +359,14 @@ test("from image form persists model and additional context after reload", async
         },
     ]);
     await expect(page.getByText(/^2 images\./)).toBeVisible();
-    await page.getByRole("button", { name: "Select second-image.png" }).click();
+    await expect(
+        page.getByRole("button", { name: "Clear all images" }),
+    ).toBeVisible();
+    const galleryNames = page.locator("[data-loki-select-image] img");
+    await expect(galleryNames.first()).toHaveAttribute(
+        "alt",
+        "Selected jump image preview",
+    );
     await expect
         .poll(() =>
             page.locator('input[name="image"]').evaluate((input) => {
@@ -367,6 +377,9 @@ test("from image form persists model and additional context after reload", async
             }),
         )
         .toBe("second-image.png");
+    await expect(
+        page.getByRole("button", { name: "Select first-image.png" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Delete first-image.png" }).click();
     await expect(page.getByText(/^1 image\./)).toBeVisible();
     await page.reload();
@@ -377,19 +390,71 @@ test("from image form persists model and additional context after reload", async
         page.getByText("first-image.png", { exact: false }),
     ).toHaveCount(0);
 
+    await page.getByRole("button", { name: "Clear all images" }).click();
+    await expect(page.getByText(/^1 image\./)).toHaveCount(0);
+    await expect(
+        page.getByText("second-image.png", { exact: false }),
+    ).toHaveCount(0);
+    await expect(
+        page.getByRole("button", { name: "Clear all images" }),
+    ).toBeHidden();
+});
+
+test("from image form saves model and additional context to user options", async ({
+    page,
+}) => {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill("options-image-skydiver");
+    await page
+        .locator('input[name="displayName"]')
+        .fill("Options Image Skydiver");
+    await page
+        .locator('input[name="email"]')
+        .fill("options-image@example.test");
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await expect(page.getByLabel("Default AI model")).toHaveCount(0);
+    await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+
+    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await page.locator('select[name="model"]').selectOption("gpt-4o-mini");
     await page
         .locator('textarea[name="additionalContext"]')
-        .fill("Remember this context across reload");
+        .fill("Remember this context on the server");
+    await expect(
+        page.getByRole("button", { name: "Clear additional context" }),
+    ).toBeVisible();
+    await page
+        .getByRole("button", { name: "Clear additional context" })
+        .click();
+    await expect(
+        page.locator('textarea[name="additionalContext"]'),
+    ).toHaveValue("");
+    await expect(
+        page.getByRole("button", { name: "Clear additional context" }),
+    ).toBeHidden();
+    await page
+        .locator('textarea[name="additionalContext"]')
+        .fill("Remember this context on the server");
+    await page
+        .locator("input[multiple]")
+        .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
+    await page.getByRole("button", { name: "Read image" }).click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
 
-    await page.reload();
-
+    await page.goto("/logbook/jumps/new/from-image");
     await expect(page.locator('select[name="model"]')).toHaveValue(
         "gpt-4o-mini",
     );
     await expect(
         page.locator('textarea[name="additionalContext"]'),
-    ).toHaveValue("Remember this context across reload");
+    ).toHaveValue("Remember this context on the server");
 });
 
 test("from image form describes resized images", async ({ page }) => {

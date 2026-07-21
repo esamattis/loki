@@ -72,6 +72,7 @@ export const DEFAULT_USER_OPTIONS = {
     openaiApiKey: "",
     jumpImagePrompt: DEFAULT_JUMP_IMAGE_PROMPT,
     jumpImageModel: DEFAULT_JUMP_IMAGE_MODEL,
+    jumpImageAdditionalContext: "",
     htmlCacheEnabled: true,
 } as const;
 
@@ -91,6 +92,7 @@ export const UserOptionsSchema = z.object({
     jumpImageModel: z
         .enum(JUMP_IMAGE_MODEL_IDS)
         .default(DEFAULT_JUMP_IMAGE_MODEL),
+    jumpImageAdditionalContext: z.string().default(""),
     htmlCacheEnabled: z.boolean().default(true),
 });
 

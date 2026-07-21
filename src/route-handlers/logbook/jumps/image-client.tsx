@@ -30,6 +30,7 @@ interface JumpImageInputProps {
     cameraInputId: string;
     cameraButtonId: string;
     clipboardButtonId: string;
+    clearAllButtonId: string;
     galleryId: string;
     metaId: string;
     resizeNoteId: string;
@@ -53,6 +54,7 @@ export function ImageGallery(props: {
     clipboardButtonId: string;
 }) {
     const dbName = jumpImageDbName(useAppContext().getUser().uuid);
+    const clearAllButtonId = useId();
     const galleryId = useId();
     const metaId = useId();
     const resizeNoteId = useId();
@@ -61,13 +63,22 @@ export function ImageGallery(props: {
 
     return (
         <>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <p
+                    id={metaId}
+                    className="hidden text-sm text-slate-500 dark:text-slate-400"
+                />
+                <button
+                    type="button"
+                    id={clearAllButtonId}
+                    className="hidden text-sm font-medium text-red-700 underline hover:no-underline dark:text-red-400"
+                >
+                    Clear all images
+                </button>
+            </div>
             <div
                 id={galleryId}
                 className="hidden grid grid-cols-2 gap-3 md:grid-cols-3"
-            />
-            <p
-                id={metaId}
-                className="hidden text-sm text-slate-500 dark:text-slate-400"
             />
             <p
                 id={resizeNoteId}
@@ -126,6 +137,13 @@ export function ImageGallery(props: {
                     $setupCameraImageInput,
                     $setupClipboardImageInput,
                     $imageMimeTypeToExtension,
+                    $setJumpImageUploadFile,
+                    $setJumpImageProcessing,
+                    $revokeJumpImagePreviewUrl,
+                    $deleteJumpImageDraft,
+                    $clearAllJumpImageDrafts,
+                    $appendJumpImageFiles,
+                    $createJumpImageGalleryController,
                 ]}
                 $args={[
                     {
@@ -136,6 +154,7 @@ export function ImageGallery(props: {
                         cameraInputId: props.cameraInputId,
                         cameraButtonId: props.cameraButtonId,
                         clipboardButtonId: props.clipboardButtonId,
+                        clearAllButtonId,
                         galleryId,
                         metaId,
                         resizeNoteId,
@@ -375,6 +394,10 @@ export function $getJumpImageElements(props: JumpImageInputProps) {
         props.clipboardButtonId,
         HTMLButtonElement,
     );
+    const clearAllButtonEl = $select.id(
+        props.clearAllButtonId,
+        HTMLButtonElement,
+    );
     const galleryEl = $select.id(props.galleryId, HTMLElement);
     const metaEl = $select.id(props.metaId, HTMLElement);
     const resizeNoteEl = $select.id(props.resizeNoteId, HTMLElement);
@@ -386,6 +409,7 @@ export function $getJumpImageElements(props: JumpImageInputProps) {
         cameraInput: cameraInputEl,
         cameraButton: cameraButtonEl,
         clipboardButton: clipboardButtonEl,
+        clearAllButton: clearAllButtonEl,
         gallery: galleryEl,
         meta: metaEl,
         resizeNote: resizeNoteEl,
@@ -395,6 +419,7 @@ export function $getJumpImageElements(props: JumpImageInputProps) {
 export function $renderJumpImageGallery(options: {
     gallery: HTMLElement;
     meta: HTMLElement;
+    clearAllButton: HTMLButtonElement;
     drafts: JumpImageDraft[];
     selectedId: string | null;
     previewUrls: Map<string, string>;
@@ -506,6 +531,10 @@ export function $renderJumpImageGallery(options: {
             ? ""
             : `${options.drafts.length} image${options.drafts.length === 1 ? "" : "s"}. Tap an image to select it for AI recognition.`;
     options.meta.classList.toggle("hidden", options.drafts.length === 0);
+    options.clearAllButton.classList.toggle(
+        "hidden",
+        options.drafts.length === 0,
+    );
 }
 
 export async function $prepareJumpImageFiles(
@@ -539,163 +568,301 @@ export async function $prepareJumpImageFiles(
     return { appended, notes };
 }
 
-export function $initJumpImageInput(props: JumpImageInputProps) {
-    const elements = $getJumpImageElements(props);
-    const input = elements.input;
-    const uploadInput = elements.uploadInput;
-    const imageIdInput = elements.imageIdInput;
-    const form = elements.form;
-    const cameraInput = elements.cameraInput;
-    const cameraButton = elements.cameraButton;
-    const clipboardButton = elements.clipboardButton;
-    const gallery = elements.gallery;
-    const meta = elements.meta;
-    const resizeNote = elements.resizeNote;
+interface JumpImageGalleryState {
+    drafts: JumpImageDraft[];
+    selectedId: string | null;
+    processingCount: number;
+    previewUrls: Map<string, string>;
+}
 
-    let drafts: JumpImageDraft[] = [];
-    let selectedId: string | null = null;
-    let processingCount = 0;
-    const previewUrls = new Map<string, string>();
-
-    function setProcessing(value: boolean) {
-        const submit = $select.el(
-            'button[type="submit"]',
-            HTMLButtonElement,
-            form,
-        );
-        processingCount += value ? 1 : -1;
-        submit.disabled = processingCount > 0;
-        if (processingCount > 0) {
-            form.setAttribute("aria-busy", "true");
-        } else {
-            form.removeAttribute("aria-busy");
-        }
+function $setJumpImageUploadFile(
+    elements: ReturnType<typeof $getJumpImageElements>,
+    state: JumpImageGalleryState,
+    file: File | undefined,
+) {
+    const transfer = new DataTransfer();
+    if (file) {
+        transfer.items.add(file);
     }
+    elements.uploadInput.files = transfer.files;
+    elements.imageIdInput.value = file ? (state.selectedId ?? "") : "";
+}
 
-    function setUploadFile(file: File | undefined) {
-        const transfer = new DataTransfer();
-        if (file) {
-            transfer.items.add(file);
+function $setJumpImageProcessing(
+    elements: ReturnType<typeof $getJumpImageElements>,
+    state: JumpImageGalleryState,
+    value: boolean,
+) {
+    const submit = $select.el(
+        'button[type="submit"]',
+        HTMLButtonElement,
+        elements.form,
+    );
+    state.processingCount += value ? 1 : -1;
+    submit.disabled = state.processingCount > 0;
+    if (state.processingCount > 0) {
+        elements.form.setAttribute("aria-busy", "true");
+    } else {
+        elements.form.removeAttribute("aria-busy");
+    }
+}
+
+function $revokeJumpImagePreviewUrl(state: JumpImageGalleryState, id: string) {
+    const url = state.previewUrls.get(id);
+    if (url) {
+        URL.revokeObjectURL(url);
+        state.previewUrls.delete(id);
+    }
+}
+
+async function $deleteJumpImageDraft(options: {
+    props: JumpImageInputProps;
+    elements: ReturnType<typeof $getJumpImageElements>;
+    state: JumpImageGalleryState;
+    id: string;
+    renderGalleryState: () => void;
+}) {
+    const remaining = options.state.drafts.filter(
+        (item) => item.id !== options.id,
+    );
+    const nextSelectedId =
+        options.state.selectedId === options.id
+            ? (remaining[0]?.id ?? null)
+            : options.state.selectedId;
+    try {
+        await $updateJumpImageDrafts({
+            dbName: options.props.dbName,
+            storeName: options.props.storeName,
+            storageKey: options.props.storageKey,
+            selectedId: nextSelectedId,
+            deletedId: options.id,
+        });
+        options.state.drafts = remaining;
+        options.state.selectedId = nextSelectedId;
+        $setJumpImageUploadFile(
+            options.elements,
+            options.state,
+            options.state.drafts.find(
+                (item) => item.id === options.state.selectedId,
+            )?.file,
+        );
+        $revokeJumpImagePreviewUrl(options.state, options.id);
+        options.renderGalleryState();
+    } catch (error) {
+        console.error("Failed to delete the jump image", error);
+    }
+}
+
+async function $clearAllJumpImageDrafts(options: {
+    props: JumpImageInputProps;
+    elements: ReturnType<typeof $getJumpImageElements>;
+    state: JumpImageGalleryState;
+    renderGalleryState: () => void;
+}) {
+    try {
+        await $updateJumpImageDrafts({
+            dbName: options.props.dbName,
+            storeName: options.props.storeName,
+            storageKey: options.props.storageKey,
+            selectedId: null,
+            clearAll: true,
+        });
+        for (const url of options.state.previewUrls.values()) {
+            URL.revokeObjectURL(url);
         }
-        uploadInput.files = transfer.files;
-        imageIdInput.value = file ? (selectedId ?? "") : "";
+        options.state.previewUrls.clear();
+        options.state.drafts = [];
+        options.state.selectedId = null;
+        $setJumpImageUploadFile(options.elements, options.state, undefined);
+        options.elements.resizeNote.textContent = "";
+        options.elements.resizeNote.classList.add("hidden");
+        options.renderGalleryState();
+    } catch (error) {
+        console.error("Failed to clear jump images", error);
+    }
+}
+
+async function $appendJumpImageFiles(options: {
+    props: JumpImageInputProps;
+    elements: ReturnType<typeof $getJumpImageElements>;
+    state: JumpImageGalleryState;
+    files: File[];
+    renderGalleryState: () => void;
+}) {
+    if (options.files.length === 0) {
+        return;
+    }
+    $setJumpImageProcessing(options.elements, options.state, true);
+    try {
+        const prepared = await $prepareJumpImageFiles(
+            options.files,
+            options.props,
+        );
+        const appended = prepared.appended;
+        options.state.drafts = [...appended, ...options.state.drafts];
+        options.state.selectedId = appended[0]?.id ?? options.state.selectedId;
+        $setJumpImageUploadFile(
+            options.elements,
+            options.state,
+            options.state.drafts.find(
+                (item) => item.id === options.state.selectedId,
+            )?.file,
+        );
+        options.elements.resizeNote.textContent = prepared.notes.join(" ");
+        options.elements.resizeNote.classList.toggle(
+            "hidden",
+            prepared.notes.length === 0,
+        );
+        options.renderGalleryState();
+    } catch (error) {
+        console.error("Failed to process the selected jump images", error);
+        options.elements.meta.textContent =
+            "Could not process the selected images.";
+        options.elements.meta.classList.remove("hidden");
+    } finally {
+        $setJumpImageProcessing(options.elements, options.state, false);
+    }
+}
+
+function $createJumpImageGalleryController(
+    props: JumpImageInputProps,
+    elements: ReturnType<typeof $getJumpImageElements>,
+) {
+    const state: JumpImageGalleryState = {
+        drafts: [],
+        selectedId: null,
+        processingCount: 0,
+        previewUrls: new Map(),
+    };
+
+    function renderGalleryState() {
+        $renderJumpImageGallery({
+            gallery: elements.gallery,
+            meta: elements.meta,
+            clearAllButton: elements.clearAllButton,
+            drafts: state.drafts,
+            selectedId: state.selectedId,
+            previewUrls: state.previewUrls,
+            templateId: props.galleryItemTemplateId,
+            jumpLinkTemplateId: props.jumpLinkTemplateId,
+            jumpEditUrlTemplate: props.jumpEditUrlTemplate,
+            selectDraft,
+            deleteDraft: (id) =>
+                void $deleteJumpImageDraft({
+                    props,
+                    elements,
+                    state,
+                    id,
+                    renderGalleryState,
+                }),
+        });
     }
 
     function selectDraft(id: string) {
-        const draft = drafts.find((item) => item.id === id);
+        const draft = state.drafts.find((item) => item.id === id);
         if (!draft) {
             return;
         }
-        selectedId = id;
-        setUploadFile(draft.file);
+        state.selectedId = id;
+        $setJumpImageUploadFile(elements, state, draft.file);
         renderGalleryState();
         void $updateJumpImageDrafts({
             dbName: props.dbName,
             storeName: props.storeName,
             storageKey: props.storageKey,
-            selectedId,
+            selectedId: state.selectedId,
         }).catch((error) => {
             console.error("Failed to save the selected jump image", error);
         });
     }
 
-    async function deleteDraft(id: string) {
-        const remaining = drafts.filter((item) => item.id !== id);
-        const nextSelectedId =
-            selectedId === id ? (remaining[0]?.id ?? null) : selectedId;
-        try {
-            await $updateJumpImageDrafts({
-                dbName: props.dbName,
-                storeName: props.storeName,
-                storageKey: props.storageKey,
-                selectedId: nextSelectedId,
-                deletedId: id,
+    function restoreDrafts() {
+        void $loadJumpImageDrafts(
+            props.dbName,
+            props.storeName,
+            props.storageKey,
+        )
+            .then((stored) => {
+                state.drafts = stored.drafts;
+                state.selectedId = state.drafts.some(
+                    (item) => item.id === stored.selectedId,
+                )
+                    ? stored.selectedId
+                    : (state.drafts[0]?.id ?? null);
+                $setJumpImageUploadFile(
+                    elements,
+                    state,
+                    state.drafts.find((item) => item.id === state.selectedId)
+                        ?.file,
+                );
+                renderGalleryState();
+            })
+            .catch((error) => {
+                console.error("Failed to restore the jump image drafts", error);
             });
-            drafts = remaining;
-            selectedId = nextSelectedId;
-            setUploadFile(drafts.find((item) => item.id === selectedId)?.file);
-            const url = previewUrls.get(id);
-            if (url) {
+    }
+
+    return {
+        appendFiles(files: File[]) {
+            return $appendJumpImageFiles({
+                props,
+                elements,
+                state,
+                files,
+                renderGalleryState,
+            });
+        },
+        clearAllDrafts() {
+            return $clearAllJumpImageDrafts({
+                props,
+                elements,
+                state,
+                renderGalleryState,
+            });
+        },
+        isProcessing() {
+            return state.processingCount > 0;
+        },
+        restoreDrafts,
+        revokePreviewUrls() {
+            for (const url of state.previewUrls.values()) {
                 URL.revokeObjectURL(url);
-                previewUrls.delete(id);
             }
-            renderGalleryState();
-        } catch (error) {
-            console.error("Failed to delete the jump image", error);
-        }
-    }
+        },
+    };
+}
 
-    function renderGalleryState() {
-        $renderJumpImageGallery({
-            gallery,
-            meta,
-            drafts,
-            selectedId,
-            previewUrls,
-            templateId: props.galleryItemTemplateId,
-            jumpLinkTemplateId: props.jumpLinkTemplateId,
-            jumpEditUrlTemplate: props.jumpEditUrlTemplate,
-            selectDraft,
-            deleteDraft: (id) => void deleteDraft(id),
-        });
-    }
+export function $initJumpImageInput(props: JumpImageInputProps) {
+    const elements = $getJumpImageElements(props);
+    const controller = $createJumpImageGalleryController(props, elements);
 
-    async function appendFiles(files: File[]) {
-        if (files.length === 0) {
-            return;
-        }
-        setProcessing(true);
-        try {
-            const prepared = await $prepareJumpImageFiles(files, props);
-            const appended = prepared.appended;
-            drafts.push(...appended);
-            selectedId = appended[0]?.id ?? selectedId;
-            setUploadFile(drafts.find((item) => item.id === selectedId)?.file);
-            resizeNote.textContent = prepared.notes.join(" ");
-            resizeNote.classList.toggle("hidden", prepared.notes.length === 0);
-            renderGalleryState();
-        } catch (error) {
-            console.error("Failed to process the selected jump images", error);
-            meta.textContent = "Could not process the selected images.";
-            meta.classList.remove("hidden");
-        } finally {
-            setProcessing(false);
-        }
-    }
-
-    input.addEventListener("change", () => {
-        const files = Array.from(input.files ?? []);
-        input.value = "";
-        void appendFiles(files);
+    elements.input.addEventListener("change", () => {
+        const files = Array.from(elements.input.files ?? []);
+        elements.input.value = "";
+        void controller.appendFiles(files);
     });
 
-    $setupCameraImageInput(cameraInput, cameraButton, appendFiles);
-    $setupClipboardImageInput(clipboardButton, appendFiles);
+    $setupCameraImageInput(
+        elements.cameraInput,
+        elements.cameraButton,
+        controller.appendFiles,
+    );
+    $setupClipboardImageInput(elements.clipboardButton, controller.appendFiles);
+    elements.clearAllButton.addEventListener("click", () => {
+        void controller.clearAllDrafts();
+    });
 
-    form.addEventListener("submit", (event) => {
-        if (processingCount === 0) {
+    elements.form.addEventListener("submit", (event) => {
+        if (!controller.isProcessing()) {
             return;
         }
         event.preventDefault();
         event.stopImmediatePropagation();
     });
 
-    void $loadJumpImageDrafts(props.dbName, props.storeName, props.storageKey)
-        .then((stored) => {
-            drafts = stored.drafts;
-            selectedId = drafts.some((item) => item.id === stored.selectedId)
-                ? stored.selectedId
-                : (drafts[0]?.id ?? null);
-            setUploadFile(drafts.find((item) => item.id === selectedId)?.file);
-            renderGalleryState();
-        })
-        .catch((error) => {
-            console.error("Failed to restore the jump image drafts", error);
-        });
+    controller.restoreDrafts();
 
     window.addEventListener("pagehide", () => {
-        for (const url of previewUrls.values()) {
-            URL.revokeObjectURL(url);
-        }
+        controller.revokePreviewUrls();
     });
 }

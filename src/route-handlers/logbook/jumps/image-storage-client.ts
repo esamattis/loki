@@ -69,7 +69,7 @@ export async function $appendJumpImageDrafts(
                         },
                     ];
                 }
-                const appended = config.files.map((file) => ({
+                const appended = [...config.files].reverse().map((file) => ({
                     id: crypto.randomUUID(),
                     file,
                     read: false,
@@ -87,7 +87,7 @@ export async function $appendJumpImageDrafts(
                 await idb.request(
                     store.put(
                         {
-                            images: [...images, ...newImages],
+                            images: [...newImages, ...images],
                             selectedId:
                                 appended[0]?.id ?? current?.selectedId ?? null,
                         },
@@ -216,6 +216,7 @@ export async function $updateJumpImageDrafts(config: {
     selectedId: string | null;
     deletedId?: string;
     readId?: string;
+    clearAll?: boolean;
 }): Promise<void> {
     const db = await $idb.open(config.dbName, 1);
     return $idb
@@ -223,6 +224,10 @@ export async function $updateJumpImageDrafts(config: {
             db,
             { storeName: config.storeName, mode: "readwrite" },
             async (store) => {
+                if (config.clearAll) {
+                    await $idb.request(store.delete(config.storageKey));
+                    return;
+                }
                 const current: StoredJumpImages | undefined =
                     await $idb.request(store.get(config.storageKey));
                 const images = Array.isArray(current?.images)

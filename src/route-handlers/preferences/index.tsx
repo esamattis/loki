@@ -10,12 +10,7 @@ import { hashPassword } from "@/auth";
 import { Password } from "@/route-handlers/auth/components";
 import { destroySession } from "@/route-handlers/auth/sessions";
 import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/jump-image";
-import {
-    DEFAULT_JUMP_IMAGE_MODEL,
-    JUMP_IMAGE_MODELS,
-    UserOptionsSchema,
-    type UserOptions,
-} from "@/options";
+import { UserOptionsSchema, type UserOptions } from "@/options";
 import * as routes from "@/routes";
 import {
     aiUsage,
@@ -52,7 +47,6 @@ const PreferencesSchema = z
         numberFormat: UserOptionsSchema.shape.numberFormat,
         openaiApiKey: z.string(),
         jumpImagePrompt: z.string(),
-        jumpImageModel: UserOptionsSchema.shape.jumpImageModel,
         htmlCacheEnabled: z.literal("true").optional(),
     })
     .superRefine((data, ctx) => {
@@ -251,20 +245,6 @@ function JumpFromImageSection(props: { options: UserOptions }) {
                 placeholder="sk-..."
                 value={props.options.openaiApiKey}
             />
-            <Select name="jumpImageModel" label="Default AI model">
-                {JUMP_IMAGE_MODELS.map((model) => (
-                    <option
-                        value={model.id}
-                        selected={
-                            model.id ===
-                            (props.options.jumpImageModel ||
-                                DEFAULT_JUMP_IMAGE_MODEL)
-                        }
-                    >
-                        {model.label} — {model.description}
-                    </option>
-                ))}
-            </Select>
             <div id="jump-image-prompt" className="scroll-mt-4">
                 <div id={promptContainerId}>
                     <Textarea
@@ -465,7 +445,8 @@ function optionsFromRawForm(
         numberFormat: raw.numberFormat ?? current.numberFormat,
         openaiApiKey: raw.openaiApiKey ?? current.openaiApiKey,
         jumpImagePrompt: raw.jumpImagePrompt ?? current.jumpImagePrompt,
-        jumpImageModel: raw.jumpImageModel ?? current.jumpImageModel,
+        jumpImageModel: current.jumpImageModel,
+        jumpImageAdditionalContext: current.jumpImageAdditionalContext,
         htmlCacheEnabled: raw.htmlCacheEnabled === "true",
     });
     return partial.success ? partial.data : current;
@@ -573,7 +554,8 @@ async function handlePreferences(c: AppRequestContext) {
         openaiApiKey: result.data.openaiApiKey.trim(),
         jumpImagePrompt:
             result.data.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
-        jumpImageModel: result.data.jumpImageModel,
+        jumpImageModel: user.options.jumpImageModel,
+        jumpImageAdditionalContext: user.options.jumpImageAdditionalContext,
         htmlCacheEnabled: result.data.htmlCacheEnabled === "true",
     });
     values.options = options;
