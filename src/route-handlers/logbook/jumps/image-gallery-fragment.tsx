@@ -72,7 +72,7 @@ function GalleryImage(props: { imageId: string; selected: boolean }) {
                 </span>
                 <span
                     data-loki-image-meta
-                    className="block truncate px-1 py-1 text-xs text-slate-600 dark:text-slate-300"
+                    className="block h-5 truncate px-1 py-1 text-xs leading-none text-slate-600 dark:text-slate-300"
                 />
             </button>
             <span

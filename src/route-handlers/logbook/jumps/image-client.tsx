@@ -83,7 +83,7 @@ export function ImageGallery(props: {
                 hx-get={routes.logbook.jumps.imageGalleryFragment({}, {})}
                 hx-include="[data-loki-gallery-query]"
                 hx-trigger="load, jump-images-changed"
-                hx-swap="innerHTML"
+                hx-swap="innerHTML focus-scroll:false"
             />
             <p
                 id={resizeNoteId}
@@ -423,6 +423,12 @@ export class $JumpImageGalleryController {
      * Dispatches jump-images-changed; the gallery div listens via hx-trigger.
      */
     renderGalleryState() {
+        // Blur before swap so Android does not scroll when the focused control
+        // is removed with the old gallery fragment.
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && this.gallery.contains(active)) {
+            active.blur();
+        }
         this.galleryImageIdsInput.value = this.imageIds.join(",");
         this.gallerySelectedIdInput.value = this.selectedId ?? "";
         this.gallery.dispatchEvent(
