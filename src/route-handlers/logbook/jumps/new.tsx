@@ -1,5 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import { Link } from "@/components/link";
 import { altitudeInputValue, altitudeToMeters } from "@/options";
 import {
     findJumpByNumber,
@@ -89,26 +90,16 @@ function imageReadingWarningNotices(warning: string) {
         warning,
         <>
             Ambiguities can be fixed using the{" "}
-            <a
-                href={`${routes.preferences({})}#jump-image-prompt`}
-                className="font-medium underline"
-            >
+            <Link href={`${routes.preferences({})}#jump-image-prompt`}>
                 Image reading prompt
-            </a>
-            ,{" "}
-            <a
-                href={`${routes.preferences({})}#openai`}
-                className="font-medium underline"
-            >
-                Preferences
-            </a>
+            </Link>
+            , <Link href={`${routes.preferences({})}#openai`}>Preferences</Link>
             , and the per-image{" "}
-            <a
+            <Link
                 href={`${routes.logbook.jumps.fromImage({})}#additional-context`}
-                className="font-medium underline"
             >
                 Additional context
-            </a>
+            </Link>
             .
         </>,
     ];

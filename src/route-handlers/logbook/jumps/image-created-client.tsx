@@ -1,5 +1,6 @@
 import { Script } from "@/components/script";
 import { useAppContext } from "@/app/app";
+import { Link } from "@/components/link";
 import { $idb } from "@/utils";
 import {
     $applyImageJumpAssociationChange,
@@ -51,9 +52,7 @@ export function JumpImageAssociationComplete(props: {
         <main className="mx-auto max-w-lg p-6 text-slate-700 dark:text-slate-200">
             <p>Updating source image links in this browser...</p>
             <p className="mt-3">
-                <a className="font-medium underline" href={props.redirectUrl}>
-                    Continue to logbook
-                </a>
+                <Link href={props.redirectUrl}>Continue to logbook</Link>
             </p>
             <Script
                 $deps={[

@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { getAppContext, useDateFormatter, useNumberFormatter } from "@/app/app";
+import { Link } from "@/components/link";
 import * as routes from "@/routes";
 import { jumps } from "@/schema";
 
@@ -45,11 +46,10 @@ export function RecordJumps(props: {
                         </dt>
                         <dd className="text-right">
                             {record.jump ? (
-                                <a
+                                <Link
                                     href={routes.logbook.jumps.edit({
                                         uuid: record.jump.uuid,
                                     })}
-                                    className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-400"
                                 >
                                     <span
                                         data-loki-tooltip={record.jump.tooltip}
@@ -60,7 +60,7 @@ export function RecordJumps(props: {
                                         Jump #{record.jump.jumpNumber} (
                                         {formatDate(record.jump.jumpDate)})
                                     </span>
-                                </a>
+                                </Link>
                             ) : (
                                 <span className="text-sm text-slate-400 dark:text-slate-500">
                                     No recorded jump
@@ -79,7 +79,7 @@ export function RecordJumps(props: {
                         </dt>
                         <dd className="text-right">
                             {record.period ? (
-                                <a
+                                <Link
                                     href={routes.logbook.index(
                                         {},
                                         {
@@ -87,7 +87,6 @@ export function RecordJumps(props: {
                                             end: record.period.endDate,
                                         },
                                     )}
-                                    className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-400"
                                 >
                                     {formatNumber(record.period.jumpCount)}{" "}
                                     {record.period.jumpCount === 1
@@ -100,7 +99,7 @@ export function RecordJumps(props: {
                                             ` - ${formatDate(record.period.endDate)}`}
                                         )
                                     </span>
-                                </a>
+                                </Link>
                             ) : (
                                 <span className="text-sm text-slate-400 dark:text-slate-500">
                                     No recorded jump

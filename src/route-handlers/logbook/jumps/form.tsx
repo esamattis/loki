@@ -10,6 +10,7 @@ import {
     Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
+import { Link } from "@/components/link";
 import { CopyIcon } from "@/components/icons";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
@@ -525,12 +526,9 @@ function JumpItemFields(props: {
                     description={
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             Locations can be edited on the{" "}
-                            <a
-                                href={routes.logbook.locations.index({})}
-                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
+                            <Link href={routes.logbook.locations.index({})}>
                                 Manage locations
-                            </a>{" "}
+                            </Link>{" "}
                             page.
                         </p>
                     }
@@ -558,12 +556,9 @@ function JumpItemFields(props: {
                             </p>
                             <p>
                                 Aircraft can be edited on the{" "}
-                                <a
-                                    href={routes.logbook.aircraft.index({})}
-                                    className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                >
+                                <Link href={routes.logbook.aircraft.index({})}>
                                     Manage aircraft
-                                </a>{" "}
+                                </Link>{" "}
                                 page.
                             </p>
                         </div>
@@ -580,12 +575,9 @@ function JumpItemFields(props: {
                     description={
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             Gear can be edited on the{" "}
-                            <a
-                                href={routes.logbook.gear.index({})}
-                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
+                            <Link href={routes.logbook.gear.index({})}>
                                 Manage gear
-                            </a>{" "}
+                            </Link>{" "}
                             page.
                         </p>
                     }
@@ -608,12 +600,9 @@ function JumpItemFields(props: {
                             </p>
                             <p>
                                 Jump types can be edited on the{" "}
-                                <a
-                                    href={routes.logbook.jumpTypes.index({})}
-                                    className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                >
+                                <Link href={routes.logbook.jumpTypes.index({})}>
                                     Manage jump types
-                                </a>{" "}
+                                </Link>{" "}
                                 page.
                             </p>
                         </div>

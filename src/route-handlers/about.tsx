@@ -1,13 +1,12 @@
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { LogbookPage } from "@/app/logbook-page";
 import { BuildInfo } from "@/components/build-info";
+import { ExternalLink, Link } from "@/components/link";
 import * as routes from "@/routes";
 
 const repositoryUrl = "https://github.com/esamattis/loki";
 const releasesUrl = `${repositoryUrl}/releases`;
 const licenseUrl = `${repositoryUrl}/blob/main/LICENSE`;
-const linkClassName =
-    "font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300";
 
 function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
     return (
@@ -24,9 +23,9 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                 <div className="space-y-4 text-slate-700 dark:text-slate-300">
                     <p>
                         Loki is open source software licensed under the{" "}
-                        <a href={licenseUrl} className={linkClassName}>
+                        <ExternalLink href={licenseUrl}>
                             GNU Affero General Public License (AGPL)
-                        </a>
+                        </ExternalLink>
                         .
                     </p>
                     <div>
@@ -56,27 +55,22 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                     </div>
                     <p>
                         The source code is available on{" "}
-                        <a href={repositoryUrl} className={linkClassName}>
-                            GitHub
-                        </a>
+                        <ExternalLink href={repositoryUrl}>GitHub</ExternalLink>
                         .
                     </p>
                     <p>
                         Loki is developed by{" "}
-                        <a
-                            href="https://esamatti.fi/"
-                            className={linkClassName}
-                        >
+                        <ExternalLink href="https://esamatti.fi/">
                             Esa-Matti Suuronen
-                        </a>
+                        </ExternalLink>
                         .
                     </p>
                     <p>
                         Pre-built releases for self-hosting or running Loki on
                         your own computer are available from the{" "}
-                        <a href={releasesUrl} className={linkClassName}>
+                        <ExternalLink href={releasesUrl}>
                             releases page
-                        </a>
+                        </ExternalLink>
                         .
                     </p>
                 </div>
@@ -90,12 +84,9 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                         availability and the preservation of your data are not
                         guaranteed. Take regular backups of your logbook using
                         the{" "}
-                        <a
-                            href={routes.logbook.transfer.index({})}
-                            className="font-semibold underline underline-offset-2 hover:no-underline"
-                        >
+                        <Link href={routes.logbook.transfer.index({})}>
                             export feature
-                        </a>
+                        </Link>
                         .
                     </p>
                 </div>

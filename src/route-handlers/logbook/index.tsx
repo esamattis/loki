@@ -24,6 +24,7 @@ import {
     locations,
 } from "@/schema";
 import { Button, ButtonLink } from "@/components/form";
+import { Link } from "@/components/link";
 import { Details } from "@/components/ui/details";
 import { LogbookPage } from "@/app/logbook-page";
 import {
@@ -112,12 +113,12 @@ function JumpFiltersSummary(props: { hasFilters: boolean }) {
         <>
             Filters
             {props.hasFilters && (
-                <a
+                <Link
                     href={routes.logbook.index({})}
-                    className="ml-auto text-sm font-normal text-indigo-600 hover:underline dark:text-indigo-400"
+                    className="ml-auto text-sm"
                 >
                     Clear filters
-                </a>
+                </Link>
             )}
         </>
     );
@@ -183,12 +184,9 @@ function JumpFilters(props: {
                     description={
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             Locations can be edited on the{" "}
-                            <a
-                                href={routes.logbook.locations.index({})}
-                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
+                            <Link href={routes.logbook.locations.index({})}>
                                 Manage locations
-                            </a>{" "}
+                            </Link>{" "}
                             page.
                         </p>
                     }
@@ -203,12 +201,9 @@ function JumpFilters(props: {
                     description={
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             Gear can be edited on the{" "}
-                            <a
-                                href={routes.logbook.gear.index({})}
-                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
+                            <Link href={routes.logbook.gear.index({})}>
                                 Manage gear
-                            </a>{" "}
+                            </Link>{" "}
                             page.
                         </p>
                     }
@@ -223,12 +218,9 @@ function JumpFilters(props: {
                     description={
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             Jump types can be edited on the{" "}
-                            <a
-                                href={routes.logbook.jumpTypes.index({})}
-                                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
+                            <Link href={routes.logbook.jumpTypes.index({})}>
                                 Manage jump types
-                            </a>{" "}
+                            </Link>{" "}
                             page.
                         </p>
                     }
@@ -818,26 +810,17 @@ async function renderLogbook(c: AppRequestContext) {
                                 Start your logbook
                             </h3>
                             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                                <a
-                                    href={routes.logbook.jumps.new({}, {})}
-                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                                >
+                                <Link href={routes.logbook.jumps.new({}, {})}>
                                     Add your first jump
-                                </a>
+                                </Link>
                                 , import an existing logbook using a{` `}
-                                <a
-                                    href={routes.logbook.transfer.index({})}
-                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                                >
+                                <Link href={routes.logbook.transfer.index({})}>
                                     CSV file
-                                </a>
+                                </Link>
                                 , or use{` `}
-                                <a
-                                    href={routes.logbook.jumps.fromImage({})}
-                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                                >
+                                <Link href={routes.logbook.jumps.fromImage({})}>
                                     AI vision
-                                </a>
+                                </Link>
                                 {` `}
                                 to read your physical logbook.
                             </p>
@@ -856,12 +839,11 @@ async function renderLogbook(c: AppRequestContext) {
                             </form>
                             <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                                 Tip: example data can be cleared later via{` `}
-                                <a
+                                <Link
                                     href={`${routes.preferences({})}#danger-zone`}
-                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
                                 >
                                     Delete logbook data
-                                </a>
+                                </Link>
                                 .
                             </p>
                         </div>

@@ -1,5 +1,6 @@
 import { useId } from "hono/jsx";
 import { useAppContext } from "@/app/app";
+import { ExternalLink } from "@/components/link";
 import { Code } from "@/components/ui/code";
 import { Details } from "@/components/ui/details";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -7,8 +8,6 @@ import { Script } from "@/components/script";
 import * as routes from "@/routes";
 import { $select } from "@/utils";
 
-const agentLinkClassName =
-    "font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300";
 const agents = [
     { name: "Aider", url: "https://aider.chat/" },
     {
@@ -119,12 +118,9 @@ export function AgentMigrationCard() {
                     <ul className="mt-2 grid list-disc gap-x-6 gap-y-1 pl-9 sm:grid-cols-2">
                         {agents.map((agent) => (
                             <li>
-                                <a
-                                    href={agent.url}
-                                    className={agentLinkClassName}
-                                >
+                                <ExternalLink href={agent.url}>
                                     {agent.name}
-                                </a>
+                                </ExternalLink>
                             </li>
                         ))}
                     </ul>

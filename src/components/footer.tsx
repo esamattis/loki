@@ -1,9 +1,8 @@
+import { ExternalLink, Link } from "@/components/link";
 import * as routes from "@/routes";
 import clsx from "clsx";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
-const linkClassName =
-    "underline-offset-2 hover:text-indigo-600 hover:underline dark:hover:text-indigo-400";
 
 export function Footer(props: { hasBottomNavigation: boolean }) {
     return (
@@ -32,32 +31,25 @@ export function Footer(props: { hasBottomNavigation: boolean }) {
                     </span>
                     <span>
                         Built by{" "}
-                        <a
-                            href="https://esamatti.fi/"
-                            className="font-medium text-slate-700 underline-offset-2 hover:text-indigo-600 hover:underline dark:text-slate-300 dark:hover:text-indigo-400"
-                        >
+                        <ExternalLink href="https://esamatti.fi/">
                             Esa-Matti Suuronen
-                        </a>
+                        </ExternalLink>
                     </span>
                 </div>
                 <nav aria-label="Footer" className="flex items-center gap-4">
-                    <a href={routes.home({})} className={linkClassName}>
-                        Home
-                    </a>
-                    <a
+                    <Link href={routes.home({})}>Home</Link>
+                    <Link
                         href={routes.about({})}
                         aria-label="Footer about page"
-                        className={linkClassName}
                     >
                         About
-                    </a>
-                    <a
+                    </Link>
+                    <ExternalLink
                         href={REPOSITORY_URL}
                         aria-label="Loki source code"
-                        className={linkClassName}
                     >
                         GitHub
-                    </a>
+                    </ExternalLink>
                 </nav>
             </div>
         </footer>

@@ -1,7 +1,5 @@
 import { commitUrl, releaseUrl, shortGitRevision, version } from "@/build-info";
-
-const linkClassName =
-    "hover:text-indigo-600 hover:underline dark:hover:text-indigo-400";
+import { ExternalLink } from "@/components/link";
 
 export function BuildInfo() {
     return (
@@ -10,19 +8,16 @@ export function BuildInfo() {
             {version && releaseUrl && (
                 <>
                     {" "}
-                    <a href={releaseUrl} className={linkClassName}>
-                        {version}
-                    </a>
+                    <ExternalLink href={releaseUrl}>{version}</ExternalLink>
                 </>
             )}{" "}
             (
-            <a
+            <ExternalLink
                 href={commitUrl}
-                className={linkClassName}
                 data-loki-tooltip="View commit on GitHub this version was built from"
             >
                 {shortGitRevision}
-            </a>
+            </ExternalLink>
             )
         </>
     );

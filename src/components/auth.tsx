@@ -1,5 +1,6 @@
 import { ErrorList } from "@/components/feedback";
 import { Button } from "@/components/form";
+import { Link } from "@/components/link";
 import * as routes from "@/routes";
 
 export function AuthFormShell(props: {
@@ -41,12 +42,9 @@ export function AuthFormShell(props: {
                     {props.submitLabel}
                 </Button>
                 <div className="pt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-                    <a
-                        href={props.alternateHref}
-                        className="font-medium text-indigo-600 underline-offset-2 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
-                    >
+                    <Link href={props.alternateHref}>
                         {props.alternateLabel}
-                    </a>
+                    </Link>
                 </div>
             </form>
         </div>

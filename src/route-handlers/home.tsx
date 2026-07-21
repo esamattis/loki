@@ -1,6 +1,7 @@
 import type { Child } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ButtonLink, buttonClassName } from "@/components/form";
+import { ExternalLink } from "@/components/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
     GearIcon,
@@ -168,21 +169,12 @@ function InstallCommand() {
                     /usr/local/bin/loki
                 </code>{" "}
                 as root).{" "}
-                <a
-                    href={INSTALL_SCRIPT_URL}
-                    className="font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300"
-                >
+                <ExternalLink href={INSTALL_SCRIPT_URL}>
                     View install script
-                </a>
+                </ExternalLink>
                 . <br />
                 On Windows, download loki.exe from the{" "}
-                <a
-                    href={RELEASES_URL}
-                    className="font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300"
-                >
-                    releases page
-                </a>
-                .
+                <ExternalLink href={RELEASES_URL}>releases page</ExternalLink>.
             </p>
         </section>
     );
@@ -351,12 +343,9 @@ function SelfHosting() {
                             <span className="mt-1 h-2 w-2 flex-none rounded-full bg-indigo-500" />
                             <span>
                                 Deploy to{" "}
-                                <a
-                                    href="https://www.cloudflare.com/products/workers/"
-                                    className="font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-700 dark:text-indigo-400 dark:decoration-indigo-700 dark:hover:text-indigo-300"
-                                >
+                                <ExternalLink href="https://www.cloudflare.com/products/workers/">
                                     Cloudflare Workers
-                                </a>{" "}
+                                </ExternalLink>{" "}
                                 using the free plan
                             </span>
                         </li>

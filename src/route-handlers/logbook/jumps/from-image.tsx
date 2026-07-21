@@ -13,6 +13,7 @@ import {
     labelClassName,
     Select,
 } from "@/components/form";
+import { Link } from "@/components/link";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX,
@@ -245,13 +246,7 @@ function JumpImageField(props: { formId: string }) {
             <p className="text-sm text-slate-500 dark:text-slate-400">
                 On Android, you can also share images to Loki directly from
                 gallery apps when Loki is{" "}
-                <a
-                    href={routes.install({})}
-                    className="font-medium text-sky-700 underline hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
-                >
-                    installed as an app
-                </a>
-                .
+                <Link href={routes.install({})}>installed as an app</Link>.
             </p>
             <ImageGallery
                 inputId={inputId}
@@ -299,12 +294,9 @@ function AdditionalContextField(props: { value: string }) {
                 to pick if the image contains multiple jumps, or to explain
                 abbreviations (e.g. RW means Formation Skydiving). Change the
                 default image reading prompt in{" "}
-                <a
-                    href={`${routes.preferences({})}#jump-image-prompt`}
-                    className="font-medium text-indigo-600 underline dark:text-indigo-400"
-                >
+                <Link href={`${routes.preferences({})}#jump-image-prompt`}>
                     Preferences
-                </a>
+                </Link>
                 .
             </p>
             <Script
@@ -384,12 +376,9 @@ function JumpFromImagePage(props: {
                     {!props.hasApiKey && (
                         <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
                             Add an OpenAI API key in{" "}
-                            <a
-                                href={`${routes.preferences({})}#openai`}
-                                className="font-medium underline"
-                            >
+                            <Link href={`${routes.preferences({})}#openai`}>
                                 Preferences
-                            </a>{" "}
+                            </Link>{" "}
                             before using this feature.
                         </p>
                     )}

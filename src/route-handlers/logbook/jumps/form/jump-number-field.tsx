@@ -6,6 +6,7 @@ import {
     Select,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
+import { Link } from "@/components/link";
 import { Script } from "@/components/script";
 import {
     JUMP_NUMBER_CONFLICT_REPLACE,
@@ -38,14 +39,13 @@ export function JumpNumberError(props: {
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
                     <p className="text-sm">
                         Jump #{props.conflict.jumpNumber} already exists.{" "}
-                        <a
+                        <Link
                             href={routes.logbook.jumps.edit({
                                 uuid: props.conflict.existingUuid,
                             })}
-                            className="font-medium underline"
                         >
                             Open existing jump
-                        </a>
+                        </Link>
                     </p>
                     <div className="mt-2">
                         <Select
