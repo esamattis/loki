@@ -1,14 +1,10 @@
-import clsx from "clsx";
 import type { App, AppRequestContext } from "@/app/app";
 import { JumpImage } from "@/route-handlers/logbook/jumps/image";
 import * as routes from "@/routes";
 
 const MAX_GALLERY_IMAGES = 100;
 
-export function ImageGalleryFragment(props: {
-    imageIds: string[];
-    selectedId: string | null;
-}) {
+export function ImageGalleryFragment(props: { imageIds: string[] }) {
     if (props.imageIds.length === 0) {
         return null;
     }
@@ -31,37 +27,25 @@ export function ImageGalleryFragment(props: {
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                 {props.imageIds.map((imageId) => (
-                    <GalleryImage
-                        imageId={imageId}
-                        selected={imageId === props.selectedId}
-                    />
+                    <GalleryImage imageId={imageId} />
                 ))}
             </div>
         </>
     );
 }
 
-function GalleryImage(props: { imageId: string; selected: boolean }) {
+function GalleryImage(props: { imageId: string }) {
     return (
         <div className="group relative min-w-0" data-loki-gallery-image>
             <button
                 type="button"
                 data-loki-select-image={props.imageId}
                 aria-label="Select image"
-                className={clsx(
-                    "block w-full overflow-hidden rounded-lg border-2 p-1 text-left",
-                    props.selected
-                        ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200 dark:bg-indigo-950/30 dark:ring-indigo-900"
-                        : "border-transparent bg-slate-100 hover:border-slate-300 dark:bg-slate-800 dark:hover:border-slate-600",
-                )}
+                className="block w-full overflow-hidden rounded-lg border-2 border-transparent bg-slate-100 p-1 text-left hover:border-slate-300 dark:bg-slate-800 dark:hover:border-slate-600"
             >
                 <JumpImage
                     imageId={props.imageId}
-                    alt={
-                        props.selected
-                            ? "Selected jump image preview"
-                            : "Jump image preview"
-                    }
+                    alt="Jump image preview"
                     className="h-36 w-full rounded object-contain sm:h-44"
                 />
                 <span
@@ -99,11 +83,7 @@ function getGalleryQuery(c: AppRequestContext) {
         .split(",")
         .filter(Boolean)
         .slice(0, MAX_GALLERY_IMAGES);
-    const selected = searchParams.get("selectedId");
-    return {
-        imageIds,
-        selectedId: selected && imageIds.includes(selected) ? selected : null,
-    };
+    return { imageIds };
 }
 
 export function register(app: App) {

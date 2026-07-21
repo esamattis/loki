@@ -21,6 +21,7 @@ export {
 
 export const JUMP_IMAGE_MAX_DIMENSION = 2048;
 export const JUMP_IMAGE_TARGET_BYTES = 2 * 1024 * 1024;
+
 interface JumpImageInputProps {
     inputId: string;
     uploadInputId: string;
@@ -31,7 +32,6 @@ interface JumpImageInputProps {
     clipboardButtonId: string;
     galleryId: string;
     galleryImageIdsInputId: string;
-    gallerySelectedIdInputId: string;
     resizeNoteId: string;
     jumpLinkTemplateId: string;
     jumpEditUrlTemplate: string;
@@ -58,7 +58,6 @@ export function ImageGallery(props: {
     const dbName = jumpImageDbName(useAppContext().getUser().uuid);
     const galleryId = useId();
     const galleryImageIdsInputId = useId();
-    const gallerySelectedIdInputId = useId();
     const resizeNoteId = useId();
     const jumpLinkTemplateId = useId();
 
@@ -68,12 +67,6 @@ export function ImageGallery(props: {
                 id={galleryImageIdsInputId}
                 type="hidden"
                 name="imageIds"
-                data-loki-gallery-query
-            />
-            <input
-                id={gallerySelectedIdInputId}
-                type="hidden"
-                name="selectedId"
                 data-loki-gallery-query
             />
             {/* jump-images-changed is dispatched by renderGalleryState(). */}
@@ -120,7 +113,6 @@ export function ImageGallery(props: {
                         clipboardButtonId: props.clipboardButtonId,
                         galleryId,
                         galleryImageIdsInputId,
-                        gallerySelectedIdInputId,
                         resizeNoteId,
                         jumpLinkTemplateId,
                         jumpEditUrlTemplate: routes.logbook.jumps.edit({
@@ -183,8 +175,6 @@ export class $JumpImageGalleryController {
     gallery: HTMLElement;
     /** HTMX query input containing all draft IDs in display order. */
     galleryImageIdsInput: HTMLInputElement;
-    /** HTMX query input identifying which draft should render as selected. */
-    gallerySelectedIdInput: HTMLInputElement;
     /** Status element used for resize details and image-processing errors. */
     resizeNote: HTMLElement;
     /** Ordered IDs mirrored into the gallery fragment request. */
@@ -210,10 +200,6 @@ export class $JumpImageGalleryController {
         this.gallery = $select.id(props.galleryId, HTMLElement);
         this.galleryImageIdsInput = $select.id(
             props.galleryImageIdsInputId,
-            HTMLInputElement,
-        );
-        this.gallerySelectedIdInput = $select.id(
-            props.gallerySelectedIdInputId,
             HTMLInputElement,
         );
         this.resizeNote = $select.id(props.resizeNoteId, HTMLElement);
@@ -328,6 +314,7 @@ export class $JumpImageGalleryController {
     /**
      * Adds IndexedDB-only draft metadata to an item after loki:jump-image-loaded
      * (from image.tsx); the server-rendered fragment cannot access that data.
+     * Selection chrome is applied here too, not via SSR.
      */
     enrichJumpImageGalleryItem(event: Event) {
         if (!(event instanceof CustomEvent)) {
@@ -366,9 +353,11 @@ export class $JumpImageGalleryController {
         );
         selectButton.setAttribute("aria-label", `Select ${draft.file.name}`);
         deleteButton.setAttribute("aria-label", `Delete ${draft.file.name}`);
-        if (!image.alt.startsWith("Selected")) {
-            image.alt = `Jump image preview: ${draft.file.name}`;
-        }
+        this.applySelectionToItem(
+            item,
+            draft.id === this.selectedId,
+            draft.file.name,
+        );
         meta.textContent = `${draft.file.name} · ${$formatJumpImageBytes(draft.file.size)}`;
         readIndicator.classList.toggle("hidden", !draft.read);
         for (const [index, jump] of draft.createdJumps.entries()) {
@@ -396,6 +385,79 @@ export class $JumpImageGalleryController {
         );
     }
 
+    /** Selected border classes (method body is serialized into the browser). */
+    selectedClasses() {
+        return [
+            "border-indigo-500",
+            "bg-indigo-50",
+            "ring-2",
+            "ring-indigo-200",
+            "dark:bg-indigo-950/30",
+            "dark:ring-indigo-900",
+        ];
+    }
+
+    /** Default border classes (method body is serialized into the browser). */
+    unselectedClasses() {
+        return [
+            "border-transparent",
+            "bg-slate-100",
+            "hover:border-slate-300",
+            "dark:bg-slate-800",
+            "dark:hover:border-slate-600",
+        ];
+    }
+
+    /** Toggles selected border/alt chrome for one gallery item. */
+    applySelectionToItem(
+        item: HTMLElement,
+        selected: boolean,
+        fileName?: string,
+    ) {
+        const selectButton = $select.el(
+            "[data-loki-select-image]",
+            HTMLButtonElement,
+            item,
+        );
+        const image = $select.el("img", HTMLImageElement, item);
+        const selectedClasses = this.selectedClasses();
+        const unselectedClasses = this.unselectedClasses();
+        selectButton.classList.remove(
+            ...(selected ? unselectedClasses : selectedClasses),
+        );
+        selectButton.classList.add(
+            ...(selected ? selectedClasses : unselectedClasses),
+        );
+        if (selected) {
+            image.alt = "Selected jump image preview";
+            return;
+        }
+        const name =
+            fileName ??
+            selectButton
+                .getAttribute("aria-label")
+                ?.replace(/^Select\s+/, "")
+                .trim();
+        image.alt = name ? `Jump image preview: ${name}` : "Jump image preview";
+    }
+
+    /** Re-applies selection chrome across items already in the gallery DOM. */
+    applySelectionStyles() {
+        for (const item of $select.all(
+            "[data-loki-gallery-image]",
+            HTMLElement,
+            this.gallery,
+        )) {
+            const selectButton = $select.el(
+                "[data-loki-select-image]",
+                HTMLButtonElement,
+                item,
+            );
+            const id = selectButton.dataset.lokiSelectImage ?? "";
+            this.applySelectionToItem(item, id === this.selectedId);
+        }
+    }
+
     /** Routes delegated item actions because HTMX replaces gallery children. */
     handleGalleryClick(event: Event) {
         const target = event.target;
@@ -418,8 +480,9 @@ export class $JumpImageGalleryController {
     }
 
     /**
-     * Mirrors state into HTMX query inputs and requests a fresh server-rendered
-     * fragment so selection and ordering stay authoritative in one place.
+     * Mirrors draft IDs into the HTMX query input and requests a fresh
+     * server-rendered shell. Selection chrome is applied client-side after each
+     * image loads (loki:jump-image-loaded), not by the fragment.
      * Dispatches jump-images-changed; the gallery div listens via hx-trigger.
      */
     renderGalleryState() {
@@ -430,7 +493,6 @@ export class $JumpImageGalleryController {
             active.blur();
         }
         this.galleryImageIdsInput.value = this.imageIds.join(",");
-        this.gallerySelectedIdInput.value = this.selectedId ?? "";
         this.gallery.dispatchEvent(
             new CustomEvent("jump-images-changed", { bubbles: true }),
         );
@@ -651,7 +713,7 @@ export class $JumpImageGalleryController {
         }
         this.selectedId = id;
         this.setUploadFile(draft.file);
-        this.renderGalleryState();
+        this.applySelectionStyles();
         void $updateJumpImageDrafts({
             dbName: this.props.dbName,
             storeName: this.props.storeName,

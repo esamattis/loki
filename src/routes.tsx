@@ -76,7 +76,6 @@ export const logbook = {
             "/logbook/jumps/new/from-image/__gallery",
         ).query<{
             imageIds?: string;
-            selectedId?: string;
         }>(),
         imageShare: route("/logbook/jumps/new/from-image/share"),
         edit: route("/logbook/jumps/:uuid"),
