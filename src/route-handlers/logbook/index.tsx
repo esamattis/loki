@@ -854,6 +854,16 @@ async function renderLogbook(c: AppRequestContext) {
                                     Load example data
                                 </Button>
                             </form>
+                            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                                Tip: example data can be cleared later via{` `}
+                                <a
+                                    href={`${routes.preferences({})}#danger-zone`}
+                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                >
+                                    Delete logbook data
+                                </a>
+                                .
+                            </p>
                         </div>
                     )
                 ) : (
