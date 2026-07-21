@@ -30,8 +30,20 @@ test("empty logbook can load example data with a jump number gap", async ({
         page.getByRole("heading", { name: "Start your logbook" }),
     ).toHaveCount(0);
     await expect(
-        page.getByRole("heading", { name: "104 Jumps" }),
+        page.getByRole("heading", { name: "622 Jumps" }),
     ).toBeVisible();
+    await expect(
+        page.getByRole("link", {
+            name: /#622\b.*Wingsuit.*Skydive Chicago.*Twin Otter/,
+        }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("Long flock at sunset. Clean flight, clean open"),
+    ).toBeVisible();
+    await expect(page.getByText("Gear: Squirrel Aura 3").first()).toBeVisible();
+
+    await page.getByRole("searchbox", { name: "Search jumps" }).fill("96");
+    await page.getByRole("button", { name: "Go to jump number" }).click();
     await expect(
         page.getByRole("heading", { name: "Missing jumps #97 - #98" }),
     ).toBeVisible();
@@ -40,14 +52,6 @@ test("empty logbook can load example data with a jump number gap", async ({
             page.getByRole("link", { name: `Add jump #${jumpNumber}` }),
         ).toBeVisible();
     }
-
-    await expect(
-        page.getByRole("link", {
-            name: /#104\b.*Wingsuit.*Skydive Chicago.*Twin Otter/,
-        }),
-    ).toBeVisible();
-    await expect(page.getByText("Best jump ever")).toBeVisible();
-    await expect(page.getByText("Gear: Birdman Classic")).toBeVisible();
 });
 
 test("example data injection refuses when jumps already exist", async ({
@@ -57,7 +61,7 @@ test("example data injection refuses when jumps already exist", async ({
 
     await page.getByRole("button", { name: "Load example data" }).click();
     await expect(
-        page.getByRole("heading", { name: "104 Jumps" }),
+        page.getByRole("heading", { name: "622 Jumps" }),
     ).toBeVisible();
 
     const response = await page.request.post("/logbook/inject-example-data", {
@@ -85,7 +89,7 @@ test("example data clears existing jump items when the logbook has no jumps", as
         .click();
     await page.getByRole("button", { name: "Load example data" }).click();
     await expect(
-        page.getByRole("heading", { name: "104 Jumps" }),
+        page.getByRole("heading", { name: "622 Jumps" }),
     ).toBeVisible();
 
     await openManageLogbook(page);

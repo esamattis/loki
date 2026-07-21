@@ -18,7 +18,7 @@ test("offset controls can show previous jumps and clear the offset", async ({
 
     await page.getByRole("button", { name: "Load example data" }).click();
     await expect(
-        page.getByRole("heading", { name: "104 Jumps" }),
+        page.getByRole("heading", { name: "622 Jumps" }),
     ).toBeVisible();
 
     const searchInput = page.getByRole("searchbox", { name: "Search jumps" });
@@ -97,7 +97,7 @@ test("editing a jump scrolls back to that jump", async ({ page }) => {
 
     await page.getByRole("button", { name: "Load example data" }).click();
     await expect(
-        page.getByRole("heading", { name: "104 Jumps" }),
+        page.getByRole("heading", { name: "622 Jumps" }),
     ).toBeVisible();
 
     await page.getByRole("searchbox", { name: "Search jumps" }).fill("1");
