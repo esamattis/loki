@@ -1,4 +1,3 @@
-import { useId } from "hono/jsx";
 import { useAppContext } from "@/app/app";
 import { Script } from "@/components/script";
 import { $idb, $select } from "@/utils";
@@ -7,13 +6,18 @@ import {
     jumpImageDbName,
 } from "@/route-handlers/logbook/jumps/image-storage-client";
 
+/** Stable DOM id for a draft image; must not use useId() (HTMX fragments collide). */
+export function jumpImageElementId(imageId: string): string {
+    return `loki-jump-image-${imageId}`;
+}
+
 export function JumpImage(props: {
     imageId: string;
     alt: string;
     className?: string;
     revealElementId?: string;
 }) {
-    const elementId = useId();
+    const elementId = jumpImageElementId(props.imageId);
     const dbName = jumpImageDbName(useAppContext().getUser().uuid);
 
     return (

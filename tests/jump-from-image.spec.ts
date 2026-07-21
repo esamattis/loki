@@ -343,6 +343,24 @@ test("from image form lists latest images first and can clear them", async ({
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
 
+    // Gallery HTML is an HTMX fragment with its own useId sequence. Steal any
+    // Hono :rN: ids from the fragment so getElementById hits a <template> first
+    // when JumpImage keys the <img> with useId() instead of the draft id.
+    await page.evaluate(() => {
+        document.body.insertAdjacentHTML(
+            "afterbegin",
+            '<template id="stolen-gallery-image-id"></template>',
+        );
+    });
+    await page.route("**/from-image/__gallery**", async (route) => {
+        const response = await route.fetch();
+        const body = (await response.text()).replaceAll(
+            /:r[0-9a-z]+:/g,
+            "stolen-gallery-image-id",
+        );
+        await route.fulfill({ response, body });
+    });
+
     const imageBuffer = fs.readFileSync(
         path.join(__dirname, "fixtures/jump-image.png"),
     );
@@ -367,6 +385,10 @@ test("from image form lists latest images first and can clear them", async ({
         "alt",
         "Selected jump image preview",
     );
+    await expect(galleryNames).toHaveCount(2);
+    for (const img of await galleryNames.all()) {
+        await expect(img).toHaveAttribute("src", /^blob:/);
+    }
     await expect
         .poll(() =>
             page.locator('input[name="image"]').evaluate((input) => {
