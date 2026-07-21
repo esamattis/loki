@@ -23,7 +23,7 @@ import {
     jumpsToJumpTypes,
     locations,
 } from "@/schema";
-import { Button } from "@/components/form";
+import { Button, ButtonLink } from "@/components/form";
 import { Details } from "@/components/ui/details";
 import { LogbookPage } from "@/app/logbook-page";
 import {
@@ -710,6 +710,40 @@ function ScrollToJumpHash() {
     );
 }
 
+function previousLogbookOffset(offset: number): number {
+    return Math.max(0, offset - JUMPS_PER_PAGE + 1);
+}
+
+function LogbookOffsetControls(props: {
+    filters: LogbookFilters;
+    offset: number;
+    topJumpNumber?: number;
+}) {
+    const previousOffset = previousLogbookOffset(props.offset);
+    const previousHref =
+        props.topJumpNumber === undefined
+            ? buildLogbookUrl(props.filters, { offset: previousOffset })
+            : `${buildLogbookUrl(props.filters, { offset: previousOffset })}#${jumpAnchorId(props.topJumpNumber)}`;
+    return (
+        <li className="col-span-full flex flex-wrap items-center justify-center gap-3 py-1">
+            <ButtonLink
+                href={previousHref}
+                variant="secondary"
+                data-loki-tooltip="Show more jumps above · keeps scroll near the current top jump"
+            >
+                Show previous jumps
+            </ButtonLink>
+            <ButtonLink
+                href={buildLogbookUrl(props.filters)}
+                variant="secondary"
+                data-loki-tooltip="Return to the start of the logbook"
+            >
+                Clear offset
+            </ButtonLink>
+        </li>
+    );
+}
+
 async function renderLogbook(c: AppRequestContext) {
     const appContext = getAppContext(c);
     const user = appContext.getUser();
@@ -825,14 +859,11 @@ async function renderLogbook(c: AppRequestContext) {
                 ) : (
                     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {offset > 0 && (
-                            <li className="col-span-full text-center text-sm">
-                                <a
-                                    href={buildLogbookUrl(filters)}
-                                    className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                                >
-                                    Clear offset
-                                </a>
-                            </li>
+                            <LogbookOffsetControls
+                                filters={filters}
+                                offset={offset}
+                                topJumpNumber={jumpCards[0]?.jumpNumber}
+                            />
                         )}
                         <JumpList
                             jumps={jumpCards}

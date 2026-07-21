@@ -1,5 +1,6 @@
 import { expect, test } from "./fixtures";
 import {
+    expectLogbookAroundJump,
     jumpItemSummary,
     openJumpItemSelect,
     openManageLogbook,
@@ -165,7 +166,7 @@ test("editing a jump keeps archived jump items", async ({ page }) => {
         .locator('textarea[name="description"]')
         .fill("Edited while items archived");
     await page.getByRole("button", { name: "Save jump" }).click();
-    await expect(page).toHaveURL("/logbook");
+    await expectLogbookAroundJump(page, 1);
     await expect(page.getByText("Edited while items archived")).toBeVisible();
 
     await page.getByRole("link", { name: /#1/ }).click();

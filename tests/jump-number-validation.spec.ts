@@ -387,7 +387,7 @@ test("editing a jump can replace another jump with the same number", async ({
     await jumpConflictSelect(page).selectOption("replace");
     await page.getByRole("button", { name: "Save jump" }).click();
 
-    await expect(page).toHaveURL("/logbook");
+    await expectLogbookAroundJump(page, 1);
     await expect(jumpNumberLink(page, 1)).toHaveCount(1);
     await expect(jumpNumberLink(page, 2)).toHaveCount(0);
     await expect(jumpNumberLink(page, 3)).toHaveCount(1);
@@ -420,7 +420,7 @@ test("editing a jump can shift existing and later jumps by +1", async ({
     await jumpConflictSelect(page).selectOption("shift");
     await page.getByRole("button", { name: "Save jump" }).click();
 
-    await expect(page).toHaveURL("/logbook");
+    await expectLogbookAroundJump(page, 2);
     await expect(jumpNumberLink(page, 1)).toHaveCount(1);
     await expect(jumpNumberLink(page, 2)).toHaveCount(1);
     await expect(jumpNumberLink(page, 3)).toHaveCount(1);
@@ -462,7 +462,7 @@ test("editing a jump without a number conflict does not show conflict options", 
     await expect(jumpConflictSelect(page)).toHaveCount(0);
     await page.getByRole("button", { name: "Save jump" }).click();
 
-    await expect(page).toHaveURL("/logbook");
+    await expectLogbookAroundJump(page, 9);
     await expect(jumpNumberLink(page, 9)).toHaveCount(1);
     await expect(page.getByText("Renumbered")).toBeVisible();
 });

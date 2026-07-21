@@ -18,6 +18,7 @@ import {
 } from "@/route-handlers/logbook/jumps/helpers";
 import { JumpFormPage } from "@/route-handlers/logbook/jumps/form";
 import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
+import { buildLogbookGoToJumpUrl } from "@/route-handlers/logbook/components/search";
 import * as routes from "@/routes";
 import {
     jumps,
@@ -109,6 +110,9 @@ async function saveEditedJump(
             ...jumpRelationDeletes(db, options.uuid),
             ...jumpRelationInserts(db, options.uuid, options.links),
         ]);
+        const redirectUrl = buildLogbookGoToJumpUrl(
+            options.jumpValues.jumpNumber,
+        );
         return c.render(
             <JumpImageAssociationComplete
                 changes={[
@@ -122,7 +126,7 @@ async function saveEditedJump(
                         jumpNumber: options.jumpValues.jumpNumber,
                     },
                 ]}
-                redirectUrl={routes.logbook.index({})}
+                redirectUrl={redirectUrl}
                 returnAfterFormPost
             />,
         );
@@ -143,6 +147,7 @@ async function saveEditedJump(
               ]
             : writeQueries,
     );
+    const redirectUrl = buildLogbookGoToJumpUrl(options.jumpValues.jumpNumber);
     return c.render(
         <JumpImageAssociationComplete
             change={{
@@ -150,7 +155,7 @@ async function saveEditedJump(
                 jumpUuid: options.uuid,
                 jumpNumber: options.jumpValues.jumpNumber,
             }}
-            redirectUrl={routes.logbook.index({})}
+            redirectUrl={redirectUrl}
             returnAfterFormPost
         />,
     );
