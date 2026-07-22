@@ -166,7 +166,7 @@ function ClampedDescription(props: { description: string; jumpUuid: string }) {
                 hidden
                 aria-controls={descriptionId}
                 aria-expanded="false"
-                className="mt-0.5 text-xs font-medium text-indigo-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:text-indigo-400"
+                className="relative z-10 mt-0.5 text-xs font-medium text-indigo-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:text-indigo-400"
             >
                 Show all
             </button>
@@ -206,13 +206,13 @@ export function JumpCard(props: JumpListItem) {
         <li
             id={jumpAnchorId(props.jumpNumber)}
             className={clsx(
-                "scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30",
+                "relative scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:bg-slate-50/40 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700 dark:hover:bg-slate-800/40 dark:hover:shadow-black/30",
                 "target:border-indigo-400 target:ring-2 target:ring-indigo-300/70 dark:target:border-indigo-500 dark:target:ring-indigo-500/40",
             )}
         >
             <a
                 href={routes.logbook.jumps.edit({ uuid: props.uuid })}
-                className="block px-5 py-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/50 dark:focus-visible:ring-indigo-400/50"
+                className="block px-5 py-4 after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-indigo-500/50 dark:focus-visible:after:ring-indigo-400/50"
             >
                 <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                     <div className="flex min-w-0 flex-col gap-1">
