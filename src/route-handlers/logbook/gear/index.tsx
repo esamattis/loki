@@ -4,8 +4,8 @@ import { Button, ButtonLink } from "@/components/form";
 import { LogbookPage } from "@/app/logbook-page";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
 import * as routes from "@/routes";
-import { gear } from "@/schema";
-import { eq } from "drizzle-orm";
+import { gear, jumpsToGear } from "@/schema";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
     app.get(routes.logbook.gear.index.route, getGearList);
@@ -14,9 +14,14 @@ export function register(app: App) {
 async function getGearList(c: AppRequestContext) {
     const app = getAppContext(c);
     const rows = await app.db
-        .select()
+        .select({
+            ...getTableColumns(gear),
+            recordedJumpCount: sql<number>`count(${jumpsToGear.jumpUuid})`,
+        })
         .from(gear)
+        .leftJoin(jumpsToGear, eq(gear.uuid, jumpsToGear.gearUuid))
         .where(eq(gear.userUuid, app.getUser().uuid))
+        .groupBy(gear.uuid)
         .orderBy(gear.name);
     return c.render(
         <LogbookPage title="Gear">
@@ -51,6 +56,9 @@ async function getGearList(c: AppRequestContext) {
                                 </p>
                                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                     Previous uses: {item.previousUsageCount}
+                                </p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Recorded jumps: {item.recordedJumpCount}
                                 </p>
                                 {item.description && (
                                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">

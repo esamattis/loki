@@ -4,8 +4,8 @@ import { LogbookPage } from "@/app/logbook-page";
 import { Button, ButtonLink } from "@/components/form";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
 import * as routes from "@/routes";
-import { jumpTypes } from "@/schema";
-import { eq } from "drizzle-orm";
+import { jumpsToJumpTypes, jumpTypes } from "@/schema";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
     app.get(routes.logbook.jumpTypes.index.route, getJumpTypeList);
@@ -14,9 +14,17 @@ export function register(app: App) {
 async function getJumpTypeList(c: AppRequestContext) {
     const app = getAppContext(c);
     const rows = await app.db
-        .select()
+        .select({
+            ...getTableColumns(jumpTypes),
+            recordedJumpCount: sql<number>`count(${jumpsToJumpTypes.jumpUuid})`,
+        })
         .from(jumpTypes)
+        .leftJoin(
+            jumpsToJumpTypes,
+            eq(jumpTypes.uuid, jumpsToJumpTypes.jumpTypeUuid),
+        )
         .where(eq(jumpTypes.userUuid, app.getUser().uuid))
+        .groupBy(jumpTypes.uuid)
         .orderBy(jumpTypes.name);
     return c.render(
         <LogbookPage title="Jump types">
@@ -51,6 +59,9 @@ async function getJumpTypeList(c: AppRequestContext) {
                                 </p>
                                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                     Previous uses: {item.previousUsageCount}
+                                </p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Recorded jumps: {item.recordedJumpCount}
                                 </p>
                                 {item.description && (
                                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">

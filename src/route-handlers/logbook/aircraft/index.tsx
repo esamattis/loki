@@ -1,11 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
 import { PlusIcon } from "@/components/icons";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
 import { LogbookPage } from "@/app/logbook-page";
 import * as routes from "@/routes";
-import { aircrafts } from "@/schema";
+import { aircrafts, jumpsToAircrafts } from "@/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.aircraft.index.route, getAircraftList);
@@ -14,9 +14,17 @@ export function register(app: App) {
 async function getAircraftList(c: AppRequestContext) {
     const app = getAppContext(c);
     const rows = await app.db
-        .select()
+        .select({
+            ...getTableColumns(aircrafts),
+            recordedJumpCount: sql<number>`count(${jumpsToAircrafts.jumpUuid})`,
+        })
         .from(aircrafts)
+        .leftJoin(
+            jumpsToAircrafts,
+            eq(aircrafts.uuid, jumpsToAircrafts.aircraftUuid),
+        )
         .where(eq(aircrafts.userUuid, app.getUser().uuid))
+        .groupBy(aircrafts.uuid)
         .orderBy(aircrafts.name);
     return c.render(
         <LogbookPage title="Aircraft">
@@ -54,6 +62,10 @@ async function getAircraftList(c: AppRequestContext) {
                                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                         Previous jumps:{" "}
                                         {aircraft.previousJumpCount}
+                                    </p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                        Recorded jumps:{" "}
+                                        {aircraft.recordedJumpCount}
                                     </p>
                                     {aircraft.description && (
                                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
