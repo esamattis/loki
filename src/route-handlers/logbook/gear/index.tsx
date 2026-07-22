@@ -63,7 +63,9 @@ async function getGearList(c: AppRequestContext) {
                                 <JumpItemCounts
                                     previousLabel="Previous uses"
                                     previousCount={item.previousUsageCount}
+                                    previousTooltip="The manually entered usage count for this gear that is not stored as individual jump records."
                                     recordedCount={item.recordedJumpCount}
+                                    recordedTooltip="The number of individual jump records that use this gear."
                                 />
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">

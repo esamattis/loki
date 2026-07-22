@@ -131,6 +131,14 @@ test("location can be merged into another location", async ({ page }) => {
     await expect(page.getByText("Target DZ", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Previous jumps: 8")).toBeVisible();
     await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous jumps: 8")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The manually entered count of jumps at this location that are not stored as individual jump records.",
+    );
+    await expect(page.getByLabel("Recorded jumps: 1")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The number of individual jump records assigned to this location.",
+    );
 });
 
 test("aircraft can be merged into another aircraft", async ({ page }) => {
@@ -195,6 +203,14 @@ test("aircraft can be merged into another aircraft", async ({ page }) => {
     await expect(page.getByText("Target Plane", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Previous jumps: 6")).toBeVisible();
     await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous jumps: 6")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The manually entered count of jumps with this aircraft that are not stored as individual jump records.",
+    );
+    await expect(page.getByLabel("Recorded jumps: 1")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The number of individual jump records assigned to this aircraft.",
+    );
 });
 
 test("gear can be merged into another gear item", async ({ page }) => {
@@ -266,6 +282,14 @@ test("gear can be merged into another gear item", async ({ page }) => {
     ).toBeVisible();
     await expect(page.getByLabel("Previous uses: 8")).toBeVisible();
     await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous uses: 8")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The manually entered usage count for this gear that is not stored as individual jump records.",
+    );
+    await expect(page.getByLabel("Recorded jumps: 1")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The number of individual jump records that use this gear.",
+    );
 });
 
 test("jump type can be merged into another jump type", async ({ page }) => {
@@ -331,4 +355,12 @@ test("jump type can be merged into another jump type", async ({ page }) => {
     await expect(page.getByText("Target Type", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Previous uses: 11")).toBeVisible();
     await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous uses: 11")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The manually entered usage count for this jump type that is not stored as individual jump records.",
+    );
+    await expect(page.getByLabel("Recorded jumps: 1")).toHaveAttribute(
+        "data-loki-tooltip",
+        "The number of individual jump records assigned this jump type.",
+    );
 });

@@ -1,29 +1,31 @@
 export function JumpItemCounts(props: {
     previousLabel: string;
     previousCount: number;
+    previousTooltip: string;
     recordedCount: number;
+    recordedTooltip: string;
 }) {
     return (
-        <dl className="mt-4 grid grid-cols-2 gap-2">
+        <dl className="mt-3 grid grid-cols-2 gap-3">
             <div
-                className="rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-slate-800/60"
+                data-loki-tooltip={props.previousTooltip}
                 aria-label={`${props.previousLabel}: ${props.previousCount}`}
             >
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                    {props.previousLabel}
+                    Previous
                 </dt>
-                <dd className="mt-0.5 text-lg font-semibold text-slate-700 tabular-nums dark:text-slate-300">
+                <dd className="mt-0.5 text-sm font-semibold text-slate-700 tabular-nums dark:text-slate-300">
                     {props.previousCount}
                 </dd>
             </div>
             <div
-                className="rounded-xl bg-indigo-50 px-3 py-2.5 dark:bg-indigo-950/40"
+                data-loki-tooltip={props.recordedTooltip}
                 aria-label={`Recorded jumps: ${props.recordedCount}`}
             >
-                <dt className="text-xs font-medium uppercase tracking-wide text-indigo-500 dark:text-indigo-400">
-                    Recorded jumps
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    Recorded
                 </dt>
-                <dd className="mt-0.5 text-lg font-semibold text-indigo-700 tabular-nums dark:text-indigo-300">
+                <dd className="mt-0.5 text-sm font-semibold text-slate-700 tabular-nums dark:text-slate-300">
                     {props.recordedCount}
                 </dd>
             </div>

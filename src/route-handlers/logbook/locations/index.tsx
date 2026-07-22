@@ -63,7 +63,9 @@ async function getLocationList(c: AppRequestContext) {
                                 <JumpItemCounts
                                     previousLabel="Previous jumps"
                                     previousCount={item.previousJumpCount}
+                                    previousTooltip="The manually entered count of jumps at this location that are not stored as individual jump records."
                                     recordedCount={item.recordedJumpCount}
+                                    recordedTooltip="The number of individual jump records assigned to this location."
                                 />
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">

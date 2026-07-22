@@ -70,9 +70,11 @@ async function getAircraftList(c: AppRequestContext) {
                                         previousCount={
                                             aircraft.previousJumpCount
                                         }
+                                        previousTooltip="The manually entered count of jumps with this aircraft that are not stored as individual jump records."
                                         recordedCount={
                                             aircraft.recordedJumpCount
                                         }
+                                        recordedTooltip="The number of individual jump records assigned to this aircraft."
                                     />
                                 </div>
                             </div>
