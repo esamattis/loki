@@ -14,6 +14,12 @@ test("shows download and invite actions in both calls to action", async ({
     );
     await expect(signups).toHaveCount(2);
     await expect(signups.first()).toHaveAttribute("href", "/register");
+    await expect(
+        page.getByRole("link", { name: "(.csv) backup", exact: true }),
+    ).toHaveAttribute(
+        "href",
+        "https://github.com/esamattis/loki/blob/main/src/example-logbook.csv",
+    );
 });
 
 test("fits the landing page within a small viewport", async ({ page }) => {
