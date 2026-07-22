@@ -129,8 +129,8 @@ test("location can be merged into another location", async ({ page }) => {
     await page.getByRole("link", { name: "Manage locations" }).click();
     await expect(page.getByText("Source DZ", { exact: true })).toHaveCount(0);
     await expect(page.getByText("Target DZ", { exact: true })).toBeVisible();
-    await expect(page.getByText("Previous jumps: 8")).toBeVisible();
-    await expect(page.getByText("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous jumps: 8")).toBeVisible();
+    await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
 });
 
 test("aircraft can be merged into another aircraft", async ({ page }) => {
@@ -193,8 +193,8 @@ test("aircraft can be merged into another aircraft", async ({ page }) => {
         0,
     );
     await expect(page.getByText("Target Plane", { exact: true })).toBeVisible();
-    await expect(page.getByText("Previous jumps: 6")).toBeVisible();
-    await expect(page.getByText("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous jumps: 6")).toBeVisible();
+    await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
 });
 
 test("gear can be merged into another gear item", async ({ page }) => {
@@ -264,8 +264,8 @@ test("gear can be merged into another gear item", async ({ page }) => {
     await expect(
         page.getByText("Target Canopy", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByText("Previous uses: 8")).toBeVisible();
-    await expect(page.getByText("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous uses: 8")).toBeVisible();
+    await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
 });
 
 test("jump type can be merged into another jump type", async ({ page }) => {
@@ -329,6 +329,6 @@ test("jump type can be merged into another jump type", async ({ page }) => {
     await page.getByRole("link", { name: "Manage jump types" }).click();
     await expect(page.getByText("Source Type", { exact: true })).toHaveCount(0);
     await expect(page.getByText("Target Type", { exact: true })).toBeVisible();
-    await expect(page.getByText("Previous uses: 11")).toBeVisible();
-    await expect(page.getByText("Recorded jumps: 1")).toBeVisible();
+    await expect(page.getByLabel("Previous uses: 11")).toBeVisible();
+    await expect(page.getByLabel("Recorded jumps: 1")).toBeVisible();
 });

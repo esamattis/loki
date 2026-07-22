@@ -4,6 +4,7 @@ import { Button, ButtonLink } from "@/components/form";
 import { PlusIcon } from "@/components/icons";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
 import { LogbookPage } from "@/app/logbook-page";
+import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
 import * as routes from "@/routes";
 import { aircrafts, jumpsToAircrafts } from "@/schema";
 
@@ -59,19 +60,20 @@ async function getAircraftList(c: AppRequestContext) {
                                             </span>
                                         )}
                                     </p>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        Previous jumps:{" "}
-                                        {aircraft.previousJumpCount}
-                                    </p>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                                        Recorded jumps:{" "}
-                                        {aircraft.recordedJumpCount}
-                                    </p>
                                     {aircraft.description && (
                                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                                             {aircraft.description}
                                         </p>
                                     )}
+                                    <JumpItemCounts
+                                        previousLabel="Previous jumps"
+                                        previousCount={
+                                            aircraft.previousJumpCount
+                                        }
+                                        recordedCount={
+                                            aircraft.recordedJumpCount
+                                        }
+                                    />
                                 </div>
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">

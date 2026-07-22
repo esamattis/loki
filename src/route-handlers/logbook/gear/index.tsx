@@ -3,6 +3,7 @@ import { getAppContext } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
 import { LogbookPage } from "@/app/logbook-page";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
+import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
 import * as routes from "@/routes";
 import { gear, jumpsToGear } from "@/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
@@ -54,17 +55,16 @@ async function getGearList(c: AppRequestContext) {
                                         </span>
                                     )}
                                 </p>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                    Previous uses: {item.previousUsageCount}
-                                </p>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                    Recorded jumps: {item.recordedJumpCount}
-                                </p>
                                 {item.description && (
                                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                                         {item.description}
                                     </p>
                                 )}
+                                <JumpItemCounts
+                                    previousLabel="Previous uses"
+                                    previousCount={item.previousUsageCount}
+                                    recordedCount={item.recordedJumpCount}
+                                />
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                                 <ButtonLink
