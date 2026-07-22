@@ -3,9 +3,10 @@ import { getAppContext } from "@/app/app";
 import { LogbookPage } from "@/app/logbook-page";
 import { Button, ButtonLink } from "@/components/form";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
+import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
 import * as routes from "@/routes";
-import { locations } from "@/schema";
-import { eq } from "drizzle-orm";
+import { jumps, locations } from "@/schema";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
     app.get(routes.logbook.locations.index.route, getLocationList);
@@ -14,9 +15,14 @@ export function register(app: App) {
 async function getLocationList(c: AppRequestContext) {
     const app = getAppContext(c);
     const rows = await app.db
-        .select()
+        .select({
+            ...getTableColumns(locations),
+            recordedJumpCount: sql<number>`count(${jumps.uuid})`,
+        })
         .from(locations)
+        .leftJoin(jumps, eq(locations.uuid, jumps.locationUuid))
         .where(eq(locations.userUuid, app.getUser().uuid))
+        .groupBy(locations.uuid)
         .orderBy(locations.name);
     return c.render(
         <LogbookPage title="Locations">
@@ -49,14 +55,18 @@ async function getLocationList(c: AppRequestContext) {
                                         </span>
                                     )}
                                 </p>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                    Previous jumps: {item.previousJumpCount}
-                                </p>
                                 {item.description && (
                                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                                         {item.description}
                                     </p>
                                 )}
+                                <JumpItemCounts
+                                    previousLabel="Previous jumps"
+                                    previousCount={item.previousJumpCount}
+                                    previousTooltip="The manually entered count of jumps at this location that are not stored as individual jump records."
+                                    recordedCount={item.recordedJumpCount}
+                                    recordedTooltip="The number of individual jump records assigned to this location."
+                                />
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                                 <ButtonLink

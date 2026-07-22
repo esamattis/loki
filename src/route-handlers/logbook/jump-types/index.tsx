@@ -3,9 +3,10 @@ import { getAppContext } from "@/app/app";
 import { LogbookPage } from "@/app/logbook-page";
 import { Button, ButtonLink } from "@/components/form";
 import { IgnoreReturnRoute } from "@/components/return-after-form-post";
+import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
 import * as routes from "@/routes";
-import { jumpTypes } from "@/schema";
-import { eq } from "drizzle-orm";
+import { jumpsToJumpTypes, jumpTypes } from "@/schema";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
     app.get(routes.logbook.jumpTypes.index.route, getJumpTypeList);
@@ -14,9 +15,17 @@ export function register(app: App) {
 async function getJumpTypeList(c: AppRequestContext) {
     const app = getAppContext(c);
     const rows = await app.db
-        .select()
+        .select({
+            ...getTableColumns(jumpTypes),
+            recordedJumpCount: sql<number>`count(${jumpsToJumpTypes.jumpUuid})`,
+        })
         .from(jumpTypes)
+        .leftJoin(
+            jumpsToJumpTypes,
+            eq(jumpTypes.uuid, jumpsToJumpTypes.jumpTypeUuid),
+        )
         .where(eq(jumpTypes.userUuid, app.getUser().uuid))
+        .groupBy(jumpTypes.uuid)
         .orderBy(jumpTypes.name);
     return c.render(
         <LogbookPage title="Jump types">
@@ -49,14 +58,18 @@ async function getJumpTypeList(c: AppRequestContext) {
                                         </span>
                                     )}
                                 </p>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                    Previous uses: {item.previousUsageCount}
-                                </p>
                                 {item.description && (
                                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                                         {item.description}
                                     </p>
                                 )}
+                                <JumpItemCounts
+                                    previousLabel="Previous uses"
+                                    previousCount={item.previousUsageCount}
+                                    previousTooltip="The manually entered usage count for this jump type that is not stored as individual jump records."
+                                    recordedCount={item.recordedJumpCount}
+                                    recordedTooltip="The number of individual jump records assigned this jump type."
+                                />
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                                 <ButtonLink
