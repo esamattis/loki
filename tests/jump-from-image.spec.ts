@@ -54,6 +54,12 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await expect(
+        page.getByRole("heading", { name: "Read jump from image" }),
+    ).toHaveCount(1);
+    await expect(
+        page.getByRole("heading", { name: "Read jump data from an image" }),
+    ).toHaveCount(0);
+    await expect(
         page.locator('textarea[name="additionalContext"]'),
     ).toHaveValue("");
     await expect(

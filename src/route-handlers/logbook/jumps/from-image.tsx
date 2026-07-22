@@ -359,16 +359,11 @@ function JumpFromImagePage(props: {
             <ClearReturnRoute />
             <div className="space-y-6">
                 <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                            Read jump data from an image
-                        </h2>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            Upload a photo of a logbook page, altimeter, or
-                            freefall computer. Review the extracted values on
-                            the add jump form before saving.
-                        </p>
-                    </div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Upload a photo of a logbook page, altimeter, or freefall
+                        computer. Review the extracted values on the add jump
+                        form before saving.
+                    </p>
                     <ErrorList
                         errors={props.errors ?? []}
                         className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
