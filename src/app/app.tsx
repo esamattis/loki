@@ -8,6 +8,7 @@ import { Script } from "@/components/script";
 import { htmxAsset, tailwindAsset } from "@/app-assets";
 import { Button } from "@/components/form";
 import { Footer } from "@/components/footer";
+import { BackgroundGradients } from "@/components/background-gradients";
 import { Dialog } from "@/components/ui/dialog";
 import { DisableViewTransitionsInAutomation } from "@/components/disable-view-transitions-in-automation";
 import {
@@ -857,6 +858,7 @@ app.use(
                     }}
                     className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200"
                 >
+                    <BackgroundGradients />
                     <ReturnAfterFormPost />
                     <div className="flex-1">{props.children}</div>
                     <Footer hasBottomNavigation={Boolean(user)} />

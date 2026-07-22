@@ -429,7 +429,7 @@ function FooterCta(props: { loggedIn: boolean }) {
 
 function LandingPage(props: { loggedIn: boolean }) {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="min-h-screen">
             <LandingHeader loggedIn={props.loggedIn} />
             <main>
                 <Hero loggedIn={props.loggedIn} />
