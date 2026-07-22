@@ -10,17 +10,17 @@ const licenseUrl = `${repositoryUrl}/blob/main/LICENSE`;
 
 function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
     return (
-        <div className="space-y-6">
-            <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="space-y-8">
+            <article className="space-y-6">
                 {props.showBuildInfo && (
                     <p
                         aria-label="Build information"
-                        className="text-sm font-semibold text-slate-500 dark:text-slate-400"
+                        className="border-b border-slate-200 pb-6 text-sm font-semibold text-slate-500 dark:border-slate-800 dark:text-slate-400"
                     >
                         <BuildInfo />
                     </p>
                 )}
-                <div className="space-y-4 text-slate-700 dark:text-slate-300">
+                <div className="space-y-5 text-base leading-7 text-slate-700 dark:text-slate-300">
                     <p>
                         Loki is open source software licensed under the{" "}
                         <ExternalLink href={licenseUrl}>
@@ -90,14 +90,14 @@ function AboutContent(props: { showBuildInfo: boolean; sqlitePath?: string }) {
                         .
                     </p>
                 </div>
-            </div>
+            </article>
             {props.sqlitePath && (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <footer className="border-t border-slate-200 pt-6 dark:border-slate-800">
                     <p className="break-all text-sm text-slate-500 dark:text-slate-400">
                         <span className="font-semibold">SQLite database:</span>{" "}
                         <code>{props.sqlitePath}</code>
                     </p>
-                </div>
+                </footer>
             )}
         </div>
     );
