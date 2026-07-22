@@ -1,6 +1,7 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
     "name": "hypyt",
+    "preview_urls": true,
     "compatibility_date": "2025-08-03",
     "main": "./src/index.tsx",
     "d1_databases": [
