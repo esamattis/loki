@@ -55,10 +55,75 @@ function JumpItemOption(props: {
     );
 }
 
+function JumpItemArchiveScript(props: {
+    optionsId: string;
+    archivedButtonId: string;
+}) {
+    if (props.archivedButtonId === "") return null;
+    return (
+        <Script
+            $deps={[$select]}
+            $args={[props]}
+            $exec={(config) => {
+                const options = $select.id(config.optionsId, HTMLDivElement);
+                const button = $select.id(
+                    config.archivedButtonId,
+                    HTMLButtonElement,
+                );
+
+                function setArchivedItemsVisible(visible: boolean) {
+                    let hasSelectedArchivedItem = false;
+                    for (const element of $select.all(
+                        '[data-loki-archived="true"]',
+                        HTMLLabelElement,
+                        options,
+                    )) {
+                        const input = $select.el(
+                            "input",
+                            HTMLInputElement,
+                            element,
+                        );
+                        hasSelectedArchivedItem ||= input.checked;
+                        element.hidden = !(visible || input.checked);
+                    }
+                    const archivedSection = $select.elOrNull(
+                        "[data-loki-archived-section]",
+                        HTMLElement,
+                        options,
+                    );
+                    if (archivedSection) {
+                        archivedSection.hidden = !(
+                            visible || hasSelectedArchivedItem
+                        );
+                    }
+                    button.dataset.lokiShowingArchived = visible
+                        ? "true"
+                        : "false";
+                    button.textContent = visible
+                        ? "Hide archived items"
+                        : "Show archived items";
+                }
+
+                options.addEventListener("change", () => {
+                    setArchivedItemsVisible(
+                        button.dataset.lokiShowingArchived === "true",
+                    );
+                });
+                button.addEventListener("click", () => {
+                    setArchivedItemsVisible(
+                        button.dataset.lokiShowingArchived !== "true",
+                    );
+                });
+            }}
+        />
+    );
+}
+
 function JumpItemSelectScript(props: {
     optionsId: string;
     summaryId: string;
     archivedButtonId: string;
+    clearButtonId: string;
     emptyText: string;
     emptyTemplateId: string;
     itemTemplateId: string;
@@ -107,6 +172,13 @@ function JumpItemSelectScript(props: {
 
                     function updateSummary() {
                         const selected = selectedInputs();
+                        if (config.clearButtonId !== "") {
+                            const clearButton = $select.id(
+                                config.clearButtonId,
+                                HTMLButtonElement,
+                            );
+                            clearButton.disabled = selected.length === 0;
+                        }
                         if (selected.length === 0) {
                             $renderTemplate(summary, config.emptyTemplateId, {
                                 emptyText: config.emptyText,
@@ -141,68 +213,34 @@ function JumpItemSelectScript(props: {
                         );
                     }
 
-                    function setArchivedItemsVisible(visible: boolean) {
-                        let hasSelectedArchivedItem = false;
-                        for (const element of $select.all(
-                            '[data-loki-archived="true"]',
-                            HTMLLabelElement,
-                            options,
-                        )) {
-                            const input = $select.el(
-                                "input",
-                                HTMLInputElement,
-                                element,
-                            );
-                            const selected = input.checked;
-                            hasSelectedArchivedItem ||= selected;
-                            element.hidden = !(visible || selected);
-                        }
-                        const archivedSection = $select.elOrNull(
-                            "[data-loki-archived-section]",
-                            HTMLElement,
-                            options,
-                        );
-                        if (archivedSection) {
-                            archivedSection.hidden = !(
-                                visible || hasSelectedArchivedItem
-                            );
-                        }
-                        if (config.archivedButtonId === "") return;
-                        const button = $select.id(
-                            config.archivedButtonId,
-                            HTMLButtonElement,
-                        );
-                        button.dataset.lokiShowingArchived = visible
-                            ? "true"
-                            : "false";
-                        button.textContent = visible
-                            ? "Hide archived items"
-                            : "Show archived items";
-                    }
-
                     options.addEventListener("change", () => {
                         updateSummary();
-                        if (config.archivedButtonId === "") return;
-                        const button = $select.id(
-                            config.archivedButtonId,
-                            HTMLButtonElement,
-                        );
-                        setArchivedItemsVisible(
-                            button.dataset.lokiShowingArchived === "true",
-                        );
                     });
-                    if (config.archivedButtonId !== "") {
-                        const button = $select.id(
-                            config.archivedButtonId,
+                    if (config.clearButtonId !== "") {
+                        const clearButton = $select.id(
+                            config.clearButtonId,
                             HTMLButtonElement,
                         );
-                        button.addEventListener("click", () => {
-                            setArchivedItemsVisible(
-                                button.dataset.lokiShowingArchived !== "true",
-                            );
+                        clearButton.addEventListener("click", () => {
+                            const selected = selectedInputs();
+                            for (const input of selected) {
+                                input.checked = false;
+                            }
+                            for (const input of selected) {
+                                input.dispatchEvent(
+                                    new Event("input", { bubbles: true }),
+                                );
+                                input.dispatchEvent(
+                                    new Event("change", { bubbles: true }),
+                                );
+                            }
                         });
                     }
                 }}
+            />
+            <JumpItemArchiveScript
+                optionsId={props.optionsId}
+                archivedButtonId={props.archivedButtonId}
             />
         </>
     );
@@ -219,6 +257,44 @@ interface JumpItemSelectProps {
     className?: string;
 }
 
+function JumpItemSelectFooter(props: {
+    multiple?: boolean;
+    hasSelection: boolean;
+    clearButtonId: string;
+    archivedButtonId: string;
+    hasArchivedItems: boolean;
+}) {
+    return (
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
+            <div className="flex items-center gap-3">
+                {props.multiple && (
+                    <button
+                        id={props.clearButtonId}
+                        type="button"
+                        disabled={!props.hasSelection}
+                        className="text-sm font-medium text-indigo-600 transition hover:text-indigo-500 disabled:cursor-not-allowed disabled:text-slate-400 dark:text-indigo-400 dark:hover:text-indigo-300 dark:disabled:text-slate-600"
+                    >
+                        Clear all
+                    </button>
+                )}
+                {props.hasArchivedItems && (
+                    <button
+                        id={props.archivedButtonId}
+                        type="button"
+                        data-loki-showing-archived="false"
+                        className="text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
+                        Show archived items
+                    </button>
+                )}
+            </div>
+            <Button type="button" value="cancel" size="sm">
+                OK
+            </Button>
+        </div>
+    );
+}
+
 export function JumpItemSelect(props: JumpItemSelectProps) {
     function isSelected(item: JumpItemResource) {
         return props.selectedUuids.has(item.uuid);
@@ -229,6 +305,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
     const optionsId = useId();
     const summaryId = useId();
     const archivedButtonId = useId();
+    const clearButtonId = useId();
     const emptyTemplateId = useId();
     const itemTemplateId = useId();
     const selectedItems = props.items.filter(isSelected);
@@ -339,23 +416,13 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                         </section>
                     )}
                 </div>
-                <div className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
-                    {archivedItems.length > 0 ? (
-                        <button
-                            id={archivedButtonId}
-                            type="button"
-                            data-loki-showing-archived="false"
-                            className="text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                        >
-                            Show archived items
-                        </button>
-                    ) : (
-                        <span />
-                    )}
-                    <Button type="button" value="cancel" size="sm">
-                        OK
-                    </Button>
-                </div>
+                <JumpItemSelectFooter
+                    multiple={props.multiple}
+                    hasSelection={selectedItems.length > 0}
+                    clearButtonId={clearButtonId}
+                    archivedButtonId={archivedButtonId}
+                    hasArchivedItems={archivedItems.length > 0}
+                />
             </Dialog>
             <JumpItemSelectScript
                 optionsId={optionsId}
@@ -363,6 +430,7 @@ export function JumpItemSelect(props: JumpItemSelectProps) {
                 archivedButtonId={
                     archivedItems.length > 0 ? archivedButtonId : ""
                 }
+                clearButtonId={props.multiple ? clearButtonId : ""}
                 emptyText={emptyText}
                 emptyTemplateId={emptyTemplateId}
                 itemTemplateId={itemTemplateId}

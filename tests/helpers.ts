@@ -32,6 +32,15 @@ export function jumpItemSummary(page: Page, label: string): Locator {
         .locator(":scope > button");
 }
 
+export async function resetFormDirtyForTest(form: Locator) {
+    await form.evaluate((element) => {
+        if (!(element instanceof HTMLFormElement))
+            throw new Error("Expected form");
+        delete element.dataset.lokiFormDirty;
+        delete document.documentElement.dataset.lokiFormDirty;
+    });
+}
+
 export async function openJumpItemSelect(
     page: Page,
     label: string,
