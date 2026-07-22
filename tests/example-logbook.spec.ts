@@ -40,7 +40,11 @@ test("empty logbook can load example data with a jump number gap", async ({
     await expect(
         page.getByText("Long flock at sunset. Clean flight, clean open"),
     ).toBeVisible();
-    await expect(page.getByText("Gear: Squirrel Aura 3").first()).toBeVisible();
+    await expect(
+        page
+            .getByText("Gear: Mirage G4, Squirrel Aura 3, Velocity 111")
+            .first(),
+    ).toBeVisible();
 
     await page.getByRole("searchbox", { name: "Search jumps" }).fill("96");
     await page.getByRole("button", { name: "Go to jump number" }).click();
