@@ -623,6 +623,7 @@ const PUBLIC_PATHS = [
     routes.auth.register.route,
     routes.demo.try.route,
     routes.about.route,
+    routes.privacy.route,
     routes.todo.route,
 ];
 const PUBLIC_ASSET_PREFIX = "/assets/";
@@ -763,6 +764,7 @@ async function authenticateMiddleware(
         !ctx.user &&
         path !== routes.auth.register.route &&
         path !== routes.about.route &&
+        path !== routes.privacy.route &&
         path !== routes.demo.try.route &&
         !(await hasRegisteredUsers(ctx.db))
     ) {
@@ -835,7 +837,8 @@ app.use(
             return <>{props.children}</>;
         }
 
-        const user = getAppContext(c).user;
+        const appContext = getAppContext(c);
+        const user = appContext.user;
 
         const title = user
             ? `${user.getDisplayName()} – Loki - Skydiving Logbook`
@@ -897,7 +900,10 @@ app.use(
                     <BackgroundGradients />
                     <ReturnAfterFormPost />
                     <div className="flex-1">{props.children}</div>
-                    <Footer hasBottomNavigation={Boolean(user)} />
+                    <Footer
+                        hasBottomNavigation={Boolean(user)}
+                        showPrivacyPolicy={!appContext.sqlitePath}
+                    />
                     <UnsavedChangesDialogComponent />
                     <UpdateToastComponent />
                     <RestoreFormScrollPosition />
