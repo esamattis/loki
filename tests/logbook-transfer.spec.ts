@@ -449,6 +449,41 @@ test("the logbook reminds users to export changed data every month", async ({
     await expect(reminder).toHaveCount(0);
 });
 
+test("the logbook does not show the CSV backup reminder for read-only users", async ({
+    page,
+}) => {
+    const username = "backup-reminder-readonly";
+    const reminder = page.getByRole("heading", {
+        name: "Back up your logbook",
+    });
+    await registerUser(page, username);
+
+    for (const jumpNumber of [1, 2]) {
+        await page.goto("/logbook/transfer");
+        await page.locator('input[name="file"]').setInputFiles({
+            name: `jump-${jumpNumber}.csv`,
+            mimeType: "text/csv",
+            buffer: Buffer.from(
+                [CSV_HEADER, csvJumpRow({ jumpNumber })].join("\n") + "\n",
+            ),
+        });
+        await page.getByRole("button", { name: "Import logbook" }).click();
+        await page
+            .getByRole("link", { name: new RegExp(`${username}'s logbook`) })
+            .click();
+    }
+    await expect(reminder).toBeVisible();
+
+    await executePlaywrightDb(`
+        UPDATE users
+        SET options = json_set(options, '$.readonly', json('true')),
+            html_cache_generation = html_cache_generation + 1
+        WHERE username = '${username}'
+    `);
+    await page.reload();
+    await expect(reminder).toHaveCount(0);
+});
+
 test("an exported logbook file preserves jumps and jump items when imported", async ({
     page,
 }) => {

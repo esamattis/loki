@@ -77,9 +77,10 @@ function shouldShowCsvBackupReminder(props: {
     jumpCount: number;
     latestJumpCreatedAt: number | null;
     lastCsvExportAt: string;
+    readonly: boolean;
     now?: Date;
 }): boolean {
-    if (props.jumpCount < 2) {
+    if (props.readonly || props.jumpCount < 2) {
         return false;
     }
     const exportTime = Date.parse(props.lastCsvExportAt);
@@ -832,6 +833,7 @@ async function renderLogbook(c: AppRequestContext) {
         jumpCount: jumpSummary?.jumpCount ?? 0,
         latestJumpCreatedAt: jumpSummary?.latestJumpCreatedAt ?? null,
         lastCsvExportAt: options.lastCsvExportAt,
+        readonly: user.readonly,
     });
 
     return c.render(
