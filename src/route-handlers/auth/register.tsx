@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import { getAppContext, useAppContext, type App, type AppRequestContext } from "@/app/app";
 import { users } from "@/schema";
 import { z } from "zod";
 import { AuthFormShell } from "@/components/auth";
@@ -11,6 +11,7 @@ import { createRegistrationUser } from "@/route-handlers/auth/register/user";
 import { UserOptionsSchema } from "@/options";
 import { RegistrationLocaleInputs } from "@/route-handlers/auth/register/locale-inputs";
 import { createDefaultJumpItems } from "@/route-handlers/auth/register/default-jump-items";
+import { Link } from "@/components/link";
 
 const RegisterFormSchema = z
     .object({
@@ -46,6 +47,9 @@ function RegisterForm(props: {
     displayName?: string;
     email?: string;
 }) {
+
+    const selfHosting = Boolean(useAppContext().sqlitePath);
+
     return (
         <AuthFormShell
             title="Create account"
@@ -69,6 +73,11 @@ function RegisterForm(props: {
                 </section>
             )}
             <RegistrationLocaleInputs />
+            {!selfHosting && (
+                <p>
+                    Please read the <Link href={routes.privacy({})}>Privacy Policy</Link> before creating an account.
+                </p>
+            )}
             {props.invitationRequired && (
                 <TextInput
                     name="invitationCode"
