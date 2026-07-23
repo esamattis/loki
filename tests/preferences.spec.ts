@@ -1,48 +1,12 @@
 import { expect, test, type Page } from "./fixtures";
-import { execFile as execFileCallback } from "node:child_process";
-import path from "node:path";
-import { promisify } from "node:util";
-import { createRequire } from "node:module";
 import {
+    executePlaywrightDb,
     logOut,
     openDangerZone,
     openMainMenu,
     openManageLogbook,
+    queryPlaywrightDb,
 } from "./helpers";
-
-const execFile = promisify(execFileCallback);
-const require = createRequire(import.meta.url);
-
-function wranglerBin(): string {
-    const packageJson = require.resolve("wrangler/package.json");
-    return path.join(path.dirname(packageJson), "bin", "wrangler.js");
-}
-
-type D1ExecuteResult = {
-    results: Array<Record<string, number | string | null>>;
-};
-
-async function executePlaywrightDb(sql: string): Promise<D1ExecuteResult[]> {
-    const { stdout } = await execFile(process.execPath, [
-        wranglerBin(),
-        "d1",
-        "execute",
-        "DB",
-        "--local",
-        "--persist-to",
-        ".playwright/state",
-        "--json",
-        "--command",
-        sql,
-    ]);
-    return JSON.parse(stdout);
-}
-
-async function queryPlaywrightDb(
-    sql: string,
-): Promise<Array<Record<string, number | string | null>>> {
-    return (await executePlaywrightDb(sql))[0]?.results ?? [];
-}
 
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");

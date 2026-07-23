@@ -1,31 +1,5 @@
-import { execFile as execFileCallback } from "node:child_process";
-import { createRequire } from "node:module";
-import path from "node:path";
-import { promisify } from "node:util";
 import { expect, test, type Page } from "./fixtures";
-import { openMainMenu } from "./helpers";
-
-const execFile = promisify(execFileCallback);
-const require = createRequire(import.meta.url);
-
-function wranglerBin(): string {
-    const packageJson = require.resolve("wrangler/package.json");
-    return path.join(path.dirname(packageJson), "bin", "wrangler.js");
-}
-
-async function executePlaywrightDb(sql: string): Promise<void> {
-    await execFile(process.execPath, [
-        wranglerBin(),
-        "d1",
-        "execute",
-        "DB",
-        "--local",
-        "--persist-to",
-        ".playwright/state",
-        "--command",
-        sql,
-    ]);
-}
+import { executePlaywrightDb, openMainMenu } from "./helpers";
 
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");
