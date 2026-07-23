@@ -129,9 +129,7 @@ test("does not allow removing the last admin", async ({ page, request }) => {
     await expect(removeButton).toBeDisabled();
 });
 
-test("admin can make a user read-only and log in as them", async ({
-    page,
-}) => {
+test("admin can make a user read-only and log in as them", async ({ page }) => {
     await registerUser(page, "readonly-target");
     await logOut(page);
 
