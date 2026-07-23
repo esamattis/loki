@@ -96,10 +96,7 @@ function TryDemoButton() {
     );
 }
 
-function LandingActions(props: {
-    loggedIn: boolean;
-    showTryDemo?: boolean;
-}) {
+function LandingActions(props: { loggedIn: boolean; showTryDemo?: boolean }) {
     return (
         <>
             <a
@@ -445,10 +442,7 @@ function FooterCta(props: { loggedIn: boolean }) {
                             : "Use an invitation to create a hosted account, or log in to pick up where you left off."}
                     </p>
                     <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                        <LandingActions
-                            loggedIn={props.loggedIn}
-                            showTryDemo
-                        />
+                        <LandingActions loggedIn={props.loggedIn} showTryDemo />
                     </div>
                 </div>
             </div>

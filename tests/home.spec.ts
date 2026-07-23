@@ -16,10 +16,17 @@ test("shows download and invite actions in both calls to action", async ({
     expect(
         await page
             .locator(
+                'iframe[title="Loki product video"], button:text-is("Try demo")',
+            )
+            .evaluateAll((elements) => elements[0]?.tagName),
+    ).toBe("BUTTON");
+    expect(
+        await page
+            .locator(
                 'iframe[title="Loki product video"], a[href="https://github.com/esamattis/loki/releases"]',
             )
             .evaluateAll((elements) => elements[0]?.tagName),
-    ).toBe("A");
+    ).toBe("IFRAME");
     await expect(signups).toHaveCount(2);
     await expect(signups.first()).toHaveAttribute("href", "/register");
     await expect(
