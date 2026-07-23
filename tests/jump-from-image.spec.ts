@@ -737,12 +737,14 @@ test("installed service worker restores a shared image into the from-image reade
     await expect(page.getByText(/shared-image\.png/)).toBeVisible();
 });
 
-test("manifest declares the image share target metadata", async ({
+test("manifest declares stable identity, launch, and share metadata", async ({
     request,
 }) => {
     const response = await request.get("/manifest.json");
     expect(response.status()).toBe(200);
     const manifest = await response.json();
+    expect(manifest.id).toBe("/");
+    expect(manifest.start_url).toBe("/logbook");
     expect(manifest.share_target).toEqual({
         action: "/logbook/jumps/new/from-image/share",
         method: "POST",

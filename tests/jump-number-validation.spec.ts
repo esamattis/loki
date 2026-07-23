@@ -148,6 +148,12 @@ test("new jump page dynamically shows conflict options when jump number already 
     await page.getByRole("button", { name: "Next", exact: true }).click();
     await expect(jumpNumber).toHaveValue("358");
     await expect(conflictNotice).toBeHidden();
+
+    await jumpNumber.fill("357");
+    await expect(conflictNotice).toBeVisible();
+    await page.getByRole("link", { name: "Open existing jump" }).click();
+    await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
+    await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("357");
 });
 
 test("adding a jump with an existing jump number requires a conflict selection", async ({
