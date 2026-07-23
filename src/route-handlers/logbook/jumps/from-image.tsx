@@ -5,12 +5,11 @@ import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { ErrorList } from "@/components/feedback";
-import { CameraIcon, ClipboardIcon, CloseIcon } from "@/components/icons";
+import { CameraIcon, ClipboardIcon } from "@/components/icons";
 import {
     Button,
-    controlClassName,
+    ClearableTextarea,
     fileInputClassName,
-    labelClassName,
     Select,
 } from "@/components/form";
 import { Link } from "@/components/link";
@@ -42,8 +41,6 @@ import {
 import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
 import { LogbookPage } from "@/app/logbook-page";
 import { ClearReturnRoute } from "@/components/return-after-form-post";
-import { Script } from "@/components/script";
-import { $select } from "@/utils";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -261,33 +258,16 @@ function JumpImageField(props: { formId: string }) {
 }
 
 function AdditionalContextField(props: { value: string }) {
-    const textareaId = useId();
-    const clearButtonId = useId();
     return (
         <div id="additional-context" className="scroll-mt-4 space-y-1.5">
-            <label htmlFor={textareaId} className={labelClassName}>
-                Additional context
-            </label>
-            <div className="relative">
-                <textarea
-                    id={textareaId}
-                    name="additionalContext"
-                    rows={2}
-                    maxLength={JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX}
-                    placeholder="Jump 41"
-                    className={clsx("resize-y pr-10", controlClassName)}
-                >
-                    {props.value}
-                </textarea>
-                <button
-                    type="button"
-                    id={clearButtonId}
-                    aria-label="Clear additional context"
-                    className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                >
-                    <CloseIcon className="h-4 w-4" />
-                </button>
-            </div>
+            <ClearableTextarea
+                name="additionalContext"
+                label="Additional context"
+                rows={2}
+                maxLength={JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX}
+                placeholder="Jump 41"
+                value={props.value}
+            />
             <p className="text-sm text-slate-500 dark:text-slate-400">
                 Optional instructions for the AI. Use this to specify which jump
                 to pick if the image contains multiple jumps, or to explain
@@ -298,33 +278,6 @@ function AdditionalContextField(props: { value: string }) {
                 </Link>
                 .
             </p>
-            <Script
-                $deps={[$select]}
-                $args={[textareaId, clearButtonId]}
-                $exec={(textareaId, clearButtonId) => {
-                    const textarea = $select.id(
-                        textareaId,
-                        HTMLTextAreaElement,
-                    );
-                    const clearButton = $select.id(
-                        clearButtonId,
-                        HTMLButtonElement,
-                    );
-                    function syncClearButton() {
-                        clearButton.hidden = textarea.value.length === 0;
-                    }
-                    clearButton.addEventListener("click", () => {
-                        textarea.value = "";
-                        textarea.dispatchEvent(
-                            new Event("input", { bubbles: true }),
-                        );
-                        textarea.focus();
-                        syncClearButton();
-                    });
-                    textarea.addEventListener("input", syncClearButton);
-                    syncClearButton();
-                }}
-            />
         </div>
     );
 }

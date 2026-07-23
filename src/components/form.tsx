@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
+import { CloseIcon } from "@/components/icons";
 import { $select } from "@/utils";
 import { Script } from "@/components/script";
 
@@ -337,6 +338,78 @@ export function Textarea(props: {
                 />
             ) : null}
         </label>
+    );
+}
+
+export function ClearableTextarea(props: {
+    name: string;
+    label: string;
+    rows?: number;
+    value?: string;
+    placeholder?: string;
+    maxLength?: number;
+    className?: string;
+    textareaClassName?: string;
+}) {
+    const textareaId = useId();
+    const clearButtonId = useId();
+    return (
+        <div className={props.className}>
+            <label htmlFor={textareaId} className={labelClassName}>
+                {props.label}
+            </label>
+            <div className="relative">
+                <textarea
+                    id={textareaId}
+                    name={props.name}
+                    rows={props.rows ?? 4}
+                    maxLength={props.maxLength}
+                    placeholder={props.placeholder}
+                    className={clsx(
+                        "mt-1.5 resize-y pr-10",
+                        controlClassName,
+                        props.textareaClassName,
+                    )}
+                >
+                    {props.value}
+                </textarea>
+                <button
+                    type="button"
+                    id={clearButtonId}
+                    aria-label={`Clear ${props.label.toLowerCase()}`}
+                    hidden={(props.value ?? "").length === 0}
+                    className="absolute right-2 top-3.5 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                >
+                    <CloseIcon className="h-4 w-4" />
+                </button>
+            </div>
+            <Script
+                $deps={[$select]}
+                $args={[textareaId, clearButtonId]}
+                $exec={(textareaId, clearButtonId) => {
+                    const textarea = $select.id(
+                        textareaId,
+                        HTMLTextAreaElement,
+                    );
+                    const clearButton = $select.id(
+                        clearButtonId,
+                        HTMLButtonElement,
+                    );
+                    function syncClearButton() {
+                        clearButton.hidden = textarea.value.length === 0;
+                    }
+                    clearButton.addEventListener("click", () => {
+                        textarea.value = "";
+                        textarea.dispatchEvent(
+                            new Event("input", { bubbles: true }),
+                        );
+                        textarea.focus();
+                    });
+                    textarea.addEventListener("input", syncClearButton);
+                    syncClearButton();
+                }}
+            />
+        </div>
     );
 }
 

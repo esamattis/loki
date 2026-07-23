@@ -4,10 +4,10 @@ import {
     Button,
     ButtonLink,
     buttonClassName,
+    ClearableTextarea,
     controlClassName,
     Input,
     NumberInput,
-    Textarea,
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Link } from "@/components/link";
@@ -680,7 +680,7 @@ function JumpForm(props: {
                 gear={props.gear}
                 jumpTypes={props.jumpTypes}
             />
-            <Textarea
+            <ClearableTextarea
                 name="description"
                 label="Notes"
                 value={values.description}

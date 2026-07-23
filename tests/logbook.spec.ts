@@ -244,6 +244,12 @@ test("a skydiver can register and record their first jump", async ({
     await jumpTypeDialog.getByRole("button", { name: "OK" }).click();
     await selectJumpItems(page, "Jump types", ["Freefly", "Tracking"]);
     await page.locator('textarea[name="description"]').fill("First test jump");
+    const clearNotes = page.getByRole("button", { name: "Clear notes" });
+    await expect(clearNotes).toBeVisible();
+    await clearNotes.click();
+    await expect(page.locator('textarea[name="description"]')).toHaveValue("");
+    await expect(clearNotes).toBeHidden();
+    await page.locator('textarea[name="description"]').fill("First test jump");
     await page.getByRole("button", { name: "Add jump" }).click();
 
     await expectLogbookAroundJump(page, 1);
