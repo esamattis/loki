@@ -94,3 +94,21 @@ export async function selectJumpItems(
     }
     await dialog.getByRole("button", { name: "OK" }).click();
 }
+
+/** Fill jump number and wait for the HTMX conflict check to finish. */
+export async function setJumpNumber(page: Page, value: string) {
+    const jumpNumber = page.locator('input[name="jumpNumber"]');
+    const responsePromise = page.waitForResponse((response) => {
+        if (!response.ok()) {
+            return false;
+        }
+        const url = new URL(response.url());
+        return (
+            url.pathname === "/logbook/jumps/new/__jump-number-error" &&
+            url.searchParams.get("jumpNumber") === value
+        );
+    });
+    await jumpNumber.fill(value);
+    await jumpNumber.blur();
+    await responsePromise;
+}

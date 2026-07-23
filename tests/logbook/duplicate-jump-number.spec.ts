@@ -3,6 +3,7 @@ import {
     expectLogbookAroundJump,
     openManageLogbook,
     selectJumpItems,
+    setJumpNumber,
 } from "../helpers";
 
 test("adding a jump with an existing jump number shows an overwrite warning and link", async ({
@@ -41,7 +42,7 @@ test("adding a jump with an existing jump number shows an overwrite warning and 
         .getByRole("link", { name: /Duplicate Jumper's logbook/ })
         .click();
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
-    await page.locator('input[name="jumpNumber"]').fill("1");
+    await setJumpNumber(page, "1");
     await page.locator('input[name="exitAltitude"]').fill("4000");
     await page.locator('input[name="openingAltitude"]').fill("1000");
     await page.locator('input[name="freefallTime"]').fill("55");
@@ -51,15 +52,7 @@ test("adding a jump with an existing jump number shows an overwrite warning and 
     await expectLogbookAroundJump(page, 1);
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();
-    const jumpNumber = page.locator('input[name="jumpNumber"]');
-    const conflictResponse = page.waitForResponse(
-        (response) =>
-            new URL(response.url()).pathname ===
-            "/logbook/jumps/new/__jump-number-error",
-    );
-    await jumpNumber.fill("1");
-    await jumpNumber.blur();
-    expect((await conflictResponse).ok()).toBe(true);
+    await setJumpNumber(page, "1");
     await expect(page.getByText("Jump #1 already exists.")).toBeVisible();
     await expect(
         page.locator('select[name="jumpNumberConflict"]'),

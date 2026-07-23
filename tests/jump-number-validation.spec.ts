@@ -1,20 +1,38 @@
+import type { TestInfo } from "@playwright/test";
 import { expect, test, type Page } from "./fixtures";
 import {
     expectLogbookAroundJump,
     openManageLogbook,
     selectJumpItems,
+    setJumpNumber,
 } from "./helpers";
 
-async function registerUser(page: Page, username: string, displayName: string) {
-    await page.goto("/register");
-    await page.locator('input[name="invitationCode"]').fill("test-invite");
-    await page.locator('input[name="username"]').fill(username);
-    await page.locator('input[name="displayName"]').fill(displayName);
-    await page.locator('input[name="email"]').fill(`${username}@example.test`);
-    await page.locator('input[name="password"]').fill("parachute");
-    await page.locator('input[name="confirmPassword"]').fill("parachute");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page).toHaveURL("/logbook");
+async function registerUser(options: {
+    page: Page;
+    username: string;
+    displayName: string;
+    testInfo: TestInfo;
+}) {
+    const retrySuffix =
+        options.testInfo.retry === 0 ? "" : `-${options.testInfo.retry}`;
+    const uniqueUsername = `${options.username}${retrySuffix}`;
+    await options.page.goto("/register");
+    await options.page
+        .locator('input[name="invitationCode"]')
+        .fill("test-invite");
+    await options.page.locator('input[name="username"]').fill(uniqueUsername);
+    await options.page
+        .locator('input[name="displayName"]')
+        .fill(options.displayName);
+    await options.page
+        .locator('input[name="email"]')
+        .fill(`${uniqueUsername}@example.test`);
+    await options.page.locator('input[name="password"]').fill("parachute");
+    await options.page
+        .locator('input[name="confirmPassword"]')
+        .fill("parachute");
+    await options.page.getByRole("button", { name: "Create account" }).click();
+    await expect(options.page).toHaveURL("/logbook");
 }
 
 async function addLocationAndAircraft(
@@ -61,7 +79,7 @@ async function fillJumpBasics(
         aircraftName: string;
     },
 ) {
-    await page.locator('input[name="jumpNumber"]').fill(values.jumpNumber);
+    await setJumpNumber(page, values.jumpNumber);
     await page.locator('input[name="exitAltitude"]').fill(values.exitAltitude);
     await page
         .locator('input[name="openingAltitude"]')
@@ -93,12 +111,13 @@ function jumpNumberLink(page: Page, jumpNumber: number) {
 
 test("new jump page dynamically shows conflict options when jump number already exists", async ({
     page,
-}) => {
-    await registerUser(
+}, testInfo) => {
+    await registerUser({
         page,
-        "existing-jump-number-banner",
-        "Existing Jump Banner",
-    );
+        username: "existing-jump-number-banner",
+        displayName: "Existing Jump Banner",
+        testInfo,
+    });
     await addLocationAndAircraft(page, {
         displayName: "Existing Jump Banner",
         locationName: "Banner Drop Zone",
@@ -122,7 +141,7 @@ test("new jump page dynamically shows conflict options when jump number already 
     const jumpNumber = page.locator('input[name="jumpNumber"]');
     const conflictNotice = page.getByText("Jump #357 already exists.");
 
-    await jumpNumber.fill("357");
+    await setJumpNumber(page, "357");
     await expect(conflictNotice).toBeVisible();
     await expect(
         page.getByRole("link", { name: "Open existing jump" }),
@@ -139,17 +158,17 @@ test("new jump page dynamically shows conflict options when jump number already 
         }),
     ).toBeAttached();
 
-    await jumpNumber.fill("123");
+    await setJumpNumber(page, "123");
     await expect(conflictNotice).toBeHidden();
     await expect(jumpConflictSelect(page)).toHaveCount(0);
 
-    await jumpNumber.fill("357");
+    await setJumpNumber(page, "357");
     await expect(conflictNotice).toBeVisible();
     await page.getByRole("button", { name: "Next", exact: true }).click();
     await expect(jumpNumber).toHaveValue("358");
     await expect(conflictNotice).toBeHidden();
 
-    await jumpNumber.fill("357");
+    await setJumpNumber(page, "357");
     await expect(conflictNotice).toBeVisible();
     await page.getByRole("link", { name: "Open existing jump" }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\/.+/);
@@ -158,8 +177,13 @@ test("new jump page dynamically shows conflict options when jump number already 
 
 test("adding a jump with an existing jump number requires a conflict selection", async ({
     page,
-}) => {
-    await registerUser(page, "conflict-required-add", "Conflict Required Add");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "conflict-required-add",
+        displayName: "Conflict Required Add",
+        testInfo,
+    });
     await addLocationAndAircraft(page, {
         displayName: "Conflict Required Add",
         locationName: "Conflict Drop Zone",
@@ -200,8 +224,15 @@ test("adding a jump with an existing jump number requires a conflict selection",
     await expect(jumpConflictSelect(page)).toBeVisible();
 });
 
-test("adding a jump can replace an existing jump number", async ({ page }) => {
-    await registerUser(page, "overwrite-jump-number", "Overwrite Jumper");
+test("adding a jump can replace an existing jump number", async ({
+    page,
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "overwrite-jump-number",
+        displayName: "Overwrite Jumper",
+        testInfo,
+    });
     await addLocationAndAircraft(page, {
         displayName: "Overwrite Jumper",
         locationName: "Overwrite Drop Zone",
@@ -249,8 +280,13 @@ test("adding a jump can replace an existing jump number", async ({ page }) => {
 
 test("adding a jump can shift existing and later jumps by +1", async ({
     page,
-}) => {
-    await registerUser(page, "shift-on-add", "Shift On Add");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "shift-on-add",
+        displayName: "Shift On Add",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,Shift Plane,0,,,,,,,,,,",
@@ -305,8 +341,13 @@ test("adding a jump can shift existing and later jumps by +1", async ({
 
 test("edit jump page dynamically shows conflict options when jump number already exists", async ({
     page,
-}) => {
-    await registerUser(page, "edit-conflict-banner", "Edit Conflict Banner");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "edit-conflict-banner",
+        displayName: "Edit Conflict Banner",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,Edit Banner Plane,0,,,,,,,,,,",
@@ -321,27 +362,27 @@ test("edit jump page dynamically shows conflict options when jump number already
         .click();
 
     await jumpNumberLink(page, 2).click();
-    const jumpNumber = page.locator('input[name="jumpNumber"]');
-    await jumpNumber.fill("1");
+    await setJumpNumber(page, "1");
     await expect(page.getByText("Jump #1 already exists.")).toBeVisible();
     await expect(jumpConflictSelect(page)).toBeVisible();
     await expect(
         page.getByRole("link", { name: "Open existing jump" }),
     ).toBeVisible();
 
-    await jumpNumber.fill("2");
+    await setJumpNumber(page, "2");
     await expect(page.getByText("Jump #1 already exists.")).toBeHidden();
     await expect(jumpConflictSelect(page)).toHaveCount(0);
 });
 
 test("editing a jump with an existing jump number requires a conflict selection", async ({
     page,
-}) => {
-    await registerUser(
+}, testInfo) => {
+    await registerUser({
         page,
-        "conflict-required-edit",
-        "Conflict Required Edit",
-    );
+        username: "conflict-required-edit",
+        displayName: "Conflict Required Edit",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,Required Plane,0,,,,,,,,,,",
@@ -356,7 +397,7 @@ test("editing a jump with an existing jump number requires a conflict selection"
         .click();
 
     await jumpNumberLink(page, 2).click();
-    await page.locator('input[name="jumpNumber"]').fill("1");
+    await setJumpNumber(page, "1");
     await page.locator('textarea[name="description"]').fill("Attempted edit");
     await page.getByRole("button", { name: "Save jump" }).click();
 
@@ -370,8 +411,13 @@ test("editing a jump with an existing jump number requires a conflict selection"
 
 test("editing a jump can replace another jump with the same number", async ({
     page,
-}) => {
-    await registerUser(page, "replace-on-edit", "Replace On Edit");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "replace-on-edit",
+        displayName: "Replace On Edit",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,Replace Plane,0,,,,,,,,,,",
@@ -385,7 +431,7 @@ test("editing a jump can replace another jump with the same number", async ({
     await page.getByRole("link", { name: /Replace On Edit's logbook/ }).click();
 
     await jumpNumberLink(page, 2).click();
-    await page.locator('input[name="jumpNumber"]').fill("1");
+    await setJumpNumber(page, "1");
     await page
         .locator('textarea[name="description"]')
         .fill("Replaced via edit");
@@ -405,8 +451,13 @@ test("editing a jump can replace another jump with the same number", async ({
 
 test("editing a jump can shift existing and later jumps by +1", async ({
     page,
-}) => {
-    await registerUser(page, "shift-on-edit", "Shift On Edit");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "shift-on-edit",
+        displayName: "Shift On Edit",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,Edit Shift Plane,0,,,,,,,,,,",
@@ -420,7 +471,7 @@ test("editing a jump can shift existing and later jumps by +1", async ({
     await page.getByRole("link", { name: /Shift On Edit's logbook/ }).click();
 
     await jumpNumberLink(page, 5).click();
-    await page.locator('input[name="jumpNumber"]').fill("2");
+    await setJumpNumber(page, "2");
     await page.locator('textarea[name="description"]').fill("Moved to two");
     await expect(page.getByText("Jump #2 already exists.")).toBeVisible();
     await jumpConflictSelect(page).selectOption("shift");
@@ -448,8 +499,13 @@ test("editing a jump can shift existing and later jumps by +1", async ({
 
 test("editing a jump without a number conflict does not show conflict options", async ({
     page,
-}) => {
-    await registerUser(page, "no-conflict-edit", "No Conflict Edit");
+}, testInfo) => {
+    await registerUser({
+        page,
+        username: "no-conflict-edit",
+        displayName: "No Conflict Edit",
+        testInfo,
+    });
     const csv = [
         "type,name,previousCount,jumpNumber,jumpDate,exitAltitude,openingAltitude,freefallTime,location,aircraft,gear,jumpTypes,description",
         "aircraft,No Conflict Plane,0,,,,,,,,,,",
@@ -463,7 +519,7 @@ test("editing a jump without a number conflict does not show conflict options", 
         .click();
 
     await jumpNumberLink(page, 1).click();
-    await page.locator('input[name="jumpNumber"]').fill("9");
+    await setJumpNumber(page, "9");
     await page.locator('textarea[name="description"]').fill("Renumbered");
     await expect(jumpConflictSelect(page)).toHaveCount(0);
     await page.getByRole("button", { name: "Save jump" }).click();
