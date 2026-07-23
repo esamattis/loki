@@ -9,10 +9,12 @@ import {
     JumpTypeIcon,
     StatisticsIcon,
     TransferIcon,
+    InstallIcon,
 } from "@/components/menu-icons";
 import { CameraIcon, ClipboardIcon } from "@/components/icons";
 import { Code } from "@/components/ui/code";
 import * as routes from "@/routes";
+import clsx from "clsx";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
 const RELEASES_URL = `${REPOSITORY_URL}/releases`;
@@ -28,6 +30,7 @@ const sectionHeadingClassName =
     "text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100";
 const sectionLeadClassName =
     "mt-3 text-base text-slate-600 dark:text-slate-400";
+const cardIconClassName = "h-6 w-6 text-indigo-500";
 
 function FullWidthLandingCard(props: {
     children: Child;
@@ -44,6 +47,25 @@ function FullWidthLandingCard(props: {
                 </div>
             </div>
         </section>
+    );
+}
+
+function LandingCard(props: {
+    icon: Child;
+    title: string;
+    children: Child;
+    className?: string;
+}) {
+    return (
+        <div className={clsx(cardClassName, props.className)}>
+            <div className="flex items-center gap-3">
+                {props.icon}
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {props.title}
+                </h3>
+            </div>
+            {props.children}
+        </div>
     );
 }
 
@@ -102,7 +124,11 @@ function LandingHeader(props: { loggedIn: boolean }) {
 
 function TryDemoButton() {
     return (
-        <form method="post" action={routes.demo.try({})}>
+        <form
+            method="post"
+            action={routes.demo.try({})}
+            className="w-full sm:w-auto"
+        >
             <Button
                 type="submit"
                 variant="secondary"
@@ -185,15 +211,17 @@ function Hero(props: { loggedIn: boolean }) {
                 <br className="hidden sm:block" /> your data.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">
-                Loki is an open source digital logbook for skydivers. Self-host,
-                run it locally on your laptop, or possibly use the invite-only
-                hosted version. Export an Excel compatible{" "}
+                Loki is an{" "}
+                <ExternalLink href={REPOSITORY_URL}>open source</ExternalLink>{" "}
+                digital logbook for skydivers. Self-host, run it locally on your
+                laptop, or possibly use the invite-only hosted version. Export
+                an Excel compatible{" "}
                 <ExternalLink href={EXAMPLE_LOGBOOK_URL}>
                     (.csv) backup
                 </ExternalLink>{" "}
                 whenever you want - your logbook data always stays yours.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                 <TryDemoButton />
                 <SignUpOrLogbookButton loggedIn={props.loggedIn} />
             </div>
@@ -202,42 +230,83 @@ function Hero(props: { loggedIn: boolean }) {
     );
 }
 
+function TerminalIcon(props: { className: string }) {
+    return (
+        <span
+            aria-hidden="true"
+            className={clsx(
+                "inline-flex items-center justify-center font-mono text-lg font-bold",
+                props.className,
+            )}
+        >
+            &gt;_
+        </span>
+    );
+}
+
 function LocalInstallation() {
     return (
-        <FullWidthLandingCard
-            sectionClassName="mt-8 sm:mt-10"
-            className="border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        >
+        <section className="mx-auto mt-12 max-w-5xl px-4 sm:mt-16">
             <h2 className={sectionHeadingClassName}>Local Installation</h2>
-            <div className="mt-6 flex justify-center">
-                <DownloadButton />
+            <div className="mt-8 grid gap-5 lg:grid-cols-2 lg:items-stretch">
+                <LandingCard
+                    className="min-w-0"
+                    icon={<InstallIcon className={cardIconClassName} />}
+                    title="Binaries and Source Code"
+                >
+                    <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+                        Prebuilt binaries for Linux, macOS, and Windows from
+                        GitHub Releases. On Windows, grab{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            loki.exe
+                        </code>
+                        .
+                    </p>
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                        <DownloadButton />
+                        <a
+                            href={REPOSITORY_URL}
+                            className={buttonClassName({
+                                variant: "secondary",
+                                className:
+                                    "w-full px-6 py-3 text-base sm:w-auto",
+                            })}
+                        >
+                            Source on GitHub
+                        </a>
+                    </div>
+                </LandingCard>
+                <LandingCard
+                    className="min-w-0"
+                    icon={<TerminalIcon className={cardIconClassName} />}
+                    title="Linux or macOS"
+                >
+                    <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+                        One-line install script
+                    </p>
+                    <div className="mt-4 w-full min-w-0 max-w-full">
+                        <Code className="p-4 pr-20 text-left text-xs sm:p-5 sm:pr-24">
+                            {INSTALL_COMMAND}
+                        </Code>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                        Installs to{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            ~/.local/bin/loki
+                        </code>{" "}
+                        (or{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            /usr/local/bin/loki
+                        </code>{" "}
+                        as root).{" "}
+                        <ExternalLink href={INSTALL_SCRIPT_URL}>
+                            View install script
+                        </ExternalLink>
+                        .
+                    </p>
+                </LandingCard>
             </div>
-            <p className="mt-8 text-sm font-medium text-slate-600 dark:text-slate-400">
-                Install on Linux or macOS with
-            </p>
-            <div className="mt-2 w-full min-w-0 max-w-full">
-                <Code className="p-4 pr-20 text-left text-xs sm:p-5 sm:pr-24">
-                    {INSTALL_COMMAND}
-                </Code>
-            </div>
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                Installs to{" "}
-                <code className="font-mono text-slate-600 dark:text-slate-300">
-                    ~/.local/bin/loki
-                </code>{" "}
-                (or{" "}
-                <code className="font-mono text-slate-600 dark:text-slate-300">
-                    /usr/local/bin/loki
-                </code>{" "}
-                as root).{" "}
-                <ExternalLink href={INSTALL_SCRIPT_URL}>
-                    View install script
-                </ExternalLink>
-                . <br />
-                On Windows, download loki.exe from the{" "}
-                <ExternalLink href={RELEASES_URL}>releases page</ExternalLink>.
-            </p>
-        </FullWidthLandingCard>
+        </section>
     );
 }
 
@@ -270,59 +339,55 @@ interface Feature {
 
 const FEATURES: Feature[] = [
     {
-        icon: <ClipboardIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <ClipboardIcon className={cardIconClassName} />,
         title: "Digital logbook",
         description:
             "Capture every jump with exit and opening altitude, freefall time, description, and jump number.",
     },
     {
-        icon: <JumpTypeIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <JumpTypeIcon className={cardIconClassName} />,
         title: "Customizable jump types",
         description:
             "Create your own jump types and assign multiple types to each jump, such as freefly with load organizer or cutaway.",
     },
     {
-        icon: <LocationIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <LocationIcon className={cardIconClassName} />,
         title: "Locations, aircraft & gear",
         description:
             "Track drop zones, aircraft, and rigs as reusable jump items. Assign multiple aircraft to a jump to record both the aircraft type and the individual aircraft.",
     },
     {
-        icon: <GearIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <GearIcon className={cardIconClassName} />,
         title: "Gear usage tracking",
         description:
             "See how many jumps each canopy, wingsuit or line set has accumulated. Know when it is time to retire or inspect.",
     },
     {
-        icon: <StatisticsIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <StatisticsIcon className={cardIconClassName} />,
         title: "Total & yearly statistics",
         description:
             "Review all-time totals and jumps by year. Compare freefall time and distance, plus jump counts by location, aircraft, gear, and jump type.",
     },
     {
-        icon: <StatisticsIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <StatisticsIcon className={cardIconClassName} />,
         title: "Record statistics",
         description:
             "Find your longest freefall, altitude and speed records, and the most jumps you have made in a day, week, or month.",
     },
     {
-        icon: <CameraIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <CameraIcon className={cardIconClassName} />,
         title: "AI vision imports",
         description:
             "Snap a photo of a paper logbook page, altimeter, or audible readout and let AI vision build the jump entry using your own OpenAI API key (BYOK).",
     },
     {
-        icon: (
-            <span className="font-mono text-lg font-bold text-indigo-500">
-                &gt;_
-            </span>
-        ),
+        icon: <TerminalIcon className={cardIconClassName} />,
         title: "AI agent imports",
         description:
             "Give an AI coding agent your existing logbook files and Loki's migration instructions. The agent can inspect, combine, convert, validate, and import your jumps automatically.",
     },
     {
-        icon: <TransferIcon className="h-6 w-6 text-indigo-500" />,
+        icon: <TransferIcon className={cardIconClassName} />,
         title: "CSV import & export",
         description:
             "Bring your existing logbook in via CSV and keep a portable backup. No lock-in — your data is always exportable.",
@@ -331,17 +396,11 @@ const FEATURES: Feature[] = [
 
 function FeatureCard(props: { feature: Feature }) {
     return (
-        <div className={cardClassName}>
-            <div className="flex items-center gap-3">
-                {props.feature.icon}
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    {props.feature.title}
-                </h3>
-            </div>
+        <LandingCard icon={props.feature.icon} title={props.feature.title}>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
                 {props.feature.description}
             </p>
-        </div>
+        </LandingCard>
     );
 }
 
@@ -480,7 +539,7 @@ function FooterCta(props: { loggedIn: boolean }) {
                     ? "Head back to your logbook and keep recording your jumps."
                     : "Use an invitation to create a hosted account, or log in to pick up where you left off."}
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
                 <LandingActions loggedIn={props.loggedIn} showTryDemo />
             </div>
         </FullWidthLandingCard>
