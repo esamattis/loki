@@ -209,34 +209,52 @@ function LocalInstallation() {
             className="border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
         >
             <h2 className={sectionHeadingClassName}>Local Installation</h2>
-            <div className="mt-6 flex justify-center">
-                <DownloadButton />
+            <div className="mt-8 grid gap-6 text-left lg:grid-cols-2 lg:gap-8 lg:items-stretch">
+                <div className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        Linux or macOS
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        One-line install script
+                    </p>
+                    <div className="mt-4 w-full min-w-0 max-w-full">
+                        <Code className="p-4 pr-20 text-left text-xs sm:p-5 sm:pr-24">
+                            {INSTALL_COMMAND}
+                        </Code>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                        Installs to{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            ~/.local/bin/loki
+                        </code>{" "}
+                        (or{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            /usr/local/bin/loki
+                        </code>{" "}
+                        as root).{" "}
+                        <ExternalLink href={INSTALL_SCRIPT_URL}>
+                            View install script
+                        </ExternalLink>
+                        .
+                    </p>
+                </div>
+                <div className="flex min-w-0 flex-col justify-center rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-950/50">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        Windows &amp; binaries
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        Prebuilt binaries for Linux, macOS, and Windows from
+                        GitHub Releases. On Windows, grab{" "}
+                        <code className="font-mono text-slate-600 dark:text-slate-300">
+                            loki.exe
+                        </code>
+                        .
+                    </p>
+                    <div className="mt-5">
+                        <DownloadButton />
+                    </div>
+                </div>
             </div>
-            <p className="mt-8 text-sm font-medium text-slate-600 dark:text-slate-400">
-                Install on Linux or macOS with
-            </p>
-            <div className="mt-2 w-full min-w-0 max-w-full">
-                <Code className="p-4 pr-20 text-left text-xs sm:p-5 sm:pr-24">
-                    {INSTALL_COMMAND}
-                </Code>
-            </div>
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                Installs to{" "}
-                <code className="font-mono text-slate-600 dark:text-slate-300">
-                    ~/.local/bin/loki
-                </code>{" "}
-                (or{" "}
-                <code className="font-mono text-slate-600 dark:text-slate-300">
-                    /usr/local/bin/loki
-                </code>{" "}
-                as root).{" "}
-                <ExternalLink href={INSTALL_SCRIPT_URL}>
-                    View install script
-                </ExternalLink>
-                . <br />
-                On Windows, download loki.exe from the{" "}
-                <ExternalLink href={RELEASES_URL}>releases page</ExternalLink>.
-            </p>
         </FullWidthLandingCard>
     );
 }
