@@ -17,6 +17,7 @@ import {
 } from "@/components/navigation-progress";
 import { RestoreFormScrollPosition } from "@/components/restore-form-scroll-position";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { SocialMeta } from "@/components/social-meta";
 import { ThemeScript } from "@/components/theme-script";
 import { Tooltips } from "@/components/tooltips";
 import { UnsavedChangesDialog as UnsavedChangesDialogComponent } from "@/components/unsaved-changes-dialog";
@@ -630,6 +631,7 @@ const PUBLIC_ROOT_ASSETS = new Set([
     "/icon.png",
     "/icon-192.png",
     "/icon-512.png",
+    "/og-image.png",
     "/apple-72x72.png",
     "/apple-144x144.png",
     "/logo.svg",
@@ -864,6 +866,7 @@ app.use(
                     />
 
                     <title>{title}</title>
+                    <SocialMeta title={title} url={new URL(c.req.url)} />
                     <ThemeScript />
                     {user && (
                         <ServiceWorkerRegistration

@@ -135,6 +135,97 @@ async function generateFavicon(sourcePng: string, tmpDir: string) {
     await writeFile(join(PUBLIC, "favicon.ico"), buildPngIco(buffers));
 }
 
+async function resolveFontPath(candidates: string[]) {
+    for (const candidate of candidates) {
+        try {
+            await readFile(candidate);
+            return candidate;
+        } catch {
+            // try next candidate
+        }
+    }
+    return null;
+}
+
+/**
+ * Open Graph / Twitter large card image (1200x630).
+ * Built from the square app icon so logo colors match other assets.
+ */
+async function generateOgImage(icon512Path: string, tmpDir: string) {
+    const width = 1200;
+    const height = 630;
+    const logoSize = 320;
+    const bgPath = join(tmpDir, "og-bg.png");
+    const logoPath = join(tmpDir, "og-logo.png");
+    const composedPath = join(tmpDir, "og-composed.png");
+    const outPath = join(PUBLIC, "og-image.png");
+    const titleFont = await resolveFontPath([
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "/Library/Fonts/Arial Bold.ttf",
+    ]);
+    const bodyFont = await resolveFontPath([
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/Library/Fonts/Arial.ttf",
+    ]);
+
+    await gmConvert([
+        "-size",
+        `${width}x${height}`,
+        `xc:${BACKGROUND}`,
+        bgPath,
+    ]);
+    await gmConvert([
+        icon512Path,
+        "-resize",
+        `${logoSize}x${logoSize}`,
+        logoPath,
+    ]);
+    await $`gm composite ${[
+        "-gravity",
+        "center",
+        "-geometry",
+        titleFont && bodyFont ? "+0-40" : "+0+0",
+        logoPath,
+        bgPath,
+        composedPath,
+    ]}`;
+
+    if (!titleFont || !bodyFont) {
+        console.warn(
+            "Warning: no suitable fonts found for og-image text; writing logo-only image.",
+        );
+        await gmConvert([composedPath, outPath]);
+        return;
+    }
+
+    await gmConvert([
+        composedPath,
+        "-gravity",
+        "center",
+        "-fill",
+        "#e2e8f0",
+        "-font",
+        titleFont,
+        "-pointsize",
+        "64",
+        "-draw",
+        "text 0,180 'Loki'",
+        "-fill",
+        "#a5b4fc",
+        "-font",
+        bodyFont,
+        "-pointsize",
+        "28",
+        "-draw",
+        "text 0,240 'Open source skydiving logbook'",
+        outPath,
+    ]);
+}
+
 async function main() {
     await requireCommand(
         "gm",
@@ -173,6 +264,8 @@ async function main() {
         }
         await generateFavicon(sourcePng, tmpDir);
         console.log("wrote favicon.ico");
+        await generateOgImage(join(PUBLIC, "icon-512.png"), tmpDir);
+        console.log("wrote og-image.png (1200x630)");
     } finally {
         await rm(tmpDir, { recursive: true, force: true });
     }

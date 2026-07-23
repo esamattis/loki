@@ -1,5 +1,45 @@
 import { expect, test } from "./fixtures";
 
+test("includes social sharing metadata", async ({ page }) => {
+    await page.goto("/");
+
+    const origin = new URL(page.url()).origin;
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+        "content",
+        /open source digital skydiving logbook/i,
+    );
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+        "content",
+        "Loki - Skydiving Logbook",
+    );
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+        "content",
+        "website",
+    );
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+        "content",
+        `${origin}/`,
+    );
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        "content",
+        `${origin}/og-image.png`,
+    );
+    await expect(
+        page.locator('meta[property="og:image:width"]'),
+    ).toHaveAttribute("content", "1200");
+    await expect(
+        page.locator('meta[property="og:image:height"]'),
+    ).toHaveAttribute("content", "630");
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+        "content",
+        "summary_large_image",
+    );
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+        "content",
+        `${origin}/og-image.png`,
+    );
+});
+
 test("shows download and invite actions in both calls to action", async ({
     page,
 }) => {
