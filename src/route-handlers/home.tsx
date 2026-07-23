@@ -158,10 +158,10 @@ function Hero(props: { loggedIn: boolean }) {
                 </ExternalLink>{" "}
                 whenever you want - your logbook data always stays yours.
             </p>
-            <VideoEmbed />
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <LandingActions loggedIn={props.loggedIn} />
             </div>
+            <VideoEmbed />
         </section>
     );
 }
