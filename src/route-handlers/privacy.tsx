@@ -227,6 +227,14 @@ function PrivacyPolicyDecision(props: { back?: string; errors?: string[] }) {
     );
 }
 
+function PrivacyPolicyWarning() {
+    return (
+        <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+            You must accept the privacy policy to continue using Loki.
+        </p>
+    );
+}
+
 function renderPrivacyPage(c: AppRequestContext, errors?: string[]) {
     const appContext = getAppContext(c);
     if (!appContext.user) {
@@ -237,6 +245,7 @@ function renderPrivacyPage(c: AppRequestContext, errors?: string[]) {
         !appContext.user.options.privacyPolicyAccepted;
     return c.render(
         <LogbookPage title="Privacy Policy">
+            {mustDecide && <PrivacyPolicyWarning />}
             <PrivacyContent />
             {mustDecide && (
                 <PrivacyPolicyDecision

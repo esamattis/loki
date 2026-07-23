@@ -51,6 +51,11 @@ test("requires hosted users to accept the privacy policy", async ({ page }) => {
     await registerUnacceptedUser(page, username);
 
     await expect(page).toHaveURL("/privacy?back=%2Flogbook");
+    await expect(
+        page.getByText(
+            "You must accept the privacy policy to continue using Loki.",
+        ),
+    ).toBeVisible();
     const acceptanceForm = page.locator("form").filter({
         has: page.getByRole("button", {
             name: "Accept privacy policy",
