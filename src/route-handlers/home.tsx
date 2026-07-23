@@ -185,9 +185,11 @@ function Hero(props: { loggedIn: boolean }) {
                 <br className="hidden sm:block" /> your data.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">
-                Loki is an open source digital logbook for skydivers. Self-host,
-                run it locally on your laptop, or possibly use the invite-only
-                hosted version. Export an Excel compatible{" "}
+                Loki is an{" "}
+                <ExternalLink href={REPOSITORY_URL}>open source</ExternalLink>{" "}
+                digital logbook for skydivers. Self-host, run it locally on your
+                laptop, or possibly use the invite-only hosted version. Export
+                an Excel compatible{" "}
                 <ExternalLink href={EXAMPLE_LOGBOOK_URL}>
                     (.csv) backup
                 </ExternalLink>{" "}
