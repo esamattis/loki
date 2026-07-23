@@ -1,17 +1,12 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
     getAppContext,
-    setAuthenticatedUser,
     type App,
     type AppRequestContext,
-    type User,
+    User,
 } from "@/app/app";
 import { generateSessionToken, hashPassword } from "@/auth";
-import {
-    UserOptionsSchema,
-    parseUserOptions,
-    type UserOptions,
-} from "@/options";
+import { UserOptionsSchema, parseUserOptions } from "@/options";
 import {
     importRecords,
     parseCsvImport,
@@ -103,41 +98,6 @@ async function ensureDemoUser(c: AppRequestContext) {
     };
 }
 
-async function updateDemoOptions(args: {
-    c: AppRequestContext;
-    userUuid: string;
-    options: UserOptions;
-    bumpHtmlCache: boolean;
-}) {
-    const ctx = getAppContext(args.c);
-    const optionsJson = JSON.stringify(args.options);
-    await ctx.db
-        .update(users)
-        .set({
-            options: optionsJson,
-            ...(args.bumpHtmlCache
-                ? {
-                      htmlCacheGeneration: sql`${users.htmlCacheGeneration} + 1`,
-                  }
-                : {}),
-        })
-        .where(eq(users.uuid, args.userUuid))
-        .run();
-
-    const user = ctx.user;
-    if (user && user.uuid === args.userUuid) {
-        const next: User = {
-            ...user,
-            options: args.options,
-            readonly: args.options.readonly,
-            htmlCacheGeneration: args.bumpHtmlCache
-                ? user.htmlCacheGeneration + 1
-                : user.htmlCacheGeneration,
-        };
-        ctx.user = next;
-    }
-}
-
 async function ensureDemoExampleData(c: AppRequestContext) {
     const ctx = getAppContext(c);
     const user = ctx.getUser();
@@ -154,22 +114,16 @@ async function ensureDemoExampleData(c: AppRequestContext) {
 
     await importRecords(c, importResult.records, true);
 
-    const nextOptions = UserOptionsSchema.parse({
-        ...user.options,
+    await user.updateOptions({
         exampleDataChecksum: checksum,
         readonly: true,
-    });
-    await updateDemoOptions({
-        c,
-        userUuid: user.uuid,
-        options: nextOptions,
-        bumpHtmlCache: true,
     });
 }
 
 async function handleTryDemo(c: AppRequestContext) {
     const demoUser = await ensureDemoUser(c);
-    setAuthenticatedUser(getAppContext(c), demoUser);
+    const ctx = getAppContext(c);
+    ctx.user = new User(ctx.db, demoUser);
     await ensureDemoExampleData(c);
     await createSession(c, demoUser.uuid);
     return c.redirect(routes.logbook.index({}));

@@ -115,6 +115,12 @@ function buildExportFilename(displayName: string, date = new Date()): string {
     return `loki-${slug}-${date.toISOString().slice(0, 19).replace(/:/g, "")}Z.csv`;
 }
 
+async function recordCsvExport(c: AppRequestContext) {
+    await getAppContext(c).getUser().updateOptions({
+        lastCsvExportAt: new Date().toISOString(),
+    });
+}
+
 export async function exportLogbook(c: AppRequestContext) {
     const context = getAppContext(c);
     const user = context.getUser();
@@ -255,6 +261,7 @@ export async function exportLogbook(c: AppRequestContext) {
         })),
     ];
     const filename = buildExportFilename(user.getDisplayName());
+    await recordCsvExport(c);
     return c.body(formatExportCsv(records), 200, {
         "Content-Disposition": `attachment; filename="${filename}"`,
         "Content-Type": "text/csv; charset=utf-8",

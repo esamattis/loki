@@ -79,6 +79,7 @@ export const DEFAULT_USER_OPTIONS = {
     privacyPolicyAccepted: false,
     readonly: false,
     exampleDataChecksum: "",
+    lastCsvExportAt: "",
 } as const;
 
 export const UserOptionsSchema = z.object({
@@ -110,6 +111,8 @@ export const UserOptionsSchema = z.object({
     readonly: z.boolean().default(false),
     /** SHA-256 of the last imported example CSV; demo import skips when equal. */
     exampleDataChecksum: z.string().default(""),
+    /** ISO timestamp of the last successful CSV export. */
+    lastCsvExportAt: z.string().datetime().or(z.literal("")).default(""),
 });
 
 export type UserOptions = z.output<typeof UserOptionsSchema>;

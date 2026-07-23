@@ -25,7 +25,6 @@ import { ReturnAfterFormPost } from "@/components/return-after-form-post";
 import { UpdateToast as UpdateToastComponent } from "@/components/update-toast";
 import { sessions, users } from "@/schema";
 import * as routes from "@/routes";
-import { parseUserOptions, type UserOptions } from "@/options";
 import {
     findUserForAuth,
     hashToken,
@@ -34,9 +33,9 @@ import {
     SESSION_COOKIE_NAME,
     sessionCookieOptions,
     SESSION_MAX_AGE,
-    type AuthenticatedUser,
 } from "@/auth";
 import { createD1Database, type AppDatabase } from "@/db";
+import { User } from "@/app/user";
 import { htmlCacheMiddleware } from "@/app/html-cache";
 import {
     createServerTimings,
@@ -59,6 +58,8 @@ import {
 
 export type App = Hono<Env>;
 
+export { User } from "@/app/user";
+
 export type AppRequestContext = Context<Env>;
 
 export interface AppContext {
@@ -77,19 +78,6 @@ export interface AppContext {
     speedFormatter(): SpeedFormatter;
     isSelfHosted(): boolean;
     url(): URL;
-}
-
-export interface User {
-    username: string;
-    uuid: string;
-    displayName: string | null;
-    email: string;
-    options: UserOptions;
-    /** From options.readonly; set at auth so middleware needs no extra query. */
-    readonly: boolean;
-    admin: boolean;
-    htmlCacheGeneration: number;
-    getDisplayName(): string;
 }
 
 export interface Variables {
@@ -647,23 +635,6 @@ function isPublicAssetPath(path: string) {
     return path.startsWith(PUBLIC_ASSET_PREFIX) || PUBLIC_ROOT_ASSETS.has(path);
 }
 
-export function setAuthenticatedUser(ctx: AppContext, user: AuthenticatedUser) {
-    const options = parseUserOptions(user.options);
-    ctx.user = {
-        uuid: user.uuid,
-        username: user.username,
-        displayName: user.displayName,
-        email: user.email,
-        options,
-        readonly: options.readonly,
-        admin: user.admin,
-        htmlCacheGeneration: user.htmlCacheGeneration,
-        getDisplayName() {
-            return user.displayName || user.username;
-        },
-    };
-}
-
 function basicAuthChallenge(c: AppRequestContext) {
     return c.body("Invalid username or password", 401, {
         "WWW-Authenticate": 'Basic realm="Loki - Skydiving Logbook"',
@@ -728,7 +699,7 @@ async function authenticateMiddleware(
             const { expiresAt, sessionLastUsedAt, userLastUsedAt, ...userRow } =
                 row;
             void expiresAt;
-            setAuthenticatedUser(ctx, userRow);
+            ctx.user = new User(ctx.db, userRow);
             // Throttle last-used writes to once per 5 minutes
             if (sessionLastUsedAt <= now - 5 * 60) {
                 await ctx.db
@@ -787,7 +758,7 @@ async function authenticateMiddleware(
                 password,
             );
             if (user) {
-                setAuthenticatedUser(ctx, user);
+                ctx.user = user;
             }
         }
 

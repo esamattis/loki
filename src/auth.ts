@@ -1,5 +1,6 @@
 import { eq, or } from "drizzle-orm";
 import type { AppContext } from "@/app/app";
+import { User } from "@/app/user";
 import { verifyPassword } from "@/password";
 import { users } from "@/schema";
 
@@ -38,16 +39,6 @@ export function isSafeRedirectPath(path: string | undefined): path is string {
         }
     }
     return true;
-}
-
-export interface AuthenticatedUser {
-    uuid: string;
-    username: string;
-    displayName: string | null;
-    email: string;
-    options: string;
-    admin: boolean;
-    htmlCacheGeneration: number;
 }
 
 export function bytesToBase64(bytes: Uint8Array): string {
@@ -111,7 +102,7 @@ export async function findUserForAuth(
     db: AppContext["db"],
     usernameOrEmail: string,
     password: string,
-): Promise<AuthenticatedUser | null> {
+): Promise<User | null> {
     const userRow = await db
         .select({
             uuid: users.uuid,
@@ -136,13 +127,5 @@ export async function findUserForAuth(
     if (!userRow || !(await verifyPassword(password, userRow.password))) {
         return null;
     }
-    return {
-        uuid: userRow.uuid,
-        username: userRow.username,
-        displayName: userRow.displayName,
-        email: userRow.email,
-        options: userRow.options,
-        admin: userRow.admin,
-        htmlCacheGeneration: userRow.htmlCacheGeneration,
-    };
+    return new User(db, userRow);
 }

@@ -542,6 +542,7 @@ class ImportState {
                     uuid: jumpUuid,
                     userUuid: this.userUuid,
                     jumpNumber: record.jumpNumber,
+                    createdAt: Math.floor(Date.now() / 1_000),
                     ...jumpValues,
                 }),
             );

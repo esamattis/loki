@@ -47,6 +47,7 @@ import { DateInput } from "@/components/date-input";
 import { Script } from "@/components/script";
 import { ScrollToTop } from "@/route-handlers/logbook/components/scroll-to-top";
 import { $select } from "@/utils";
+import { ExportLogbookButton } from "@/components/export-logbook-button";
 
 interface LogbookResource {
     uuid: string;
@@ -70,6 +71,45 @@ export interface LogbookFilters {
 }
 
 const JUMPS_PER_PAGE = 24;
+const CSV_BACKUP_REMINDER_AGE_MS = 30 * 24 * 60 * 60 * 1_000;
+
+function shouldShowCsvBackupReminder(props: {
+    jumpCount: number;
+    latestJumpCreatedAt: number | null;
+    lastCsvExportAt: string;
+    now?: Date;
+}): boolean {
+    if (props.jumpCount < 2) {
+        return false;
+    }
+    const exportTime = Date.parse(props.lastCsvExportAt);
+    if (Number.isNaN(exportTime)) {
+        return true;
+    }
+    const now = props.now ?? new Date();
+    const latestJumpTime = (props.latestJumpCreatedAt ?? 0) * 1_000;
+    return (
+        now.getTime() - exportTime > CSV_BACKUP_REMINDER_AGE_MS &&
+        latestJumpTime > exportTime
+    );
+}
+
+function CsvBackupReminder() {
+    return (
+        <aside className="rounded-2xl border border-amber-300 bg-amber-50 p-4 shadow-sm sm:flex sm:items-center sm:gap-6 dark:border-amber-800 dark:bg-amber-950/40">
+            <div className="min-w-0 flex-1">
+                <h2 className="font-semibold text-amber-950 dark:text-amber-100">
+                    Back up your logbook
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-amber-900 dark:text-amber-200">
+                    Download a CSV backup so your latest jumps are stored
+                    outside Loki.
+                </p>
+            </div>
+            <ExportLogbookButton className="mt-3 w-full shrink-0 sm:mt-0 sm:w-auto" />
+        </aside>
+    );
+}
 
 function getLogbookJumpsUrl(filters: LogbookFilters, offset?: number): string {
     const query = new URLSearchParams();
@@ -752,11 +792,15 @@ async function renderLogbook(c: AppRequestContext) {
         );
     }
     const offset = parseOffset(query.get("offset"));
-    const [jumpRows, [jumpNumberRow]] = await Promise.all([
+    const [jumpRows, [jumpSummary]] = await Promise.all([
         getLogbookJumps(c, filters, offset),
         appContext.db
             .select({
                 maxJumpNumber: sql<number | null>`max(${jumps.jumpNumber})`,
+                jumpCount: sql<number>`count(*)`,
+                latestJumpCreatedAt: sql<
+                    number | null
+                >`max(${jumps.createdAt})`,
             })
             .from(jumps)
             .where(eq(jumps.userUuid, user.uuid)),
@@ -784,10 +828,16 @@ async function renderLogbook(c: AppRequestContext) {
         filters.end !== "" ||
         filters.search !== "" ||
         !isDefaultLogbookSort(filters);
+    const showCsvBackupReminder = shouldShowCsvBackupReminder({
+        jumpCount: jumpSummary?.jumpCount ?? 0,
+        latestJumpCreatedAt: jumpSummary?.latestJumpCreatedAt ?? null,
+        lastCsvExportAt: options.lastCsvExportAt,
+    });
 
     return c.render(
-        <LogbookPage title={`${jumpNumberRow?.maxJumpNumber ?? 0} Jumps`}>
+        <LogbookPage title={`${jumpSummary?.maxJumpNumber ?? 0} Jumps`}>
             <section className="space-y-3">
+                {showCsvBackupReminder && <CsvBackupReminder />}
                 <JumpFilters
                     filters={filters}
                     locations={resources.locations}

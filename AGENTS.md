@@ -106,6 +106,8 @@ After every change, run:
 pn test
 ```
 
+Comment-only changes do not require rerunning tests.
+
 Note that this does automatic prettier formatting.
 
 For local D1 access in Playwright tests, use `executePlaywrightDb` and

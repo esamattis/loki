@@ -1,7 +1,6 @@
 import { useId } from "hono/jsx";
 import {
     Button,
-    ButtonLink,
     buttonClassName,
     Checkbox,
     FileInput,
@@ -9,7 +8,6 @@ import {
 import { ExportIcon, ImportIcon } from "@/components/icons";
 import { Script } from "@/components/script";
 import { SectionHeader } from "@/components/ui/section-header";
-import * as routes from "@/routes";
 import { LogbookPage } from "@/app/logbook-page";
 import {
     ExportCurlHelp,
@@ -17,6 +15,7 @@ import {
 } from "@/route-handlers/logbook/transfer/format-help";
 import { AgentMigrationCard } from "@/route-handlers/logbook/transfer/agent-migration";
 import { $select } from "@/utils";
+import { ExportLogbookButton } from "@/components/export-logbook-button";
 
 interface TransferPageProps {
     errors?: string[];
@@ -33,14 +32,7 @@ function ExportSection() {
                 title="Export"
                 description="Download your logbook as CSV. The format uses names instead of internal IDs and can be re-imported. It also opens in Excel, LibreOffice, Google Docs, and other spreadsheet tools."
             />
-            <ButtonLink
-                href={routes.logbook.transfer.export({})}
-                download
-                variant="primary"
-                className="mt-4 gap-1.5"
-            >
-                Export logbook
-            </ButtonLink>
+            <ExportLogbookButton className="mt-4 gap-1.5" />
             <ExportCurlHelp />
         </div>
     );

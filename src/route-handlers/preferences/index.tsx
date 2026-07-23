@@ -443,6 +443,7 @@ function optionsFromRawForm(
         privacyPolicyAccepted: current.privacyPolicyAccepted,
         readonly: current.readonly,
         exampleDataChecksum: current.exampleDataChecksum,
+        lastCsvExportAt: current.lastCsvExportAt,
     });
     return partial.success ? partial.data : current;
 }
@@ -544,6 +545,7 @@ async function handlePreferences(c: AppRequestContext) {
         privacyPolicyAccepted: user.options.privacyPolicyAccepted,
         readonly: user.options.readonly,
         exampleDataChecksum: user.options.exampleDataChecksum,
+        lastCsvExportAt: user.options.lastCsvExportAt,
     });
     values.options = options;
     await ctx.db

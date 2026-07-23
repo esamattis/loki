@@ -1,5 +1,4 @@
 import type { Child } from "hono/jsx";
-import { eq } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { LogbookPage } from "@/app/logbook-page";
 import { deleteAccount } from "@/delete-account";
@@ -9,9 +8,7 @@ import { ExternalLink } from "@/components/link";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { isSafeRedirectPath } from "@/auth";
-import { UserOptionsSchema } from "@/options";
 import * as routes from "@/routes";
-import { users } from "@/schema";
 
 const repositoryUrl = "https://github.com/esamattis/loki";
 
@@ -278,14 +275,9 @@ async function handlePrivacyPage(c: AppRequestContext) {
         ]);
     }
 
-    const options = UserOptionsSchema.parse({
-        ...user.options,
+    await user.updateOptions({
         privacyPolicyAccepted: true,
     });
-    await appContext.db
-        .update(users)
-        .set({ options: JSON.stringify(options) })
-        .where(eq(users.uuid, user.uuid));
 
     const back = c.req.query("back");
     return c.redirect(

@@ -1,8 +1,14 @@
-import { acceptPrivacyPolicyIfRequired } from "./helpers";
 import { expect, test, type Page } from "./fixtures";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { jumpItemSummary, logOut, openManageLogbook } from "./helpers";
+import {
+    acceptPrivacyPolicyIfRequired,
+    executePlaywrightDb,
+    jumpItemSummary,
+    logOut,
+    openManageLogbook,
+    queryPlaywrightDb,
+} from "./helpers";
 
 const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.csv");
 const roundTripFixturePath = path.join(
@@ -368,6 +374,79 @@ test("a CSV jump can use zero for optional measurements", async ({ page }) => {
     await expect(page.locator('input[name="exitAltitude"]')).toHaveValue("");
     await expect(page.locator('input[name="openingAltitude"]')).toHaveValue("");
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("");
+});
+
+test("the logbook reminds users to export changed data every month", async ({
+    page,
+}) => {
+    const username = "backup-reminder-skydiver";
+    const reminder = page.getByRole("heading", {
+        name: "Back up your logbook",
+    });
+    await registerUser(page, username);
+    await expect(reminder).toHaveCount(0);
+
+    for (const jumpNumber of [1, 2]) {
+        await page.goto("/logbook/transfer");
+        await page.locator('input[name="file"]').setInputFiles({
+            name: `jump-${jumpNumber}.csv`,
+            mimeType: "text/csv",
+            buffer: Buffer.from(
+                [CSV_HEADER, csvJumpRow({ jumpNumber })].join("\n") + "\n",
+            ),
+        });
+        await page.getByRole("button", { name: "Import logbook" }).click();
+        await page
+            .getByRole("link", { name: new RegExp(`${username}'s logbook`) })
+            .click();
+        await expect(reminder).toHaveCount(jumpNumber === 1 ? 0 : 1);
+    }
+
+    const exportLink = page.getByRole("link", { name: "Export logbook" });
+    await expect(exportLink).toHaveAttribute("href", "/logbook/export");
+    await expect(exportLink).toHaveAttribute("download", "");
+    const downloadPromise = page.waitForEvent("download");
+    await exportLink.click();
+    await downloadPromise;
+    await page.reload();
+    await expect(reminder).toHaveCount(0);
+
+    const optionRows = await queryPlaywrightDb(`
+        SELECT json_extract(options, '$.lastCsvExportAt') AS lastCsvExportAt
+        FROM users
+        WHERE username = '${username}'
+    `);
+    expect(optionRows[0]?.lastCsvExportAt).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+    );
+    const jumpRows = await queryPlaywrightDb(`
+        SELECT max(created_at) AS latestJumpCreatedAt
+        FROM jumps
+        WHERE user_uuid = (
+            SELECT uuid FROM users WHERE username = '${username}'
+        )
+    `);
+    expect(jumpRows[0]?.latestJumpCreatedAt).toBeGreaterThan(
+        Date.parse("2020-01-01T00:00:00.000Z") / 1_000,
+    );
+
+    await executePlaywrightDb(`
+        UPDATE users
+        SET options = json_set(options, '$.lastCsvExportAt', '2020-01-01T00:00:00.000Z'),
+            html_cache_generation = html_cache_generation + 1
+        WHERE username = '${username}'
+    `);
+    await page.reload();
+    await expect(reminder).toBeVisible();
+
+    await executePlaywrightDb(`
+        UPDATE users
+        SET options = json_set(options, '$.lastCsvExportAt', '2099-01-01T00:00:00.000Z'),
+            html_cache_generation = html_cache_generation + 1
+        WHERE username = '${username}'
+    `);
+    await page.reload();
+    await expect(reminder).toHaveCount(0);
 });
 
 test("an exported logbook file preserves jumps and jump items when imported", async ({

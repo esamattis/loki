@@ -358,6 +358,7 @@ export async function handleNewJump(c: AppRequestContext) {
             db.insert(jumps).values({
                 uuid: jumpUuid,
                 userUuid,
+                createdAt: Math.floor(Date.now() / 1_000),
                 ...jumpValues,
             }),
             ...jumpRelationInserts(db, jumpUuid, links),

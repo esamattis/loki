@@ -18,7 +18,6 @@ import {
     DEFAULT_JUMP_IMAGE_MODEL,
     JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX,
     JUMP_IMAGE_MODELS,
-    UserOptionsSchema,
     altitudeInputValue,
     resolveJumpImageModel,
     type UserOptions,
@@ -31,7 +30,7 @@ import {
     type JumpImageInput,
 } from "@/jump-image";
 import * as routes from "@/routes";
-import { aircrafts, gear, jumpTypes, locations, users } from "@/schema";
+import { aircrafts, gear, jumpTypes, locations } from "@/schema";
 import {
     AiUsageSummary,
     buildAiUsageTitle,
@@ -426,18 +425,10 @@ async function saveJumpImageReadOptions(
         additionalContext: string;
     },
 ) {
-    const ctx = getAppContext(c);
-    const user = ctx.getUser();
-    const nextOptions: UserOptions = {
-        ...user.options,
+    await getAppContext(c).getUser().updateOptions({
         jumpImageModel: options.model,
         jumpImageAdditionalContext: options.additionalContext,
-    };
-    const parsed = UserOptionsSchema.parse(nextOptions);
-    await ctx.db
-        .update(users)
-        .set({ options: JSON.stringify(parsed) })
-        .where(eq(users.uuid, user.uuid));
+    });
 }
 
 async function renderJumpFromImage(
