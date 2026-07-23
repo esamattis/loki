@@ -1,0 +1,994 @@
+{
+    "version": "7",
+    "dialect": "sqlite",
+    "id": "dec541e5-a841-4b13-846c-ff7f7749a0b3",
+    "prevIds": ["7b950b4d-61d8-4a70-a85e-b174e50c55ff"],
+    "ddl": [
+        {
+            "name": "ai_usage",
+            "entityType": "tables"
+        },
+        {
+            "name": "aircrafts",
+            "entityType": "tables"
+        },
+        {
+            "name": "gear",
+            "entityType": "tables"
+        },
+        {
+            "name": "invitations",
+            "entityType": "tables"
+        },
+        {
+            "name": "jump_types",
+            "entityType": "tables"
+        },
+        {
+            "name": "jumps",
+            "entityType": "tables"
+        },
+        {
+            "name": "jumps_to_aircrafts",
+            "entityType": "tables"
+        },
+        {
+            "name": "jumps_to_gear",
+            "entityType": "tables"
+        },
+        {
+            "name": "jumps_to_jump_types",
+            "entityType": "tables"
+        },
+        {
+            "name": "locations",
+            "entityType": "tables"
+        },
+        {
+            "name": "sessions",
+            "entityType": "tables"
+        },
+        {
+            "name": "users",
+            "entityType": "tables"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "model",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "title",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "created_at",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "integer",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "input_tokens",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "integer",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "output_tokens",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "integer",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "total_tokens",
+            "entityType": "columns",
+            "table": "ai_usage"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "name",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "previous_jump_count",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "description",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "false",
+            "generated": null,
+            "name": "archived",
+            "entityType": "columns",
+            "table": "aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "name",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "previous_usage_count",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "description",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "false",
+            "generated": null,
+            "name": "archived",
+            "entityType": "columns",
+            "table": "gear"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "code",
+            "entityType": "columns",
+            "table": "invitations"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "count",
+            "entityType": "columns",
+            "table": "invitations"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "name",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "previous_usage_count",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "description",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "false",
+            "generated": null,
+            "name": "archived",
+            "entityType": "columns",
+            "table": "jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "location_uuid",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_number",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_date",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "created_at",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "exit_altitude",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "opening_altitude",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "freefall_time",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "description",
+            "entityType": "columns",
+            "table": "jumps"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "aircraft_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_aircrafts"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_gear"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "gear_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_gear"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "jump_type_uuid",
+            "entityType": "columns",
+            "table": "jumps_to_jump_types"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "name",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "previous_jump_count",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "description",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "false",
+            "generated": null,
+            "name": "archived",
+            "entityType": "columns",
+            "table": "locations"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "token_hash",
+            "entityType": "columns",
+            "table": "sessions"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "user_uuid",
+            "entityType": "columns",
+            "table": "sessions"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "created_at",
+            "entityType": "columns",
+            "table": "sessions"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "expires_at",
+            "entityType": "columns",
+            "table": "sessions"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "last_used_at",
+            "entityType": "columns",
+            "table": "sessions"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "uuid",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "username",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "display_name",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "password",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "email",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": false,
+            "autoincrement": false,
+            "default": null,
+            "generated": null,
+            "name": "invitation_code",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "text",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "'{}'",
+            "generated": null,
+            "name": "options",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "false",
+            "generated": null,
+            "name": "admin",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "html_cache_generation",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "created_at",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "type": "integer",
+            "notNull": true,
+            "autoincrement": false,
+            "default": "0",
+            "generated": null,
+            "name": "last_used_at",
+            "entityType": "columns",
+            "table": "users"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "SET NULL",
+            "nameExplicit": false,
+            "name": "fk_ai_usage_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "ai_usage"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_aircrafts_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "aircrafts"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_gear_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "gear"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jump_types_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "jump_types"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps"
+        },
+        {
+            "columns": ["location_uuid"],
+            "tableTo": "locations",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_location_uuid_locations_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps"
+        },
+        {
+            "columns": ["jump_uuid"],
+            "tableTo": "jumps",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_aircrafts_jump_uuid_jumps_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_aircrafts"
+        },
+        {
+            "columns": ["aircraft_uuid"],
+            "tableTo": "aircrafts",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_aircrafts_aircraft_uuid_aircrafts_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_aircrafts"
+        },
+        {
+            "columns": ["jump_uuid"],
+            "tableTo": "jumps",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_gear_jump_uuid_jumps_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_gear"
+        },
+        {
+            "columns": ["gear_uuid"],
+            "tableTo": "gear",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_gear_gear_uuid_gear_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_gear"
+        },
+        {
+            "columns": ["jump_uuid"],
+            "tableTo": "jumps",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_jump_types_jump_uuid_jumps_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_jump_types"
+        },
+        {
+            "columns": ["jump_type_uuid"],
+            "tableTo": "jump_types",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_jumps_to_jump_types_jump_type_uuid_jump_types_uuid_fk",
+            "entityType": "fks",
+            "table": "jumps_to_jump_types"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_locations_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "locations"
+        },
+        {
+            "columns": ["user_uuid"],
+            "tableTo": "users",
+            "columnsTo": ["uuid"],
+            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "nameExplicit": false,
+            "name": "fk_sessions_user_uuid_users_uuid_fk",
+            "entityType": "fks",
+            "table": "sessions"
+        },
+        {
+            "columns": ["jump_uuid", "aircraft_uuid"],
+            "nameExplicit": false,
+            "name": "jumps_to_aircrafts_pk",
+            "entityType": "pks",
+            "table": "jumps_to_aircrafts"
+        },
+        {
+            "columns": ["jump_uuid", "gear_uuid"],
+            "nameExplicit": false,
+            "name": "jumps_to_gear_pk",
+            "entityType": "pks",
+            "table": "jumps_to_gear"
+        },
+        {
+            "columns": ["jump_uuid", "jump_type_uuid"],
+            "nameExplicit": false,
+            "name": "jumps_to_jump_types_pk",
+            "entityType": "pks",
+            "table": "jumps_to_jump_types"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "ai_usage_pk",
+            "table": "ai_usage",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "aircrafts_pk",
+            "table": "aircrafts",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "gear_pk",
+            "table": "gear",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["code"],
+            "nameExplicit": false,
+            "name": "invitations_pk",
+            "table": "invitations",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "jump_types_pk",
+            "table": "jump_types",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "jumps_pk",
+            "table": "jumps",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "locations_pk",
+            "table": "locations",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["token_hash"],
+            "nameExplicit": false,
+            "name": "sessions_pk",
+            "table": "sessions",
+            "entityType": "pks"
+        },
+        {
+            "columns": ["uuid"],
+            "nameExplicit": false,
+            "name": "users_pk",
+            "table": "users",
+            "entityType": "pks"
+        },
+        {
+            "columns": [
+                {
+                    "value": "user_uuid",
+                    "isExpression": false
+                },
+                {
+                    "value": "jump_number",
+                    "isExpression": false
+                }
+            ],
+            "isUnique": true,
+            "where": null,
+            "origin": "manual",
+            "name": "jumps_user_jump_number_unique",
+            "entityType": "indexes",
+            "table": "jumps"
+        },
+        {
+            "columns": [
+                {
+                    "value": "email",
+                    "isExpression": false
+                }
+            ],
+            "isUnique": true,
+            "where": null,
+            "origin": "manual",
+            "name": "users_email_unique",
+            "entityType": "indexes",
+            "table": "users"
+        },
+        {
+            "columns": ["username"],
+            "nameExplicit": false,
+            "name": "users_username_unique",
+            "entityType": "uniques",
+            "table": "users"
+        }
+    ],
+    "renames": []
+}

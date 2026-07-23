@@ -17,6 +17,7 @@ import { UserOptionsSchema } from "@/options";
 import { RegistrationLocaleInputs } from "@/route-handlers/auth/register/locale-inputs";
 import { createDefaultJumpItems } from "@/route-handlers/auth/register/default-jump-items";
 import { Link } from "@/components/link";
+import { accountIdentityError, uniqueAccountField } from "@/account-uniqueness";
 
 const RegisterFormSchema = z
     .object({
@@ -247,22 +248,35 @@ async function handleRegister(c: AppRequestContext) {
         );
 
     const passwordHash = await hashPassword(password);
-    const createdUser = await createRegistrationUser(
-        db,
-        {
-            username,
-            displayName,
-            email,
-            passwordHash,
-            options: UserOptionsSchema.parse({
-                altitudeUnits,
-                speedUnits,
-                dateTimeFormat,
-                numberFormat,
-            }),
-        },
-        invitationCode,
-    );
+    let createdUser;
+    try {
+        createdUser = await createRegistrationUser(
+            db,
+            {
+                username,
+                displayName,
+                email,
+                passwordHash,
+                options: UserOptionsSchema.parse({
+                    altitudeUnits,
+                    speedUnits,
+                    dateTimeFormat,
+                    numberFormat,
+                }),
+            },
+            invitationCode,
+        );
+    } catch (error) {
+        const duplicateField = uniqueAccountField(error);
+        if (!duplicateField) throw error;
+        return c.render(
+            <RegisterForm
+                errors={[accountIdentityError(duplicateField)]}
+                invitationRequired={invitationRequired}
+                {...formProps}
+            />,
+        );
+    }
     if ("error" in createdUser)
         return c.render(
             <RegisterForm

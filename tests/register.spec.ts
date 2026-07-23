@@ -1,4 +1,8 @@
-import { acceptPrivacyPolicyIfRequired } from "./helpers";
+import {
+    acceptPrivacyPolicyIfRequired,
+    logOut,
+    queryPlaywrightDb,
+} from "./helpers";
 import { expect, test } from "./fixtures";
 import { openMainMenu } from "./helpers";
 
@@ -55,6 +59,61 @@ async function registerLocaleUser(
     await acceptPrivacyPolicyIfRequired(page);
     await expect(page).toHaveURL("/logbook");
 }
+
+async function submitRegistration(
+    page: import("@playwright/test").Page,
+    username: string,
+    email: string,
+) {
+    await page.goto("/register");
+    await page.locator('input[name="invitationCode"]').fill("test-invite");
+    await page.locator('input[name="username"]').fill(username);
+    await page.locator('input[name="email"]').fill(email);
+    await page.locator('input[name="password"]').fill("parachute");
+    await page.locator('input[name="confirmPassword"]').fill("parachute");
+    await page.getByRole("button", { name: "Create account" }).click();
+}
+
+test("registration rejects an existing username and email", async ({
+    page,
+}) => {
+    await submitRegistration(
+        page,
+        "registration-existing",
+        "registration-existing@example.test",
+    );
+    await acceptPrivacyPolicyIfRequired(page);
+    await expect(page).toHaveURL("/logbook");
+    await logOut(page);
+
+    await submitRegistration(
+        page,
+        "registration-existing",
+        "registration-other@example.test",
+    );
+    await expect(page).toHaveURL("/register");
+    await expect(page.getByText("Username is already in use")).toBeVisible();
+
+    await submitRegistration(
+        page,
+        "registration-other",
+        "registration-existing@example.test",
+    );
+    await expect(page).toHaveURL("/register");
+    await expect(
+        page.getByText("Email address is already in use"),
+    ).toBeVisible();
+
+    const matchingUsers = await queryPlaywrightDb(`
+        SELECT uuid FROM users
+        WHERE username IN ('registration-existing', 'registration-other')
+           OR email IN (
+               'registration-existing@example.test',
+               'registration-other@example.test'
+           )
+    `);
+    expect(matchingUsers).toHaveLength(1);
+});
 
 test("registration form keeps field values when password is too short", async ({
     page,
