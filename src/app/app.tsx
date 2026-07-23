@@ -45,11 +45,13 @@ import {
 import { $select } from "@/utils";
 import {
     createAltitudeFormatter,
+    createCalendarDurationFormatter,
     createDateFormatter,
     createDistanceFormatter,
     createNumberFormatter,
     createSpeedFormatter,
     type AltitudeFormatter,
+    type CalendarDurationFormatter,
     type DateFormatter,
     type DistanceFormatter,
     type NumberFormatter,
@@ -72,6 +74,7 @@ export interface AppContext {
     jsDupCache: Set<object>;
     serverTimings: ServerTimings;
     altitudeFormatter(): AltitudeFormatter;
+    calendarDurationFormatter(): CalendarDurationFormatter;
     dateFormatter(): DateFormatter;
     distanceFormatter(): DistanceFormatter;
     numberFormatter(): NumberFormatter;
@@ -144,6 +147,10 @@ export function useAppContext(): AppContext {
 
 export function useAltitudeFormatter(): AltitudeFormatter {
     return useAppContext().altitudeFormatter();
+}
+
+export function useCalendarDurationFormatter(): CalendarDurationFormatter {
+    return useAppContext().calendarDurationFormatter();
 }
 
 export function useDateFormatter(): DateFormatter {
@@ -570,6 +577,9 @@ async function setAppContextMiddleware(
                 options.altitudeUnits,
                 options.numberFormat,
             );
+        },
+        calendarDurationFormatter() {
+            return createCalendarDurationFormatter(this.numberFormatter());
         },
         dateFormatter() {
             return createDateFormatter(this.getUser().options.dateTimeFormat);

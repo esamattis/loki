@@ -6,10 +6,10 @@ import {
     useAppContext,
     useNumberFormatter,
     type App,
-    type AppContext,
     type AppRequestContext,
 } from "@/app/app";
 import { ButtonLink } from "@/components/form";
+import type { CalendarDuration } from "@/format";
 import { Script } from "@/components/script";
 import { SingleNumberCard } from "@/components/ui/single-number-card";
 import * as routes from "@/routes";
@@ -85,7 +85,7 @@ function getRollingCountDropDate(jumpDateValue: string): string {
 function getCalendarDuration(
     startDate: string,
     endDate: string,
-): { months: number; weeks: number; days: number } {
+): CalendarDuration {
     const start = parseDate(startDate);
     const end = parseDate(endDate);
     let months = 0;
@@ -103,32 +103,13 @@ function getCalendarDuration(
     };
 }
 
-function formatDurationPart(
-    value: number,
-    unit: "month" | "week" | "day",
-    formatNumber: ReturnType<AppContext["numberFormatter"]>,
-): string {
-    return `${formatNumber(value)} ${unit}${value === 1 ? "" : "s"}`;
-}
-
-function formatCalendarDuration(
-    duration: { months: number; weeks: number; days: number },
-    app: AppContext,
-): string {
-    const formatNumber = app.numberFormatter();
-    return [
-        formatDurationPart(duration.months, "month", formatNumber),
-        formatDurationPart(duration.weeks, "week", formatNumber),
-        formatDurationPart(duration.days, "day", formatNumber),
-    ].join(", ");
-}
-
 function LastTwelveMonthsFooter(props: {
     latestJumpDate: string | null;
     thresholdJumpDate: string | null;
     lastTwelveMonthsJumps: number;
 }) {
     const app = useAppContext();
+    const formatCalendarDuration = app.calendarDurationFormatter();
     const requirement =
         "In Finland, at least 10 jumps in the last 12 months are required to keep a skydiving license valid.";
     if (props.latestJumpDate === null) {
@@ -140,7 +121,7 @@ function LastTwelveMonthsFooter(props: {
         return (
             <>
                 {requirement} The last jump was{" "}
-                {formatCalendarDuration(duration, app)} ago, on{" "}
+                {formatCalendarDuration(duration)} ago, on{" "}
                 {app.dateFormatter()(props.latestJumpDate)}.
             </>
         );
@@ -153,7 +134,7 @@ function LastTwelveMonthsFooter(props: {
     return (
         <>
             {requirement} If no more jumps are made, this count will fall below
-            10 in {formatCalendarDuration(duration, app)}, on{" "}
+            10 in {formatCalendarDuration(duration)}, on{" "}
             {app.dateFormatter()(dropDate)}.
         </>
     );
