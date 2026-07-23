@@ -181,7 +181,7 @@ function Hero(props: { loggedIn: boolean }) {
             </div>
             <VideoEmbed />
             <div className="mt-8 flex flex-col items-center justify-center gap-3">
-                <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
                     Install
                 </h2>
                 <DownloadButton />
