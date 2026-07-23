@@ -449,6 +449,7 @@ function optionsFromRawForm(
         jumpImageAdditionalContext: current.jumpImageAdditionalContext,
         htmlCacheEnabled: raw.htmlCacheEnabled === "true",
         readonly: current.readonly,
+        exampleDataChecksum: current.exampleDataChecksum,
     });
     return partial.success ? partial.data : current;
 }
@@ -559,6 +560,7 @@ async function handlePreferences(c: AppRequestContext) {
         jumpImageAdditionalContext: user.options.jumpImageAdditionalContext,
         htmlCacheEnabled: result.data.htmlCacheEnabled === "true",
         readonly: user.options.readonly,
+        exampleDataChecksum: user.options.exampleDataChecksum,
     });
     values.options = options;
     await ctx.db

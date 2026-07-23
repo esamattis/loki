@@ -1,24 +1,39 @@
-import { count, eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
     getAppContext,
     setAuthenticatedUser,
     type App,
     type AppRequestContext,
+    type User,
 } from "@/app/app";
 import { generateSessionToken, hashPassword } from "@/auth";
-import { UserOptionsSchema, parseUserOptions } from "@/options";
+import {
+    UserOptionsSchema,
+    parseUserOptions,
+    type UserOptions,
+} from "@/options";
 import {
     importRecords,
     parseCsvImport,
 } from "@/route-handlers/logbook/transfer/index";
 import { createSession } from "@/route-handlers/auth/sessions";
 import * as routes from "@/routes";
-import { jumps, users } from "@/schema";
+import { users } from "@/schema";
 import exampleLogbookCsv from "@/example-logbook.csv?raw";
 
 const DEMO_USERNAME = "demo";
 const DEMO_EMAIL = "demo@loki.local";
 const DEMO_DISPLAY_NAME = "Demo";
+
+async function exampleDataChecksum(csv: string): Promise<string> {
+    const digest = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(csv),
+    );
+    return Array.from(new Uint8Array(digest), (byte) =>
+        byte.toString(16).padStart(2, "0"),
+    ).join("");
+}
 
 async function ensureDemoUser(c: AppRequestContext) {
     const ctx = getAppContext(c);
@@ -84,13 +99,46 @@ async function ensureDemoUser(c: AppRequestContext) {
     };
 }
 
-async function ensureDemoExampleData(c: AppRequestContext, userUuid: string) {
+async function updateDemoOptions(args: {
+    c: AppRequestContext;
+    userUuid: string;
+    options: UserOptions;
+    bumpHtmlCache: boolean;
+}) {
+    const ctx = getAppContext(args.c);
+    const optionsJson = JSON.stringify(args.options);
+    await ctx.db
+        .update(users)
+        .set({
+            options: optionsJson,
+            ...(args.bumpHtmlCache
+                ? {
+                      htmlCacheGeneration: sql`${users.htmlCacheGeneration} + 1`,
+                  }
+                : {}),
+        })
+        .where(eq(users.uuid, args.userUuid))
+        .run();
+
+    const user = ctx.user;
+    if (user && user.uuid === args.userUuid) {
+        const next: User = {
+            ...user,
+            options: args.options,
+            readonly: args.options.readonly,
+            htmlCacheGeneration: args.bumpHtmlCache
+                ? user.htmlCacheGeneration + 1
+                : user.htmlCacheGeneration,
+        };
+        ctx.user = next;
+    }
+}
+
+async function ensureDemoExampleData(c: AppRequestContext) {
     const ctx = getAppContext(c);
-    const [jumpCountRow] = await ctx.db
-        .select({ value: count() })
-        .from(jumps)
-        .where(eq(jumps.userUuid, userUuid));
-    if ((jumpCountRow?.value ?? 0) > 0) {
+    const user = ctx.getUser();
+    const checksum = await exampleDataChecksum(exampleLogbookCsv);
+    if (user.options.exampleDataChecksum === checksum) {
         return;
     }
 
@@ -101,12 +149,24 @@ async function ensureDemoExampleData(c: AppRequestContext, userUuid: string) {
     }
 
     await importRecords(c, importResult.records, true);
+
+    const nextOptions = UserOptionsSchema.parse({
+        ...user.options,
+        exampleDataChecksum: checksum,
+        readonly: true,
+    });
+    await updateDemoOptions({
+        c,
+        userUuid: user.uuid,
+        options: nextOptions,
+        bumpHtmlCache: true,
+    });
 }
 
 async function handleTryDemo(c: AppRequestContext) {
     const demoUser = await ensureDemoUser(c);
     setAuthenticatedUser(getAppContext(c), demoUser);
-    await ensureDemoExampleData(c, demoUser.uuid);
+    await ensureDemoExampleData(c);
     await createSession(c, demoUser.uuid);
     return c.redirect(routes.logbook.index({}));
 }
