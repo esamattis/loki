@@ -1,4 +1,4 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
 import { LogbookPage } from "@/app/logbook-page";
 import { requireAdmin } from "@/route-handlers/admin/helpers";
@@ -9,7 +9,7 @@ import {
     AdminUsersSection,
 } from "@/route-handlers/admin/index/sections";
 import * as routes from "@/routes";
-import { invitations, sessions, users } from "@/schema";
+import { invitations, jumps, sessions, users } from "@/schema";
 
 async function renderAdminPage(c: AppRequestContext) {
     const admin = requireAdmin(c);
@@ -30,9 +30,12 @@ async function renderAdminPage(c: AppRequestContext) {
                 admin: users.admin,
                 createdAt: users.createdAt,
                 lastUsedAt: users.lastUsedAt,
+                jumpCount: sql<number>`count(${jumps.uuid})`,
             })
             .from(users)
-            .orderBy(asc(users.username))
+            .leftJoin(jumps, eq(users.uuid, jumps.userUuid))
+            .groupBy(users.uuid)
+            .orderBy(desc(users.createdAt))
             .all(),
         db
             .select({

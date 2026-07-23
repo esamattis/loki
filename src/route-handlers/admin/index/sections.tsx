@@ -1,4 +1,4 @@
-import { useDateFormatter } from "@/app/app";
+import { useDateFormatter, useNumberFormatter } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
 import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
 import { parseUserOptions } from "@/options";
@@ -15,6 +15,7 @@ export interface AdminUserRow {
     admin: boolean;
     createdAt: number;
     lastUsedAt: number;
+    jumpCount: number;
 }
 
 export interface AdminSessionRow {
@@ -123,6 +124,7 @@ export function AdminUsersSection(props: {
     currentUserUuid: string;
 }) {
     const formatDate = useDateFormatter();
+    const formatNumber = useNumberFormatter();
     const adminCount = props.users.filter((user) => user.admin).length;
     return (
         <section id="users" className="space-y-4">
@@ -182,6 +184,9 @@ export function AdminUsersSection(props: {
                                     </MetadataItem>
                                     <MetadataItem label="Invitation code">
                                         {user.invitationCode ?? "Not recorded"}
+                                    </MetadataItem>
+                                    <MetadataItem label="Recorded jumps">
+                                        {formatNumber(user.jumpCount)}
                                     </MetadataItem>
                                 </dl>
                             </li>

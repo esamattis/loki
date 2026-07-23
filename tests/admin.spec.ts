@@ -99,11 +99,44 @@ test("shows the invitation code used to register each user", async ({
     });
     await expect(created).toContainText(String(new Date().getUTCFullYear()));
     await expect(invitedUser).toContainText("Last seen:");
+    await expect(invitedUser).toContainText("Recorded jumps: 0");
 
     const seededAdmin = usersSection.getByRole("listitem").filter({
         hasText: "@test-admin",
     });
     await expect(seededAdmin).toContainText("Invitation code: Not recorded");
+});
+
+test("shows the recorded jump count for each user", async ({ page }) => {
+    await registerUser(page, "jump-count-user");
+    const userRows = await queryPlaywrightDb(`
+        SELECT uuid FROM users WHERE username = 'jump-count-user'
+    `);
+    const userUuid = userRows[0]?.uuid;
+    if (typeof userUuid !== "string") {
+        throw new Error("Expected jump count user");
+    }
+    await executePlaywrightDb(`
+        INSERT INTO jumps (
+            uuid, user_uuid, jump_number, jump_date,
+            exit_altitude, opening_altitude, freefall_time, created_at
+        ) VALUES
+            ('jump-count-1', '${userUuid}', 1, '2024-01-01', 4000, 1000, 60, 1),
+            ('jump-count-2', '${userUuid}', 2, '2024-01-02', 4000, 1000, 60, 1),
+            ('jump-count-3', '${userUuid}', 3, '2024-01-03', 4000, 1000, 60, 1)
+    `);
+    await logOut(page);
+
+    await page.locator('input[name="usernameOrEmail"]').fill("test-admin");
+    await page.locator('input[name="password"]').fill("test-admin-password");
+    await page.getByRole("button", { name: "Log in" }).click();
+    await expect(page).toHaveURL("/logbook");
+    await page.goto("/admin");
+
+    const targetUser = page.getByRole("listitem").filter({
+        hasText: "@jump-count-user",
+    });
+    await expect(targetUser).toContainText("Recorded jumps: 3");
 });
 
 test("does not allow removing the last admin", async ({ page, request }) => {
