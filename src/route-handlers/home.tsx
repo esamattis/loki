@@ -96,40 +96,53 @@ function TryDemoButton() {
     );
 }
 
-function LandingActions(props: { loggedIn: boolean; showTryDemo?: boolean }) {
-    return (
-        <>
+function SignUpOrLogbookButton(props: { loggedIn: boolean }) {
+    if (props.loggedIn) {
+        return (
             <a
-                href={RELEASES_URL}
+                href={routes.logbook.index({})}
                 className={buttonClassName({
-                    variant: "primary",
+                    variant: "secondary",
                     className: "w-full px-6 py-3 text-base sm:w-auto",
                 })}
             >
-                Download
+                Open your logbook
             </a>
+        );
+    }
+    return (
+        <a
+            href={routes.auth.register({})}
+            className={buttonClassName({
+                variant: "secondary",
+                className: "w-full px-6 py-3 text-base sm:w-auto",
+            })}
+        >
+            Sign up with invite
+        </a>
+    );
+}
+
+function DownloadButton() {
+    return (
+        <a
+            href={RELEASES_URL}
+            className={buttonClassName({
+                variant: "primary",
+                className: "w-full px-6 py-3 text-base sm:w-auto",
+            })}
+        >
+            Download
+        </a>
+    );
+}
+
+function LandingActions(props: { loggedIn: boolean; showTryDemo?: boolean }) {
+    return (
+        <>
             {props.showTryDemo ? <TryDemoButton /> : null}
-            {props.loggedIn ? (
-                <a
-                    href={routes.logbook.index({})}
-                    className={buttonClassName({
-                        variant: "secondary",
-                        className: "w-full px-6 py-3 text-base sm:w-auto",
-                    })}
-                >
-                    Open your logbook
-                </a>
-            ) : (
-                <a
-                    href={routes.auth.register({})}
-                    className={buttonClassName({
-                        variant: "secondary",
-                        className: "w-full px-6 py-3 text-base sm:w-auto",
-                    })}
-                >
-                    Sign up with invite
-                </a>
-            )}
+            <SignUpOrLogbookButton loggedIn={props.loggedIn} />
+            <DownloadButton />
         </>
     );
 }
@@ -164,10 +177,14 @@ function Hero(props: { loggedIn: boolean }) {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <TryDemoButton />
+                <SignUpOrLogbookButton loggedIn={props.loggedIn} />
             </div>
             <VideoEmbed />
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <LandingActions loggedIn={props.loggedIn} />
+            <div className="mt-8 flex flex-col items-center justify-center gap-3">
+                <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                    Install
+                </h2>
+                <DownloadButton />
             </div>
         </section>
     );
