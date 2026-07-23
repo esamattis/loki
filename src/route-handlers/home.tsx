@@ -29,6 +29,24 @@ const sectionHeadingClassName =
 const sectionLeadClassName =
     "mt-3 text-base text-slate-600 dark:text-slate-400";
 
+function FullWidthLandingCard(props: {
+    children: Child;
+    className: string;
+    sectionClassName?: string;
+}) {
+    return (
+        <section className={props.sectionClassName}>
+            <div className="mx-auto max-w-5xl px-4">
+                <div
+                    className={`rounded-3xl border px-5 py-10 text-center sm:px-12 sm:py-12 ${props.className}`}
+                >
+                    {props.children}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 function LandingHeader(props: { loggedIn: boolean }) {
     return (
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/85">
@@ -180,26 +198,29 @@ function Hero(props: { loggedIn: boolean }) {
                 <SignUpOrLogbookButton loggedIn={props.loggedIn} />
             </div>
             <VideoEmbed />
-            <div
-                className={`${cardClassName} mx-auto mt-8 flex max-w-xl flex-col items-center gap-5 text-center sm:gap-6`}
-            >
-                <h2 className={sectionHeadingClassName}>Local Installation</h2>
-                <DownloadButton />
-            </div>
         </section>
     );
 }
 
-function InstallCommand() {
+function LocalInstallation() {
     return (
-        <section className="mx-auto mt-8 w-fit max-w-full px-4">
-            <p className="mb-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+        <FullWidthLandingCard
+            sectionClassName="mt-8 sm:mt-10"
+            className="border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+        >
+            <h2 className={sectionHeadingClassName}>Local Installation</h2>
+            <div className="mt-6 flex justify-center">
+                <DownloadButton />
+            </div>
+            <p className="mt-8 text-sm font-medium text-slate-600 dark:text-slate-400">
                 Install on Linux or macOS with
             </p>
-            <Code className="p-4 pr-20 text-xs sm:p-5 sm:pr-24">
-                {INSTALL_COMMAND}
-            </Code>
-            <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-2 w-full min-w-0 max-w-full">
+                <Code className="p-4 pr-20 text-left text-xs sm:p-5 sm:pr-24">
+                    {INSTALL_COMMAND}
+                </Code>
+            </div>
+            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
                 Installs to{" "}
                 <code className="font-mono text-slate-600 dark:text-slate-300">
                     ~/.local/bin/loki
@@ -216,7 +237,7 @@ function InstallCommand() {
                 On Windows, download loki.exe from the{" "}
                 <ExternalLink href={RELEASES_URL}>releases page</ExternalLink>.
             </p>
-        </section>
+        </FullWidthLandingCard>
     );
 }
 
@@ -447,23 +468,22 @@ open http://localhost:8787`}</code>
 
 function FooterCta(props: { loggedIn: boolean }) {
     return (
-        <section className="mt-16 sm:mt-24">
-            <div className="mx-auto max-w-5xl px-4">
-                <div className="rounded-3xl border border-indigo-200 bg-indigo-50 px-5 py-10 text-center sm:px-12 sm:py-12 dark:border-indigo-900/60 dark:bg-indigo-950/40">
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-                        Start your digital logbook today
-                    </h2>
-                    <p className="mx-auto mt-4 max-w-xl text-slate-700 dark:text-slate-300">
-                        {props.loggedIn
-                            ? "Head back to your logbook and keep recording your jumps."
-                            : "Use an invitation to create a hosted account, or log in to pick up where you left off."}
-                    </p>
-                    <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                        <LandingActions loggedIn={props.loggedIn} showTryDemo />
-                    </div>
-                </div>
+        <FullWidthLandingCard
+            sectionClassName="mt-16 sm:mt-24"
+            className="border-indigo-200 bg-indigo-50 dark:border-indigo-900/60 dark:bg-indigo-950/40"
+        >
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+                Start your digital logbook today
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-700 dark:text-slate-300">
+                {props.loggedIn
+                    ? "Head back to your logbook and keep recording your jumps."
+                    : "Use an invitation to create a hosted account, or log in to pick up where you left off."}
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <LandingActions loggedIn={props.loggedIn} showTryDemo />
             </div>
-        </section>
+        </FullWidthLandingCard>
     );
 }
 
@@ -473,7 +493,7 @@ function LandingPage(props: { loggedIn: boolean }) {
             <LandingHeader loggedIn={props.loggedIn} />
             <main>
                 <Hero loggedIn={props.loggedIn} />
-                <InstallCommand />
+                <LocalInstallation />
                 <Features />
                 <SelfHosting />
                 <FooterCta loggedIn={props.loggedIn} />
