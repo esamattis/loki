@@ -26,7 +26,9 @@ function PrivacyContent() {
                     loki.hyppykeli.fi
                 </ExternalLink>
                 . In short: we do not use your data for anything beyond running
-                the logbook, and we do not share it with anyone.
+                the logbook. We also do not guarantee any data durability,
+                security, backups, or availability of the service. Do regular
+                exports or self-host.
             </p>
             <p>
                 Loki is{" "}
@@ -83,7 +85,7 @@ function PrivacyContent() {
                     platform under our instructions.
                 </p>
                 <p>
-                    Optional AI Vision is opt-in and bring-your-own-key (BYOK):
+                    AI Vision is opt-in and bring-your-own-key (BYOK):
                     if you configure an OpenAI API key and use the feature,
                     images and related prompts you submit are sent to OpenAI
                     under OpenAI’s terms. The service may support other AI
