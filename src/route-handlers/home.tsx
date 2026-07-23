@@ -18,7 +18,7 @@ import clsx from "clsx";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
 const RELEASES_URL = `${REPOSITORY_URL}/releases`;
-const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/wph46K999hQ";
+const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/80_komXsVY8";
 const INSTALL_COMMAND =
     'bash -c "$(curl -fsSL https://raw.githubusercontent.com/esamattis/loki/main/install.sh)"';
 const INSTALL_SCRIPT_URL = `${REPOSITORY_URL}/blob/main/install.sh`;
