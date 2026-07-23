@@ -1,4 +1,9 @@
-import { logOut, openMainMenu } from "./helpers";
+import {
+    executePlaywrightDb,
+    logOut,
+    openMainMenu,
+    queryPlaywrightDb,
+} from "./helpers";
 import { expect, test, type APIRequestContext, type Page } from "./fixtures";
 
 async function registerUser(page: Page, username: string) {
@@ -169,6 +174,84 @@ test("admin can make a user read-only and log in as them", async ({ page }) => {
     ).toBeVisible();
 });
 
+test("admin can delete one session or clear all sessions for a user", async ({
+    page,
+}) => {
+    await registerUser(page, "session-delete-target");
+    await page.context().clearCookies();
+
+    const targetRows = await queryPlaywrightDb(`
+        SELECT uuid FROM users WHERE username = 'session-delete-target'
+    `);
+    const targetUuid = targetRows[0]?.uuid;
+    if (typeof targetUuid !== "string") {
+        throw new Error("Expected session deletion target user");
+    }
+    await executePlaywrightDb(`
+        INSERT INTO sessions (
+            token_hash,
+            user_uuid,
+            created_at,
+            expires_at,
+            last_used_at
+        ) VALUES (
+            'session-delete-extra',
+            '${targetUuid}',
+            1,
+            4102444800,
+            4102440000
+        )
+    `);
+
+    await page.goto("/login");
+    await page.locator('input[name="usernameOrEmail"]').fill("test-admin");
+    await page.locator('input[name="password"]').fill("test-admin-password");
+    await page.getByRole("button", { name: "Log in" }).click();
+    await page.goto("/admin");
+
+    let userSessions = page.locator("#sessions > ul > li").filter({
+        hasText: "@session-delete-target",
+    });
+    await expect(userSessions.locator("ul > li")).toHaveCount(2);
+    await expect(userSessions.locator("ul > li").first()).toContainText(
+        "session-dele...",
+    );
+
+    const extraSession = userSessions.locator("ul > li").filter({
+        hasText: "session-dele...",
+    });
+    const deleteButton = extraSession.getByRole("button");
+    await expect(deleteButton).toHaveText("Delete session");
+    await deleteButton.click();
+    await expect(deleteButton).toHaveText("Confirm delete", { timeout: 1000 });
+    await deleteButton.click();
+    await expect(page).toHaveURL("/admin");
+
+    userSessions = page.locator("#sessions > ul > li").filter({
+        hasText: "@session-delete-target",
+    });
+    await expect(userSessions.locator("ul > li")).toHaveCount(1);
+
+    const clearButton = userSessions
+        .locator(":scope > div")
+        .getByRole("button");
+    await expect(clearButton).toHaveText("Clear all sessions");
+    await clearButton.click();
+    await expect(clearButton).toHaveText("Confirm clear", { timeout: 1000 });
+    await clearButton.click();
+    await expect(page).toHaveURL("/admin");
+    await expect(
+        page.locator("#sessions > ul > li").filter({
+            hasText: "@session-delete-target",
+        }),
+    ).toHaveCount(0);
+
+    const remainingSessions = await queryPlaywrightDb(`
+        SELECT token_hash FROM sessions WHERE user_uuid = '${targetUuid}'
+    `);
+    expect(remainingSessions).toEqual([]);
+});
+
 test("non-admins cannot perform admin actions", async ({ page, request }) => {
     await registerUser(page, "non-admin-actions");
 
@@ -183,6 +266,21 @@ test("non-admins cannot perform admin actions", async ({ page, request }) => {
         form: { uuid: "00000000-0000-0000-0000-000000000000" },
     });
     expect(toggleAdminResponse.status()).toBe(404);
+
+    const deleteSessionResponse = await postAsPage(page, request, {
+        path: "/admin/sessions",
+        form: { action: "delete", tokenHash: "not-the-current-session" },
+    });
+    expect(deleteSessionResponse.status()).toBe(404);
+
+    const clearSessionsResponse = await postAsPage(page, request, {
+        path: "/admin/sessions",
+        form: {
+            action: "clear-user",
+            userUuid: "00000000-0000-0000-0000-000000000000",
+        },
+    });
+    expect(clearSessionsResponse.status()).toBe(404);
 
     const createInvitationResponse = await postAsPage(page, request, {
         path: "/admin/invitations/new",

@@ -54,7 +54,7 @@ async function renderAdminPage(c: AppRequestContext) {
             })
             .from(sessions)
             .innerJoin(users, eq(sessions.userUuid, users.uuid))
-            .orderBy(desc(sessions.createdAt))
+            .orderBy(desc(sessions.lastUsedAt))
             .all(),
     ]);
 

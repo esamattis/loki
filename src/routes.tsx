@@ -110,6 +110,9 @@ export const admin = {
     loginAs: route("/admin/login-as"),
     toggleAdmin: route("/admin/toggle-admin"),
     toggleReadonly: route("/admin/toggle-readonly"),
+    sessions: {
+        index: route("/admin/sessions"),
+    },
     invitations: {
         new: route("/admin/invitations/new"),
         edit: route("/admin/invitations/:code"),

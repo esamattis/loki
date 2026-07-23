@@ -38,6 +38,7 @@ import { register as registerAdminRoutes } from "@/route-handlers/admin/index";
 import { register as registerLoginAsRoutes } from "@/route-handlers/admin/login-as";
 import { register as registerToggleAdminRoutes } from "@/route-handlers/admin/toggle-admin";
 import { register as registerToggleReadonlyRoutes } from "@/route-handlers/admin/toggle-readonly";
+import { register as registerAdminSessionRoutes } from "@/route-handlers/admin/sessions/index";
 import { register as registerNewInvitationRoutes } from "@/route-handlers/admin/invitations/new";
 import { register as registerEditInvitationRoutes } from "@/route-handlers/admin/invitations/edit";
 import { register as registerServiceWorkerRoutes } from "@/route-handlers/service-worker";
@@ -87,6 +88,7 @@ export function registerRoutes(app: App) {
     registerLoginAsRoutes(app);
     registerToggleAdminRoutes(app);
     registerToggleReadonlyRoutes(app);
+    registerAdminSessionRoutes(app);
     registerNewInvitationRoutes(app);
     registerEditInvitationRoutes(app);
     registerServiceWorkerRoutes(app);

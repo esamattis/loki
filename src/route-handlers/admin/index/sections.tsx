@@ -1,5 +1,6 @@
 import { useDateFormatter } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
+import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
 import { parseUserOptions } from "@/options";
 import * as routes from "@/routes";
 import type { Child } from "hono/jsx";
@@ -269,14 +270,36 @@ export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
                         }
                         return (
                             <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                                <div className="px-5 py-4">
-                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                        {firstSession.displayName ||
-                                            firstSession.username}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        @{firstSession.username}
-                                    </p>
+                                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                            {firstSession.displayName ||
+                                                firstSession.username}
+                                        </p>
+                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                            @{firstSession.username}
+                                        </p>
+                                    </div>
+                                    <form
+                                        method="post"
+                                        action={routes.admin.sessions.index({})}
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="clear-user"
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="userUuid"
+                                            value={firstSession.userUuid}
+                                        />
+                                        <ConfirmDangerButton
+                                            label="Clear all sessions"
+                                            confirmLabel="Confirm clear"
+                                            className="px-3 py-1.5 text-sm"
+                                        />
+                                    </form>
                                 </div>
                                 <ul className="divide-y divide-slate-200 border-t border-slate-100 bg-slate-50/60 dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950/30">
                                     {userSessions.map((session) => (
@@ -289,11 +312,38 @@ export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
                                                     )}
                                                     ...
                                                 </p>
-                                                {session.expiresAt <= now && (
-                                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                                                        Expired
-                                                    </span>
-                                                )}
+                                                <div className="flex items-center gap-2">
+                                                    {session.expiresAt <=
+                                                        now && (
+                                                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                                            Expired
+                                                        </span>
+                                                    )}
+                                                    <form
+                                                        method="post"
+                                                        action={routes.admin.sessions.index(
+                                                            {},
+                                                        )}
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="action"
+                                                            value="delete"
+                                                        />
+                                                        <input
+                                                            type="hidden"
+                                                            name="tokenHash"
+                                                            value={
+                                                                session.tokenHash
+                                                            }
+                                                        />
+                                                        <ConfirmDangerButton
+                                                            label="Delete session"
+                                                            confirmLabel="Confirm delete"
+                                                            className="px-3 py-1.5 text-sm"
+                                                        />
+                                                    </form>
+                                                </div>
                                             </div>
                                             <dl className="mt-4 grid gap-4 sm:grid-cols-3">
                                                 <MetadataItem label="Created">
