@@ -1,7 +1,12 @@
 import { and, eq, ne } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import { z } from "zod";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+    useAppContext,
+} from "@/app/app";
 import { Button, Checkbox, Input, Select, Textarea } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Script } from "@/components/script";
@@ -319,8 +324,8 @@ function PreferencesForm(props: {
     formId: string;
     values: PreferencesFormValues;
     errors?: string[];
-    selfHosted: boolean;
 }) {
+    const selfHosted = useAppContext().isSelfHosted();
     return (
         <form
             id={props.formId}
@@ -368,7 +373,7 @@ function PreferencesForm(props: {
             <DateTimeSection options={props.values.options} />
             <JumpFromImageSection options={props.values.options} />
             <PasswordSection />
-            {!props.selfHosted && (
+            {!selfHosted && (
                 <PerformanceSection options={props.values.options} />
             )}
             <div className="hidden sm:block">
@@ -383,7 +388,6 @@ function PreferencesForm(props: {
 function PreferencesPage(props: {
     values: PreferencesFormValues;
     errors?: string[];
-    selfHosted: boolean;
 }) {
     const formId = useId();
 
@@ -405,7 +409,6 @@ function PreferencesPage(props: {
                 formId={formId}
                 values={props.values}
                 errors={props.errors}
-                selfHosted={props.selfHosted}
             />
             <DangerZoneSection />
         </LogbookPage>
@@ -462,13 +465,7 @@ function renderPreferences(
     values = getFormValues(c),
     errors?: string[],
 ) {
-    return c.render(
-        <PreferencesPage
-            values={values}
-            errors={errors}
-            selfHosted={getAppContext(c).isSelfHosted()}
-        />,
-    );
+    return c.render(<PreferencesPage values={values} errors={errors} />);
 }
 
 function renderPreferencesPage(c: AppRequestContext) {
