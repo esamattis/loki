@@ -229,6 +229,31 @@ test("a skydiver cannot use another account's username", async ({ page }) => {
     );
 });
 
+test("a skydiver cannot use another account's email", async ({ page }) => {
+    await registerUser(page, "existing-email", "Existing Email");
+    await logOut(page);
+    await registerUser(page, "preferences-email", "Preferences Email");
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page
+        .locator('input[name="email"]')
+        .fill("existing-email@example.test");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+
+    await expect(page).toHaveURL("/preferences");
+    await expect(
+        page.getByText("Email address is already in use"),
+    ).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toHaveValue(
+        "existing-email@example.test",
+    );
+    const usersWithEmail = await queryPlaywrightDb(`
+        SELECT uuid FROM users WHERE email = 'existing-email@example.test'
+    `);
+    expect(usersWithEmail).toHaveLength(1);
+});
+
 test("unit preferences apply throughout the logbook UI", async ({ page }) => {
     const username = "units-skydiver";
     await registerUser(page, username, "Units Skydiver");

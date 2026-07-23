@@ -16,6 +16,7 @@ import { LogbookPage } from "@/app/logbook-page";
 import { $select } from "@/utils";
 import { DangerZoneSection } from "@/route-handlers/preferences/danger-zone";
 import { deleteAccount } from "@/delete-account";
+import { accountIdentityError, uniqueAccountField } from "@/account-uniqueness";
 
 const PreferencesSchema = z
     .object({
@@ -548,18 +549,26 @@ async function handlePreferences(c: AppRequestContext) {
         lastCsvExportAt: user.options.lastCsvExportAt,
     });
     values.options = options;
-    await ctx.db
-        .update(users)
-        .set({
-            username: result.data.username,
-            displayName: result.data.displayName || null,
-            email: result.data.email,
-            options: JSON.stringify(options),
-            ...(result.data.password
-                ? { password: await hashPassword(result.data.password) }
-                : {}),
-        })
-        .where(eq(users.uuid, user.uuid));
+    try {
+        await ctx.db
+            .update(users)
+            .set({
+                username: result.data.username,
+                displayName: result.data.displayName || null,
+                email: result.data.email,
+                options: JSON.stringify(options),
+                ...(result.data.password
+                    ? { password: await hashPassword(result.data.password) }
+                    : {}),
+            })
+            .where(eq(users.uuid, user.uuid));
+    } catch (error) {
+        const duplicateField = uniqueAccountField(error);
+        if (!duplicateField) throw error;
+        return renderPreferences(c, values, [
+            accountIdentityError(duplicateField),
+        ]);
+    }
 
     return c.redirect(routes.logbook.index({}));
 }

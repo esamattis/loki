@@ -35,7 +35,7 @@ function PrivacyContent() {
                 , a best-effort convenience instance of{" "}
                 <ExternalLink href={repositoryUrl}>
                     open-source Loki
-                </ExternalLink>
+                </ExternalLink>{" "}
                 offered out of goodwill. It is not a commercial product. We{" "}
                 <strong className="font-bold">
                     do not guarantee any data durability, security, backups, or
