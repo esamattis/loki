@@ -4,6 +4,33 @@ aircraft,Cessna Caravan,0,,,,,,,,,,Common turbine dropzone aircraft
 aircraft,Twin Otter,0,,,,,,,,,,Twin turbine for larger loads
 aircraft,Skyvan,0,,,,,,,,,,Rear-ramp freefall aircraft
 aircraft,Balloon,0,,,,,,,,,,Hot air balloon for high-altitude exits
+aircraft,EC-FJP,0,,,,,,,,,,Empuriabrava Cessna 182 hop-and-pop ship
+aircraft,EC-GYR,0,,,,,,,,,,Empuriabrava Skyvan
+aircraft,EC-HCH,0,,,,,,,,,,Empuriabrava Skyvan
+aircraft,EC-ISV,0,,,,,,,,,,Empuriabrava Twin Otter
+aircraft,EC-JIP,0,,,,,,,,,,Empuriabrava Twin Otter
+aircraft,EC-KAV,0,,,,,,,,,,Empuriabrava Cessna Caravan
+aircraft,N123DZ,0,,,,,,,,,,Skydive Chicago Grand Caravan
+aircraft,N124SA,0,,,,,,,,,,Skydive City Twin Otter
+aircraft,N182EL,0,,,,,,,,,,Skydive Arizona Cessna 182 hop-and-pop ship
+aircraft,N182PV,0,,,,,,,,,,Perris Valley Cessna 182 hop-and-pop ship
+aircraft,N182SC,0,,,,,,,,,,Skydive Chicago Cessna 182 hop-and-pop ship
+aircraft,N182ZH,0,,,,,,,,,,Skydive City Cessna 182 hop-and-pop ship
+aircraft,N204EH,0,,,,,,,,,,Skydive Chicago Twin Otter
+aircraft,N208SC,0,,,,,,,,,,Skydive Chicago Grand Caravan
+aircraft,N208SH,0,,,,,,,,,,Spaceland Houston Grand Caravan
+aircraft,N208ZH,0,,,,,,,,,,Skydive City Grand Caravan
+aircraft,N225PV,0,,,,,,,,,,Perris Valley Skyvan
+aircraft,N247EL,0,,,,,,,,,,Skydive Arizona Skyvan
+aircraft,N247SA,0,,,,,,,,,,Skydive City Skyvan
+aircraft,N270SA,0,,,,,,,,,,Skydive City Twin Otter
+aircraft,N370SL,0,,,,,,,,,,Spaceland Houston Twin Otter
+aircraft,N590SP,0,,,,,,,,,,Skydive Chicago Twin Otter
+aircraft,N7000B,0,,,,,,,,,,Hot air balloon for high-altitude exits
+aircraft,N705SA,0,,,,,,,,,,Skydive Arizona Twin Otter
+aircraft,N706SA,0,,,,,,,,,,Skydive Arizona Twin Otter
+aircraft,N70PV,0,,,,,,,,,,Perris Valley Twin Otter
+aircraft,N71PV,0,,,,,,,,,,Perris Valley Twin Otter
 gear,Navigator 260,0,,,,,,,,,,Student main canopy
 gear,Sabre2 190,0,,,,,,,,,,First sport main after student gear
 gear,Sabre2 170,0,,,,,,,,,,Downsized intermediate main
@@ -36,623 +63,623 @@ location,Empuriabrava,0,,,,,,,,,,Spain summer boogie
 location,Perris Valley,0,,,,,,,,,,Southern California DZ
 location,Skydive Arizona,0,,,,,,,,,,Eloy desert big-ways and boogies
 location,Skydive Spaceland Houston,0,,,,,,,,,,Texas summer loads
-jump,,,1,2021-05-08,4011,1500,45,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,AFF,Solid pull sequence
-jump,,,2,2021-05-08,4024,1500,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Extra AFF practice load
-jump,,,3,2021-05-09,4115,1500,49,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 1 — big smile on landing
-jump,,,4,2021-05-09,4142,1500,47,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 7 — almost ready to graduate
-jump,,,5,2021-05-22,4142,1500,47,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
-jump,,,6,2021-05-22,4068,1500,45,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 3 — stable freefall the whole way
-jump,,,7,2021-05-23,4120,1500,48,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
-jump,,,8,2021-05-23,4142,1500,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
-jump,,,9,2021-06-05,4194,1500,45,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
-jump,,,10,2021-06-05,4115,1500,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Waved at the camera mid-freefall like I was on a cruise ship. Forgot to fall. Instructor docked while crying with laughter and later said I looked like a golden retriever who just discovered gravity.
-jump,,,11,2021-06-06,4111,1500,44,Skydive Chicago,Twin Otter,Navigator 260;Genera,AFF,Extra AFF practice load
-jump,,,12,2021-06-06,4191,1500,49,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,AFF,Level 1 — big smile on landing
-jump,,,13,2021-06-19,4052,1282,50,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,Coach jump,Leg position fixes
-jump,,,14,2021-06-19,4008,1310,49,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Fall rate matching practice
-jump,,,15,2021-06-20,4094,1360,51,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,Coach jump,Coaching on exits
-jump,,,16,2021-06-20,4168,1268,48,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Breakoff and tracking review
-jump,,,17,2021-07-10,4158,1266,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Fall rate matching practice
-jump,,,18,2021-07-10,4013,1388,54,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Relaxed and smoother this time
-jump,,,19,2021-07-11,1449,1000,9,Skydive Chicago,Cessna 182,Navigator 260;Genera,Hop and pop,Pattern practice from 1500 m
-jump,,,20,2021-07-11,4016,1400,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Textbook landing into a standing ovation from my own ego — then high-fived a packing mat at full strut and faceplanted into the peas like a lawn dart. The packing area gave me a slow clap. I deserved it.
-jump,,,21,2021-07-24,4058,1223,50,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Altitude awareness check
-jump,,,22,2021-07-24,1571,1062,10,Skydive Chicago,Cessna 182,Navigator 260;Genera,Hop and pop,Pattern practice from 1500 m
-jump,,,23,2021-07-25,4087,1253,55,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Fall rate matching practice
-jump,,,24,2021-07-25,4132,1286,48,Skydive Chicago,Twin Otter,Navigator 260;Genera,Coach jump,Leg position fixes
-jump,,,25,2021-08-14,1271,917,11,Skydive Chicago,Cessna Caravan,Navigator 260;Genera,Hop and pop,Hop and pop canopy work
-jump,,,26,2021-08-14,4131,1377,54,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Fall rate matching practice
-jump,,,27,2021-08-15,4030,1277,52,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Coaching on exits
-jump,,,28,2021-08-15,4135,1250,55,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Worked on heading control
-jump,,,29,2021-09-11,4205,1007,54,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Sidebody exit
-jump,,,30,2021-09-11,4038,1311,51,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Sidebody exit went rogue. Gripped a stranger's boot instead of their hand and rode them like a confused koala for the entire freefall. They still don't make eye contact in the packing hangar.
-jump,,,31,2021-09-12,4094,1154,52,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Fun jump with friends
-jump,,,32,2021-09-12,4127,1034,53,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Cold morning load
-jump,,,33,2021-09-25,4119,1371,54,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Canopy flight debrief after
-jump,,,34,2021-09-25,4134,1204,54,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Coach jump,Canopy flight debrief after
-jump,,,35,2021-10-09,4204,1135,54,Skydive Chicago,Cessna Caravan,Sabre2 190;Vector 3,Formation skydiving,Quiet solid jump
-jump,,,36,2021-10-09,4288,1113,58,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Four-way randoms
-jump,,,37,2021-10-10,4029,1060,58,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Sidebody exit
-jump,,,38,2021-10-10,4000,1050,54,Skydive Chicago,Cessna Caravan,Sabre2 190;Vector 3,Formation skydiving,Clean base and dirty docks
-jump,,,39,2021-10-23,4208,1163,55,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Big-way attempt
-jump,,,40,2021-10-23,4210,1085,60,Skydive Chicago,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,"Altimeter yeeted itself into the void at exit. Spent the whole freefall screaming ""WHAT TIME IS IT"" at the formation like a deranged town crier. Nobody answered. Pull altitude was a vibe check."
-jump,,,41,2021-12-28,3991,1018,56,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Good grips the whole jump
-jump,,,42,2021-12-28,4007,1067,56,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Big-way attempt
-jump,,,43,2021-12-28,4261,1030,56,Skydive City,Skyvan,Sabre2 190;Vector 3,Formation skydiving,Practice 8-way block
-jump,,,44,2021-12-28,4236,1146,54,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Good grips the whole jump
-jump,,,45,2021-12-28,4198,1129,52,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Exit timing finally clicked
-jump,,,46,2021-12-28,4288,1149,55,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Smooth points
-jump,,,47,2021-12-28,3960,1001,57,Skydive City,Skyvan,Sabre2 190;Vector 3,Formation skydiving,Clean base and dirty docks
-jump,,,48,2021-12-29,3935,1171,53,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Dirt dive paid off
-jump,,,49,2021-12-29,4052,1131,55,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Fun jump with friends
-jump,,,50,2021-12-29,4220,1054,59,Skydive City,Twin Otter,Sabre2 190;Vector 3,Formation skydiving,Halloween load. Genius in a cape exited and instantly became a 120 mph nylon banshee thrashing through the formation. We scattered like pigeons hit by a leaf blower. Cape later found wrapped around a windsock. Legend status: cursed.
-jump,,,51,2021-12-29,3905,1061,59,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Smooth points
-jump,,,52,2021-12-29,1396,913,5,Skydive City,Cessna Caravan,Sabre2 170;Vector 3,Hop and pop,Hop and pop canopy work
-jump,,,53,2021-12-29,4104,1194,58,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Two-way practice
-jump,,,54,2021-12-30,4245,1129,57,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Sidebody exit
-jump,,,55,2021-12-30,4057,1238,67,Skydive City,Twin Otter,Sabre2 170;Vector 3,Tracking,Atmonauti line
-jump,,,56,2021-12-30,4023,1132,54,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Quiet solid jump
-jump,,,57,2021-12-30,4118,1142,57,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Quiet solid jump
-jump,,,58,2021-12-30,1378,986,5,Skydive City,Cessna Caravan,Sabre2 170;Vector 3,Hop and pop,Pattern practice from 1500 m
-jump,,,59,2021-12-30,3947,1112,54,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Smooth points
-jump,,,60,2021-12-31,4115,1171,59,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Last load of the season. Landed directly into the beer line like a precision strike. Entire packing tent erupted into a full-volume chant of my name for reasons science cannot explain. I bowed. Someone handed me a hot dog. Peak civilization.
-jump,,,61,2021-12-31,4142,1212,66,Skydive City,Twin Otter,Sabre2 170;Vector 3,Tracking,Over the lake and back
-jump,,,62,2021-12-31,4163,1016,52,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Four-way randoms
-jump,,,63,2021-12-31,4222,1118,54,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
-jump,,,64,2021-12-31,4048,1130,52,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Lost visual for a second
-jump,,,65,2021-12-31,3902,1165,55,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Big-way attempt
-jump,,,66,2022-03-15,4024,1116,57,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Cold morning load
-jump,,,67,2022-03-15,4277,1182,54,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Dirt dive paid off
-jump,,,68,2022-03-15,4102,1057,58,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
-jump,,,69,2022-03-15,4067,1112,56,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
-jump,,,70,2022-03-15,3956,1037,60,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Committed to head-down with the confidence of a man who has never known fear — immediately cartwheeled into a sit like a washing machine on spin cycle. Coach high-fived me mid-air like it was intentional. I nodded solemnly. We both knew.
-jump,,,71,2022-03-15,4261,1070,52,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
-jump,,,72,2022-03-16,4280,1161,58,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Clean base and dirty docks
-jump,,,73,2022-03-16,3918,1016,55,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Big-way attempt
-jump,,,74,2022-03-16,4272,1194,56,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
-jump,,,75,2022-03-16,4152,1017,58,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Sunset load
-jump,,,76,2022-03-16,4056,1140,56,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
-jump,,,77,2022-03-16,4177,1008,52,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Four-way randoms
-jump,,,78,2022-03-17,4082,1158,60,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Fun jump with friends
-jump,,,79,2022-03-17,4081,1144,58,Skydive City,Skyvan,Sabre2 170;Vector 3,Formation skydiving,Clean base and dirty docks
-jump,,,80,2022-03-17,3989,1173,57,Skydive City,Twin Otter,Sabre2 170;Vector 3,Formation skydiving,Locked onto a Mediterranean seagull like it owed me money. Full-commitment track. Bird banked left with contempt. I overshot into empty sky. Seagull is still telling this story in the bars of Empuriabrava.
-jump,,,81,2022-03-17,4148,1187,54,Skydive City,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Four-way randoms
-jump,,,82,2022-03-17,4020,1121,52,Skydive City,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,83,2022-03-17,4147,1162,59,Skydive City,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
-jump,,,84,2022-03-18,4189,1175,58,Skydive City,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Smooth points
-jump,,,85,2022-03-18,4187,1003,52,Skydive City,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,86,2022-03-18,4128,1019,52,Skydive City,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Quiet solid jump
-jump,,,87,2022-03-18,3923,1183,56,Skydive City,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Dirt dive paid off
-jump,,,88,2022-03-18,4211,1170,56,Skydive City,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,89,2022-03-18,1425,907,10,Skydive City,Cessna 182,Spectre 150;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
-jump,,,90,2022-04-09,4264,1032,52,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Formation skydiving,Nailed every grip. Hit every point. Felt unstoppable. Ground debrief: I had been facing completely backwards the entire freefall. The formation had just built around my confused rear end. Video evidence exists. I have seen it. I can never unsee it.
-jump,,,91,2022-04-09,4210,1199,53,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
-jump,,,92,2022-04-10,4142,1238,62,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Tracking,Angle dive over the runway
-jump,,,93,2022-04-10,4116,1298,65,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,94,2022-04-30,4176,1064,58,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,95,2022-04-30,4198,1253,64,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Carving practice
-jump,,,96,2022-05-01,3954,1044,58,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
-jump,,,99,2022-05-01,4172,1280,64,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Tracking,Over the lake and back
-jump,,,100,2022-05-17,4166,1003,52,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,100th jump cake load. Attempted a celebratory canopy high-five at 200 feet. Physics declined. Both of us nearly collapsed into the peas like poorly stacked lawn furniture. Survived. Cake happened. Frosting was in my ears. Worth every second.
-jump,,,101,2022-05-17,4273,1170,63,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,102,2022-05-17,4095,1071,55,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving;Cutaway,Four-way randoms went great until it didn't. Pulled at 1000 m and the main came out looking like a cinnamon roll with opinions. Spun right like it had somewhere important to be. Kicked twice. The canopy kicked back harder. Cut away around 700 m while inventing several new words. Reserve opened like a saint. Then I flared into the only cow pie in a three-county radius. Soft landing. Fragrance: bold. Gear check later found a misrouted rear riser. No injuries. Dignity not recovered. Main found in a tree looking embarrassed.
-jump,,,103,2022-05-17,4137,1262,55,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
-jump,,,104,2022-05-17,1449,1002,6,Empuriabrava,Cessna Caravan,Spectre 150;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,105,2022-05-17,4068,1079,58,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,106,2022-05-18,4142,1002,60,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Quiet solid jump
-jump,,,107,2022-05-18,4105,1227,64,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,108,2022-05-18,4118,1223,62,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,109,2022-05-18,4080,1192,64,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,110,2022-05-18,4284,1227,56,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Solid sit dock
-jump,,,111,2022-05-18,4010,1162,58,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Head-down with coach
-jump,,,112,2022-05-19,4172,1297,63,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
-jump,,,113,2022-05-19,4076,1234,58,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Layout practice
-jump,,,114,2022-05-19,4014,1219,57,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Head-down tunnel transfer
-jump,,,115,2022-05-19,4241,1256,60,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Barrel roll recovery
-jump,,,116,2022-05-19,4157,1256,64,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,117,2022-05-19,4080,1216,62,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Barrel roll recovery
-jump,,,118,2022-05-20,4187,1122,63,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Layout practice
-jump,,,119,2022-05-20,4008,1035,55,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,120,2022-05-20,1308,1089,9,Empuriabrava,Cessna 182,Spectre 150;Javelin Odyssey,Hop and pop,Canopy skills under a coach
-jump,,,121,2022-05-20,4198,1078,56,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,122,2022-05-20,4055,1197,61,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Transition work
-jump,,,123,2022-05-20,4067,1131,55,Empuriabrava,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Transition work
-jump,,,124,2022-05-21,4028,1119,63,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Transition work
-jump,,,125,2022-05-21,4114,1268,64,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Lost altitude awareness briefly
-jump,,,126,2022-05-21,4016,1157,59,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Transition work
-jump,,,127,2022-05-21,4101,1255,62,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,128,2022-05-21,4095,1195,63,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Tracking,Breakoff was late
-jump,,,129,2022-05-21,4076,1113,54,Empuriabrava,Skyvan,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,130,2022-06-11,4134,1182,56,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,131,2022-06-11,1427,1000,10,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
-jump,,,132,2022-06-12,4287,1118,64,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
-jump,,,133,2022-06-12,4136,1125,58,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,134,2022-07-09,4241,1299,58,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Layout practice
-jump,,,135,2022-07-09,1362,940,6,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,136,2022-07-10,4097,1009,54,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,137,2022-07-10,4197,1140,65,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,138,2022-08-06,4151,1063,53,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,139,2022-08-06,4131,1267,56,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Tracking,Dynamic tracking with video
-jump,,,140,2022-08-07,4234,1200,61,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,141,2022-08-07,4090,1041,59,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,142,2022-08-27,4299,1011,56,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,143,2022-08-27,1208,950,11,Skydive Chicago,Cessna 182,Spectre 150;Javelin Odyssey,Hop and pop,Hop and pop canopy work
-jump,,,144,2022-08-28,4099,1120,56,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,145,2022-08-28,4279,1215,62,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Freefly,Transition work
-jump,,,146,2022-09-17,3987,1110,60,Skydive Chicago,Cessna Caravan,Spectre 150;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,147,2022-09-17,4259,1004,56,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,148,2022-09-18,4274,1201,59,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Freefly,Lost altitude awareness briefly
-jump,,,149,2022-09-18,4172,1209,58,Skydive Chicago,Twin Otter,Spectre 150;Javelin Odyssey,Tracking,Tight group tracking
-jump,,,150,2022-10-11,4180,1186,57,Perris Valley,Skyvan,Spectre 150;Javelin Odyssey,Freefly,Tried to look cool for the tandem passenger waving from the door. Immediately did a full front flip out of the Otter and recovered into what can generously be called a belly position. The tandem instructor later bought me a beer out of pity.
-jump,,,151,2022-10-11,4078,1299,57,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,152,2022-10-11,4278,1228,109,Perris Valley,Twin Otter,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,153,2022-10-11,4098,1164,59,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Freefly,Layout practice
-jump,,,154,2022-10-11,4093,1221,58,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Freefly,Carving practice
-jump,,,155,2022-10-11,4142,1056,56,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,156,2022-10-12,4264,1202,64,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Layout practice
-jump,,,157,2022-10-12,4016,1106,66,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Tracking,Dynamic tracking with video
-jump,,,158,2022-10-12,4258,1159,58,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,159,2022-10-12,4074,1227,63,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Breakoff was late
-jump,,,160,2022-10-12,1454,921,8,Perris Valley,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
-jump,,,161,2022-10-12,4066,1112,55,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Tracking,Dynamic tracking with video
-jump,,,162,2022-10-13,4149,1174,55,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Freefly,Layout practice
-jump,,,163,2022-10-13,4178,1216,64,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,164,2022-10-13,4017,1135,56,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Transition work
-jump,,,165,2022-10-13,4129,1215,65,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,166,2022-10-13,4000,1345,93,Perris Valley,Twin Otter,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,167,2022-10-13,4136,1173,54,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
-jump,,,168,2022-10-14,4069,1187,55,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,169,2022-10-14,4179,1581,118,Perris Valley,Skyvan,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Relaxed cruise
-jump,,,170,2022-10-14,4152,1237,69,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,171,2022-10-14,4087,1506,119,Perris Valley,Twin Otter,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,172,2022-10-14,4106,1212,63,Perris Valley,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Great horizontal separation
-jump,,,173,2022-10-14,4171,1177,68,Perris Valley,Skyvan,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,174,2022-12-28,1393,1055,11,Skydive City,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
-jump,,,175,2022-12-28,1255,985,7,Skydive City,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,176,2022-12-28,4175,1253,59,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Head-down with coach
-jump,,,177,2022-12-28,4244,1276,55,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Barrel roll recovery
-jump,,,178,2022-12-28,4050,1187,54,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
-jump,,,179,2022-12-28,4093,1226,62,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
-jump,,,180,2022-12-29,4133,1274,63,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
-jump,,,181,2022-12-29,4000,1244,93,Skydive City,Skyvan,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,182,2022-12-29,4294,1548,96,Skydive City,Skyvan,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,183,2022-12-29,3917,1190,56,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
-jump,,,184,2022-12-29,3996,1157,56,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Four-way randoms
-jump,,,185,2022-12-29,4131,1117,61,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
-jump,,,186,2022-12-30,4224,1126,54,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,187,2022-12-30,4001,1169,60,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
-jump,,,188,2022-12-30,4146,1107,55,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
-jump,,,189,2022-12-30,4125,1157,56,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Layout practice
-jump,,,190,2022-12-30,1533,1026,5,Skydive City,Cessna Caravan,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,191,2022-12-30,1240,954,11,Skydive City,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Canopy skills under a coach
-jump,,,192,2022-12-31,4085,1139,53,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
-jump,,,193,2022-12-31,4069,1300,89,Skydive City,Twin Otter,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,194,2022-12-31,4192,1415,87,Skydive City,Twin Otter,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,195,2022-12-31,4060,1168,61,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,196,2022-12-31,4139,1100,54,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Sidebody exit
-jump,,,197,2022-12-31,4248,1128,63,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,198,2023-02-11,3967,1237,108,Skydive City,Skyvan,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Relaxed cruise
-jump,,,199,2023-02-11,4220,1141,58,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,200,2023-02-11,4216,1486,97,Skydive City,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,200 jumps. Bought a cake. The cake was store-brand. The jump was magnificent. Nobody chanted. I still cried a little in the packing hangar. Growth.
-jump,,,201,2023-02-11,3894,1239,118,Skydive City,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,202,2023-02-12,4000,1420,104,Skydive City,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,203,2023-02-12,3856,1495,87,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
-jump,,,204,2023-02-12,4067,1245,97,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,205,2023-04-08,3948,1225,105,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,206,2023-04-08,3957,1236,91,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,207,2023-04-09,4137,1102,70,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
-jump,,,208,2023-04-09,4109,1412,112,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,209,2023-04-29,4157,1029,58,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Sidebody exit
-jump,,,210,2023-04-29,3807,1212,109,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,211,2023-04-30,4096,1135,58,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Fun freefly flock
-jump,,,212,2023-04-30,4020,1115,58,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,213,2023-05-16,4108,1094,56,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Big-way attempt
-jump,,,214,2023-05-16,3972,1466,101,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,215,2023-05-16,4033,1028,52,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,216,2023-05-16,4115,1183,56,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
-jump,,,217,2023-05-16,3915,1582,120,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,218,2023-05-16,3827,1298,99,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,219,2023-05-17,4127,1057,55,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,220,2023-05-17,4054,1183,60,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
-jump,,,221,2023-05-17,3988,1014,60,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
-jump,,,222,2023-05-17,3828,1493,104,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
-jump,,,223,2023-05-17,4005,1189,57,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,224,2023-05-17,4141,1472,105,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
-jump,,,225,2023-05-18,3995,1023,52,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
-jump,,,226,2023-05-18,4000,1337,106,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,227,2023-05-18,4255,1250,57,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,228,2023-05-18,4241,1113,53,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,229,2023-05-18,4000,1430,99,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,230,2023-05-18,4255,1045,55,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,231,2023-05-19,4054,1282,55,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,232,2023-05-19,4148,1045,56,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,233,2023-05-19,3852,1250,102,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,234,2023-05-19,3911,1151,55,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,235,2023-05-19,4139,1227,114,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,236,2023-05-19,3995,1016,52,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,237,2023-05-20,4000,1280,105,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,238,2023-05-20,3916,1391,101,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,239,2023-05-20,3925,1054,56,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,240,2023-05-20,3901,1075,56,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,241,2023-05-20,4090,1269,63,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,242,2023-05-20,4068,1347,89,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,243,2023-06-10,3988,1181,55,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,244,2023-06-10,4092,1117,64,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,245,2023-06-11,4223,1113,59,Skydive Chicago,Cessna Caravan,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
-jump,,,246,2023-06-11,3916,1354,118,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Relaxed cruise
-jump,,,247,2023-07-08,4116,1199,61,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,248,2023-07-08,4085,1200,62,Skydive Chicago,Cessna Caravan,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
-jump,,,249,2023-07-09,4268,1107,60,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
-jump,,,250,2023-07-09,3956,1137,57,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Wingsuit flock until someone opened early above us. Sudden nylon weather. We all became very polite and very far apart. Deployed clean. Wrote a strongly worded note in my head.
-jump,,,251,2023-07-12,1255,904,11,Skydive Chicago,Cessna Caravan,Katana 135;Javelin Odyssey,Hop and pop,Canopy skills under a coach
-jump,,,252,2023-07-12,3883,1543,98,Skydive Chicago,Cessna Caravan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,253,2023-08-05,4161,1272,55,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Carving practice
-jump,,,254,2023-08-05,4000,1296,90,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,255,2023-08-06,3979,1146,54,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
-jump,,,256,2023-08-06,4090,1189,68,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Over the lake and back
-jump,,,257,2023-08-26,4000,1367,91,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,258,2023-08-26,4000,1507,104,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,259,2023-08-27,4014,1145,62,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
-jump,,,260,2023-08-27,1593,1020,11,Skydive Chicago,Cessna Caravan,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
-jump,,,261,2023-09-16,4157,1109,52,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,262,2023-09-16,4119,1233,63,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
-jump,,,263,2023-09-17,4129,1242,59,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
-jump,,,264,2023-09-17,4010,1120,53,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,265,2023-10-10,4003,1184,57,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
-jump,,,266,2023-10-10,4129,1221,93,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,267,2023-10-10,4019,1252,101,Skydive Arizona,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,268,2023-10-10,4269,1248,64,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,269,2023-10-10,4017,1098,56,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
-jump,,,270,2023-10-10,4181,1128,55,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,271,2023-10-11,4059,1252,111,Skydive Arizona,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,272,2023-10-11,4296,1259,85,Skydive Arizona,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
-jump,,,273,2023-10-11,4030,1140,56,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,274,2023-10-11,3828,1305,110,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,275,2023-10-11,4000,1455,106,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,276,2023-10-11,3985,1122,60,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
-jump,,,277,2023-10-12,4134,1133,54,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,278,2023-10-12,3819,1270,85,Skydive Arizona,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,279,2023-10-12,4268,1184,58,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
-jump,,,280,2023-10-12,4075,1086,53,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
-jump,,,281,2023-10-12,4127,1158,54,Skydive Arizona,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,282,2023-10-12,4080,1023,52,Skydive Arizona,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,283,2023-10-13,4199,1410,119,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,284,2023-10-13,4000,1231,101,Skydive Arizona,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,285,2023-10-13,3926,1268,90,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,286,2023-10-13,4200,1427,106,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,287,2023-10-13,4182,1491,99,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,288,2023-10-13,4192,1352,85,Skydive Arizona,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,289,2023-12-28,4243,1138,65,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Transition work
-jump,,,290,2023-12-28,4161,1042,60,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
-jump,,,291,2023-12-28,4032,1140,55,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,292,2023-12-28,1459,1018,5,Skydive City,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
-jump,,,293,2023-12-28,4000,1216,92,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,294,2023-12-28,1372,935,12,Skydive City,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,295,2023-12-29,3854,1526,91,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,296,2023-12-29,4199,1194,56,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Four-way randoms
-jump,,,297,2023-12-29,1565,1078,7,Skydive City,Cessna Caravan,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
-jump,,,298,2023-12-29,3994,1327,109,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,299,2023-12-29,4297,1225,59,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
-jump,,,300,2023-12-29,4121,1179,54,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,300th jump at golden hour. Flew the suit like it owed me rent. Landed standing. Someone clapped once. That was enough.
-jump,,,301,2023-12-30,3954,1101,55,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
-jump,,,302,2023-12-30,3887,1448,94,Skydive City,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,303,2023-12-30,4091,1466,115,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,304,2023-12-30,1368,1085,10,Skydive City,Cessna Caravan,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,305,2023-12-30,4129,1056,52,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Big-way attempt
-jump,,,306,2023-12-30,3919,1014,58,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,307,2023-12-31,4264,1100,54,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,308,2023-12-31,4263,1041,60,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
-jump,,,309,2023-12-31,4266,1085,53,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
-jump,,,310,2023-12-31,3990,1134,57,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,311,2023-12-31,4000,1555,108,Skydive City,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,312,2023-12-31,4197,1170,58,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,313,2024-02-10,4028,1101,58,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,314,2024-02-10,4041,1260,62,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,315,2024-02-10,3935,1149,54,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
-jump,,,316,2024-02-11,4006,1538,120,Skydive City,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,317,2024-02-11,4095,1066,52,Skydive City,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
-jump,,,318,2024-02-11,3954,1082,53,Skydive City,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,319,2024-04-06,4265,1141,58,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Freefly,Sitfly practice
-jump,,,320,2024-04-06,4000,1222,114,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,321,2024-04-07,4225,1251,87,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,322,2024-04-07,4037,1485,118,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,323,2024-04-27,3973,1158,57,Skydive Chicago,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
-jump,,,324,2024-04-27,4196,1455,94,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,325,2024-04-28,4000,1479,92,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,326,2024-04-28,4151,1459,98,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,327,2024-05-14,3907,1489,120,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,328,2024-05-14,4299,1445,86,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,329,2024-05-14,4289,1108,53,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,330,2024-05-14,3932,1097,58,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
-jump,,,331,2024-05-14,4186,1318,105,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,332,2024-05-14,1248,934,5,Empuriabrava,Cessna 182,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
-jump,,,333,2024-05-15,4066,1356,116,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,334,2024-05-15,3841,1406,86,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
-jump,,,335,2024-05-15,4117,1267,56,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Freefly,Carving practice
-jump,,,336,2024-05-15,4098,1175,60,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,337,2024-05-15,3958,1051,57,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
-jump,,,338,2024-05-15,4084,1180,59,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Freefly,Barrel roll recovery
-jump,,,339,2024-05-16,4269,1209,60,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Freefly,Transition work
-jump,,,340,2024-05-16,4232,1558,103,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Relaxed cruise
-jump,,,341,2024-05-16,4123,1256,64,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
-jump,,,342,2024-05-16,3919,1498,108,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,343,2024-05-16,4221,1578,112,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,344,2024-05-16,4190,1114,66,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Tracking,Great horizontal separation
-jump,,,345,2024-05-17,4000,1561,120,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,346,2024-05-17,4009,1425,110,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
-jump,,,347,2024-05-17,3823,1230,107,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,348,2024-05-17,4145,1009,60,Empuriabrava,Skyvan,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
-jump,,,349,2024-05-17,3979,1043,56,Empuriabrava,Twin Otter,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
-jump,,,350,2024-05-17,4185,1333,100,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dirt-dived a 16-way for twenty minutes. Built it in the air in eight seconds. Spent the rest of freefall making jazz hands. Coach said that was not in the dive plan. I said art is subjective.
-jump,,,351,2024-05-18,3812,1538,113,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,352,2024-05-18,3911,1315,90,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,353,2024-05-18,4010,1577,101,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
-jump,,,354,2024-05-18,4139,1549,91,Empuriabrava,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,355,2024-05-18,4230,1341,96,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
-jump,,,356,2024-05-18,4164,1402,106,Empuriabrava,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,357,2024-06-08,3811,1497,102,Skydive Spaceland Houston,Cessna Caravan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,358,2024-06-08,3860,1284,90,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,359,2024-06-09,4115,1255,64,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Lost altitude awareness briefly
-jump,,,360,2024-06-09,4012,1124,67,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,361,2024-07-06,4050,1505,111,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
-jump,,,362,2024-07-06,3837,1421,86,Skydive Chicago,Cessna Caravan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,363,2024-07-07,4000,1564,110,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,364,2024-07-07,4070,1425,99,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
-jump,,,365,2024-08-03,3945,1263,95,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,366,2024-08-03,4017,1070,54,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
-jump,,,367,2024-08-04,4000,1544,88,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,368,2024-08-04,4135,1276,60,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Sitfly practice
-jump,,,369,2024-08-14,4150,1289,57,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Tight group tracking
-jump,,,370,2024-08-14,4017,1291,65,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,371,2024-08-24,3951,1219,105,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,372,2024-08-24,4000,1518,101,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
-jump,,,373,2024-08-25,4054,1243,68,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,374,2024-08-25,4173,1260,59,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Head-down with coach
-jump,,,375,2024-09-14,4000,1493,99,Skydive Chicago,Cessna Caravan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,376,2024-09-14,1206,911,12,Skydive Chicago,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Pattern practice from 1500 m
-jump,,,377,2024-09-15,4179,1585,89,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,378,2024-09-15,3953,1362,95,Skydive Chicago,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,379,2024-10-08,4000,1290,91,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,380,2024-10-08,4232,1240,63,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Freefly,Head-down with coach
-jump,,,381,2024-10-08,3853,1478,105,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,382,2024-10-08,4064,1265,62,Perris Valley,Skyvan,Velocity 111;Mirage G4,Freefly,Transition work
-jump,,,383,2024-10-08,4000,1560,107,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
-jump,,,384,2024-10-08,4000,1400,109,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
-jump,,,385,2024-10-09,4162,1430,118,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,386,2024-10-09,4127,1118,62,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Freefly,Carving practice
-jump,,,387,2024-10-09,3895,1239,89,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
-jump,,,388,2024-10-09,4229,1423,119,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
-jump,,,389,2024-10-09,4032,1097,58,Perris Valley,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Smooth points
-jump,,,390,2024-10-09,4000,1599,112,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
-jump,,,391,2024-10-10,4113,1109,55,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Smooth points
-jump,,,392,2024-10-10,4000,1585,114,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
-jump,,,393,2024-10-10,4006,1600,104,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
-jump,,,394,2024-10-10,4088,1082,57,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Four-way randoms
-jump,,,395,2024-10-10,4060,1206,57,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,396,2024-10-10,4021,1338,109,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
-jump,,,397,2024-10-11,4000,1371,107,Perris Valley,Twin Otter,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
-jump,,,398,2024-10-11,4184,1052,59,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Clean base and dirty docks
-jump,,,399,2024-10-11,4035,1266,119,Perris Valley,Skyvan,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
-jump,,,400,2024-10-11,4000,1570,92,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,400 jumps. Tried a wingsuit backflip on purpose this time. It worked. Then I got so excited I forgot which way was down for three full seconds. Pull was fine. Ego required packing.
-jump,,,401,2024-10-11,4000,1568,91,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
-jump,,,402,2024-10-11,4025,1137,55,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Freefly,Backflying warm-up
-jump,,,403,2024-12-28,4207,1172,58,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Quiet solid jump
-jump,,,404,2024-12-28,4163,1111,54,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,405,2024-12-28,4115,1295,60,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,406,2024-12-28,4021,1088,59,Skydive City,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
-jump,,,407,2024-12-28,4192,1262,60,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Backflying warm-up
-jump,,,408,2024-12-28,4014,1540,91,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
-jump,,,409,2024-12-29,4000,1402,103,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
-jump,,,410,2024-12-29,1391,1078,8,Skydive City,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
-jump,,,411,2024-12-29,4275,1392,117,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,412,2024-12-29,4297,1583,120,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,413,2024-12-29,3882,1366,112,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,414,2024-12-29,4187,1287,85,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
-jump,,,415,2024-12-31,3943,1226,104,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
-jump,,,416,2024-12-31,3800,1337,110,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
-jump,,,417,2024-12-31,4031,1215,57,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Backflying warm-up
-jump,,,418,2024-12-31,4098,1231,60,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Head-down with coach
-jump,,,419,2024-12-31,4144,1110,65,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Fun freefly flock
-jump,,,420,2024-12-31,4239,1127,55,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
-jump,,,421,2025-01-01,4000,1434,109,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
-jump,,,422,2025-01-01,4270,1056,57,Skydive City,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Two-way practice
-jump,,,423,2025-01-01,4000,1286,112,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,424,2025-01-01,4239,1311,120,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,425,2025-01-01,4224,1189,63,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Backflying warm-up
-jump,,,426,2025-01-01,4300,1600,108,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,427,2025-02-08,4000,1472,104,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,428,2025-02-08,4284,1058,57,Skydive City,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
-jump,,,429,2025-02-08,4033,1299,105,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,430,2025-02-09,4000,1355,90,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,431,2025-02-09,3875,1365,117,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
-jump,,,432,2025-02-09,3934,1020,54,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Smooth points
-jump,,,433,2025-02-09,4216,1155,65,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,434,2025-03-11,3824,1571,92,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,435,2025-03-11,4070,1526,114,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,436,2025-03-11,3970,1546,115,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,437,2025-03-11,4000,1301,115,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,438,2025-03-11,4224,1465,91,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,439,2025-03-11,3891,1468,86,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,440,2025-03-12,4158,1095,54,Skydive Arizona,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,441,2025-03-12,3912,1363,97,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,442,2025-03-12,4031,1088,53,Skydive Arizona,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,443,2025-03-12,4081,1235,64,Skydive Arizona,Skyvan,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,444,2025-03-12,4158,1592,93,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,445,2025-03-12,3865,1393,88,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,446,2025-03-13,4000,1534,93,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,447,2025-03-13,4000,1389,91,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,448,2025-03-13,3852,1344,96,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
-jump,,,449,2025-03-13,4155,1485,112,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
-jump,,,450,2025-03-13,4189,1352,95,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Crossed the entire valley under the Aura and still had altitude for a lazy spiral. A hang glider waved. I waved back with my whole body. We are friends now. Probably.
-jump,,,451,2025-03-13,1448,1061,6,Skydive Arizona,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
-jump,,,452,2025-03-14,4094,1170,59,Skydive Arizona,Skyvan,Velocity 111;Mirage G4,Freefly,Sitfly practice
-jump,,,453,2025-03-14,4294,1230,113,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,454,2025-03-14,3929,1446,86,Skydive Arizona,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,455,2025-03-14,4165,1093,56,Skydive Arizona,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Practice 8-way block
-jump,,,456,2025-03-14,4142,1149,61,Skydive Arizona,Twin Otter,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,457,2025-03-14,4209,1225,63,Skydive Arizona,Twin Otter,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,458,2025-04-05,1346,1014,7,Skydive Chicago,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
-jump,,,459,2025-04-05,1440,1009,7,Skydive Chicago,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
-jump,,,460,2025-04-06,3977,1114,59,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Smooth points
-jump,,,461,2025-04-06,4157,1591,114,Skydive Chicago,Cessna Caravan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,462,2025-04-26,4176,1380,96,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
-jump,,,463,2025-04-26,4000,1383,95,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,464,2025-04-27,4014,1203,117,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
-jump,,,465,2025-04-27,4189,1219,57,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,466,2025-05-13,3924,1384,89,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,467,2025-05-13,4060,1248,55,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,468,2025-05-13,4091,1207,55,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,469,2025-05-13,3974,1529,110,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,470,2025-05-13,4153,1184,57,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,471,2025-05-13,4129,1127,55,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Freefly,Transition work
-jump,,,472,2025-05-14,4067,1300,55,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Freefly,Head-down with coach
-jump,,,473,2025-05-14,4141,1262,61,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Atmonauti line
-jump,,,474,2025-05-14,4083,1238,55,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,475,2025-05-14,4086,1065,58,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
-jump,,,476,2025-05-14,4051,1182,61,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Freefly,Backflying warm-up
-jump,,,477,2025-05-14,4089,1178,61,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Tracking,Tight group tracking
-jump,,,478,2025-05-15,4198,1259,61,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,479,2025-05-15,3860,1334,110,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,480,2025-05-15,4133,1279,66,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
-jump,,,481,2025-05-15,4219,1182,53,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Four-way randoms
-jump,,,482,2025-05-15,3920,1095,57,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
-jump,,,483,2025-05-15,4000,1515,112,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,484,2025-05-16,3907,1538,115,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,485,2025-05-16,4143,1182,53,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
-jump,,,486,2025-05-16,4066,1251,55,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,487,2025-05-16,4104,1289,55,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,488,2025-05-16,4173,1018,56,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
-jump,,,489,2025-05-16,4035,1157,57,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,490,2025-05-17,4018,1173,53,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Practice 8-way block
-jump,,,491,2025-05-17,4210,1462,96,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,492,2025-05-17,4238,1550,119,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,493,2025-05-17,3960,1183,58,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,494,2025-05-17,4115,1446,87,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,495,2025-05-17,4166,1499,100,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
-jump,,,496,2025-06-07,4215,1074,56,Skydive Arizona,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
-jump,,,497,2025-06-07,4221,1179,59,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Fun freefly flock
-jump,,,498,2025-06-08,4147,1218,111,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,499,2025-06-08,4087,1280,66,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Tracking,Atmonauti line
-jump,,,500,2025-06-18,1261,907,8,Skydive Chicago,Cessna 182,Velocity 111;Mirage G4,Hop and pop,"500th jump. No cake. Just a quiet sitfly with an old coach who taught me to fall. We docked, smiled, and tracked off like adults. Later there was cake. There is always cake."
-jump,,,501,2025-06-18,3950,1574,99,Skydive Chicago,Cessna Caravan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
-jump,,,502,2025-07-05,4000,1554,96,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,503,2025-07-05,4000,1560,115,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,504,2025-07-06,4094,1216,57,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Carving practice
-jump,,,505,2025-07-06,4137,1506,109,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,506,2025-08-02,4197,1021,60,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Cold morning load
-jump,,,507,2025-08-02,4106,1016,57,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,508,2025-08-03,1465,1034,12,Skydive Chicago,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
-jump,,,509,2025-08-03,4045,1182,65,Skydive Chicago,Cessna Caravan,Velocity 111;Mirage G4,Freefly,Carving practice
-jump,,,510,2025-08-23,4218,1218,56,Skydive Spaceland Houston,Twin Otter,Velocity 111;Mirage G4,Freefly,Head-down with coach
-jump,,,511,2025-08-23,4169,1329,115,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,512,2025-08-24,4217,1299,65,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Layout practice
-jump,,,513,2025-08-24,4000,1437,92,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,514,2025-09-13,4198,1226,64,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Breakoff was late
-jump,,,515,2025-09-13,4000,1245,117,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
-jump,,,516,2025-09-14,4257,1134,61,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Freefly,Transition work
-jump,,,517,2025-09-14,3978,1126,56,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Lost visual for a second
-jump,,,518,2025-10-07,3851,1479,98,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,519,2025-10-07,4000,1578,108,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,520,2025-10-07,4137,1287,104,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
-jump,,,521,2025-10-07,4086,1132,53,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Cold morning load
-jump,,,522,2025-10-07,3945,1129,52,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Exit timing finally clicked
-jump,,,523,2025-10-07,4269,1593,103,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
-jump,,,524,2025-10-08,4000,1269,118,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
-jump,,,525,2025-10-08,4275,1136,55,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Freefly,Solid sit dock
-jump,,,526,2025-10-08,3889,1432,85,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
-jump,,,527,2025-10-08,4153,1417,115,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
-jump,,,528,2025-10-08,4000,1264,106,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,529,2025-10-08,4022,1260,86,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,530,2025-10-09,4045,1179,69,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,531,2025-10-09,4206,1313,118,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
-jump,,,532,2025-10-09,4011,1185,62,Perris Valley,Skyvan,Velocity 111;Mirage G4,Freefly,Layout practice
-jump,,,533,2025-10-09,3947,1018,60,Perris Valley,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Sunset load
-jump,,,534,2025-10-09,3906,1565,114,Perris Valley,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,535,2025-10-09,4017,1493,104,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,536,2025-10-10,4183,1134,62,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Freefly,Transition work
-jump,,,537,2025-10-10,4014,1223,70,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,538,2025-10-10,4066,1030,57,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
-jump,,,539,2025-10-10,3964,1578,95,Perris Valley,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,540,2025-10-10,4090,1127,52,Perris Valley,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Clean base and dirty docks
-jump,,,541,2025-10-10,4072,1110,65,Perris Valley,Twin Otter,Velocity 111;Mirage G4,Tracking,Tight group tracking
-jump,,,542,2025-12-28,4014,1489,97,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
-jump,,,543,2025-12-28,3911,1344,115,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
-jump,,,544,2025-12-28,3911,1009,59,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
-jump,,,545,2025-12-28,4274,1551,92,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,546,2025-12-28,1217,984,9,Skydive City,Cessna Caravan,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
-jump,,,547,2025-12-28,4283,1300,62,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Carving practice
-jump,,,548,2025-12-30,4000,1700,30,Skydive City,Twin Otter,Speed suit;Mirage G4,Speed skydiving,"First speed skydiving jump. Exit, dive, become a vertical rumor. Ears roared, suit fluttered like an angry flag, and the world narrowed to a tunnel of noise. Opened high on purpose. Legs jelly. Grinned for an hour."
-jump,,,549,2025-12-30,4182,1130,60,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Layout practice
-jump,,,550,2025-12-30,1241,1058,6,Skydive City,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Canopy skills under a coach
-jump,,,551,2025-12-30,4228,1528,85,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,552,2025-12-30,4165,1535,105,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
-jump,,,553,2025-12-30,3961,1562,89,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,554,2025-12-31,4058,1080,59,Skydive City,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
-jump,,,555,2025-12-31,3850,1278,101,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,556,2025-12-31,4039,1265,57,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Sitfly practice
-jump,,,557,2025-12-31,3998,1045,60,Skydive City,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
-jump,,,558,2025-12-31,4246,1365,109,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,559,2025-12-31,4013,1143,69,Skydive City,Twin Otter,Velocity 111;Mirage G4,Tracking,Tight group tracking
-jump,,,560,2026-01-01,1331,1094,6,Skydive City,Cessna Caravan,Velocity 111;Mirage G4,Hop and pop,Canopy skills under a coach
-jump,,,561,2026-01-01,1210,953,10,Skydive City,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
-jump,,,562,2026-01-01,4103,1208,61,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Lost altitude awareness briefly
-jump,,,563,2026-01-01,4278,1264,62,Skydive City,Twin Otter,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,564,2026-01-01,3989,1524,86,Skydive City,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
-jump,,,565,2026-01-01,4148,1248,110,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
-jump,,,566,2026-02-07,4256,1430,96,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
-jump,,,567,2026-02-07,4014,1149,59,Skydive City,Twin Otter,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
-jump,,,568,2026-02-07,4170,1469,91,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,569,2026-02-07,4162,1275,101,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,570,2026-02-07,1227,1011,5,Skydive City,Cessna Caravan,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
-jump,,,571,2026-02-08,4103,1291,62,Skydive City,Skyvan,Velocity 111;Mirage G4,Freefly,Layout practice
-jump,,,572,2026-02-08,1291,1054,5,Skydive City,Cessna 182,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
-jump,,,573,2026-02-08,3984,1349,97,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,574,2026-02-08,3804,1586,98,Skydive City,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
-jump,,,575,2026-04-04,3999,1001,57,Skydive Chicago,Cessna Caravan,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
-jump,,,576,2026-04-04,4090,1240,66,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Breakoff was late
-jump,,,577,2026-04-05,4164,1100,59,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
-jump,,,578,2026-04-05,4129,1117,57,Skydive Chicago,Cessna Caravan,Velocity 111;Mirage G4,Freefly,Layout practice
-jump,,,579,2026-04-18,4099,1174,57,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Long track to the open field
-jump,,,580,2026-04-18,3938,1080,56,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
-jump,,,581,2026-04-19,4008,1161,60,Skydive Chicago,Cessna Caravan,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
-jump,,,582,2026-04-19,4256,1273,89,Skydive Chicago,Cessna Caravan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,583,2026-04-22,4082,1459,98,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,584,2026-04-22,4087,1083,54,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
-jump,,,585,2026-05-12,3836,1565,104,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
-jump,,,586,2026-05-12,4189,1211,63,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Breakoff was late
-jump,,,587,2026-05-12,4086,1165,59,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Freefly,Sitfly practice
-jump,,,588,2026-05-12,4177,1106,61,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Freefly,Head-down tunnel transfer
-jump,,,589,2026-05-12,4070,1213,56,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Atmonauti line
-jump,,,590,2026-05-12,4288,1059,57,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
-jump,,,591,2026-05-13,4000,1538,95,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
-jump,,,592,2026-05-13,4000,1273,115,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
-jump,,,593,2026-05-13,3937,1405,103,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
-jump,,,594,2026-05-13,4057,1207,57,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Freefly,Solid sit dock
-jump,,,595,2026-05-13,4085,1299,58,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
-jump,,,596,2026-05-13,4000,1326,111,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,597,2026-05-14,4144,1204,60,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
-jump,,,598,2026-05-14,4126,1269,97,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,599,2026-05-14,4069,1231,67,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Angle dive over the runway
-jump,,,600,2026-05-14,7000,1500,180,Skydive Chicago,Balloon,Squirrel Aura 3;PD Horizon 120;Mirage G4,High altitude;Wingsuit,"Balloon to 7000 m. World went quiet and curved. Oxygen, cold, and a freefall that lasted a small forever. Opened into the biggest sky I have ever owned. Said thank you out loud to nobody. Still the best jump ever."
-jump,,,601,2026-05-14,4059,1204,57,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Great horizontal separation
-jump,,,602,2026-05-14,4075,1182,55,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
-jump,,,603,2026-05-15,4242,1579,95,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,604,2026-05-15,4226,1004,54,Empuriabrava,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
-jump,,,605,2026-05-15,4278,1224,104,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,606,2026-05-15,4117,1455,101,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
-jump,,,607,2026-05-15,4203,1531,91,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,608,2026-05-15,4119,1096,53,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
-jump,,,609,2026-05-16,4118,1146,65,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,610,2026-05-16,4100,1207,62,Empuriabrava,Skyvan,Velocity 111;Mirage G4,Freefly,Transition work
-jump,,,611,2026-05-16,4061,1578,113,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,612,2026-05-16,3922,1258,85,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
-jump,,,613,2026-05-16,4146,1272,113,Empuriabrava,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,614,2026-05-16,4000,1584,106,Empuriabrava,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
-jump,,,615,2026-05-30,4232,1546,94,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
-jump,,,616,2026-05-30,4121,1528,116,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
-jump,,,617,2026-05-31,4158,1053,53,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Lost visual for a second
-jump,,,618,2026-05-31,4129,1200,69,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Tracking,Over the lake and back
-jump,,,619,2026-06-13,4266,1367,88,Skydive Arizona,Skyvan,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
-jump,,,620,2026-06-13,4142,1147,59,Skydive Chicago,Twin Otter,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
-jump,,,621,2026-06-14,4231,1221,86,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
-jump,,,622,2026-06-14,4000,1500,108,Skydive Chicago,Twin Otter,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,"Long flock at sunset. Clean flight, clean open, standing landing. Best jump ever."
+jump,,,1,2021-05-08,4011,1500,45,Skydive Chicago,Cessna Caravan;N123DZ,Navigator 260;Genera,AFF,Solid pull sequence
+jump,,,2,2021-05-08,4024,1500,50,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,AFF,Extra AFF practice load
+jump,,,3,2021-05-09,4115,1500,49,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,AFF,Level 1 — big smile on landing
+jump,,,4,2021-05-09,4142,1500,47,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,AFF,Level 7 — almost ready to graduate
+jump,,,5,2021-05-22,4142,1500,47,Skydive Chicago,Cessna Caravan;N123DZ,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
+jump,,,6,2021-05-22,4068,1500,45,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,AFF,Level 3 — stable freefall the whole way
+jump,,,7,2021-05-23,4120,1500,48,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
+jump,,,8,2021-05-23,4142,1500,50,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
+jump,,,9,2021-06-05,4194,1500,45,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,AFF,Level 2 — better altitude awareness
+jump,,,10,2021-06-05,4115,1500,50,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,AFF,Waved at the camera mid-freefall like I was on a cruise ship. Forgot to fall. Instructor docked while crying with laughter and later said I looked like a golden retriever who just discovered gravity.
+jump,,,11,2021-06-06,4111,1500,44,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,AFF,Extra AFF practice load
+jump,,,12,2021-06-06,4191,1500,49,Skydive Chicago,Cessna Caravan;N208SC,Navigator 260;Genera,AFF,Level 1 — big smile on landing
+jump,,,13,2021-06-19,4052,1282,50,Skydive Chicago,Cessna Caravan;N123DZ,Navigator 260;Genera,Coach jump,Leg position fixes
+jump,,,14,2021-06-19,4008,1310,49,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,Coach jump,Fall rate matching practice
+jump,,,15,2021-06-20,4094,1360,51,Skydive Chicago,Cessna Caravan;N123DZ,Navigator 260;Genera,Coach jump,Coaching on exits
+jump,,,16,2021-06-20,4168,1268,48,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,Coach jump,Breakoff and tracking review
+jump,,,17,2021-07-10,4158,1266,50,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,Coach jump,Fall rate matching practice
+jump,,,18,2021-07-10,4013,1388,54,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,Coach jump,Relaxed and smoother this time
+jump,,,19,2021-07-11,1449,1000,9,Skydive Chicago,Cessna 182;N182SC,Navigator 260;Genera,Hop and pop,Pattern practice from 1500 m
+jump,,,20,2021-07-11,4016,1400,50,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,Coach jump,Textbook landing into a standing ovation from my own ego — then high-fived a packing mat at full strut and faceplanted into the peas like a lawn dart. The packing area gave me a slow clap. I deserved it.
+jump,,,21,2021-07-24,4058,1223,50,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,Coach jump,Altitude awareness check
+jump,,,22,2021-07-24,1571,1062,10,Skydive Chicago,Cessna 182;N182SC,Navigator 260;Genera,Hop and pop,Pattern practice from 1500 m
+jump,,,23,2021-07-25,4087,1253,55,Skydive Chicago,Twin Otter;N204EH,Navigator 260;Genera,Coach jump,Fall rate matching practice
+jump,,,24,2021-07-25,4132,1286,48,Skydive Chicago,Twin Otter;N590SP,Navigator 260;Genera,Coach jump,Leg position fixes
+jump,,,25,2021-08-14,1271,917,11,Skydive Chicago,Cessna Caravan;N123DZ,Navigator 260;Genera,Hop and pop,Hop and pop canopy work
+jump,,,26,2021-08-14,4131,1377,54,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Coach jump,Fall rate matching practice
+jump,,,27,2021-08-15,4030,1277,52,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Coach jump,Coaching on exits
+jump,,,28,2021-08-15,4135,1250,55,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Coach jump,Worked on heading control
+jump,,,29,2021-09-11,4205,1007,54,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Formation skydiving,Sidebody exit
+jump,,,30,2021-09-11,4038,1311,51,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Coach jump,Sidebody exit went rogue. Gripped a stranger's boot instead of their hand and rode them like a confused koala for the entire freefall. They still don't make eye contact in the packing hangar.
+jump,,,31,2021-09-12,4094,1154,52,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Formation skydiving,Fun jump with friends
+jump,,,32,2021-09-12,4127,1034,53,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Formation skydiving,Cold morning load
+jump,,,33,2021-09-25,4119,1371,54,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Coach jump,Canopy flight debrief after
+jump,,,34,2021-09-25,4134,1204,54,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Coach jump,Canopy flight debrief after
+jump,,,35,2021-10-09,4204,1135,54,Skydive Chicago,Cessna Caravan;N123DZ,Sabre2 190;Vector 3,Formation skydiving,Quiet solid jump
+jump,,,36,2021-10-09,4288,1113,58,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Formation skydiving,Four-way randoms
+jump,,,37,2021-10-10,4029,1060,58,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Formation skydiving,Sidebody exit
+jump,,,38,2021-10-10,4000,1050,54,Skydive Chicago,Cessna Caravan;N208SC,Sabre2 190;Vector 3,Formation skydiving,Clean base and dirty docks
+jump,,,39,2021-10-23,4208,1163,55,Skydive Chicago,Twin Otter;N204EH,Sabre2 190;Vector 3,Formation skydiving,Big-way attempt
+jump,,,40,2021-10-23,4210,1085,60,Skydive Chicago,Twin Otter;N590SP,Sabre2 190;Vector 3,Formation skydiving,"Altimeter yeeted itself into the void at exit. Spent the whole freefall screaming ""WHAT TIME IS IT"" at the formation like a deranged town crier. Nobody answered. Pull altitude was a vibe check."
+jump,,,41,2021-12-28,3991,1018,56,Skydive City,Twin Otter;N124SA,Sabre2 190;Vector 3,Formation skydiving,Good grips the whole jump
+jump,,,42,2021-12-28,4007,1067,56,Skydive City,Twin Otter;N270SA,Sabre2 190;Vector 3,Formation skydiving,Big-way attempt
+jump,,,43,2021-12-28,4261,1030,56,Skydive City,Skyvan;N247SA,Sabre2 190;Vector 3,Formation skydiving,Practice 8-way block
+jump,,,44,2021-12-28,4236,1146,54,Skydive City,Twin Otter;N270SA,Sabre2 190;Vector 3,Formation skydiving,Good grips the whole jump
+jump,,,45,2021-12-28,4198,1129,52,Skydive City,Twin Otter;N124SA,Sabre2 190;Vector 3,Formation skydiving,Exit timing finally clicked
+jump,,,46,2021-12-28,4288,1149,55,Skydive City,Twin Otter;N270SA,Sabre2 190;Vector 3,Formation skydiving,Smooth points
+jump,,,47,2021-12-28,3960,1001,57,Skydive City,Skyvan;N247SA,Sabre2 190;Vector 3,Formation skydiving,Clean base and dirty docks
+jump,,,48,2021-12-29,3935,1171,53,Skydive City,Twin Otter;N270SA,Sabre2 190;Vector 3,Formation skydiving,Dirt dive paid off
+jump,,,49,2021-12-29,4052,1131,55,Skydive City,Twin Otter;N124SA,Sabre2 190;Vector 3,Formation skydiving,Fun jump with friends
+jump,,,50,2021-12-29,4220,1054,59,Skydive City,Twin Otter;N270SA,Sabre2 190;Vector 3,Formation skydiving,Halloween load. Genius in a cape exited and instantly became a 120 mph nylon banshee thrashing through the formation. We scattered like pigeons hit by a leaf blower. Cape later found wrapped around a windsock. Legend status: cursed.
+jump,,,51,2021-12-29,3905,1061,59,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Smooth points
+jump,,,52,2021-12-29,1396,913,5,Skydive City,Cessna Caravan;N208ZH,Sabre2 170;Vector 3,Hop and pop,Hop and pop canopy work
+jump,,,53,2021-12-29,4104,1194,58,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Two-way practice
+jump,,,54,2021-12-30,4245,1129,57,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Sidebody exit
+jump,,,55,2021-12-30,4057,1238,67,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Tracking,Atmonauti line
+jump,,,56,2021-12-30,4023,1132,54,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Quiet solid jump
+jump,,,57,2021-12-30,4118,1142,57,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Quiet solid jump
+jump,,,58,2021-12-30,1378,986,5,Skydive City,Cessna Caravan;N208ZH,Sabre2 170;Vector 3,Hop and pop,Pattern practice from 1500 m
+jump,,,59,2021-12-30,3947,1112,54,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Smooth points
+jump,,,60,2021-12-31,4115,1171,59,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Last load of the season. Landed directly into the beer line like a precision strike. Entire packing tent erupted into a full-volume chant of my name for reasons science cannot explain. I bowed. Someone handed me a hot dog. Peak civilization.
+jump,,,61,2021-12-31,4142,1212,66,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Tracking,Over the lake and back
+jump,,,62,2021-12-31,4163,1016,52,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Four-way randoms
+jump,,,63,2021-12-31,4222,1118,54,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
+jump,,,64,2021-12-31,4048,1130,52,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Lost visual for a second
+jump,,,65,2021-12-31,3902,1165,55,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Big-way attempt
+jump,,,66,2022-03-15,4024,1116,57,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Cold morning load
+jump,,,67,2022-03-15,4277,1182,54,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Dirt dive paid off
+jump,,,68,2022-03-15,4102,1057,58,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
+jump,,,69,2022-03-15,4067,1112,56,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
+jump,,,70,2022-03-15,3956,1037,60,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Committed to head-down with the confidence of a man who has never known fear — immediately cartwheeled into a sit like a washing machine on spin cycle. Coach high-fived me mid-air like it was intentional. I nodded solemnly. We both knew.
+jump,,,71,2022-03-15,4261,1070,52,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
+jump,,,72,2022-03-16,4280,1161,58,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Clean base and dirty docks
+jump,,,73,2022-03-16,3918,1016,55,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Big-way attempt
+jump,,,74,2022-03-16,4272,1194,56,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Good grips the whole jump
+jump,,,75,2022-03-16,4152,1017,58,Skydive City,Twin Otter;N124SA,Sabre2 170;Vector 3,Formation skydiving,Sunset load
+jump,,,76,2022-03-16,4056,1140,56,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Exit timing finally clicked
+jump,,,77,2022-03-16,4177,1008,52,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Four-way randoms
+jump,,,78,2022-03-17,4082,1158,60,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Fun jump with friends
+jump,,,79,2022-03-17,4081,1144,58,Skydive City,Skyvan;N247SA,Sabre2 170;Vector 3,Formation skydiving,Clean base and dirty docks
+jump,,,80,2022-03-17,3989,1173,57,Skydive City,Twin Otter;N270SA,Sabre2 170;Vector 3,Formation skydiving,Locked onto a Mediterranean seagull like it owed me money. Full-commitment track. Bird banked left with contempt. I overshot into empty sky. Seagull is still telling this story in the bars of Empuriabrava.
+jump,,,81,2022-03-17,4148,1187,54,Skydive City,Twin Otter;N124SA,Spectre 150;Javelin Odyssey,Formation skydiving,Four-way randoms
+jump,,,82,2022-03-17,4020,1121,52,Skydive City,Skyvan;N247SA,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,83,2022-03-17,4147,1162,59,Skydive City,Twin Otter;N124SA,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
+jump,,,84,2022-03-18,4189,1175,58,Skydive City,Skyvan;N247SA,Spectre 150;Javelin Odyssey,Formation skydiving,Smooth points
+jump,,,85,2022-03-18,4187,1003,52,Skydive City,Twin Otter;N124SA,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,86,2022-03-18,4128,1019,52,Skydive City,Twin Otter;N270SA,Spectre 150;Javelin Odyssey,Formation skydiving,Quiet solid jump
+jump,,,87,2022-03-18,3923,1183,56,Skydive City,Twin Otter;N124SA,Spectre 150;Javelin Odyssey,Formation skydiving,Dirt dive paid off
+jump,,,88,2022-03-18,4211,1170,56,Skydive City,Skyvan;N247SA,Spectre 150;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,89,2022-03-18,1425,907,10,Skydive City,Cessna 182;N182ZH,Spectre 150;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
+jump,,,90,2022-04-09,4264,1032,52,Skydive Chicago,Cessna Caravan;N208SC,Spectre 150;Javelin Odyssey,Formation skydiving,Nailed every grip. Hit every point. Felt unstoppable. Ground debrief: I had been facing completely backwards the entire freefall. The formation had just built around my confused rear end. Video evidence exists. I have seen it. I can never unsee it.
+jump,,,91,2022-04-09,4210,1199,53,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
+jump,,,92,2022-04-10,4142,1238,62,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Tracking,Angle dive over the runway
+jump,,,93,2022-04-10,4116,1298,65,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,94,2022-04-30,4176,1064,58,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,95,2022-04-30,4198,1253,64,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Freefly,Carving practice
+jump,,,96,2022-05-01,3954,1044,58,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Formation skydiving,Big-way attempt
+jump,,,99,2022-05-01,4172,1280,64,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Tracking,Over the lake and back
+jump,,,100,2022-05-17,4166,1003,52,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Formation skydiving,100th jump cake load. Attempted a celebratory canopy high-five at 200 feet. Physics declined. Both of us nearly collapsed into the peas like poorly stacked lawn furniture. Survived. Cake happened. Frosting was in my ears. Worth every second.
+jump,,,101,2022-05-17,4273,1170,63,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,102,2022-05-17,4095,1071,55,Empuriabrava,Twin Otter;EC-JIP,Spectre 150;Javelin Odyssey,Formation skydiving;Cutaway,Four-way randoms went great until it didn't. Pulled at 1000 m and the main came out looking like a cinnamon roll with opinions. Spun right like it had somewhere important to be. Kicked twice. The canopy kicked back harder. Cut away around 700 m while inventing several new words. Reserve opened like a saint. Then I flared into the only cow pie in a three-county radius. Soft landing. Fragrance: bold. Gear check later found a misrouted rear riser. No injuries. Dignity not recovered. Main found in a tree looking embarrassed.
+jump,,,103,2022-05-17,4137,1262,55,Empuriabrava,Twin Otter;EC-ISV,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
+jump,,,104,2022-05-17,1449,1002,6,Empuriabrava,Cessna Caravan;EC-KAV,Spectre 150;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,105,2022-05-17,4068,1079,58,Empuriabrava,Twin Otter;EC-ISV,Spectre 150;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,106,2022-05-18,4142,1002,60,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Formation skydiving,Quiet solid jump
+jump,,,107,2022-05-18,4105,1227,64,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,108,2022-05-18,4118,1223,62,Empuriabrava,Twin Otter;EC-JIP,Spectre 150;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,109,2022-05-18,4080,1192,64,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,110,2022-05-18,4284,1227,56,Empuriabrava,Twin Otter;EC-JIP,Spectre 150;Javelin Odyssey,Freefly,Solid sit dock
+jump,,,111,2022-05-18,4010,1162,58,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Head-down with coach
+jump,,,112,2022-05-19,4172,1297,63,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
+jump,,,113,2022-05-19,4076,1234,58,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Layout practice
+jump,,,114,2022-05-19,4014,1219,57,Empuriabrava,Twin Otter;EC-JIP,Spectre 150;Javelin Odyssey,Freefly,Head-down tunnel transfer
+jump,,,115,2022-05-19,4241,1256,60,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Barrel roll recovery
+jump,,,116,2022-05-19,4157,1256,64,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,117,2022-05-19,4080,1216,62,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Barrel roll recovery
+jump,,,118,2022-05-20,4187,1122,63,Empuriabrava,Twin Otter;EC-JIP,Spectre 150;Javelin Odyssey,Freefly,Layout practice
+jump,,,119,2022-05-20,4008,1035,55,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,120,2022-05-20,1308,1089,9,Empuriabrava,Cessna 182;EC-FJP,Spectre 150;Javelin Odyssey,Hop and pop,Canopy skills under a coach
+jump,,,121,2022-05-20,4198,1078,56,Empuriabrava,Twin Otter;EC-ISV,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,122,2022-05-20,4055,1197,61,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Freefly,Transition work
+jump,,,123,2022-05-20,4067,1131,55,Empuriabrava,Twin Otter;EC-ISV,Spectre 150;Javelin Odyssey,Freefly,Transition work
+jump,,,124,2022-05-21,4028,1119,63,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Freefly,Transition work
+jump,,,125,2022-05-21,4114,1268,64,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Lost altitude awareness briefly
+jump,,,126,2022-05-21,4016,1157,59,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Freefly,Transition work
+jump,,,127,2022-05-21,4101,1255,62,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,128,2022-05-21,4095,1195,63,Empuriabrava,Skyvan;EC-HCH,Spectre 150;Javelin Odyssey,Tracking,Breakoff was late
+jump,,,129,2022-05-21,4076,1113,54,Empuriabrava,Skyvan;EC-GYR,Spectre 150;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,130,2022-06-11,4134,1182,56,Skydive Chicago,Cessna Caravan;N208SC,Spectre 150;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,131,2022-06-11,1427,1000,10,Skydive Chicago,Cessna Caravan;N123DZ,Spectre 150;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
+jump,,,132,2022-06-12,4287,1118,64,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Freefly,Sitfly practice
+jump,,,133,2022-06-12,4136,1125,58,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,134,2022-07-09,4241,1299,58,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Freefly,Layout practice
+jump,,,135,2022-07-09,1362,940,6,Skydive Chicago,Cessna Caravan;N123DZ,Spectre 150;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,136,2022-07-10,4097,1009,54,Skydive Chicago,Cessna Caravan;N208SC,Spectre 150;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,137,2022-07-10,4197,1140,65,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,138,2022-08-06,4151,1063,53,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,139,2022-08-06,4131,1267,56,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Tracking,Dynamic tracking with video
+jump,,,140,2022-08-07,4234,1200,61,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,141,2022-08-07,4090,1041,59,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,142,2022-08-27,4299,1011,56,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,143,2022-08-27,1208,950,11,Skydive Chicago,Cessna 182;N182SC,Spectre 150;Javelin Odyssey,Hop and pop,Hop and pop canopy work
+jump,,,144,2022-08-28,4099,1120,56,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,145,2022-08-28,4279,1215,62,Skydive Chicago,Cessna Caravan;N123DZ,Spectre 150;Javelin Odyssey,Freefly,Transition work
+jump,,,146,2022-09-17,3987,1110,60,Skydive Chicago,Cessna Caravan;N208SC,Spectre 150;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,147,2022-09-17,4259,1004,56,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,148,2022-09-18,4274,1201,59,Skydive Chicago,Twin Otter;N590SP,Spectre 150;Javelin Odyssey,Freefly,Lost altitude awareness briefly
+jump,,,149,2022-09-18,4172,1209,58,Skydive Chicago,Twin Otter;N204EH,Spectre 150;Javelin Odyssey,Tracking,Tight group tracking
+jump,,,150,2022-10-11,4180,1186,57,Perris Valley,Skyvan;N225PV,Spectre 150;Javelin Odyssey,Freefly,Tried to look cool for the tandem passenger waving from the door. Immediately did a full front flip out of the Otter and recovered into what can generously be called a belly position. The tandem instructor later bought me a beer out of pity.
+jump,,,151,2022-10-11,4078,1299,57,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,152,2022-10-11,4278,1228,109,Perris Valley,Twin Otter;N70PV,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,153,2022-10-11,4098,1164,59,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Freefly,Layout practice
+jump,,,154,2022-10-11,4093,1221,58,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Freefly,Carving practice
+jump,,,155,2022-10-11,4142,1056,56,Perris Valley,Twin Otter;N71PV,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,156,2022-10-12,4264,1202,64,Perris Valley,Twin Otter;N70PV,Katana 135;Javelin Odyssey,Freefly,Layout practice
+jump,,,157,2022-10-12,4016,1106,66,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Tracking,Dynamic tracking with video
+jump,,,158,2022-10-12,4258,1159,58,Perris Valley,Twin Otter;N70PV,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,159,2022-10-12,4074,1227,63,Perris Valley,Twin Otter;N71PV,Katana 135;Javelin Odyssey,Tracking,Breakoff was late
+jump,,,160,2022-10-12,1454,921,8,Perris Valley,Cessna 182;N182PV,Katana 135;Javelin Odyssey,Hop and pop,Pattern practice from 1500 m
+jump,,,161,2022-10-12,4066,1112,55,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Tracking,Dynamic tracking with video
+jump,,,162,2022-10-13,4149,1174,55,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Freefly,Layout practice
+jump,,,163,2022-10-13,4178,1216,64,Perris Valley,Twin Otter;N71PV,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,164,2022-10-13,4017,1135,56,Perris Valley,Twin Otter;N70PV,Katana 135;Javelin Odyssey,Freefly,Transition work
+jump,,,165,2022-10-13,4129,1215,65,Perris Valley,Twin Otter;N71PV,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,166,2022-10-13,4000,1345,93,Perris Valley,Twin Otter;N70PV,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,167,2022-10-13,4136,1173,54,Perris Valley,Twin Otter;N71PV,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
+jump,,,168,2022-10-14,4069,1187,55,Perris Valley,Twin Otter;N70PV,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,169,2022-10-14,4179,1581,118,Perris Valley,Skyvan;N225PV,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Relaxed cruise
+jump,,,170,2022-10-14,4152,1237,69,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,171,2022-10-14,4087,1506,119,Perris Valley,Twin Otter;N71PV,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,172,2022-10-14,4106,1212,63,Perris Valley,Twin Otter;N70PV,Katana 135;Javelin Odyssey,Tracking,Great horizontal separation
+jump,,,173,2022-10-14,4171,1177,68,Perris Valley,Skyvan;N225PV,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,174,2022-12-28,1393,1055,11,Skydive City,Cessna 182;N182ZH,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
+jump,,,175,2022-12-28,1255,985,7,Skydive City,Cessna 182;N182ZH,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,176,2022-12-28,4175,1253,59,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Freefly,Head-down with coach
+jump,,,177,2022-12-28,4244,1276,55,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Barrel roll recovery
+jump,,,178,2022-12-28,4050,1187,54,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
+jump,,,179,2022-12-28,4093,1226,62,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
+jump,,,180,2022-12-29,4133,1274,63,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
+jump,,,181,2022-12-29,4000,1244,93,Skydive City,Skyvan;N247SA,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,182,2022-12-29,4294,1548,96,Skydive City,Skyvan;N247SA,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,183,2022-12-29,3917,1190,56,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
+jump,,,184,2022-12-29,3996,1157,56,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Four-way randoms
+jump,,,185,2022-12-29,4131,1117,61,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
+jump,,,186,2022-12-30,4224,1126,54,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,187,2022-12-30,4001,1169,60,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
+jump,,,188,2022-12-30,4146,1107,55,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
+jump,,,189,2022-12-30,4125,1157,56,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Layout practice
+jump,,,190,2022-12-30,1533,1026,5,Skydive City,Cessna Caravan;N208ZH,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,191,2022-12-30,1240,954,11,Skydive City,Cessna 182;N182ZH,Katana 135;Javelin Odyssey,Hop and pop,Canopy skills under a coach
+jump,,,192,2022-12-31,4085,1139,53,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
+jump,,,193,2022-12-31,4069,1300,89,Skydive City,Twin Otter;N124SA,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,194,2022-12-31,4192,1415,87,Skydive City,Twin Otter;N270SA,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,195,2022-12-31,4060,1168,61,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,196,2022-12-31,4139,1100,54,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Sidebody exit
+jump,,,197,2022-12-31,4248,1128,63,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,198,2023-02-11,3967,1237,108,Skydive City,Skyvan;N247SA,Birdman Classic;Spectre 150;Javelin Odyssey,Wingsuit,Relaxed cruise
+jump,,,199,2023-02-11,4220,1141,58,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,200,2023-02-11,4216,1486,97,Skydive City,Skyvan;N247SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,200 jumps. Bought a cake. The cake was store-brand. The jump was magnificent. Nobody chanted. I still cried a little in the packing hangar. Growth.
+jump,,,201,2023-02-11,3894,1239,118,Skydive City,Skyvan;N247SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,202,2023-02-12,4000,1420,104,Skydive City,Skyvan;N247SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,203,2023-02-12,3856,1495,87,Skydive City,Twin Otter;N124SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
+jump,,,204,2023-02-12,4067,1245,97,Skydive City,Twin Otter;N270SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,205,2023-04-08,3948,1225,105,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,206,2023-04-08,3957,1236,91,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,207,2023-04-09,4137,1102,70,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
+jump,,,208,2023-04-09,4109,1412,112,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,209,2023-04-29,4157,1029,58,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Formation skydiving,Sidebody exit
+jump,,,210,2023-04-29,3807,1212,109,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,211,2023-04-30,4096,1135,58,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Freefly,Fun freefly flock
+jump,,,212,2023-04-30,4020,1115,58,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,213,2023-05-16,4108,1094,56,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Formation skydiving,Big-way attempt
+jump,,,214,2023-05-16,3972,1466,101,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,215,2023-05-16,4033,1028,52,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,216,2023-05-16,4115,1183,56,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
+jump,,,217,2023-05-16,3915,1582,120,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,218,2023-05-16,3827,1298,99,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,219,2023-05-17,4127,1057,55,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,220,2023-05-17,4054,1183,60,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
+jump,,,221,2023-05-17,3988,1014,60,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
+jump,,,222,2023-05-17,3828,1493,104,Empuriabrava,Twin Otter;EC-JIP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
+jump,,,223,2023-05-17,4005,1189,57,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,224,2023-05-17,4141,1472,105,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
+jump,,,225,2023-05-18,3995,1023,52,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
+jump,,,226,2023-05-18,4000,1337,106,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,227,2023-05-18,4255,1250,57,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,228,2023-05-18,4241,1113,53,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,229,2023-05-18,4000,1430,99,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,230,2023-05-18,4255,1045,55,Empuriabrava,Twin Otter;EC-JIP,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,231,2023-05-19,4054,1282,55,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,232,2023-05-19,4148,1045,56,Empuriabrava,Twin Otter;EC-JIP,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,233,2023-05-19,3852,1250,102,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,234,2023-05-19,3911,1151,55,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,235,2023-05-19,4139,1227,114,Empuriabrava,Twin Otter;EC-ISV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,236,2023-05-19,3995,1016,52,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,237,2023-05-20,4000,1280,105,Empuriabrava,Twin Otter;EC-ISV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,238,2023-05-20,3916,1391,101,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,239,2023-05-20,3925,1054,56,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,240,2023-05-20,3901,1075,56,Empuriabrava,Twin Otter;EC-JIP,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,241,2023-05-20,4090,1269,63,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,242,2023-05-20,4068,1347,89,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,243,2023-06-10,3988,1181,55,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,244,2023-06-10,4092,1117,64,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,245,2023-06-11,4223,1113,59,Skydive Chicago,Cessna Caravan;N123DZ,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
+jump,,,246,2023-06-11,3916,1354,118,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Relaxed cruise
+jump,,,247,2023-07-08,4116,1199,61,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,248,2023-07-08,4085,1200,62,Skydive Chicago,Cessna Caravan;N208SC,Katana 135;Javelin Odyssey,Tracking,Long track to the open field
+jump,,,249,2023-07-09,4268,1107,60,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Freefly,Solid sit dock
+jump,,,250,2023-07-09,3956,1137,57,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Formation skydiving,Wingsuit flock until someone opened early above us. Sudden nylon weather. We all became very polite and very far apart. Deployed clean. Wrote a strongly worded note in my head.
+jump,,,251,2023-07-12,1255,904,11,Skydive Chicago,Cessna Caravan;N123DZ,Katana 135;Javelin Odyssey,Hop and pop,Canopy skills under a coach
+jump,,,252,2023-07-12,3883,1543,98,Skydive Chicago,Cessna Caravan;N208SC,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,253,2023-08-05,4161,1272,55,Skydive Arizona,Twin Otter;N706SA,Katana 135;Javelin Odyssey,Freefly,Carving practice
+jump,,,254,2023-08-05,4000,1296,90,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,255,2023-08-06,3979,1146,54,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
+jump,,,256,2023-08-06,4090,1189,68,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Tracking,Over the lake and back
+jump,,,257,2023-08-26,4000,1367,91,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,258,2023-08-26,4000,1507,104,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,259,2023-08-27,4014,1145,62,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
+jump,,,260,2023-08-27,1593,1020,11,Skydive Chicago,Cessna Caravan;N208SC,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
+jump,,,261,2023-09-16,4157,1109,52,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,262,2023-09-16,4119,1233,63,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Tracking,Tight group tracking
+jump,,,263,2023-09-17,4129,1242,59,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Freefly,Head-down tunnel transfer
+jump,,,264,2023-09-17,4010,1120,53,Skydive Chicago,Twin Otter;N590SP,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,265,2023-10-10,4003,1184,57,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
+jump,,,266,2023-10-10,4129,1221,93,Skydive Arizona,Twin Otter;N705SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,267,2023-10-10,4019,1252,101,Skydive Arizona,Skyvan;N247EL,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,268,2023-10-10,4269,1248,64,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,269,2023-10-10,4017,1098,56,Skydive Arizona,Twin Otter;N706SA,Katana 135;Javelin Odyssey,Formation skydiving,Smooth points
+jump,,,270,2023-10-10,4181,1128,55,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,271,2023-10-11,4059,1252,111,Skydive Arizona,Skyvan;N247EL,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,272,2023-10-11,4296,1259,85,Skydive Arizona,Skyvan;N247EL,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
+jump,,,273,2023-10-11,4030,1140,56,Skydive Arizona,Twin Otter;N706SA,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,274,2023-10-11,3828,1305,110,Skydive Arizona,Twin Otter;N705SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,275,2023-10-11,4000,1455,106,Skydive Arizona,Twin Otter;N706SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,276,2023-10-11,3985,1122,60,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
+jump,,,277,2023-10-12,4134,1133,54,Skydive Arizona,Twin Otter;N706SA,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,278,2023-10-12,3819,1270,85,Skydive Arizona,Skyvan;N247EL,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,279,2023-10-12,4268,1184,58,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
+jump,,,280,2023-10-12,4075,1086,53,Skydive Arizona,Twin Otter;N705SA,Katana 135;Javelin Odyssey,Formation skydiving,Sunset load
+jump,,,281,2023-10-12,4127,1158,54,Skydive Arizona,Twin Otter;N706SA,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,282,2023-10-12,4080,1023,52,Skydive Arizona,Skyvan;N247EL,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,283,2023-10-13,4199,1410,119,Skydive Arizona,Twin Otter;N706SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,284,2023-10-13,4000,1231,101,Skydive Arizona,Skyvan;N247EL,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,285,2023-10-13,3926,1268,90,Skydive Arizona,Twin Otter;N706SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,286,2023-10-13,4200,1427,106,Skydive Arizona,Twin Otter;N705SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,287,2023-10-13,4182,1491,99,Skydive Arizona,Twin Otter;N706SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,288,2023-10-13,4192,1352,85,Skydive Arizona,Twin Otter;N705SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,289,2023-12-28,4243,1138,65,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Freefly,Transition work
+jump,,,290,2023-12-28,4161,1042,60,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Quiet solid jump
+jump,,,291,2023-12-28,4032,1140,55,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,292,2023-12-28,1459,1018,5,Skydive City,Cessna 182;N182ZH,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
+jump,,,293,2023-12-28,4000,1216,92,Skydive City,Twin Otter;N124SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,294,2023-12-28,1372,935,12,Skydive City,Cessna 182;N182ZH,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,295,2023-12-29,3854,1526,91,Skydive City,Twin Otter;N124SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,296,2023-12-29,4199,1194,56,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Four-way randoms
+jump,,,297,2023-12-29,1565,1078,7,Skydive City,Cessna Caravan;N208ZH,Katana 135;Javelin Odyssey,Hop and pop,Hop and pop canopy work
+jump,,,298,2023-12-29,3994,1327,109,Skydive City,Twin Otter;N270SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,299,2023-12-29,4297,1225,59,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Freefly,Backflying warm-up
+jump,,,300,2023-12-29,4121,1179,54,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,300th jump at golden hour. Flew the suit like it owed me rent. Landed standing. Someone clapped once. That was enough.
+jump,,,301,2023-12-30,3954,1101,55,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Good grips the whole jump
+jump,,,302,2023-12-30,3887,1448,94,Skydive City,Skyvan;N247SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,303,2023-12-30,4091,1466,115,Skydive City,Twin Otter;N124SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,304,2023-12-30,1368,1085,10,Skydive City,Cessna Caravan;N208ZH,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,305,2023-12-30,4129,1056,52,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Big-way attempt
+jump,,,306,2023-12-30,3919,1014,58,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,307,2023-12-31,4264,1100,54,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,308,2023-12-31,4263,1041,60,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Cold morning load
+jump,,,309,2023-12-31,4266,1085,53,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Practice 8-way block
+jump,,,310,2023-12-31,3990,1134,57,Skydive City,Twin Otter;N270SA,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,311,2023-12-31,4000,1555,108,Skydive City,Skyvan;N247SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,312,2023-12-31,4197,1170,58,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,313,2024-02-10,4028,1101,58,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,314,2024-02-10,4041,1260,62,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,315,2024-02-10,3935,1149,54,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Lost visual for a second
+jump,,,316,2024-02-11,4006,1538,120,Skydive City,Twin Otter;N270SA,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,317,2024-02-11,4095,1066,52,Skydive City,Twin Otter;N124SA,Katana 135;Javelin Odyssey,Formation skydiving,Clean base and dirty docks
+jump,,,318,2024-02-11,3954,1082,53,Skydive City,Skyvan;N247SA,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,319,2024-04-06,4265,1141,58,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Freefly,Sitfly practice
+jump,,,320,2024-04-06,4000,1222,114,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,321,2024-04-07,4225,1251,87,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,322,2024-04-07,4037,1485,118,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,323,2024-04-27,3973,1158,57,Skydive Chicago,Twin Otter;N204EH,Katana 135;Javelin Odyssey,Formation skydiving,Exit timing finally clicked
+jump,,,324,2024-04-27,4196,1455,94,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,325,2024-04-28,4000,1479,92,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,326,2024-04-28,4151,1459,98,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,327,2024-05-14,3907,1489,120,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,328,2024-05-14,4299,1445,86,Empuriabrava,Twin Otter;EC-JIP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,329,2024-05-14,4289,1108,53,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,330,2024-05-14,3932,1097,58,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Dirt dive paid off
+jump,,,331,2024-05-14,4186,1318,105,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,332,2024-05-14,1248,934,5,Empuriabrava,Cessna 182;EC-FJP,Katana 135;Javelin Odyssey,Hop and pop,Low load for packing practice after
+jump,,,333,2024-05-15,4066,1356,116,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,334,2024-05-15,3841,1406,86,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
+jump,,,335,2024-05-15,4117,1267,56,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Freefly,Carving practice
+jump,,,336,2024-05-15,4098,1175,60,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,337,2024-05-15,3958,1051,57,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Formation skydiving,Last load of the day
+jump,,,338,2024-05-15,4084,1180,59,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Freefly,Barrel roll recovery
+jump,,,339,2024-05-16,4269,1209,60,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Freefly,Transition work
+jump,,,340,2024-05-16,4232,1558,103,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Relaxed cruise
+jump,,,341,2024-05-16,4123,1256,64,Empuriabrava,Skyvan;EC-GYR,Katana 135;Javelin Odyssey,Tracking,Atmonauti line
+jump,,,342,2024-05-16,3919,1498,108,Empuriabrava,Twin Otter;EC-JIP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,343,2024-05-16,4221,1578,112,Empuriabrava,Twin Otter;EC-ISV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,344,2024-05-16,4190,1114,66,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Tracking,Great horizontal separation
+jump,,,345,2024-05-17,4000,1561,120,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,346,2024-05-17,4009,1425,110,Empuriabrava,Twin Otter;EC-JIP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
+jump,,,347,2024-05-17,3823,1230,107,Empuriabrava,Twin Otter;EC-ISV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,348,2024-05-17,4145,1009,60,Empuriabrava,Skyvan;EC-HCH,Katana 135;Javelin Odyssey,Formation skydiving,Fun jump with friends
+jump,,,349,2024-05-17,3979,1043,56,Empuriabrava,Twin Otter;EC-ISV,Katana 135;Javelin Odyssey,Formation skydiving,Two-way practice
+jump,,,350,2024-05-17,4185,1333,100,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dirt-dived a 16-way for twenty minutes. Built it in the air in eight seconds. Spent the rest of freefall making jazz hands. Coach said that was not in the dive plan. I said art is subjective.
+jump,,,351,2024-05-18,3812,1538,113,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,352,2024-05-18,3911,1315,90,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,353,2024-05-18,4010,1577,101,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
+jump,,,354,2024-05-18,4139,1549,91,Empuriabrava,Twin Otter;EC-JIP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,355,2024-05-18,4230,1341,96,Empuriabrava,Skyvan;EC-GYR,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Smooth barrel roll
+jump,,,356,2024-05-18,4164,1402,106,Empuriabrava,Skyvan;EC-HCH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,357,2024-06-08,3811,1497,102,Skydive Spaceland Houston,Cessna Caravan;N208SH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,358,2024-06-08,3860,1284,90,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,359,2024-06-09,4115,1255,64,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Freefly,Lost altitude awareness briefly
+jump,,,360,2024-06-09,4012,1124,67,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,361,2024-07-06,4050,1505,111,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
+jump,,,362,2024-07-06,3837,1421,86,Skydive Chicago,Cessna Caravan;N208SC,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,363,2024-07-07,4000,1564,110,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,364,2024-07-07,4070,1425,99,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Dock practice in suit
+jump,,,365,2024-08-03,3945,1263,95,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,366,2024-08-03,4017,1070,54,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
+jump,,,367,2024-08-04,4000,1544,88,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,368,2024-08-04,4135,1276,60,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Freefly,Sitfly practice
+jump,,,369,2024-08-14,4150,1289,57,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Tracking,Tight group tracking
+jump,,,370,2024-08-14,4017,1291,65,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,371,2024-08-24,3951,1219,105,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,372,2024-08-24,4000,1518,101,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Flock of four
+jump,,,373,2024-08-25,4054,1243,68,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,374,2024-08-25,4173,1260,59,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Freefly,Head-down with coach
+jump,,,375,2024-09-14,4000,1493,99,Skydive Chicago,Cessna Caravan;N123DZ,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,376,2024-09-14,1206,911,12,Skydive Chicago,Cessna 182;N182SC,Velocity 111;Mirage G4,Hop and pop,Pattern practice from 1500 m
+jump,,,377,2024-09-15,4179,1585,89,Skydive Chicago,Twin Otter;N204EH,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,378,2024-09-15,3953,1362,95,Skydive Chicago,Twin Otter;N590SP,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,379,2024-10-08,4000,1290,91,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,380,2024-10-08,4232,1240,63,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Freefly,Head-down with coach
+jump,,,381,2024-10-08,3853,1478,105,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,382,2024-10-08,4064,1265,62,Perris Valley,Skyvan;N225PV,Velocity 111;Mirage G4,Freefly,Transition work
+jump,,,383,2024-10-08,4000,1560,107,Perris Valley,Twin Otter;N71PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Sunset wingsuit load
+jump,,,384,2024-10-08,4000,1400,109,Perris Valley,Twin Otter;N70PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Backfly in the suit
+jump,,,385,2024-10-09,4162,1430,118,Perris Valley,Twin Otter;N71PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,386,2024-10-09,4127,1118,62,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Freefly,Carving practice
+jump,,,387,2024-10-09,3895,1239,89,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Training suit drills
+jump,,,388,2024-10-09,4229,1423,119,Perris Valley,Twin Otter;N70PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Clean deployment
+jump,,,389,2024-10-09,4032,1097,58,Perris Valley,Skyvan;N225PV,Velocity 111;Mirage G4,Formation skydiving,Smooth points
+jump,,,390,2024-10-09,4000,1599,112,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Base flight practice
+jump,,,391,2024-10-10,4113,1109,55,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Formation skydiving,Smooth points
+jump,,,392,2024-10-10,4000,1585,114,Perris Valley,Twin Otter;N70PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Acro attempt
+jump,,,393,2024-10-10,4006,1600,104,Perris Valley,Twin Otter;N71PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Long flight over the DZ
+jump,,,394,2024-10-10,4088,1082,57,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Formation skydiving,Four-way randoms
+jump,,,395,2024-10-10,4060,1206,57,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,396,2024-10-10,4021,1338,109,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Performance flight numbers look better
+jump,,,397,2024-10-11,4000,1371,107,Perris Valley,Twin Otter;N71PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Cross-country track
+jump,,,398,2024-10-11,4184,1052,59,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Formation skydiving,Clean base and dirty docks
+jump,,,399,2024-10-11,4035,1266,119,Perris Valley,Skyvan;N225PV,Squirrel Colugo;PD Horizon 135;Javelin Odyssey,Wingsuit,Worked on flare and recovery
+jump,,,400,2024-10-11,4000,1570,92,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,400 jumps. Tried a wingsuit backflip on purpose this time. It worked. Then I got so excited I forgot which way was down for three full seconds. Pull was fine. Ego required packing.
+jump,,,401,2024-10-11,4000,1568,91,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
+jump,,,402,2024-10-11,4025,1137,55,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Freefly,Backflying warm-up
+jump,,,403,2024-12-28,4207,1172,58,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Formation skydiving,Quiet solid jump
+jump,,,404,2024-12-28,4163,1111,54,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,405,2024-12-28,4115,1295,60,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,406,2024-12-28,4021,1088,59,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
+jump,,,407,2024-12-28,4192,1262,60,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Freefly,Backflying warm-up
+jump,,,408,2024-12-28,4014,1540,91,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
+jump,,,409,2024-12-29,4000,1402,103,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
+jump,,,410,2024-12-29,1391,1078,8,Skydive City,Cessna 182;N182ZH,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
+jump,,,411,2024-12-29,4275,1392,117,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,412,2024-12-29,4297,1583,120,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,413,2024-12-29,3882,1366,112,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,414,2024-12-29,4187,1287,85,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
+jump,,,415,2024-12-31,3943,1226,104,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
+jump,,,416,2024-12-31,3800,1337,110,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
+jump,,,417,2024-12-31,4031,1215,57,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Backflying warm-up
+jump,,,418,2024-12-31,4098,1231,60,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Head-down with coach
+jump,,,419,2024-12-31,4144,1110,65,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Freefly,Fun freefly flock
+jump,,,420,2024-12-31,4239,1127,55,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
+jump,,,421,2025-01-01,4000,1434,109,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
+jump,,,422,2025-01-01,4270,1056,57,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Formation skydiving,Two-way practice
+jump,,,423,2025-01-01,4000,1286,112,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,424,2025-01-01,4239,1311,120,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,425,2025-01-01,4224,1189,63,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Backflying warm-up
+jump,,,426,2025-01-01,4300,1600,108,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,427,2025-02-08,4000,1472,104,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,428,2025-02-08,4284,1058,57,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
+jump,,,429,2025-02-08,4033,1299,105,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,430,2025-02-09,4000,1355,90,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,431,2025-02-09,3875,1365,117,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
+jump,,,432,2025-02-09,3934,1020,54,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Formation skydiving,Smooth points
+jump,,,433,2025-02-09,4216,1155,65,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,434,2025-03-11,3824,1571,92,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,435,2025-03-11,4070,1526,114,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,436,2025-03-11,3970,1546,115,Skydive Arizona,Twin Otter;N705SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,437,2025-03-11,4000,1301,115,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,438,2025-03-11,4224,1465,91,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,439,2025-03-11,3891,1468,86,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,440,2025-03-12,4158,1095,54,Skydive Arizona,Twin Otter;N705SA,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,441,2025-03-12,3912,1363,97,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,442,2025-03-12,4031,1088,53,Skydive Arizona,Twin Otter;N705SA,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,443,2025-03-12,4081,1235,64,Skydive Arizona,Skyvan;N247EL,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,444,2025-03-12,4158,1592,93,Skydive Arizona,Twin Otter;N705SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,445,2025-03-12,3865,1393,88,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,446,2025-03-13,4000,1534,93,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,447,2025-03-13,4000,1389,91,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,448,2025-03-13,3852,1344,96,Skydive Arizona,Twin Otter;N705SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
+jump,,,449,2025-03-13,4155,1485,112,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
+jump,,,450,2025-03-13,4189,1352,95,Skydive Arizona,Twin Otter;N705SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Crossed the entire valley under the Aura and still had altitude for a lazy spiral. A hang glider waved. I waved back with my whole body. We are friends now. Probably.
+jump,,,451,2025-03-13,1448,1061,6,Skydive Arizona,Cessna 182;N182EL,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
+jump,,,452,2025-03-14,4094,1170,59,Skydive Arizona,Skyvan;N247EL,Velocity 111;Mirage G4,Freefly,Sitfly practice
+jump,,,453,2025-03-14,4294,1230,113,Skydive Arizona,Twin Otter;N706SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,454,2025-03-14,3929,1446,86,Skydive Arizona,Twin Otter;N705SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,455,2025-03-14,4165,1093,56,Skydive Arizona,Skyvan;N247EL,Velocity 111;Mirage G4,Formation skydiving,Practice 8-way block
+jump,,,456,2025-03-14,4142,1149,61,Skydive Arizona,Twin Otter;N705SA,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,457,2025-03-14,4209,1225,63,Skydive Arizona,Twin Otter;N706SA,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,458,2025-04-05,1346,1014,7,Skydive Chicago,Cessna 182;N182SC,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
+jump,,,459,2025-04-05,1440,1009,7,Skydive Chicago,Cessna 182;N182SC,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
+jump,,,460,2025-04-06,3977,1114,59,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Smooth points
+jump,,,461,2025-04-06,4157,1591,114,Skydive Chicago,Cessna Caravan;N123DZ,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,462,2025-04-26,4176,1380,96,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
+jump,,,463,2025-04-26,4000,1383,95,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,464,2025-04-27,4014,1203,117,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
+jump,,,465,2025-04-27,4189,1219,57,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,466,2025-05-13,3924,1384,89,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,467,2025-05-13,4060,1248,55,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,468,2025-05-13,4091,1207,55,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,469,2025-05-13,3974,1529,110,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,470,2025-05-13,4153,1184,57,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,471,2025-05-13,4129,1127,55,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Freefly,Transition work
+jump,,,472,2025-05-14,4067,1300,55,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Freefly,Head-down with coach
+jump,,,473,2025-05-14,4141,1262,61,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Atmonauti line
+jump,,,474,2025-05-14,4083,1238,55,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,475,2025-05-14,4086,1065,58,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
+jump,,,476,2025-05-14,4051,1182,61,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Freefly,Backflying warm-up
+jump,,,477,2025-05-14,4089,1178,61,Empuriabrava,Twin Otter;EC-ISV,Velocity 111;Mirage G4,Tracking,Tight group tracking
+jump,,,478,2025-05-15,4198,1259,61,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,479,2025-05-15,3860,1334,110,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,480,2025-05-15,4133,1279,66,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
+jump,,,481,2025-05-15,4219,1182,53,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Formation skydiving,Four-way randoms
+jump,,,482,2025-05-15,3920,1095,57,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
+jump,,,483,2025-05-15,4000,1515,112,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,484,2025-05-16,3907,1538,115,Empuriabrava,Twin Otter;EC-JIP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,485,2025-05-16,4143,1182,53,Empuriabrava,Twin Otter;EC-ISV,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
+jump,,,486,2025-05-16,4066,1251,55,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,487,2025-05-16,4104,1289,55,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,488,2025-05-16,4173,1018,56,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
+jump,,,489,2025-05-16,4035,1157,57,Empuriabrava,Twin Otter;EC-ISV,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,490,2025-05-17,4018,1173,53,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Formation skydiving,Practice 8-way block
+jump,,,491,2025-05-17,4210,1462,96,Empuriabrava,Twin Otter;EC-ISV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,492,2025-05-17,4238,1550,119,Empuriabrava,Twin Otter;EC-JIP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,493,2025-05-17,3960,1183,58,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,494,2025-05-17,4115,1446,87,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,495,2025-05-17,4166,1499,100,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
+jump,,,496,2025-06-07,4215,1074,56,Skydive Arizona,Twin Otter;N705SA,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
+jump,,,497,2025-06-07,4221,1179,59,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Freefly,Fun freefly flock
+jump,,,498,2025-06-08,4147,1218,111,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,499,2025-06-08,4087,1280,66,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Tracking,Atmonauti line
+jump,,,500,2025-06-18,1261,907,8,Skydive Chicago,Cessna 182;N182SC,Velocity 111;Mirage G4,Hop and pop,"500th jump. No cake. Just a quiet sitfly with an old coach who taught me to fall. We docked, smiled, and tracked off like adults. Later there was cake. There is always cake."
+jump,,,501,2025-06-18,3950,1574,99,Skydive Chicago,Cessna Caravan;N123DZ,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
+jump,,,502,2025-07-05,4000,1554,96,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,503,2025-07-05,4000,1560,115,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,504,2025-07-06,4094,1216,57,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Freefly,Carving practice
+jump,,,505,2025-07-06,4137,1506,109,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,506,2025-08-02,4197,1021,60,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Cold morning load
+jump,,,507,2025-08-02,4106,1016,57,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,508,2025-08-03,1465,1034,12,Skydive Chicago,Cessna 182;N182SC,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
+jump,,,509,2025-08-03,4045,1182,65,Skydive Chicago,Cessna Caravan;N123DZ,Velocity 111;Mirage G4,Freefly,Carving practice
+jump,,,510,2025-08-23,4218,1218,56,Skydive Spaceland Houston,Twin Otter;N370SL,Velocity 111;Mirage G4,Freefly,Head-down with coach
+jump,,,511,2025-08-23,4169,1329,115,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,512,2025-08-24,4217,1299,65,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Freefly,Layout practice
+jump,,,513,2025-08-24,4000,1437,92,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,514,2025-09-13,4198,1226,64,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Tracking,Breakoff was late
+jump,,,515,2025-09-13,4000,1245,117,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
+jump,,,516,2025-09-14,4257,1134,61,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Freefly,Transition work
+jump,,,517,2025-09-14,3978,1126,56,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Formation skydiving,Lost visual for a second
+jump,,,518,2025-10-07,3851,1479,98,Perris Valley,Twin Otter;N70PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,519,2025-10-07,4000,1578,108,Perris Valley,Twin Otter;N71PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,520,2025-10-07,4137,1287,104,Perris Valley,Twin Otter;N70PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
+jump,,,521,2025-10-07,4086,1132,53,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Formation skydiving,Cold morning load
+jump,,,522,2025-10-07,3945,1129,52,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Formation skydiving,Exit timing finally clicked
+jump,,,523,2025-10-07,4269,1593,103,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Base flight practice
+jump,,,524,2025-10-08,4000,1269,118,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
+jump,,,525,2025-10-08,4275,1136,55,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Freefly,Solid sit dock
+jump,,,526,2025-10-08,3889,1432,85,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
+jump,,,527,2025-10-08,4153,1417,115,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
+jump,,,528,2025-10-08,4000,1264,106,Perris Valley,Twin Otter;N70PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,529,2025-10-08,4022,1260,86,Perris Valley,Twin Otter;N71PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,530,2025-10-09,4045,1179,69,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,531,2025-10-09,4206,1313,118,Perris Valley,Twin Otter;N71PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
+jump,,,532,2025-10-09,4011,1185,62,Perris Valley,Skyvan;N225PV,Velocity 111;Mirage G4,Freefly,Layout practice
+jump,,,533,2025-10-09,3947,1018,60,Perris Valley,Skyvan;N225PV,Velocity 111;Mirage G4,Formation skydiving,Sunset load
+jump,,,534,2025-10-09,3906,1565,114,Perris Valley,Skyvan;N225PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,535,2025-10-09,4017,1493,104,Perris Valley,Twin Otter;N71PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,536,2025-10-10,4183,1134,62,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Freefly,Transition work
+jump,,,537,2025-10-10,4014,1223,70,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,538,2025-10-10,4066,1030,57,Perris Valley,Twin Otter;N70PV,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
+jump,,,539,2025-10-10,3964,1578,95,Perris Valley,Twin Otter;N71PV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,540,2025-10-10,4090,1127,52,Perris Valley,Skyvan;N225PV,Velocity 111;Mirage G4,Formation skydiving,Clean base and dirty docks
+jump,,,541,2025-10-10,4072,1110,65,Perris Valley,Twin Otter;N71PV,Velocity 111;Mirage G4,Tracking,Tight group tracking
+jump,,,542,2025-12-28,4014,1489,97,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
+jump,,,543,2025-12-28,3911,1344,115,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Sunset wingsuit load
+jump,,,544,2025-12-28,3911,1009,59,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Formation skydiving,Fun jump with friends
+jump,,,545,2025-12-28,4274,1551,92,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,546,2025-12-28,1217,984,9,Skydive City,Cessna Caravan;N208ZH,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
+jump,,,547,2025-12-28,4283,1300,62,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Freefly,Carving practice
+jump,,,548,2025-12-30,4000,1700,30,Skydive City,Twin Otter;N270SA,Speed suit;Mirage G4,Speed skydiving,"First speed skydiving jump. Exit, dive, become a vertical rumor. Ears roared, suit fluttered like an angry flag, and the world narrowed to a tunnel of noise. Opened high on purpose. Legs jelly. Grinned for an hour."
+jump,,,549,2025-12-30,4182,1130,60,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Layout practice
+jump,,,550,2025-12-30,1241,1058,6,Skydive City,Cessna 182;N182ZH,Velocity 111;Mirage G4,Hop and pop,Canopy skills under a coach
+jump,,,551,2025-12-30,4228,1528,85,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,552,2025-12-30,4165,1535,105,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
+jump,,,553,2025-12-30,3961,1562,89,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,554,2025-12-31,4058,1080,59,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
+jump,,,555,2025-12-31,3850,1278,101,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,556,2025-12-31,4039,1265,57,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Freefly,Sitfly practice
+jump,,,557,2025-12-31,3998,1045,60,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
+jump,,,558,2025-12-31,4246,1365,109,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,559,2025-12-31,4013,1143,69,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Tracking,Tight group tracking
+jump,,,560,2026-01-01,1331,1094,6,Skydive City,Cessna Caravan;N208ZH,Velocity 111;Mirage G4,Hop and pop,Canopy skills under a coach
+jump,,,561,2026-01-01,1210,953,10,Skydive City,Cessna 182;N182ZH,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
+jump,,,562,2026-01-01,4103,1208,61,Skydive City,Twin Otter;N270SA,Velocity 111;Mirage G4,Freefly,Lost altitude awareness briefly
+jump,,,563,2026-01-01,4278,1264,62,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,564,2026-01-01,3989,1524,86,Skydive City,Skyvan;N247SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
+jump,,,565,2026-01-01,4148,1248,110,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Relaxed cruise
+jump,,,566,2026-02-07,4256,1430,96,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Cross-country track
+jump,,,567,2026-02-07,4014,1149,59,Skydive City,Twin Otter;N124SA,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
+jump,,,568,2026-02-07,4170,1469,91,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,569,2026-02-07,4162,1275,101,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,570,2026-02-07,1227,1011,5,Skydive City,Cessna Caravan;N208ZH,Velocity 111;Mirage G4,Hop and pop,Low load for packing practice after
+jump,,,571,2026-02-08,4103,1291,62,Skydive City,Skyvan;N247SA,Velocity 111;Mirage G4,Freefly,Layout practice
+jump,,,572,2026-02-08,1291,1054,5,Skydive City,Cessna 182;N182ZH,Velocity 111;Mirage G4,Hop and pop,Hop and pop canopy work
+jump,,,573,2026-02-08,3984,1349,97,Skydive City,Twin Otter;N124SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,574,2026-02-08,3804,1586,98,Skydive City,Twin Otter;N270SA,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
+jump,,,575,2026-04-04,3999,1001,57,Skydive Chicago,Cessna Caravan;N123DZ,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
+jump,,,576,2026-04-04,4090,1240,66,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Tracking,Breakoff was late
+jump,,,577,2026-04-05,4164,1100,59,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
+jump,,,578,2026-04-05,4129,1117,57,Skydive Chicago,Cessna Caravan;N208SC,Velocity 111;Mirage G4,Freefly,Layout practice
+jump,,,579,2026-04-18,4099,1174,57,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Tracking,Long track to the open field
+jump,,,580,2026-04-18,3938,1080,56,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Good grips the whole jump
+jump,,,581,2026-04-19,4008,1161,60,Skydive Chicago,Cessna Caravan;N123DZ,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
+jump,,,582,2026-04-19,4256,1273,89,Skydive Chicago,Cessna Caravan;N208SC,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,583,2026-04-22,4082,1459,98,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,584,2026-04-22,4087,1083,54,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
+jump,,,585,2026-05-12,3836,1565,104,Empuriabrava,Twin Otter;EC-ISV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Worked on flare and recovery
+jump,,,586,2026-05-12,4189,1211,63,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Tracking,Breakoff was late
+jump,,,587,2026-05-12,4086,1165,59,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Freefly,Sitfly practice
+jump,,,588,2026-05-12,4177,1106,61,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Freefly,Head-down tunnel transfer
+jump,,,589,2026-05-12,4070,1213,56,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Atmonauti line
+jump,,,590,2026-05-12,4288,1059,57,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Formation skydiving,Last load of the day
+jump,,,591,2026-05-13,4000,1538,95,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
+jump,,,592,2026-05-13,4000,1273,115,Empuriabrava,Twin Otter;EC-JIP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Training suit drills
+jump,,,593,2026-05-13,3937,1405,103,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Performance flight numbers look better
+jump,,,594,2026-05-13,4057,1207,57,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Freefly,Solid sit dock
+jump,,,595,2026-05-13,4085,1299,58,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Freefly,Barrel roll recovery
+jump,,,596,2026-05-13,4000,1326,111,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,597,2026-05-14,4144,1204,60,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Dynamic tracking with video
+jump,,,598,2026-05-14,4126,1269,97,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,599,2026-05-14,4069,1231,67,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Angle dive over the runway
+jump,,,600,2026-05-14,7000,1500,180,Skydive Chicago,Balloon;N7000B,Squirrel Aura 3;PD Horizon 120;Mirage G4,High altitude;Wingsuit,"Balloon to 7000 m. World went quiet and curved. Oxygen, cold, and a freefall that lasted a small forever. Opened into the biggest sky I have ever owned. Said thank you out loud to nobody. Still the best jump ever."
+jump,,,601,2026-05-14,4059,1204,57,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Great horizontal separation
+jump,,,602,2026-05-14,4075,1182,55,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
+jump,,,603,2026-05-15,4242,1579,95,Empuriabrava,Twin Otter;EC-ISV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,604,2026-05-15,4226,1004,54,Empuriabrava,Twin Otter;EC-JIP,Velocity 111;Mirage G4,Formation skydiving,Dirt dive paid off
+jump,,,605,2026-05-15,4278,1224,104,Empuriabrava,Twin Otter;EC-ISV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,606,2026-05-15,4117,1455,101,Empuriabrava,Twin Otter;EC-JIP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Clean deployment
+jump,,,607,2026-05-15,4203,1531,91,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,608,2026-05-15,4119,1096,53,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Formation skydiving,Sidebody exit
+jump,,,609,2026-05-16,4118,1146,65,Empuriabrava,Skyvan;EC-GYR,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,610,2026-05-16,4100,1207,62,Empuriabrava,Skyvan;EC-HCH,Velocity 111;Mirage G4,Freefly,Transition work
+jump,,,611,2026-05-16,4061,1578,113,Empuriabrava,Skyvan;EC-GYR,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,612,2026-05-16,3922,1258,85,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Smooth barrel roll
+jump,,,613,2026-05-16,4146,1272,113,Empuriabrava,Twin Otter;EC-ISV,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,614,2026-05-16,4000,1584,106,Empuriabrava,Skyvan;EC-HCH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Dock practice in suit
+jump,,,615,2026-05-30,4232,1546,94,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Acro attempt
+jump,,,616,2026-05-30,4121,1528,116,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Long flight over the DZ
+jump,,,617,2026-05-31,4158,1053,53,Skydive Chicago,Twin Otter;N204EH,Velocity 111;Mirage G4,Formation skydiving,Lost visual for a second
+jump,,,618,2026-05-31,4129,1200,69,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Tracking,Over the lake and back
+jump,,,619,2026-06-13,4266,1367,88,Skydive Arizona,Skyvan;N247EL,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Backfly in the suit
+jump,,,620,2026-06-13,4142,1147,59,Skydive Chicago,Twin Otter;N590SP,Velocity 111;Mirage G4,Formation skydiving,Big-way attempt
+jump,,,621,2026-06-14,4231,1221,86,Skydive Chicago,Twin Otter;N204EH,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,Flock of four
+jump,,,622,2026-06-14,4000,1500,108,Skydive Chicago,Twin Otter;N590SP,Squirrel Aura 3;PD Horizon 120;Mirage G4,Wingsuit,"Long flock at sunset. Clean flight, clean open, standing landing. Best jump ever."
