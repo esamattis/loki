@@ -3,8 +3,10 @@ import clsx from "clsx";
 import { useId } from "hono/jsx";
 import {
     getAppContext,
+    useAppContext,
     useNumberFormatter,
     type App,
+    type AppContext,
     type AppRequestContext,
 } from "@/app/app";
 import { ButtonLink } from "@/components/form";
@@ -47,6 +49,114 @@ function getTwelveMonthsAgo(): string {
     const date = new Date();
     date.setUTCFullYear(date.getUTCFullYear() - 1);
     return formatDate(date);
+}
+
+function parseDate(date: string): Date {
+    return new Date(`${date}T00:00:00.000Z`);
+}
+
+function addUtcMonths(date: Date, months: number): Date {
+    const firstOfTargetMonth = new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1),
+    );
+    const lastDayOfTargetMonth = new Date(
+        Date.UTC(
+            firstOfTargetMonth.getUTCFullYear(),
+            firstOfTargetMonth.getUTCMonth() + 1,
+            0,
+        ),
+    ).getUTCDate();
+    firstOfTargetMonth.setUTCDate(
+        Math.min(date.getUTCDate(), lastDayOfTargetMonth),
+    );
+    return firstOfTargetMonth;
+}
+
+function getRollingCountDropDate(jumpDateValue: string): string {
+    const jumpDate = parseDate(jumpDateValue);
+    const dropDate = new Date(jumpDate);
+    dropDate.setUTCFullYear(dropDate.getUTCFullYear() + 1);
+    if (formatDate(dropDate).slice(5) === jumpDateValue.slice(5)) {
+        dropDate.setUTCDate(dropDate.getUTCDate() + 1);
+    }
+    return formatDate(dropDate);
+}
+
+function getCalendarDuration(
+    startDate: string,
+    endDate: string,
+): { months: number; weeks: number; days: number } {
+    const start = parseDate(startDate);
+    const end = parseDate(endDate);
+    let months = 0;
+    while (addUtcMonths(start, months + 1) <= end) {
+        months++;
+    }
+    const afterMonths = addUtcMonths(start, months);
+    const remainingDays = Math.round(
+        (end.getTime() - afterMonths.getTime()) / (24 * 60 * 60 * 1_000),
+    );
+    return {
+        months,
+        weeks: Math.floor(remainingDays / 7),
+        days: remainingDays % 7,
+    };
+}
+
+function formatDurationPart(
+    value: number,
+    unit: "month" | "week" | "day",
+    formatNumber: ReturnType<AppContext["numberFormatter"]>,
+): string {
+    return `${formatNumber(value)} ${unit}${value === 1 ? "" : "s"}`;
+}
+
+function formatCalendarDuration(
+    duration: { months: number; weeks: number; days: number },
+    app: AppContext,
+): string {
+    const formatNumber = app.numberFormatter();
+    return [
+        formatDurationPart(duration.months, "month", formatNumber),
+        formatDurationPart(duration.weeks, "week", formatNumber),
+        formatDurationPart(duration.days, "day", formatNumber),
+    ].join(", ");
+}
+
+function LastTwelveMonthsFooter(props: {
+    latestJumpDate: string | null;
+    thresholdJumpDate: string | null;
+    lastTwelveMonthsJumps: number;
+}) {
+    const app = useAppContext();
+    const requirement =
+        "In Finland, at least 10 jumps in the last 12 months are required to keep a skydiving license valid.";
+    if (props.latestJumpDate === null) {
+        return <>{requirement} No jumps have been recorded yet.</>;
+    }
+    const today = formatDate(new Date());
+    if (props.lastTwelveMonthsJumps === 0) {
+        const duration = getCalendarDuration(props.latestJumpDate, today);
+        return (
+            <>
+                {requirement} The last jump was{" "}
+                {formatCalendarDuration(duration, app)} ago, on{" "}
+                {app.dateFormatter()(props.latestJumpDate)}.
+            </>
+        );
+    }
+    if (props.thresholdJumpDate === null) {
+        return <>{requirement} This count is already below 10.</>;
+    }
+    const dropDate = getRollingCountDropDate(props.thresholdJumpDate);
+    const duration = getCalendarDuration(today, dropDate);
+    return (
+        <>
+            {requirement} If no more jumps are made, this count will fall below
+            10 in {formatCalendarDuration(duration, app)}, on{" "}
+            {app.dateFormatter()(dropDate)}.
+        </>
+    );
 }
 
 function getYearsSince(date: string | null): number {
@@ -277,6 +387,7 @@ async function renderStatistics(c: AppRequestContext) {
                     firstJumpDate: sql<string | null>`min(${jumps.jumpDate})`,
                     currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
                     lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
+                    latestJumpDate: sql<string | null>`max(${jumps.jumpDate})`,
                     lastMonthJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfPreviousMonth} and ${jumps.jumpDate} < ${startOfCurrentMonth} then 1 else 0 end), 0)`,
                 })
                 .from(jumps)
@@ -291,7 +402,10 @@ async function renderStatistics(c: AppRequestContext) {
                 .groupBy(sql`substr(${jumps.jumpDate}, 1, 4)`)
                 .orderBy(sql`substr(${jumps.jumpDate}, 1, 4)`),
             app.db
-                .select({ jumpNumber: jumps.jumpNumber })
+                .select({
+                    jumpNumber: jumps.jumpNumber,
+                    jumpDate: jumps.jumpDate,
+                })
                 .from(jumps)
                 .where(eq(jumps.userUuid, userUuid))
                 .orderBy(asc(jumps.jumpNumber)),
@@ -315,6 +429,7 @@ async function renderStatistics(c: AppRequestContext) {
         firstJumpDate: null,
         currentYearJumps: 0,
         lastTwelveMonthsJumps: 0,
+        latestJumpDate: null,
         lastMonthJumps: 0,
     };
     const formatNumber = app.numberFormatter();
@@ -331,6 +446,11 @@ async function renderStatistics(c: AppRequestContext) {
     const jumpNumberGaps = findJumpNumberGaps(
         jumpNumberRows.map((row) => row.jumpNumber),
     );
+    const qualifyingJumpDates = jumpNumberRows
+        .map((row) => row.jumpDate)
+        .filter((jumpDate) => jumpDate >= twelveMonthsAgo)
+        .sort((first, second) => second.localeCompare(first));
+    const thresholdJumpDate = qualifyingJumpDates[9] ?? null;
 
     return c.render(
         <LogbookPage title="Statistics">
@@ -346,6 +466,13 @@ async function renderStatistics(c: AppRequestContext) {
                 <SingleNumberCard
                     label="Jumps in the last 12 months"
                     value={formatNumber(values.lastTwelveMonthsJumps)}
+                    footer={
+                        <LastTwelveMonthsFooter
+                            latestJumpDate={values.latestJumpDate}
+                            thresholdJumpDate={thresholdJumpDate}
+                            lastTwelveMonthsJumps={values.lastTwelveMonthsJumps}
+                        />
+                    }
                 />
                 <SingleNumberCard
                     label="Jumps last month"

@@ -1,7 +1,10 @@
+import type { Child } from "hono/jsx";
+
 export function SingleNumberCard(props: {
     label: string;
     value: string;
     description?: string;
+    footer?: Child;
 }) {
     return (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -14,6 +17,11 @@ export function SingleNumberCard(props: {
             {props.description && (
                 <dd className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     {props.description}
+                </dd>
+            )}
+            {props.footer && (
+                <dd className="mt-4 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                    {props.footer}
                 </dd>
             )}
         </div>
