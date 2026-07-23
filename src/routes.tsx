@@ -46,6 +46,10 @@ export const auth = {
     register: route("/register"),
     logout: route("/logout"),
 };
+export const demo = {
+    try: route("/demo"),
+};
+export const readonly = route("/readonly");
 export const preferences = route("/preferences");
 export const install = route("/install");
 export const about = route("/about");
@@ -105,6 +109,7 @@ export const admin = {
     index: route("/admin"),
     loginAs: route("/admin/login-as"),
     toggleAdmin: route("/admin/toggle-admin"),
+    toggleReadonly: route("/admin/toggle-readonly"),
     invitations: {
         new: route("/admin/invitations/new"),
         edit: route("/admin/invitations/:code"),

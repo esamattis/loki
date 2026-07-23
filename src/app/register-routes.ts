@@ -4,6 +4,8 @@ import { register as registerHomeRoutes } from "@/route-handlers/home";
 import { register as registerAuthRoutes } from "@/route-handlers/auth/login";
 import { register as registerRegistrationRoutes } from "@/route-handlers/auth/register";
 import { register as registerLogoutRoutes } from "@/route-handlers/auth/logout";
+import { register as registerDemoRoutes } from "@/route-handlers/demo";
+import { register as registerReadonlyRoutes } from "@/route-handlers/readonly";
 import { register as registerPreferencesRoutes } from "@/route-handlers/preferences/index";
 import { register as registerInstallRoutes } from "@/route-handlers/install";
 import { register as registerAboutRoutes } from "@/route-handlers/about";
@@ -35,6 +37,7 @@ import { register as registerExportRoutes } from "@/route-handlers/logbook/trans
 import { register as registerAdminRoutes } from "@/route-handlers/admin/index";
 import { register as registerLoginAsRoutes } from "@/route-handlers/admin/login-as";
 import { register as registerToggleAdminRoutes } from "@/route-handlers/admin/toggle-admin";
+import { register as registerToggleReadonlyRoutes } from "@/route-handlers/admin/toggle-readonly";
 import { register as registerNewInvitationRoutes } from "@/route-handlers/admin/invitations/new";
 import { register as registerEditInvitationRoutes } from "@/route-handlers/admin/invitations/edit";
 import { register as registerServiceWorkerRoutes } from "@/route-handlers/service-worker";
@@ -50,6 +53,8 @@ export function registerRoutes(app: App) {
     registerAuthRoutes(app);
     registerRegistrationRoutes(app);
     registerLogoutRoutes(app);
+    registerDemoRoutes(app);
+    registerReadonlyRoutes(app);
     registerPreferencesRoutes(app);
     registerInstallRoutes(app);
     registerAboutRoutes(app);
@@ -81,6 +86,7 @@ export function registerRoutes(app: App) {
     registerAdminRoutes(app);
     registerLoginAsRoutes(app);
     registerToggleAdminRoutes(app);
+    registerToggleReadonlyRoutes(app);
     registerNewInvitationRoutes(app);
     registerEditInvitationRoutes(app);
     registerServiceWorkerRoutes(app);

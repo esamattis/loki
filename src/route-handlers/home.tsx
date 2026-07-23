@@ -1,6 +1,6 @@
 import type { Child } from "hono/jsx";
 import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { ButtonLink, buttonClassName } from "@/components/form";
+import { Button, ButtonLink, buttonClassName } from "@/components/form";
 import { ExternalLink } from "@/components/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -105,15 +105,26 @@ function LandingActions(props: { loggedIn: boolean }) {
                     Open your logbook
                 </a>
             ) : (
-                <a
-                    href={routes.auth.register({})}
-                    className={buttonClassName({
-                        variant: "secondary",
-                        className: "w-full px-6 py-3 text-base sm:w-auto",
-                    })}
-                >
-                    Sign up with invite
-                </a>
+                <>
+                    <form method="post" action={routes.demo.try({})}>
+                        <Button
+                            type="submit"
+                            variant="secondary"
+                            className="w-full px-6 py-3 text-base sm:w-auto"
+                        >
+                            Try demo
+                        </Button>
+                    </form>
+                    <a
+                        href={routes.auth.register({})}
+                        className={buttonClassName({
+                            variant: "secondary",
+                            className: "w-full px-6 py-3 text-base sm:w-auto",
+                        })}
+                    >
+                        Sign up with invite
+                    </a>
+                </>
             )}
         </>
     );

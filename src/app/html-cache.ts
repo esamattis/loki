@@ -6,6 +6,7 @@ import { users } from "@/schema";
 
 const CACHE_NAME = "loki-html-v1";
 const CACHE_TTL_SECONDS = 5 * 60;
+const READONLY_CACHE_TTL_SECONDS = 60 * 60 * 24;
 const CACHE_STATUS_HEADER = "X-Loki-HTML-Cache";
 
 type CacheStatus = "HIT" | "MISS" | "DISABLED" | "BYPASS";
@@ -59,9 +60,12 @@ async function bypassCache(
     c.header(CACHE_STATUS_HEADER, cacheStatus);
 }
 
-function responseForCache(response: Response): Response {
+function responseForCache(response: Response, user: User): Response {
+    const ttlSeconds = user.readonly
+        ? READONLY_CACHE_TTL_SECONDS
+        : CACHE_TTL_SECONDS;
     const headers = new Headers(response.headers);
-    headers.set("Cache-Control", `public, max-age=${CACHE_TTL_SECONDS}`);
+    headers.set("Cache-Control", `public, max-age=${ttlSeconds}`);
     headers.delete("Server-Timing");
     headers.delete("X-Loki-SQL-Queries");
     return new Response(response.body, {
@@ -102,7 +106,9 @@ async function handlePost(
     try {
         await next();
     } finally {
-        await invalidateUserCache(c, user.uuid);
+        if (!user.readonly) {
+            await invalidateUserCache(c, user.uuid);
+        }
     }
 }
 
@@ -147,6 +153,6 @@ export async function htmlCacheMiddleware(
     }
 
     const response = c.res;
-    await cache.put(key, responseForCache(response.clone()));
+    await cache.put(key, responseForCache(response.clone(), user));
     c.res = responseForClient(response, "MISS");
 }

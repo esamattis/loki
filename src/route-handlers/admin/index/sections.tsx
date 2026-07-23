@@ -1,5 +1,6 @@
 import { useDateFormatter } from "@/app/app";
 import { Button, ButtonLink } from "@/components/form";
+import { parseUserOptions } from "@/options";
 import * as routes from "@/routes";
 import type { Child } from "hono/jsx";
 
@@ -9,6 +10,7 @@ export interface AdminUserRow {
     displayName: string | null;
     email: string;
     invitationCode: string | null;
+    options: string;
     admin: boolean;
     createdAt: number;
     lastUsedAt: number;
@@ -130,48 +132,60 @@ export function AdminUsersSection(props: {
                 <EmptyState>No users yet.</EmptyState>
             ) : (
                 <ul className="grid grid-cols-1 gap-3">
-                    {props.users.map((user) => (
-                        <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex flex-wrap items-start justify-between gap-4 px-5 py-4">
-                                <div className="min-w-0">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
-                                            {user.displayName || user.username}
+                    {props.users.map((user) => {
+                        const readonly = parseUserOptions(
+                            user.options,
+                        ).readonly;
+                        return (
+                            <li className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                                <div className="flex flex-wrap items-start justify-between gap-4 px-5 py-4">
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                                {user.displayName ||
+                                                    user.username}
+                                            </p>
+                                            {user.admin && (
+                                                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                                                    Admin
+                                                </span>
+                                            )}
+                                            {readonly && (
+                                                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+                                                    Read-only
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                            @{user.username}
                                         </p>
-                                        {user.admin && (
-                                            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
-                                                Admin
-                                            </span>
-                                        )}
                                     </div>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                        @{user.username}
-                                    </p>
+                                    <UserActions
+                                        user={user}
+                                        readonly={readonly}
+                                        currentUserUuid={props.currentUserUuid}
+                                        canRemoveAdmin={adminCount > 1}
+                                    />
                                 </div>
-                                <UserActions
-                                    user={user}
-                                    currentUserUuid={props.currentUserUuid}
-                                    canRemoveAdmin={adminCount > 1}
-                                />
-                            </div>
-                            <dl className="grid gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:grid-cols-2 dark:border-slate-800 dark:bg-slate-950/30">
-                                <MetadataItem label="Email">
-                                    {user.email}
-                                </MetadataItem>
-                                <MetadataItem label="Created">
-                                    {formatDate(user.createdAt)}
-                                </MetadataItem>
-                                <MetadataItem label="Last seen">
-                                    {user.lastUsedAt === 0
-                                        ? "Never"
-                                        : formatDate(user.lastUsedAt)}
-                                </MetadataItem>
-                                <MetadataItem label="Invitation code">
-                                    {user.invitationCode ?? "Not recorded"}
-                                </MetadataItem>
-                            </dl>
-                        </li>
-                    ))}
+                                <dl className="grid gap-4 border-t border-slate-100 bg-slate-50/60 px-5 py-4 sm:grid-cols-2 dark:border-slate-800 dark:bg-slate-950/30">
+                                    <MetadataItem label="Email">
+                                        {user.email}
+                                    </MetadataItem>
+                                    <MetadataItem label="Created">
+                                        {formatDate(user.createdAt)}
+                                    </MetadataItem>
+                                    <MetadataItem label="Last seen">
+                                        {user.lastUsedAt === 0
+                                            ? "Never"
+                                            : formatDate(user.lastUsedAt)}
+                                    </MetadataItem>
+                                    <MetadataItem label="Invitation code">
+                                        {user.invitationCode ?? "Not recorded"}
+                                    </MetadataItem>
+                                </dl>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>
@@ -180,6 +194,7 @@ export function AdminUsersSection(props: {
 
 function UserActions(props: {
     user: AdminUserRow;
+    readonly: boolean;
     currentUserUuid: string;
     canRemoveAdmin: boolean;
 }) {
@@ -201,6 +216,17 @@ function UserActions(props: {
                     }
                 >
                     {props.user.admin ? "Remove admin" : "Make admin"}
+                </Button>
+            </form>
+            <form method="post" action={routes.admin.toggleReadonly({})}>
+                <input type="hidden" name="uuid" value={props.user.uuid} />
+                <Button
+                    type="submit"
+                    variant="secondary"
+                    size="sm"
+                    className="px-3 py-2"
+                >
+                    {props.readonly ? "Remove read-only" : "Make read-only"}
                 </Button>
             </form>
             {props.user.uuid !== props.currentUserUuid && (

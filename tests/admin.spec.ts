@@ -115,7 +115,9 @@ test("does not allow removing the last admin", async ({ page, request }) => {
         "The last admin cannot be removed",
     );
 
-    const uuid = await adminUser.locator('input[name="uuid"]').inputValue();
+    const uuid = await adminUser
+        .locator('form[action="/admin/toggle-admin"] input[name="uuid"]')
+        .inputValue();
     const response = await postAsPage(page, request, {
         path: "/admin/toggle-admin",
         form: { uuid },
