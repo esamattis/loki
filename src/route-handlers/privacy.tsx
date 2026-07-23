@@ -35,9 +35,12 @@ function PrivacyContent() {
                     loki.hyppykeli.fi
                 </ExternalLink>
                 . In short: we do not use your data for anything beyond running
-                the logbook. We also do not guarantee any data durability,
-                security, backups, or availability of the service. Do regular
-                exports or self-host.
+                the logbook. We also{" "}
+                <strong className="font-bold">
+                    do not guarantee any data durability, security, backups, or
+                    availability of the service
+                </strong>
+                . Do regular exports or self-host.
             </p>
             <p>
                 Loki is{" "}

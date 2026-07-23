@@ -24,6 +24,12 @@ test("shows privacy policy and footer link", async ({ page }) => {
         page.getByRole("heading", { name: "Privacy Policy" }),
     ).toBeVisible();
     await expect(
+        page.getByText(
+            "do not guarantee any data durability, security, backups, or availability of the service",
+            { exact: true },
+        ),
+    ).toHaveCSS("font-weight", "700");
+    await expect(
         page.getByText("We do not sell or share", { exact: false }),
     ).toBeVisible();
     await expect(
