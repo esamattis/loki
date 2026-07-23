@@ -82,7 +82,24 @@ function LandingHeader(props: { loggedIn: boolean }) {
     );
 }
 
-function LandingActions(props: { loggedIn: boolean }) {
+function TryDemoButton() {
+    return (
+        <form method="post" action={routes.demo.try({})}>
+            <Button
+                type="submit"
+                variant="secondary"
+                className="w-full px-6 py-3 text-base sm:w-auto"
+            >
+                Try demo
+            </Button>
+        </form>
+    );
+}
+
+function LandingActions(props: {
+    loggedIn: boolean;
+    showTryDemo?: boolean;
+}) {
     return (
         <>
             <a
@@ -94,6 +111,7 @@ function LandingActions(props: { loggedIn: boolean }) {
             >
                 Download
             </a>
+            {props.showTryDemo ? <TryDemoButton /> : null}
             {props.loggedIn ? (
                 <a
                     href={routes.logbook.index({})}
@@ -105,26 +123,15 @@ function LandingActions(props: { loggedIn: boolean }) {
                     Open your logbook
                 </a>
             ) : (
-                <>
-                    <form method="post" action={routes.demo.try({})}>
-                        <Button
-                            type="submit"
-                            variant="secondary"
-                            className="w-full px-6 py-3 text-base sm:w-auto"
-                        >
-                            Try demo
-                        </Button>
-                    </form>
-                    <a
-                        href={routes.auth.register({})}
-                        className={buttonClassName({
-                            variant: "secondary",
-                            className: "w-full px-6 py-3 text-base sm:w-auto",
-                        })}
-                    >
-                        Sign up with invite
-                    </a>
-                </>
+                <a
+                    href={routes.auth.register({})}
+                    className={buttonClassName({
+                        variant: "secondary",
+                        className: "w-full px-6 py-3 text-base sm:w-auto",
+                    })}
+                >
+                    Sign up with invite
+                </a>
             )}
         </>
     );
@@ -159,9 +166,12 @@ function Hero(props: { loggedIn: boolean }) {
                 whenever you want - your logbook data always stays yours.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <LandingActions loggedIn={props.loggedIn} />
+                <TryDemoButton />
             </div>
             <VideoEmbed />
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <LandingActions loggedIn={props.loggedIn} />
+            </div>
         </section>
     );
 }
@@ -435,7 +445,10 @@ function FooterCta(props: { loggedIn: boolean }) {
                             : "Use an invitation to create a hosted account, or log in to pick up where you left off."}
                     </p>
                     <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                        <LandingActions loggedIn={props.loggedIn} />
+                        <LandingActions
+                            loggedIn={props.loggedIn}
+                            showTryDemo
+                        />
                     </div>
                 </div>
             </div>

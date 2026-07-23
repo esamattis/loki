@@ -12,9 +12,7 @@ test("shows download and invite actions in both calls to action", async ({
         "href",
         "https://github.com/esamattis/loki/releases",
     );
-    await expect(page.getByRole("button", { name: "Try demo" })).toHaveCount(
-        2,
-    );
+    await expect(page.getByRole("button", { name: "Try demo" })).toHaveCount(2);
     expect(
         await page
             .locator(
@@ -70,6 +68,10 @@ test("the landing page remains visible after logging in", async ({ page }) => {
     await expect(page.getByRole("link", { name: "Log in" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Sign up" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Download" })).toHaveCount(2);
+    await expect(page.getByRole("button", { name: "Try demo" })).toHaveCount(2);
+    await expect(
+        page.getByRole("link", { name: "Open your logbook" }),
+    ).toHaveCount(2);
     await expect(page.getByRole("link", { name: "Home" })).toHaveAttribute(
         "href",
         "/",

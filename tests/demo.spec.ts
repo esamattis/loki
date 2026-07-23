@@ -146,7 +146,7 @@ test("try demo re-imports when example data checksum changes", async ({
     await expect(
         page.getByText("Long flock at sunset. Clean flight, clean open"),
     ).toBeVisible();
-    await expect(
-        page.getByText("should-be-replaced-on-reimport"),
-    ).toHaveCount(0);
+    await expect(page.getByText("should-be-replaced-on-reimport")).toHaveCount(
+        0,
+    );
 });
