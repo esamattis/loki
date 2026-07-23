@@ -68,6 +68,7 @@ export async function createRegistrationUser(
     }
 
     const uuid = crypto.randomUUID();
+    const createdAt = Math.floor(Date.now() / 1000);
     await db
         .insert(users)
         .values({
@@ -79,6 +80,7 @@ export async function createRegistrationUser(
             invitationCode,
             options: JSON.stringify(values.options),
             admin: false,
+            createdAt,
         })
         .run();
     return { uuid };
