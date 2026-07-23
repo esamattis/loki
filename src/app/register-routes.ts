@@ -9,6 +9,7 @@ import { register as registerReadonlyRoutes } from "@/route-handlers/readonly";
 import { register as registerPreferencesRoutes } from "@/route-handlers/preferences/index";
 import { register as registerInstallRoutes } from "@/route-handlers/install";
 import { register as registerAboutRoutes } from "@/route-handlers/about";
+import { register as registerPrivacyRoutes } from "@/route-handlers/privacy";
 import { register as registerTodoRoutes } from "@/route-handlers/todo";
 import { register as registerLogbookRoutes } from "@/route-handlers/logbook/index";
 import { register as registerInjectExampleDataRoutes } from "@/route-handlers/logbook/inject-example-data";
@@ -59,6 +60,7 @@ export function registerRoutes(app: App) {
     registerPreferencesRoutes(app);
     registerInstallRoutes(app);
     registerAboutRoutes(app);
+    registerPrivacyRoutes(app);
     registerTodoRoutes(app);
     registerLogbookRoutes(app);
     registerInjectExampleDataRoutes(app);

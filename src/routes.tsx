@@ -53,6 +53,7 @@ export const readonly = route("/readonly");
 export const preferences = route("/preferences");
 export const install = route("/install");
 export const about = route("/about");
+export const privacy = route("/privacy");
 export const todo = route("/todo");
 export const logbook = {
     index: route("/logbook"),

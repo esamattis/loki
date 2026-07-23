@@ -4,7 +4,10 @@ import clsx from "clsx";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";
 
-export function Footer(props: { hasBottomNavigation: boolean }) {
+export function Footer(props: {
+    hasBottomNavigation: boolean;
+    showPrivacyPolicy: boolean;
+}) {
     return (
         <footer
             className={clsx(
@@ -44,6 +47,14 @@ export function Footer(props: { hasBottomNavigation: boolean }) {
                     >
                         About
                     </Link>
+                    {props.showPrivacyPolicy && (
+                        <Link
+                            href={routes.privacy({})}
+                            aria-label="Footer privacy policy"
+                        >
+                            Privacy
+                        </Link>
+                    )}
                     <ExternalLink
                         href={REPOSITORY_URL}
                         aria-label="Loki source code"
