@@ -11,7 +11,7 @@ import {
 } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { Link } from "@/components/link";
-import { CopyIcon } from "@/components/icons";
+import { CloseIcon, CopyIcon } from "@/components/icons";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
 import { Dialog } from "@/components/ui/dialog";
@@ -728,14 +728,7 @@ export function JumpFormPage(props: {
     dirty?: boolean;
     createdAt?: number;
     redirectBackAfterPost?: boolean;
-    prefillFrom?: {
-        uuid: string;
-        jumpNumber: number;
-        lastAdded?: {
-            uuid: string;
-            jumpNumber: number;
-        };
-    };
+    prefillFrom?: JumpPrefillFrom;
 }) {
     const formId = useId();
 
@@ -812,40 +805,89 @@ export function JumpFormPage(props: {
     );
 }
 
-function JumpPrefillFromNotice(props: {
-    prefillFrom: {
+export type JumpPrefillFrom = {
+    uuid: string;
+    jumpNumber: number;
+    lastAdded?: {
         uuid: string;
         jumpNumber: number;
-        lastAdded?: {
-            uuid: string;
-            jumpNumber: number;
-        };
     };
-}) {
+    highest?: {
+        uuid: string;
+        jumpNumber: number;
+    };
+};
+
+function JumpPrefillFromNotice(props: { prefillFrom: JumpPrefillFrom }) {
     const source = props.prefillFrom;
     const lastAdded = source.lastAdded;
+    const highest = source.highest;
+    const cardId = useId();
+    const clearButtonId = useId();
     return (
-        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+        <div
+            id={cardId}
+            className="relative space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+        >
+            <button
+                type="button"
+                id={clearButtonId}
+                aria-label="Clear prefill notice"
+                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            >
+                <CloseIcon className="h-4 w-4" />
+            </button>
+            <p className="pr-8 text-sm text-slate-600 dark:text-slate-300">
                 Fields prefilled from{" "}
                 <Link href={routes.logbook.jumps.edit({ uuid: source.uuid })}>
                     jump #{source.jumpNumber}
                 </Link>
                 .
             </p>
-            {lastAdded && (
-                <ButtonLink
-                    href={routes.logbook.jumps.new(
-                        {},
-                        { from: lastAdded.uuid },
+            {(lastAdded || highest) && (
+                <div className="flex flex-wrap gap-2">
+                    {lastAdded && (
+                        <ButtonLink
+                            href={routes.logbook.jumps.new(
+                                {},
+                                { from: lastAdded.uuid },
+                            )}
+                            variant="secondary"
+                            className="gap-1.5"
+                            data-loki-tooltip={`Jump #${lastAdded.jumpNumber} was added more recently than jump #${source.jumpNumber}. Prefill from the most recently entered jump instead of the highest jump number.`}
+                        >
+                            Use last added #{lastAdded.jumpNumber}
+                        </ButtonLink>
                     )}
-                    variant="secondary"
-                    className="gap-1.5"
-                    data-loki-tooltip={`Jump #${lastAdded.jumpNumber} was added more recently than jump #${source.jumpNumber}. Prefill from the most recently entered jump instead of the highest jump number.`}
-                >
-                    Use last added #{lastAdded.jumpNumber}
-                </ButtonLink>
+                    {highest && (
+                        <ButtonLink
+                            href={routes.logbook.jumps.new(
+                                {},
+                                { from: highest.uuid },
+                            )}
+                            variant="secondary"
+                            className="gap-1.5"
+                            data-loki-tooltip={`Jump #${highest.jumpNumber} has the highest jump number. Prefill from it instead of the most recently entered jump.`}
+                        >
+                            Use highest #{highest.jumpNumber}
+                        </ButtonLink>
+                    )}
+                </div>
             )}
+            <Script
+                $deps={[$select]}
+                $args={[cardId, clearButtonId]}
+                $exec={(cardId, clearButtonId) => {
+                    const card = $select.id(cardId, HTMLElement);
+                    const clearButton = $select.id(
+                        clearButtonId,
+                        HTMLButtonElement,
+                    );
+                    clearButton.addEventListener("click", () => {
+                        card.remove();
+                    });
+                }}
+            />
         </div>
     );
 }

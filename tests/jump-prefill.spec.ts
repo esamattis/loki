@@ -73,9 +73,12 @@ test("new jump prefills from highest jump number and can switch to last added", 
         name: "Use last added #5",
     });
     await expect(useLastAdded).toBeVisible();
-    await useLastAdded.hover();
-    await expect(page.getByRole("tooltip")).toContainText(
-        "Jump #5 was added more recently than jump #10",
+    await expect(page.getByRole("link", { name: /Use highest/ })).toHaveCount(
+        0,
+    );
+    await expect(useLastAdded).toHaveAttribute(
+        "data-loki-tooltip",
+        /Jump #5 was added more recently than jump #10/,
     );
     await useLastAdded.click();
 
@@ -91,4 +94,25 @@ test("new jump prefills from highest jump number and can switch to last added", 
         "3000",
     );
     await expect(page.locator('input[name="freefallTime"]')).toHaveValue("40");
+
+    const useHighest = page.getByRole("link", { name: "Use highest #10" });
+    await expect(useHighest).toBeVisible();
+    await expect(useHighest).toHaveAttribute(
+        "data-loki-tooltip",
+        /Jump #10 has the highest jump number/,
+    );
+    await useHighest.click();
+    await expect(page.getByRole("link", { name: "jump #10" })).toBeVisible();
+    await expect(jumpItemSummary(page, "Location")).toContainText(
+        "High Number DZ",
+    );
+    await expect(page.locator('input[name="exitAltitude"]')).toHaveValue(
+        "4000",
+    );
+
+    await page.getByRole("button", { name: "Clear prefill notice" }).click();
+    await expect(page.getByText(/Fields prefilled from/)).toHaveCount(0);
+    await expect(jumpItemSummary(page, "Location")).toContainText(
+        "High Number DZ",
+    );
 });

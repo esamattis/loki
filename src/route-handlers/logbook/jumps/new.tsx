@@ -19,6 +19,7 @@ import {
     getToday,
     JumpFormPage,
     type JumpFormValues,
+    type JumpPrefillFrom,
 } from "@/route-handlers/logbook/jumps/form";
 import { JumpNumberError } from "@/route-handlers/logbook/jumps/form/jump-number-field";
 import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
@@ -107,15 +108,6 @@ function imageReadingWarningNotices(warning: string) {
 
 type JumpPrefillQuery = ReturnType<typeof routes.logbook.jumps.new.query>;
 
-type PrefillFrom = {
-    uuid: string;
-    jumpNumber: number;
-    lastAdded?: {
-        uuid: string;
-        jumpNumber: number;
-    };
-};
-
 async function loadJumpRelationUuids(
     c: AppRequestContext,
     jumpUuid: string,
@@ -178,6 +170,13 @@ async function applyImageItemPrefill(
     return next;
 }
 
+function jumpRef(
+    jump: { uuid: string; jumpNumber: number } | undefined,
+    sourceUuid: string,
+): { uuid: string; jumpNumber: number } | undefined {
+    return jump && jump.uuid !== sourceUuid ? jump : undefined;
+}
+
 async function loadSourceJumpPrefill(
     c: AppRequestContext,
     options: {
@@ -186,13 +185,17 @@ async function loadSourceJumpPrefill(
         altitudeUnits: ReturnType<
             ReturnType<typeof getAppContext>["getUser"]
         >["options"]["altitudeUnits"];
+        highestJump?: {
+            uuid: string;
+            jumpNumber: number;
+        };
         lastAddedJump?: {
             uuid: string;
             jumpNumber: number;
         };
         values: JumpFormValues;
     },
-): Promise<{ values: JumpFormValues; prefillFrom?: PrefillFrom }> {
+): Promise<{ values: JumpFormValues; prefillFrom?: JumpPrefillFrom }> {
     const db = getAppContext(c).db;
     const jump = await db
         .select()
@@ -231,11 +234,8 @@ async function loadSourceJumpPrefill(
         prefillFrom: {
             uuid: jump.uuid,
             jumpNumber: jump.jumpNumber,
-            lastAdded:
-                options.lastAddedJump &&
-                options.lastAddedJump.uuid !== jump.uuid
-                    ? options.lastAddedJump
-                    : undefined,
+            lastAdded: jumpRef(options.lastAddedJump, jump.uuid),
+            highest: jumpRef(options.highestJump, jump.uuid),
         },
     };
 }
@@ -299,12 +299,13 @@ export async function renderNewJump(c: AppRequestContext) {
     }
     const sourceJumpUuid =
         query.from ?? (hasImagePrefill ? undefined : latestJump?.uuid);
-    let prefillFrom: PrefillFrom | undefined;
+    let prefillFrom: JumpPrefillFrom | undefined;
     if (sourceJumpUuid) {
         const source = await loadSourceJumpPrefill(c, {
             sourceJumpUuid,
             userUuid,
             altitudeUnits,
+            highestJump: latestJump,
             lastAddedJump,
             values,
         });
