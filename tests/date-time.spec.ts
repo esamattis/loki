@@ -3,6 +3,10 @@ import path from "node:path";
 import { expect, test, type Page } from "./fixtures";
 import { openMainMenu, openManageLogbook } from "./helpers";
 import { formatCalendarDate, formatUnixDateTime } from "@/date-time";
+import {
+    createCalendarDurationFormatter,
+    createNumberFormatter,
+} from "@/format";
 
 const xmlFixturePath = path.join(
     import.meta.dirname,
@@ -44,6 +48,15 @@ test("formats Unix timestamps in UTC using each preference", () => {
     );
     expect(formatUnixDateTime(timestamp, "iso")).toBe(
         "2026-07-14 16:05:30 UTC",
+    );
+});
+
+test("formats calendar durations with the user's number format", () => {
+    const formatDuration = createCalendarDurationFormatter(
+        createNumberFormatter("space-comma"),
+    );
+    expect(formatDuration({ months: 1, weeks: 0, days: 2 })).toBe(
+        "1 month, 0 weeks, 2 days",
     );
 });
 

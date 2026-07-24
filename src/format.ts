@@ -12,6 +12,12 @@ export type NumberFormatter = (
 ) => string;
 
 export type AltitudeFormatter = (meters: number) => string;
+export type CalendarDuration = {
+    months: number;
+    weeks: number;
+    days: number;
+};
+export type CalendarDurationFormatter = (duration: CalendarDuration) => string;
 export type DistanceFormatter = (meters: number) => string;
 export type SpeedFormatter = (metersPerSecond: number) => string;
 
@@ -34,6 +40,24 @@ export function createAltitudeFormatter(
 ): AltitudeFormatter {
     return function altitudeFormatter(meters) {
         return formatAltitude(meters, altitudeUnits, numberFormat);
+    };
+}
+
+export function createCalendarDurationFormatter(
+    formatNumber: NumberFormatter,
+): CalendarDurationFormatter {
+    return function calendarDurationFormatter(duration) {
+        function formatPart(
+            value: number,
+            unit: "month" | "week" | "day",
+        ): string {
+            return `${formatNumber(value)} ${unit}${value === 1 ? "" : "s"}`;
+        }
+        return [
+            formatPart(duration.months, "month"),
+            formatPart(duration.weeks, "week"),
+            formatPart(duration.days, "day"),
+        ].join(", ");
     };
 }
 

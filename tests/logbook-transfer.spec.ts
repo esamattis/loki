@@ -76,6 +76,25 @@ async function registerUser(page: Page, username: string) {
     await expect(page).toHaveURL("/logbook");
 }
 
+async function expectActiveLastTwelveMonthsFooter(page: Page) {
+    const card = page.getByText("Jumps in the last 12 months").locator("..");
+    const dropDate = new Date();
+    const jumpDate = dropDate.toISOString().slice(5, 10);
+    dropDate.setUTCFullYear(dropDate.getUTCFullYear() + 1);
+    if (dropDate.toISOString().slice(5, 10) === jumpDate) {
+        dropDate.setUTCDate(dropDate.getUTCDate() + 1);
+    }
+    await expect(card).toContainText(
+        "In Finland, at least 10 jumps in the last 12 months are required to keep a skydiving license valid.",
+    );
+    await expect(card).toContainText(
+        "If no more jumps are made, this count will fall below 10 in 12 months, 0 weeks, 1 day",
+    );
+    await expect(card).toContainText(
+        `on ${dropDate.toISOString().slice(0, 10)}.`,
+    );
+}
+
 test("dropping a logbook file anywhere on the import page selects it", async ({
     page,
 }) => {
@@ -157,6 +176,63 @@ test("saving a record jump returns to yearly statistics", async ({ page }) => {
     ).toBeVisible();
 });
 
+test("statistics show how long ago the last jump was", async ({ page }) => {
+    await registerUser(page, "inactive-statistics-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    const csv = [
+        CSV_HEADER,
+        "jump,,,1,2000-01-01,4000,1000,55,,,,,Old jump",
+    ].join("\n");
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "logbook.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(csv),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await page
+        .getByRole("link", { name: /inactive-statistics-skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+
+    const lastTwelveMonthsCard = page
+        .getByText("Jumps in the last 12 months")
+        .locator("..");
+    await expect(lastTwelveMonthsCard.locator("dd").first()).toHaveText("0");
+    await expect(lastTwelveMonthsCard).toContainText(
+        /The last jump was \d+ months, \d+ weeks, \d+ days? ago, on 2000-01-01\./,
+    );
+});
+
+test("statistics forecast when license jump currency is lost", async ({
+    page,
+}) => {
+    await registerUser(page, "current-license-skydiver");
+    await openManageLogbook(page);
+    await page.getByRole("link", { name: "Import or export" }).click();
+    const jumpRows = Array.from(
+        { length: 10 },
+        (_, index) => `jump,,,${index + 1},,4000,1000,55,,,,,Recent jump`,
+    );
+    const csv = [CSV_HEADER, ...jumpRows].join("\n");
+    await page.locator('input[name="file"]').setInputFiles({
+        name: "logbook.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(csv),
+    });
+    await page.getByRole("button", { name: "Import logbook" }).click();
+    await page
+        .getByRole("link", { name: /current-license-skydiver's logbook/ })
+        .click();
+    await page.getByRole("link", { name: "Statistics", exact: true }).click();
+
+    const lastTwelveMonthsCard = page
+        .getByText("Jumps in the last 12 months")
+        .locator("..");
+    await expect(lastTwelveMonthsCard.locator("dd").first()).toHaveText("10");
+    await expectActiveLastTwelveMonthsFooter(page);
+});
+
 test("statistics show total and recorded jump counts for every item", async ({
     page,
 }) => {
@@ -193,6 +269,9 @@ test("statistics show total and recorded jump counts for every item", async ({
     await expect(
         page.getByText("Jumps in the last 12 months").locator(".."),
     ).toContainText("2");
+    await expect(
+        page.getByText("Jumps in the last 12 months").locator(".."),
+    ).toContainText("This count is already below 10.");
     await expect(
         page.getByText("Jumps last month").locator(".."),
     ).toContainText("0");
