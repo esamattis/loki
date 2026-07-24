@@ -263,7 +263,7 @@ function AdditionalContextField(props: { value: string }) {
             <ClearableTextarea
                 name="additionalContext"
                 label="Additional context"
-                rows={2}
+                rows={4}
                 maxLength={JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX}
                 placeholder="Jump 41"
                 value={props.value}

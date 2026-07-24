@@ -2,6 +2,7 @@ import { LogbookPage } from "@/app/logbook-page";
 import { FormActions, Input, NumberInput, Textarea } from "@/components/form";
 import { ErrorList } from "@/components/feedback";
 import { RedirectBackAfterPost } from "@/components/return-after-form-post";
+import { ArchiveToggleForm } from "@/components/ui/archive-toggle-form";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { DangerZone } from "@/components/ui/danger-zone";
 import { MergeIntoForm } from "@/components/ui/merge-into-form";
@@ -70,6 +71,7 @@ export function AircraftFormPage(props: {
     values?: AircraftFormValues;
     errors?: string[];
     canDelete?: boolean;
+    archived?: boolean;
     dangerError?: string;
     mergeOptions?: { uuid: string; name: string }[];
     recentJumps?: JumpListItem[];
@@ -83,12 +85,22 @@ export function AircraftFormPage(props: {
             >
                 ← Back to aircraft
             </a>
+            {props.archived && (
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                        Archived
+                    </span>
+                </p>
+            )}
             <AircraftForm
                 values={props.values}
                 errors={props.errors}
                 submitLabel={props.submitLabel}
                 confirmationTitle={props.title}
             />
+            {props.archived !== undefined && (
+                <ArchiveToggleForm archived={props.archived} />
+            )}
             {props.canDelete && (
                 <DangerZone className="max-w-xl">
                     {props.dangerError && (

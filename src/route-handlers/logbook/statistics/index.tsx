@@ -435,6 +435,13 @@ async function renderStatistics(c: AppRequestContext) {
 
     return c.render(
         <LogbookPage title="Statistics">
+            <ButtonLink
+                href={routes.logbook.statistics.detailed({}, {})}
+                variant="secondary"
+                className="gap-1.5"
+            >
+                View yearly statistics
+            </ButtonLink>
             <dl className="grid gap-4 sm:grid-cols-2">
                 <SingleNumberCard
                     label="Total jumps"
@@ -489,13 +496,6 @@ async function renderStatistics(c: AppRequestContext) {
                     href: routes.logbook.jumps.edit({ uuid: jump.uuid }),
                 }))}
             />
-            <ButtonLink
-                href={routes.logbook.statistics.detailed({}, {})}
-                variant="secondary"
-                className="gap-1.5"
-            >
-                View yearly statistics
-            </ButtonLink>
         </LogbookPage>,
     );
 }
