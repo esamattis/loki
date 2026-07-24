@@ -247,13 +247,18 @@ function JumpFromImageSection(props: { options: UserOptions }) {
                 <div id={promptContainerId}>
                     <Textarea
                         name="jumpImagePrompt"
-                        label="Image reading prompt"
+                        label="System prompt for reading images"
                         rows={14}
                         value={
                             props.options.jumpImagePrompt ||
                             DEFAULT_JUMP_IMAGE_PROMPT
                         }
                     />
+                    <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                        Standing instructions sent with every jump-from-image
+                        request. For one-off notes, use Additional context on
+                        the read page instead.
+                    </p>
                     <Button
                         id={restorePromptButtonId}
                         type="button"
@@ -261,7 +266,7 @@ function JumpFromImageSection(props: { options: UserOptions }) {
                         size="sm"
                         className="mt-2"
                     >
-                        Restore default prompt
+                        Restore default system prompt
                     </Button>
                 </div>
                 <Script

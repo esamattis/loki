@@ -73,9 +73,9 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(
         page
             .getByRole("main")
-            .getByRole("link", { name: "Preferences" })
+            .getByRole("link", { name: "system prompt" })
             .first(),
-    ).toBeVisible();
+    ).toHaveAttribute("href", "/preferences#jump-image-prompt");
     await expect(page.getByRole("button", { name: "Camera" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Camera" })).toHaveAttribute(
         "data-loki-tooltip",
@@ -284,20 +284,17 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         ),
     ).toBeVisible();
     await expect(
-        page.getByText(/Ambiguities can be fixed using the/),
+        page.getByText(/Unclear values can often be fixed with/),
     ).toBeVisible();
-    await expect(
-        page.getByRole("link", { name: "Image reading prompt" }),
-    ).toHaveAttribute("href", "/preferences#jump-image-prompt");
-    await expect(
-        page.getByRole("link", { name: "Preferences" }),
-    ).toHaveAttribute("href", "/preferences#openai");
     await expect(
         page.getByRole("link", { name: "Additional context" }),
     ).toHaveAttribute(
         "href",
         "/logbook/jumps/new/from-image#additional-context",
     );
+    await expect(
+        page.getByRole("link", { name: "system prompt" }),
+    ).toHaveAttribute("href", "/preferences#jump-image-prompt");
 
     await page.goto("/logbook/jumps/new/from-image");
     await page

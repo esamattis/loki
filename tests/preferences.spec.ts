@@ -151,7 +151,9 @@ test("a skydiver can update preferences and account details", async ({
     await page
         .locator('textarea[name="jumpImagePrompt"]')
         .fill("Custom image prompt");
-    await page.getByRole("button", { name: "Restore default prompt" }).click();
+    await page
+        .getByRole("button", { name: "Restore default system prompt" })
+        .click();
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         /Treat "WS" as the jump type "Wingsuit"/,
     );

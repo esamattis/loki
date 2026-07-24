@@ -269,14 +269,13 @@ function AdditionalContextField(props: { value: string }) {
                 value={props.value}
             />
             <p className="text-sm text-slate-500 dark:text-slate-400">
-                Optional instructions for the AI. Use this to specify which jump
-                to pick if the image contains multiple jumps, or to explain
-                abbreviations (e.g. RW means Formation Skydiving). Change the
-                default image reading prompt in{" "}
+                Optional notes for this read only—for example which jump to use
+                if several appear, or what an abbreviation means (e.g. RW =
+                Formation Skydiving). The{" "}
                 <Link href={`${routes.preferences({})}#jump-image-prompt`}>
-                    Preferences
-                </Link>
-                .
+                    system prompt
+                </Link>{" "}
+                in Preferences is applied to every image read.
             </p>
         </div>
     );

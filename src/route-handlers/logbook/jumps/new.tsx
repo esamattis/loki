@@ -90,18 +90,17 @@ function imageReadingWarningNotices(warning: string) {
     return [
         warning,
         <>
-            Ambiguities can be fixed using the{" "}
-            <Link href={`${routes.preferences({})}#jump-image-prompt`}>
-                Image reading prompt
-            </Link>
-            , <Link href={`${routes.preferences({})}#openai`}>Preferences</Link>
-            , and the per-image{" "}
+            Unclear values can often be fixed with{" "}
             <Link
                 href={`${routes.logbook.jumps.fromImage({})}#additional-context`}
             >
                 Additional context
-            </Link>
-            .
+            </Link>{" "}
+            on the next read, or by editing the{" "}
+            <Link href={`${routes.preferences({})}#jump-image-prompt`}>
+                system prompt
+            </Link>{" "}
+            in Preferences (used for every image read).
         </>,
     ];
 }
