@@ -105,6 +105,141 @@ function imageReadingWarningNotices(warning: string) {
     ];
 }
 
+type JumpPrefillQuery = ReturnType<typeof routes.logbook.jumps.new.query>;
+
+type PrefillFrom = {
+    uuid: string;
+    jumpNumber: number;
+    lastAdded?: {
+        uuid: string;
+        jumpNumber: number;
+    };
+};
+
+async function loadJumpRelationUuids(
+    c: AppRequestContext,
+    jumpUuid: string,
+): Promise<{
+    aircraftUuids: string[];
+    gearUuids: string[];
+    jumpTypeUuids: string[];
+}> {
+    const db = getAppContext(c).db;
+    const [aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
+        db
+            .select({ aircraftUuid: jumpsToAircrafts.aircraftUuid })
+            .from(jumpsToAircrafts)
+            .where(eq(jumpsToAircrafts.jumpUuid, jumpUuid)),
+        db
+            .select({ gearUuid: jumpsToGear.gearUuid })
+            .from(jumpsToGear)
+            .where(eq(jumpsToGear.jumpUuid, jumpUuid)),
+        db
+            .select({ jumpTypeUuid: jumpsToJumpTypes.jumpTypeUuid })
+            .from(jumpsToJumpTypes)
+            .where(eq(jumpsToJumpTypes.jumpUuid, jumpUuid)),
+    ]);
+    return {
+        aircraftUuids: aircraftRows.map((item) => item.aircraftUuid),
+        gearUuids: gearRows.map((item) => item.gearUuid),
+        jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),
+    };
+}
+
+async function applyImageItemPrefill(
+    c: AppRequestContext,
+    options: {
+        values: JumpFormValues;
+        query: JumpPrefillQuery;
+        latestJump: {
+            uuid: string;
+            locationUuid: string | null;
+        };
+    },
+): Promise<JumpFormValues> {
+    const next = { ...options.values };
+    const relations = await loadJumpRelationUuids(c, options.latestJump.uuid);
+    if (!queryProvidesJumpItem(options.query, "locationUuid", "locationName")) {
+        next.locationUuid = options.latestJump.locationUuid ?? undefined;
+    }
+    if (
+        !queryProvidesJumpItem(options.query, "aircraftUuids", "aircraftName")
+    ) {
+        next.aircraftUuids = relations.aircraftUuids;
+    }
+    if (!queryProvidesJumpItem(options.query, "gearUuids", "gearName")) {
+        next.gearUuids = relations.gearUuids;
+    }
+    if (
+        !queryProvidesJumpItem(options.query, "jumpTypeUuids", "jumpTypeName")
+    ) {
+        next.jumpTypeUuids = relations.jumpTypeUuids;
+    }
+    return next;
+}
+
+async function loadSourceJumpPrefill(
+    c: AppRequestContext,
+    options: {
+        sourceJumpUuid: string;
+        userUuid: string;
+        altitudeUnits: ReturnType<
+            ReturnType<typeof getAppContext>["getUser"]
+        >["options"]["altitudeUnits"];
+        lastAddedJump?: {
+            uuid: string;
+            jumpNumber: number;
+        };
+        values: JumpFormValues;
+    },
+): Promise<{ values: JumpFormValues; prefillFrom?: PrefillFrom }> {
+    const db = getAppContext(c).db;
+    const jump = await db
+        .select()
+        .from(jumps)
+        .where(
+            and(
+                eq(jumps.uuid, options.sourceJumpUuid),
+                eq(jumps.userUuid, options.userUuid),
+            ),
+        )
+        .get();
+    if (!jump) {
+        return { values: options.values };
+    }
+    const relations = await loadJumpRelationUuids(c, jump.uuid);
+    return {
+        values: {
+            ...options.values,
+            jumpDate: jump.jumpDate,
+            locationUuid: jump.locationUuid ?? undefined,
+            aircraftUuids: relations.aircraftUuids,
+            exitAltitude: altitudeInputValue(
+                jump.exitAltitude,
+                options.altitudeUnits,
+            ),
+            openingAltitude: altitudeInputValue(
+                jump.openingAltitude,
+                options.altitudeUnits,
+            ),
+            freefallTime:
+                jump.freefallTime === 0 ? "" : String(jump.freefallTime),
+            description: jump.description ?? undefined,
+            gearUuids: relations.gearUuids,
+            jumpTypeUuids: relations.jumpTypeUuids,
+        },
+        prefillFrom: {
+            uuid: jump.uuid,
+            jumpNumber: jump.jumpNumber,
+            lastAdded:
+                options.lastAddedJump &&
+                options.lastAddedJump.uuid !== jump.uuid
+                    ? options.lastAddedJump
+                    : undefined,
+        },
+    };
+}
+
 export async function renderNewJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
@@ -128,101 +263,53 @@ export async function renderNewJump(c: AppRequestContext) {
         query.jumpTypeName ||
         query.description,
     );
-    const latestJump = await db
-        .select({
-            uuid: jumps.uuid,
-            jumpNumber: jumps.jumpNumber,
-            locationUuid: jumps.locationUuid,
-        })
-        .from(jumps)
-        .where(eq(jumps.userUuid, userUuid))
-        .orderBy(desc(jumps.jumpNumber))
-        .limit(1)
-        .get();
+    const [latestJump, lastAddedJump] = await Promise.all([
+        db
+            .select({
+                uuid: jumps.uuid,
+                jumpNumber: jumps.jumpNumber,
+                locationUuid: jumps.locationUuid,
+            })
+            .from(jumps)
+            .where(eq(jumps.userUuid, userUuid))
+            .orderBy(desc(jumps.jumpNumber))
+            .limit(1)
+            .get(),
+        db
+            .select({
+                uuid: jumps.uuid,
+                jumpNumber: jumps.jumpNumber,
+            })
+            .from(jumps)
+            .where(eq(jumps.userUuid, userUuid))
+            .orderBy(desc(jumps.createdAt))
+            .limit(1)
+            .get(),
+    ]);
     const nextJumpNumber = String((latestJump?.jumpNumber ?? 0) + 1);
     let values: JumpFormValues = isImagePrefill
         ? { jumpNumber: "", jumpDate: "" }
         : { jumpNumber: nextJumpNumber, jumpDate: getToday() };
     if (isImagePrefill && latestJump) {
-        const [aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
-            db
-                .select({ aircraftUuid: jumpsToAircrafts.aircraftUuid })
-                .from(jumpsToAircrafts)
-                .where(eq(jumpsToAircrafts.jumpUuid, latestJump.uuid)),
-            db
-                .select({ gearUuid: jumpsToGear.gearUuid })
-                .from(jumpsToGear)
-                .where(eq(jumpsToGear.jumpUuid, latestJump.uuid)),
-            db
-                .select({ jumpTypeUuid: jumpsToJumpTypes.jumpTypeUuid })
-                .from(jumpsToJumpTypes)
-                .where(eq(jumpsToJumpTypes.jumpUuid, latestJump.uuid)),
-        ]);
-        if (!queryProvidesJumpItem(query, "locationUuid", "locationName")) {
-            values.locationUuid = latestJump.locationUuid ?? undefined;
-        }
-        if (!queryProvidesJumpItem(query, "aircraftUuids", "aircraftName")) {
-            values.aircraftUuids = aircraftRows.map(
-                (item) => item.aircraftUuid,
-            );
-        }
-        if (!queryProvidesJumpItem(query, "gearUuids", "gearName")) {
-            values.gearUuids = gearRows.map((item) => item.gearUuid);
-        }
-        if (!queryProvidesJumpItem(query, "jumpTypeUuids", "jumpTypeName")) {
-            values.jumpTypeUuids = jumpTypeRows.map(
-                (item) => item.jumpTypeUuid,
-            );
-        }
+        values = await applyImageItemPrefill(c, {
+            values,
+            query,
+            latestJump,
+        });
     }
     const sourceJumpUuid =
         query.from ?? (hasImagePrefill ? undefined : latestJump?.uuid);
+    let prefillFrom: PrefillFrom | undefined;
     if (sourceJumpUuid) {
-        const jump = await db
-            .select()
-            .from(jumps)
-            .where(
-                and(
-                    eq(jumps.uuid, sourceJumpUuid),
-                    eq(jumps.userUuid, userUuid),
-                ),
-            )
-            .get();
-        if (jump) {
-            const [aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
-                db
-                    .select({ aircraftUuid: jumpsToAircrafts.aircraftUuid })
-                    .from(jumpsToAircrafts)
-                    .where(eq(jumpsToAircrafts.jumpUuid, jump.uuid)),
-                db
-                    .select({ gearUuid: jumpsToGear.gearUuid })
-                    .from(jumpsToGear)
-                    .where(eq(jumpsToGear.jumpUuid, jump.uuid)),
-                db
-                    .select({ jumpTypeUuid: jumpsToJumpTypes.jumpTypeUuid })
-                    .from(jumpsToJumpTypes)
-                    .where(eq(jumpsToJumpTypes.jumpUuid, jump.uuid)),
-            ]);
-            values = {
-                ...values,
-                jumpDate: jump.jumpDate,
-                locationUuid: jump.locationUuid ?? undefined,
-                aircraftUuids: aircraftRows.map((item) => item.aircraftUuid),
-                exitAltitude: altitudeInputValue(
-                    jump.exitAltitude,
-                    altitudeUnits,
-                ),
-                openingAltitude: altitudeInputValue(
-                    jump.openingAltitude,
-                    altitudeUnits,
-                ),
-                freefallTime:
-                    jump.freefallTime === 0 ? "" : String(jump.freefallTime),
-                description: jump.description ?? undefined,
-                gearUuids: gearRows.map((item) => item.gearUuid),
-                jumpTypeUuids: jumpTypeRows.map((item) => item.jumpTypeUuid),
-            };
-        }
+        const source = await loadSourceJumpPrefill(c, {
+            sourceJumpUuid,
+            userUuid,
+            altitudeUnits,
+            lastAddedJump,
+            values,
+        });
+        values = source.values;
+        prefillFrom = source.prefillFrom;
     }
     if (hasImagePrefill) {
         values = applyJumpQueryPrefill(values, query);
@@ -241,6 +328,7 @@ export async function renderNewJump(c: AppRequestContext) {
             resources={await getJumpFormResources(c)}
             sourceImageId={query.imageId}
             isImagePrefill={isImagePrefill}
+            prefillFrom={prefillFrom}
             notices={
                 query.warning
                     ? imageReadingWarningNotices(query.warning)

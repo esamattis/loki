@@ -728,6 +728,14 @@ export function JumpFormPage(props: {
     dirty?: boolean;
     createdAt?: number;
     redirectBackAfterPost?: boolean;
+    prefillFrom?: {
+        uuid: string;
+        jumpNumber: number;
+        lastAdded?: {
+            uuid: string;
+            jumpNumber: number;
+        };
+    };
 }) {
     const formId = useId();
 
@@ -766,6 +774,19 @@ export function JumpFormPage(props: {
                     title="Source image"
                 />
             )}
+            {props.copyHref && (
+                <ButtonLink
+                    href={props.copyHref}
+                    icon={<CopyIcon className="h-4 w-4" />}
+                    variant="secondary"
+                    className="gap-1.5"
+                >
+                    Copy to new
+                </ButtonLink>
+            )}
+            {props.prefillFrom && (
+                <JumpPrefillFromNotice prefillFrom={props.prefillFrom} />
+            )}
             <JumpForm
                 formId={formId}
                 values={props.values}
@@ -782,22 +803,50 @@ export function JumpFormPage(props: {
                 redirectBackAfterPost={props.redirectBackAfterPost}
                 {...props.resources}
             />
-            {props.copyHref && (
-                <ButtonLink
-                    href={props.copyHref}
-                    icon={<CopyIcon className="h-4 w-4" />}
-                    variant="secondary"
-                    className="gap-1.5"
-                >
-                    Copy to new
-                </ButtonLink>
-            )}
             {props.canDelete && (
                 <DangerZone>
                     <ConfirmDeleteButton label="Delete jump" />
                 </DangerZone>
             )}
         </LogbookPage>
+    );
+}
+
+function JumpPrefillFromNotice(props: {
+    prefillFrom: {
+        uuid: string;
+        jumpNumber: number;
+        lastAdded?: {
+            uuid: string;
+            jumpNumber: number;
+        };
+    };
+}) {
+    const source = props.prefillFrom;
+    const lastAdded = source.lastAdded;
+    return (
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+                Fields prefilled from{" "}
+                <Link href={routes.logbook.jumps.edit({ uuid: source.uuid })}>
+                    jump #{source.jumpNumber}
+                </Link>
+                .
+            </p>
+            {lastAdded && (
+                <ButtonLink
+                    href={routes.logbook.jumps.new(
+                        {},
+                        { from: lastAdded.uuid },
+                    )}
+                    variant="secondary"
+                    className="gap-1.5"
+                    data-loki-tooltip={`Jump #${lastAdded.jumpNumber} was added more recently than jump #${source.jumpNumber}. Prefill from the most recently entered jump instead of the highest jump number.`}
+                >
+                    Use last added #{lastAdded.jumpNumber}
+                </ButtonLink>
+            )}
+        </div>
     );
 }
 

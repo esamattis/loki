@@ -303,6 +303,11 @@ test("a skydiver can register and record their first jump", async ({
     await page.getByRole("link", { name: "Copy to new" }).click();
 
     await expect(page).toHaveURL(/\/logbook\/jumps\/new\?from=/);
+    await expect(page.getByText(/Fields prefilled from/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "jump #1" })).toBeVisible();
+    await expect(
+        page.getByRole("link", { name: /Use last added/ }),
+    ).toHaveCount(0);
     await expect(page.locator('input[name="jumpNumber"]')).toHaveValue("2");
     await expect(page.locator("[data-loki-jump-date-input]")).toHaveValue(
         "2024-06-15",
