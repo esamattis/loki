@@ -59,6 +59,7 @@ async function getEditLocation(c: AppRequestContext, dangerError?: string) {
                 description: item.description ?? undefined,
             }}
             canDelete
+            archived={item.archived}
             dangerError={dangerError}
             mergeOptions={mergeOptions}
             recentJumps={recentJumps}

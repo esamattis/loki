@@ -59,6 +59,7 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
                 description: aircraft.description ?? undefined,
             }}
             canDelete
+            archived={aircraft.archived}
             dangerError={dangerError}
             mergeOptions={mergeOptions}
             recentJumps={recentJumps}
