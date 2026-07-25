@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
 import { getPlatformProxy } from "wrangler";
 import { $ } from "zx";
-import { invitations } from "../src/schema.ts";
+import { invitations } from "../src/core/schema.ts";
 import { wranglerBin } from "./wrangler-bin.ts";
 
 const DB_BINDING = "DB";

@@ -99,7 +99,6 @@ test("shows the invitation code used to register each user", async ({
     });
     await expect(created).toContainText(String(new Date().getUTCFullYear()));
     await expect(invitedUser).toContainText("Last seen:");
-    await expect(invitedUser).toContainText("Recorded jumps: 0");
 
     const seededAdmin = usersSection.getByRole("listitem").filter({
         hasText: "@test-admin",
@@ -131,12 +130,8 @@ test("shows the recorded jump count for each user", async ({ page }) => {
     await page.locator('input[name="password"]').fill("test-admin-password");
     await page.getByRole("button", { name: "Log in" }).click();
     await expect(page).toHaveURL("/logbook");
-    await page.goto("/admin");
-
-    const targetUser = page.getByRole("listitem").filter({
-        hasText: "@jump-count-user",
-    });
-    await expect(targetUser).toContainText("Recorded jumps: 3");
+    await page.goto("/admin/logbook");
+    await expect(page.getByText("jump-count-user: 3")).toBeVisible();
 });
 
 test("does not allow removing the last admin", async ({ page, request }) => {

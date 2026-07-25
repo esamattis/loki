@@ -2,6 +2,7 @@ import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { buildInfoDefine } from "./vite.build-info";
+import { sourceAliases } from "./vite.aliases";
 
 const serverPlugins = ssrPlugin().filter(
     (plugin) => plugin.name === "inject-manifest",
@@ -9,9 +10,7 @@ const serverPlugins = ssrPlugin().filter(
 
 export default defineConfig({
     resolve: {
-        alias: {
-            "@": new URL("./src", import.meta.url).pathname,
-        },
+        alias: sourceAliases(import.meta.url),
     },
     build: {
         ssr: "src/node.ts",

@@ -1,0 +1,117 @@
+import { route } from "@/core/route-tools";
+export {
+    admin,
+    assets,
+    auth,
+    preferences,
+    privacy,
+    readonly,
+    serviceWorker,
+    todo,
+} from "@/core/routes";
+
+/**
+ * Route helpers are the URL contract and mirror `src/route-handlers/`.
+ *
+ * Group helpers by URL hierarchy: `routes.logbook.jumps.edit` belongs in
+ * `route-handlers/logbook/jumps/edit.tsx`. Use `index.tsx` for a collection
+ * or section root, `new.tsx` for creation, and `edit.tsx` for a parameterized
+ * resource page. Each handler exports `register(app)` for only its own routes;
+ * `app/register-routes.ts` is the sole registration composition root.
+ *
+ * A `__` URL segment denotes an HTMX fragment, not a full page. Name its
+ * helper after the fragment (for example, `jumpFragment`) and keep its handler
+ * next to the owning page. Fragment responses intentionally skip the document
+ * renderer, so never link users to them as standalone pages.
+ */
+export type JumpPrefillQuery = {
+    from?: string;
+    fromImage?: string;
+    imageId?: string;
+    jumpDate?: string;
+    jumpNumber?: string;
+    exitAltitude?: string;
+    openingAltitude?: string;
+    freefallTime?: string;
+    locationUuid?: string;
+    aircraftUuids?: string;
+    gearUuids?: string;
+    jumpTypeUuids?: string;
+    locationName?: string;
+    aircraftName?: string;
+    gearName?: string;
+    jumpTypeName?: string;
+    description?: string;
+    warning?: string;
+};
+
+export const home = route("/").public();
+export const demo = {
+    try: route("/demo").public(),
+};
+export const install = route("/install").public();
+export const about = route("/about").public();
+export const lokiPreferences = route("/preferences/logbook");
+export const lokiAdmin = route("/admin/logbook");
+export const staticAssets = [
+    route("/favicon.ico").public(),
+    route("/icon.png").public(),
+    route("/icon-192.png").public(),
+    route("/icon-512.png").public(),
+    route("/og-image.png").public(),
+    route("/apple-72x72.png").public(),
+    route("/apple-144x144.png").public(),
+    route("/logo.svg").public(),
+    route("/manifest.json").public(),
+];
+export const logbook = {
+    index: route("/logbook"),
+    jumpFragment: route("/logbook/__jumps"),
+    injectExampleData: route("/logbook/inject-example-data"),
+    transfer: {
+        index: route("/logbook/transfer"),
+        export: route("/logbook/export"),
+    },
+    statistics: {
+        index: route("/logbook/statistics"),
+        detailed: route("/logbook/statistics/detailed").query<{
+            year?: number;
+        }>(),
+    },
+    jumps: {
+        new: route("/logbook/jumps/new").query<JumpPrefillQuery>(),
+        removeGaps: route("/logbook/jumps/remove-gaps"),
+        jumpNumberError: route("/logbook/jumps/new/__jump-number-error").query<{
+            jumpNumber?: string;
+            excludeJumpUuid?: string;
+        }>(),
+        fromImage: route("/logbook/jumps/new/from-image"),
+        imageGalleryFragment: route(
+            "/logbook/jumps/new/from-image/__gallery",
+        ).query<{
+            imageIds?: string;
+        }>(),
+        imageShare: route("/logbook/jumps/new/from-image/share"),
+        edit: route("/logbook/jumps/:uuid"),
+    },
+    aircraft: {
+        index: route("/logbook/aircrafts"),
+        new: route("/logbook/aircrafts/new"),
+        edit: route("/logbook/aircrafts/:uuid"),
+    },
+    gear: {
+        index: route("/logbook/gear"),
+        new: route("/logbook/gear/new"),
+        edit: route("/logbook/gear/:uuid"),
+    },
+    jumpTypes: {
+        index: route("/logbook/jump-types"),
+        new: route("/logbook/jump-types/new"),
+        edit: route("/logbook/jump-types/:uuid"),
+    },
+    locations: {
+        index: route("/logbook/locations"),
+        new: route("/logbook/locations/new"),
+        edit: route("/logbook/locations/:uuid"),
+    },
+};

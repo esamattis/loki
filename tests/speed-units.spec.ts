@@ -20,7 +20,9 @@ test("speed can be displayed and entered in miles per hour", async ({
     await page
         .locator('select[name="speedUnits"]')
         .selectOption("miles-per-hour");
-    await page.getByRole("button", { name: "Save preferences" }).click();
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();

@@ -1,16 +1,8 @@
 import type { App } from "@/app/app";
-import { registerAssetRoutes } from "@/route-handlers/assets";
-import { register as registerHomeRoutes } from "@/route-handlers/home";
-import { register as registerAuthRoutes } from "@/route-handlers/auth/login";
-import { register as registerRegistrationRoutes } from "@/route-handlers/auth/register";
-import { register as registerLogoutRoutes } from "@/route-handlers/auth/logout";
-import { register as registerDemoRoutes } from "@/route-handlers/demo";
-import { register as registerReadonlyRoutes } from "@/route-handlers/readonly";
-import { register as registerPreferencesRoutes } from "@/route-handlers/preferences/index";
-import { register as registerInstallRoutes } from "@/route-handlers/install";
-import { register as registerAboutRoutes } from "@/route-handlers/about";
-import { register as registerPrivacyRoutes } from "@/route-handlers/privacy";
-import { register as registerTodoRoutes } from "@/route-handlers/todo";
+import { register as registerHomeRoutes } from "@/app/home";
+import { register as registerDemoRoutes } from "@/app/demo";
+import { register as registerInstallRoutes } from "@/app/install";
+import { register as registerAboutRoutes } from "@/app/about";
 import { register as registerLogbookRoutes } from "@/route-handlers/logbook/index";
 import { register as registerInjectExampleDataRoutes } from "@/route-handlers/logbook/inject-example-data";
 import { register as registerJumpFragmentRoutes } from "@/route-handlers/logbook/jump-fragment";
@@ -35,33 +27,19 @@ import { register as registerStatisticsRoutes } from "@/route-handlers/logbook/s
 import { register as registerDetailedStatisticsRoutes } from "@/route-handlers/logbook/statistics/detailed";
 import { register as registerTransferRoutes } from "@/route-handlers/logbook/transfer/index";
 import { register as registerExportRoutes } from "@/route-handlers/logbook/transfer/export";
-import { register as registerAdminRoutes } from "@/route-handlers/admin/index";
-import { register as registerLoginAsRoutes } from "@/route-handlers/admin/login-as";
-import { register as registerToggleAdminRoutes } from "@/route-handlers/admin/toggle-admin";
-import { register as registerToggleReadonlyRoutes } from "@/route-handlers/admin/toggle-readonly";
-import { register as registerAdminSessionRoutes } from "@/route-handlers/admin/sessions/index";
-import { register as registerNewInvitationRoutes } from "@/route-handlers/admin/invitations/new";
-import { register as registerEditInvitationRoutes } from "@/route-handlers/admin/invitations/edit";
-import { register as registerServiceWorkerRoutes } from "@/route-handlers/service-worker";
+import { register as registerServiceWorkerRoutes } from "@/app/service-worker";
+import { registerRouteAccess } from "@/core/register-route";
+import { about, demo, home, install, staticAssets } from "@/app/routes";
+import { register as registerLokiPreferences } from "@/app/preferences";
+import { register as registerLokiAdmin } from "@/app/admin";
 
-let registered = false;
-
-export function registerRoutes(app: App) {
-    if (registered) {
-        return;
-    }
-    registerAssetRoutes(app);
+export function registerAppRoutes(app: App) {
+    for (const route of [home, about, demo.try, install, ...staticAssets])
+        registerRouteAccess(app, route);
     registerHomeRoutes(app);
-    registerAuthRoutes(app);
-    registerRegistrationRoutes(app);
-    registerLogoutRoutes(app);
     registerDemoRoutes(app);
-    registerReadonlyRoutes(app);
-    registerPreferencesRoutes(app);
     registerInstallRoutes(app);
     registerAboutRoutes(app);
-    registerPrivacyRoutes(app);
-    registerTodoRoutes(app);
     registerLogbookRoutes(app);
     registerInjectExampleDataRoutes(app);
     registerJumpFragmentRoutes(app);
@@ -86,13 +64,7 @@ export function registerRoutes(app: App) {
     registerDetailedStatisticsRoutes(app);
     registerTransferRoutes(app);
     registerExportRoutes(app);
-    registerAdminRoutes(app);
-    registerLoginAsRoutes(app);
-    registerToggleAdminRoutes(app);
-    registerToggleReadonlyRoutes(app);
-    registerAdminSessionRoutes(app);
-    registerNewInvitationRoutes(app);
-    registerEditInvitationRoutes(app);
     registerServiceWorkerRoutes(app);
-    registered = true;
+    registerLokiPreferences(app);
+    registerLokiAdmin(app);
 }

@@ -2,6 +2,20 @@
 
 Use Hono.js with JSX and server-side rendering (SSR) only.
 
+# Architecture Boundary
+
+Core never imports app; app imports and configures core.
+
+- Reusable application infrastructure belongs under `src/core`.
+- Concrete application behavior belongs under `src/app`. In this repository,
+  `src/app` is Loki and its logbook.
+- `src/core` must not directly or indirectly import `@/app`.
+- `src/app/index.tsx` is the concrete composition root. It creates and configures
+  the core, then registers the application's routes and behavior.
+- When core needs application-specific behavior, add the smallest direct input
+  to the core API and provide it from app. Do not add feature registries,
+  dependency lookups, or imports from core back into app.
+
 # Components And Styling
 
 Never destructure component props; use `props.propName`.
@@ -20,7 +34,7 @@ For vanilla CSS, use the `Style` helper:
 </Style>
 ```
 
-Import `Style` from `@/components/style` and `Script` from `@/components/script`.
+Import `Style` from `@/core/components/style` and `Script` from `@/core/components/script`.
 
 # Browser Scripts
 
@@ -81,15 +95,9 @@ For form return navigation, use `RedirectBackAfterPost` and
 `IgnoreReturnRoute` from `@/components/return-after-form-post`; follow their
 component doc comments.
 
-# Terminology
-
-"Jump items" are gear, locations, aircraft, and jump types assignable to a jump.
-
 # General guides
 
 Never use git commands unless explicitly instructed.
-
-Never use subagents unless explicitly instructed.
 
 # Dependency Patches
 
@@ -129,12 +137,12 @@ If a file exceeds the lint line limit:
 
 # Route Helpers
 
-Use the nested helpers in `src/routes.tsx` for every internal URL and route
-parameter. They define the route-handler file layout; see that module's comment.
+Use the nested helpers in `src/core/routes.ts` and `src/app/routes.ts` for every
+internal URL and route parameter.
 
 Each route handler exports `register(app)` for only its own endpoints. Register
-all handlers explicitly in `src/app/register-routes.ts`; never use side-effect
-imports for registration.
+all core handlers in `src/core/register-routes.ts` and concrete handlers in
+`src/app/register-routes.ts`; never use side-effect imports for registration.
 
 # Scripts
 

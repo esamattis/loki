@@ -25,7 +25,7 @@ test("not found page shows 404 and a link back to the logbook", async ({
     await expect(
         page.getByRole("heading", { name: "404 — Not found" }),
     ).toBeVisible();
-    const backLink = page.getByRole("link", { name: "Back to logbook" });
+    const backLink = page.getByRole("link", { name: "Back to Loki" });
     await expect(backLink).toBeVisible();
     await expect(backLink).toHaveAttribute("href", "/logbook");
 

@@ -7,8 +7,7 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
-import { app } from "@/app/app";
-import { registerRoutes } from "@/app/register-routes";
+import { app } from "@/app";
 import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
@@ -140,8 +139,6 @@ async function startServer(args: {
     port: number;
     sqliteDir: string;
 }): Promise<void> {
-    registerRoutes(app);
-
     const { sqlite, path } = createSqliteDatabase(
         join(resolve(args.sqliteDir), "loki.sqlite"),
     );
