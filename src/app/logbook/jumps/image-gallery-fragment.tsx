@@ -1,6 +1,6 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { JumpImage } from "@/route-handlers/logbook/jumps/image";
-import * as routes from "@/routes";
+import type { App, AppRequestContext } from "@/core/create-app";
+import { JumpImage } from "@/app/logbook/jumps/image";
+import * as routes from "@/app/routes";
 
 const MAX_GALLERY_IMAGES = 100;
 

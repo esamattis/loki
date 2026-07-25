@@ -1,6 +1,6 @@
-import { Script } from "@/components/script";
+import { Script } from "@/core/components/script";
 import * as routes from "@/core/routes";
-import { $select } from "@/utils";
+import { $select } from "@/core/utils";
 
 const REDIRECT_BACK_AFTER_POST_FIELD = "__loki_redirect_back_after_post";
 const IGNORE_RETURN_ROUTE_SELECTOR = "[data-loki-ignore-return-route]";

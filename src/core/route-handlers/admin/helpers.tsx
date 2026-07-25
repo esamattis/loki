@@ -4,9 +4,9 @@ import {
     type AppRequestContext,
     type User,
 } from "@/core/create-app";
-import { FormActions, Input, NumberInput } from "@/components/form";
-import { ErrorList } from "@/components/feedback";
-import { RedirectBackAfterPost } from "@/components/return-after-form-post";
+import { FormActions, Input, NumberInput } from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
+import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import * as routes from "@/core/routes";
 
 export function requireAdmin(c: AppRequestContext): User | null {

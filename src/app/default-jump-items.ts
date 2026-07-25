@@ -1,5 +1,5 @@
-import type { AppDatabase } from "@/db";
-import { aircrafts, gear, jumpTypes, locations } from "@/schema";
+import type { AppDatabase } from "@/core/db";
+import { aircrafts, gear, jumpTypes, locations } from "@/app/schema";
 
 const DEFAULT_AIRCRAFT = [
     { name: "Cessna Caravan", description: "Aircraft type" },

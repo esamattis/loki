@@ -1,10 +1,10 @@
 import { useId } from "hono/jsx";
-import { type App, type AppRequestContext } from "@/app/app";
-import { LogbookPage } from "@/app/logbook-page";
-import { Button } from "@/components/form";
-import { Script } from "@/components/script";
-import * as routes from "@/routes";
-import { $select } from "@/utils";
+import { type App, type AppRequestContext } from "@/core/create-app";
+import { LogbookPage } from "@/core/app-page";
+import { Button } from "@/core/components/form";
+import { Script } from "@/core/components/script";
+import * as routes from "@/app/routes";
+import { $select } from "@/core/utils";
 
 type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;

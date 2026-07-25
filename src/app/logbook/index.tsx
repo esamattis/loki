@@ -11,8 +11,12 @@ import {
     or,
     sql,
 } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import * as routes from "@/routes";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import * as routes from "@/app/routes";
 import {
     aircrafts,
     gear,
@@ -22,17 +26,17 @@ import {
     jumpTypes,
     jumpsToJumpTypes,
     locations,
-} from "@/schema";
-import { Button, ButtonLink } from "@/components/form";
-import { Link } from "@/components/link";
-import { Details } from "@/components/ui/details";
-import { LogbookPage } from "@/app/logbook-page";
+} from "@/app/schema";
+import { Button, ButtonLink } from "@/core/components/form";
+import { Link } from "@/core/components/link";
+import { Details } from "@/core/components/ui/details";
+import { LogbookPage } from "@/core/app-page";
 import {
     JumpCard,
     type JumpCardItem,
     type JumpListItem,
-} from "@/route-handlers/logbook/components/jump-list";
-import { MissingJumpCard } from "@/route-handlers/logbook/jumps/gaps";
+} from "@/app/logbook/components/jump-list";
+import { MissingJumpCard } from "@/app/logbook/jumps/gaps";
 import {
     JUMP_SEEK_BEFORE,
     appendLogbookFilterParams,
@@ -41,13 +45,13 @@ import {
     jumpAnchorId,
     JumpSearch,
     logbookSortParam,
-} from "@/route-handlers/logbook/components/search";
-import { JumpItemSelect } from "@/components/jump-item-select";
-import { DateInput } from "@/components/date-input";
-import { Script } from "@/components/script";
-import { ScrollToTop } from "@/route-handlers/logbook/components/scroll-to-top";
-import { $select } from "@/utils";
-import { ExportLogbookButton } from "@/components/export-logbook-button";
+} from "@/app/logbook/components/search";
+import { JumpItemSelect } from "@/app/components/jump-item-select";
+import { DateInput } from "@/core/components/date-input";
+import { Script } from "@/core/components/script";
+import { ScrollToTop } from "@/app/logbook/components/scroll-to-top";
+import { $select } from "@/core/utils";
+import { ExportLogbookButton } from "@/app/components/export-logbook-button";
 
 interface LogbookResource {
     uuid: string;

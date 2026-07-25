@@ -7,7 +7,7 @@ import {
     SESSION_COOKIE_NAME,
     sessionCookieOptions,
     SESSION_MAX_AGE,
-} from "@/auth";
+} from "@/core/auth";
 import { sessions } from "@/core/schema";
 
 export async function createSession(

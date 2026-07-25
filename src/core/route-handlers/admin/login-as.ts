@@ -4,8 +4,8 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { requireAdmin } from "@/route-handlers/admin/helpers";
-import { createSession } from "@/route-handlers/auth/sessions";
+import { requireAdmin } from "@/core/route-handlers/admin/helpers";
+import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 

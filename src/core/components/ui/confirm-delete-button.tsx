@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
+import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
 
 export function ConfirmDeleteButton(props: {
     label: string;

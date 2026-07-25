@@ -7,21 +7,21 @@ import {
     useNumberFormatter,
     type App,
     type AppRequestContext,
-} from "@/app/app";
-import { ButtonLink } from "@/components/form";
-import type { CalendarDuration } from "@/format";
-import { Script } from "@/components/script";
-import { SingleNumberCard } from "@/components/ui/single-number-card";
-import * as routes from "@/routes";
+} from "@/core/create-app";
+import { ButtonLink } from "@/core/components/form";
+import type { CalendarDuration } from "@/app/format";
+import { Script } from "@/core/components/script";
+import { SingleNumberCard } from "@/app/components/single-number-card";
+import * as routes from "@/app/routes";
 import {
     jumps,
     jumpsToAircrafts,
     jumpsToGear,
     jumpsToJumpTypes,
-} from "@/schema";
-import { $select } from "@/utils";
-import { LogbookPage } from "@/app/logbook-page";
-import { JumpIssueList } from "@/route-handlers/logbook/statistics/jump-issue-list";
+} from "@/app/schema";
+import { $select } from "@/core/utils";
+import { LogbookPage } from "@/core/app-page";
+import { JumpIssueList } from "@/app/logbook/statistics/jump-issue-list";
 
 function formatDate(date: Date): string {
     return date.toISOString().slice(0, 10);

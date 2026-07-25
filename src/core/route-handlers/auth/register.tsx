@@ -7,19 +7,22 @@ import {
 } from "@/core/create-app";
 import { users } from "@/core/schema";
 import { z } from "zod";
-import { AuthFormShell } from "@/components/auth";
-import { hashPassword } from "@/auth";
-import { Password, TextInput } from "@/route-handlers/auth/components";
-import { createSession } from "@/route-handlers/auth/sessions";
+import { AuthFormShell } from "@/core/components/auth";
+import { hashPassword } from "@/core/auth";
+import { Password, TextInput } from "@/core/route-handlers/auth/components";
+import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 import {
     compensateRegistration,
     createRegistrationUser,
 } from "@/core/route-handlers/auth/register/user";
 import { CoreUserOptionsSchema } from "@/core/options";
-import { RegistrationLocaleInputs } from "@/route-handlers/auth/register/locale-inputs";
-import { Link } from "@/components/link";
-import { accountIdentityError, uniqueAccountField } from "@/account-uniqueness";
+import { RegistrationLocaleInputs } from "@/core/route-handlers/auth/register/locale-inputs";
+import { Link } from "@/core/components/link";
+import {
+    accountIdentityError,
+    uniqueAccountField,
+} from "@/core/account-uniqueness";
 
 const RegisterFormSchema = z
     .object({

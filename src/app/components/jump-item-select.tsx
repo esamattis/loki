@@ -9,10 +9,10 @@
  */
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { Button } from "@/components/form";
-import { Script } from "@/components/script";
-import { Dialog } from "@/components/ui/dialog";
-import { $renderTemplate, $select } from "@/utils";
+import { Button } from "@/core/components/form";
+import { Script } from "@/core/components/script";
+import { Dialog } from "@/core/components/ui/dialog";
+import { $renderTemplate, $select } from "@/core/utils";
 
 export interface JumpItemResource {
     uuid: string;

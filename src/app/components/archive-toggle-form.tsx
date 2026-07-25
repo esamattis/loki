@@ -1,6 +1,6 @@
-import { Button } from "@/components/form";
-import { RedirectBackAfterPost } from "@/components/return-after-form-post";
-import * as routes from "@/routes";
+import { Button } from "@/core/components/form";
+import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
+import * as routes from "@/app/routes";
 
 export function ArchiveToggleForm(props: { archived: boolean }) {
     return (

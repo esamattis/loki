@@ -1,15 +1,19 @@
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { serializeClientDependency } from "@/components/script";
-import * as routes from "@/routes";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { serializeClientDependency } from "@/core/components/script";
+import * as routes from "@/app/routes";
 import {
     JUMP_IMAGE_KEY,
     JUMP_IMAGE_STORE,
-} from "@/route-handlers/logbook/jumps/image-client";
+} from "@/app/logbook/jumps/image-client";
 import {
     $appendJumpImageDrafts,
     jumpImageDbName,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
-import { $idb } from "@/utils";
+} from "@/app/logbook/jumps/image-storage-client";
+import { $idb } from "@/core/utils";
 import { $installServiceWorkerLifecycle } from "@/core/service-worker";
 
 interface ShareTargetWorkerConfig {

@@ -1,13 +1,13 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { getAppContext } from "@/app/app";
+import type { App, AppRequestContext } from "@/core/create-app";
+import { getAppContext } from "@/core/create-app";
 import {
     LocationFormPage,
     type LocationFormValues,
-} from "@/route-handlers/logbook/locations/form";
-import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
-import { getFormString } from "@/utils";
-import * as routes from "@/routes";
-import { locations } from "@/schema";
+} from "@/app/logbook/locations/form";
+import { ResourceSchema } from "@/app/logbook/components/resource";
+import { getFormString } from "@/core/utils";
+import * as routes from "@/app/routes";
+import { locations } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.locations.new.route, getNewLocation);

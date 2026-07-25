@@ -1,7 +1,11 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import * as routes from "@/routes";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import * as routes from "@/app/routes";
 import {
     aircrafts,
     gear,
@@ -11,10 +15,10 @@ import {
     jumpsToJumpTypes,
     jumpTypes,
     locations,
-} from "@/schema";
-import { TransferPage } from "@/route-handlers/logbook/transfer/page";
-import { parseSkydivingLogbookXml } from "@/route-handlers/logbook/transfer/skydiving-logbook-xml";
-import { parseCsvRows, splitCsvList } from "@/utils/csv";
+} from "@/app/schema";
+import { TransferPage } from "@/app/logbook/transfer/page";
+import { parseSkydivingLogbookXml } from "@/app/logbook/transfer/skydiving-logbook-xml";
+import { parseCsvRows, splitCsvList } from "@/app/utils/csv";
 
 function isValidJumpDate(value: string): boolean {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {

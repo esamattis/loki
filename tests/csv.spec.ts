@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { parseCsvRows, splitCsvList, type CsvRow } from "@/utils/csv";
+import { parseCsvRows, splitCsvList, type CsvRow } from "@/app/utils/csv";
 
 function parseRows(content: string): CsvRow[] {
     const result = parseCsvRows(content);

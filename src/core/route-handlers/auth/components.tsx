@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { controlClassName } from "@/components/form";
+import { controlClassName } from "@/core/components/form";
 import { EyeIcon, EyeOffIcon } from "@/core/components/icons";
-import { Script } from "@/components/script";
-import { $select } from "@/utils";
+import { Script } from "@/core/components/script";
+import { $select } from "@/core/utils";
 
 export function Password(props: {
     name: string;

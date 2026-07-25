@@ -1,6 +1,6 @@
 import { useDateFormatter } from "@/core/create-app";
-import { Button, ButtonLink } from "@/components/form";
-import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
+import { Button, ButtonLink } from "@/core/components/form";
+import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
 import { parseCoreUserOptions as parseUserOptions } from "@/core/options";
 import * as routes from "@/core/routes";
 import type { Child } from "hono/jsx";

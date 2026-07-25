@@ -1,15 +1,15 @@
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/app/app";
-import { Script } from "@/components/script";
-import { $idb, $select } from "@/utils";
+import { useAppContext } from "@/core/create-app";
+import { Script } from "@/core/components/script";
+import { $idb, $select } from "@/core/utils";
 import {
     $loadJumpImageDrafts,
     $markImageRead,
     $updateJumpImageDrafts,
     jumpImageDbName,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
-import { $loadImageForJump } from "@/route-handlers/logbook/jumps/image-jump-storage-client";
-import { JumpImage } from "@/route-handlers/logbook/jumps/image";
+} from "@/app/logbook/jumps/image-storage-client";
+import { $loadImageForJump } from "@/app/logbook/jumps/image-jump-storage-client";
+import { JumpImage } from "@/app/logbook/jumps/image";
 
 export function JumpImageSource(props: {
     imageId?: string;

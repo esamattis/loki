@@ -1,5 +1,5 @@
 import { useId, type Child } from "hono/jsx";
-import { useAppContext, useDateFormatter } from "@/app/app";
+import { useAppContext, useDateFormatter } from "@/core/create-app";
 import { useSpeedFormatter } from "@/app/formatters";
 import {
     Button,
@@ -9,26 +9,26 @@ import {
     controlClassName,
     Input,
     NumberInput,
-} from "@/components/form";
-import { ErrorList } from "@/components/feedback";
-import { Link } from "@/components/link";
-import { CopyIcon } from "@/components/icons";
-import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
-import { DangerZone } from "@/components/ui/danger-zone";
-import { Dialog } from "@/components/ui/dialog";
-import { Script } from "@/components/script";
+} from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
+import { Link } from "@/core/components/link";
+import { CopyIcon } from "@/app/components/icons";
+import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
+import { DangerZone } from "@/core/components/ui/danger-zone";
+import { Dialog } from "@/core/components/ui/dialog";
+import { Script } from "@/core/components/script";
 import {
     JumpItemSelect,
     type JumpItemResource,
-} from "@/components/jump-item-select";
-import { $select } from "@/utils";
-import * as routes from "@/routes";
-import { LogbookPage } from "@/app/logbook-page";
-import { DateInput } from "@/components/date-input";
-import { RedirectBackAfterPost } from "@/components/return-after-form-post";
-import { JumpImageSource } from "@/route-handlers/logbook/jumps/image-source";
-import { JumpNumberField } from "@/route-handlers/logbook/jumps/form/jump-number-field";
-import type { JumpNumberConflictAction } from "@/route-handlers/logbook/jumps/helpers";
+} from "@/app/components/jump-item-select";
+import { $select } from "@/core/utils";
+import * as routes from "@/app/routes";
+import { LogbookPage } from "@/core/app-page";
+import { DateInput } from "@/core/components/date-input";
+import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
+import { JumpImageSource } from "@/app/logbook/jumps/image-source";
+import { JumpNumberField } from "@/app/logbook/jumps/form/jump-number-field";
+import type { JumpNumberConflictAction } from "@/app/logbook/jumps/helpers";
 import {
     altitudeUnitLabel,
     numberFormatLocale,
@@ -36,7 +36,7 @@ import {
     speedInputValue,
     speedUnitLabel,
     type UserOptions,
-} from "@/options";
+} from "@/app/options";
 
 export type Resource = JumpItemResource;
 

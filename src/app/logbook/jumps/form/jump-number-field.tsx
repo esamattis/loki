@@ -4,17 +4,17 @@ import {
     controlClassName,
     NumberInput,
     Select,
-} from "@/components/form";
-import { ErrorList } from "@/components/feedback";
-import { Link } from "@/components/link";
-import { Script } from "@/components/script";
+} from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
+import { Link } from "@/core/components/link";
+import { Script } from "@/core/components/script";
 import {
     JUMP_NUMBER_CONFLICT_REPLACE,
     JUMP_NUMBER_CONFLICT_SHIFT,
     type JumpNumberConflictAction,
-} from "@/route-handlers/logbook/jumps/helpers";
-import * as routes from "@/routes";
-import { $select } from "@/utils";
+} from "@/app/logbook/jumps/helpers";
+import * as routes from "@/app/routes";
+import { $select } from "@/core/utils";
 
 export function JumpNumberError(props: {
     error?: Child;

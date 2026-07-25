@@ -4,7 +4,7 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { AppPage as LogbookPage } from "@/core/app-page";
-import { Button } from "@/components/form";
+import { Button } from "@/core/components/form";
 import { LockIcon } from "@/core/components/icons";
 import * as routes from "@/core/routes";
 

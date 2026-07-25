@@ -1,10 +1,14 @@
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { isSafeRedirectPath } from "@/auth";
-import { Button, ButtonLink, NumberInput } from "@/components/form";
-import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
-import * as routes from "@/routes";
-import { jumps } from "@/schema";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { isSafeRedirectPath } from "@/core/auth";
+import { Button, ButtonLink, NumberInput } from "@/core/components/form";
+import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
+import * as routes from "@/app/routes";
+import { jumps } from "@/app/schema";
 
 const MAX_MISSING_JUMP_LINKS = 10;
 

@@ -10,7 +10,7 @@ import {
     InvitationForm,
     InvitationSchema,
     requireAdmin,
-} from "@/route-handlers/admin/helpers";
+} from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
 import { invitations } from "@/core/schema";
 

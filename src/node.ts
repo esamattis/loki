@@ -7,15 +7,15 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
-import { app } from "@/app";
+import { app } from "@/app/index";
 import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
     defaultSqliteDirectory,
-} from "@/db-sqlite";
-import { migrateSqlite } from "@/migrate-sqlite";
-import { registerSeaStaticAssets } from "@/node-sea";
-import { buildTitle } from "@/build-info";
+} from "@/core/db-sqlite";
+import { migrateSqlite } from "@/core/migrate-sqlite";
+import { registerSeaStaticAssets } from "@/core/node-sea";
+import { buildTitle } from "@/core/build-info";
 
 const DEFAULT_PORT = 8787;
 const DEFAULT_PORT_RETRIES = 5;

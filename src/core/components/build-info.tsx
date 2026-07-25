@@ -1,5 +1,10 @@
-import { commitUrl, releaseUrl, shortGitRevision, version } from "@/build-info";
-import { ExternalLink } from "@/components/link";
+import {
+    commitUrl,
+    releaseUrl,
+    shortGitRevision,
+    version,
+} from "@/core/build-info";
+import { ExternalLink } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
 
 export function BuildInfo() {

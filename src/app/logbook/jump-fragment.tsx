@@ -1,4 +1,8 @@
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
 import {
     getAircraftsByJump,
     getGearByJump,
@@ -7,8 +11,8 @@ import {
     getLogbookFilters,
     getLogbookJumps,
     JumpList,
-} from "@/route-handlers/logbook/index";
-import * as routes from "@/routes";
+} from "@/app/logbook/index";
+import * as routes from "@/app/routes";
 
 export async function renderLogbookJumps(c: AppRequestContext) {
     const options = getAppContext(c).getUser().options;

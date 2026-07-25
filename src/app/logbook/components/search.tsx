@@ -1,16 +1,16 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { Button, controlClassName } from "@/components/form";
+import { Button, controlClassName } from "@/core/components/form";
 import {
     CloseIcon,
     GoToJumpIcon,
     SearchIcon,
     SortIcon,
-} from "@/components/icons";
-import { Script } from "@/components/script";
-import * as routes from "@/routes";
-import type { LogbookFilters } from "@/route-handlers/logbook/index";
-import { $select } from "@/utils";
+} from "@/app/components/icons";
+import { Script } from "@/core/components/script";
+import * as routes from "@/app/routes";
+import type { LogbookFilters } from "@/app/logbook/index";
+import { $select } from "@/core/utils";
 
 /** Jumps to load before the target when seeking to a jump number. */
 export const JUMP_SEEK_BEFORE = 20;

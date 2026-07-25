@@ -3,16 +3,20 @@ import { generateText, Output, type LanguageModelUsage } from "ai";
 import clsx from "clsx";
 import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { ErrorList } from "@/components/feedback";
-import { CameraIcon, ClipboardIcon } from "@/components/icons";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { ErrorList } from "@/core/components/feedback";
+import { CameraIcon, ClipboardIcon } from "@/app/components/icons";
 import {
     Button,
     ClearableTextarea,
     fileInputClassName,
     Select,
-} from "@/components/form";
-import { Link } from "@/components/link";
+} from "@/core/components/form";
+import { Link } from "@/core/components/link";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
     JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX,
@@ -20,16 +24,16 @@ import {
     altitudeInputValue,
     resolveJumpImageModel,
     type UserOptions,
-} from "@/options";
+} from "@/app/options";
 import {
     DEFAULT_JUMP_IMAGE_PROMPT,
     JUMP_IMAGE_SYSTEM_PROMPT,
     JumpImageDataSchema,
     type JumpImageData,
     type JumpImageInput,
-} from "@/jump-image";
-import * as routes from "@/routes";
-import { aircrafts, gear, jumpTypes, locations } from "@/schema";
+} from "@/app/jump-image";
+import * as routes from "@/app/routes";
+import { aircrafts, gear, jumpTypes, locations } from "@/app/schema";
 import {
     AiUsageSummary,
     buildAiUsageTitle,
@@ -37,10 +41,10 @@ import {
     recordAiUsage,
     type AiUsageRow,
     type AiUsageTotals,
-} from "@/route-handlers/logbook/components/ai-usage";
-import { ImageGallery } from "@/route-handlers/logbook/jumps/image-client";
-import { LogbookPage } from "@/app/logbook-page";
-import { ClearReturnRoute } from "@/components/return-after-form-post";
+} from "@/app/logbook/components/ai-usage";
+import { ImageGallery } from "@/app/logbook/jumps/image-client";
+import { LogbookPage } from "@/core/app-page";
+import { ClearReturnRoute } from "@/core/components/return-after-form-post";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([

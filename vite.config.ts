@@ -1,14 +1,11 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
+import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { buildInfoDefine } from "./vite.build-info";
-import { sourceAliases } from "./vite.aliases";
 
 export default defineConfig({
-    resolve: {
-        alias: sourceAliases(import.meta.url),
-    },
     build: {
         emptyOutDir: false,
         ssr: "src/index.tsx",
@@ -21,6 +18,7 @@ export default defineConfig({
         ),
     },
     plugins: [
+        tsconfigPaths(),
         cloudflare({
             persistState: {
                 path: process.env.PLAYWRIGHT_TEST

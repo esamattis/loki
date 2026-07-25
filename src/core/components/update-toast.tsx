@@ -1,5 +1,5 @@
-import { $select } from "@/utils";
-import { Script } from "@/components/script";
+import { $select } from "@/core/utils";
+import { Script } from "@/core/components/script";
 
 const UPDATE_TOAST_ID = "update-toast";
 function $initUpdateToast(toastId: string) {

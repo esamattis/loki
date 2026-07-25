@@ -1,5 +1,5 @@
-import { ButtonLink } from "@/components/form";
-import * as routes from "@/routes";
+import { ButtonLink } from "@/core/components/form";
+import * as routes from "@/app/routes";
 
 export function ExportLogbookButton(props: { className?: string }) {
     return (

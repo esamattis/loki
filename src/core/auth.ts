@@ -1,12 +1,12 @@
 import { eq, or } from "drizzle-orm";
 import type { AppContext } from "@/core/create-app";
 import { User } from "@/core/user";
-import { verifyPassword } from "@/password";
+import { verifyPassword } from "@/core/password";
 import { users } from "@/core/schema";
 
 const SESSION_TOKEN_BYTES = 32; // 256 bits
 
-export { hashPassword } from "@/password";
+export { hashPassword } from "@/core/password";
 
 export const SESSION_COOKIE_NAME = "session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year

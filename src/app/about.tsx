@@ -1,8 +1,12 @@
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { LogbookPage } from "@/app/logbook-page";
-import { BuildInfo } from "@/components/build-info";
-import { ExternalLink, Link } from "@/components/link";
-import * as routes from "@/routes";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { LogbookPage } from "@/core/app-page";
+import { BuildInfo } from "@/core/components/build-info";
+import { ExternalLink, Link } from "@/core/components/link";
+import * as routes from "@/app/routes";
 
 const repositoryUrl = "https://github.com/esamattis/loki";
 const releasesUrl = `${repositoryUrl}/releases`;

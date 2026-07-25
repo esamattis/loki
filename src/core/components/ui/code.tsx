@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { $select } from "@/utils";
-import { Script } from "@/components/script";
+import { $select } from "@/core/utils";
+import { Script } from "@/core/components/script";
 
 function $initCopyCode(codeId: string, buttonId: string) {
     const code = $select.id(codeId, HTMLElement);

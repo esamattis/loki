@@ -4,7 +4,7 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { requireAdmin } from "@/route-handlers/admin/helpers";
+import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 

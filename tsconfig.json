@@ -4,54 +4,6 @@
         "module": "ESNext",
         "moduleResolution": "Bundler",
         "paths": {
-            "@/app/app": ["./src/core/create-app.tsx"],
-            "@/app/user": ["./src/core/user.ts"],
-            "@/app/html-cache": ["./src/core/html-cache.ts"],
-            "@/app/logbook-page": ["./src/core/app-page.tsx"],
-            "@/app/logbook-header": ["./src/core/app-header.tsx"],
-            "@/app/main-menu": ["./src/core/main-menu.tsx"],
-            "@/components/icons": ["./src/app/components/icons.tsx"],
-            "@/components/menu-icons": ["./src/app/components/menu-icons.tsx"],
-            "@/components/jump-item-select": [
-                "./src/app/components/jump-item-select.tsx"
-            ],
-            "@/components/export-logbook-button": [
-                "./src/app/components/export-logbook-button.tsx"
-            ],
-            "@/components/ui/archive-toggle-form": [
-                "./src/app/components/archive-toggle-form.tsx"
-            ],
-            "@/components/ui/merge-into-form": [
-                "./src/app/components/merge-into-form.tsx"
-            ],
-            "@/components/ui/single-number-card": [
-                "./src/app/components/single-number-card.tsx"
-            ],
-            "@/components/*": ["./src/core/components/*"],
-            "@/route-handlers/logbook/*": ["./src/app/logbook/*"],
-            "@/route-handlers/*": ["./src/core/route-handlers/*"],
-            "@/utils/csv": ["./src/app/utils/csv.ts"],
-            "@/utils/*": ["./src/core/utils/*"],
-            "@/utils": ["./src/core/utils/index.ts"],
-            "@/route-tools": ["./src/core/route-tools.ts"],
-            "@/auth": ["./src/core/auth.ts"],
-            "@/account-uniqueness": ["./src/core/account-uniqueness.ts"],
-            "@/password": ["./src/core/password.ts"],
-            "@/date-time": ["./src/core/date-time.ts"],
-            "@/db": ["./src/core/db.ts"],
-            "@/db-sqlite": ["./src/core/db-sqlite.ts"],
-            "@/migrate-sqlite": ["./src/core/migrate-sqlite.ts"],
-            "@/server-timing": ["./src/core/server-timing.ts"],
-            "@/delete-account": ["./src/core/delete-account.ts"],
-            "@/app-assets": ["./src/core/app-assets.ts"],
-            "@/build-info": ["./src/core/build-info.ts"],
-            "@/node-sea": ["./src/core/node-sea.ts"],
-            "@/schema": ["./src/app/schema.ts"],
-            "@/options": ["./src/app/options.ts"],
-            "@/routes": ["./src/app/routes.ts"],
-            "@/altitude": ["./src/app/altitude.ts"],
-            "@/jump-image": ["./src/app/jump-image.ts"],
-            "@/format": ["./src/app/format.ts"],
             "@/*": ["./src/*"]
         },
         "noEmit": true,

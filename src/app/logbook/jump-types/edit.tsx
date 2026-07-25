@@ -1,14 +1,18 @@
 import { and, eq, ne, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
 import {
     JumpTypeFormPage,
     type JumpTypeFormValues,
-} from "@/route-handlers/logbook/jump-types/form";
-import { getRecentJumpsForItem } from "@/route-handlers/logbook/components/jump-list";
-import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
-import { getFormString } from "@/utils";
-import * as routes from "@/routes";
-import { jumpTypes, jumpsToJumpTypes } from "@/schema";
+} from "@/app/logbook/jump-types/form";
+import { getRecentJumpsForItem } from "@/app/logbook/components/jump-list";
+import { ResourceSchema } from "@/app/logbook/components/resource";
+import { getFormString } from "@/core/utils";
+import * as routes from "@/app/routes";
+import { jumpTypes, jumpsToJumpTypes } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.jumpTypes.edit.route, (c) => getEditJumpType(c));

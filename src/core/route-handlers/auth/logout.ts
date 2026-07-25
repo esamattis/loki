@@ -1,5 +1,5 @@
 import type { App, AppRequestContext } from "@/core/create-app";
-import { destroySession } from "@/route-handlers/auth/sessions";
+import { destroySession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 
 export function register(app: App) {

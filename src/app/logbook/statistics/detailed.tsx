@@ -5,10 +5,10 @@ import {
     useNumberFormatter,
     type App,
     type AppRequestContext,
-} from "@/app/app";
+} from "@/core/create-app";
 import { lokiFormatters } from "@/app/formatters";
-import { buttonClassName } from "@/components/form";
-import * as routes from "@/routes";
+import { buttonClassName } from "@/core/components/form";
+import * as routes from "@/app/routes";
 import {
     aircrafts,
     gear,
@@ -18,15 +18,15 @@ import {
     jumpsToJumpTypes,
     jumpTypes,
     locations,
-} from "@/schema";
-import { LogbookPage } from "@/app/logbook-page";
-import { formatDuration } from "@/utils/format-duration";
+} from "@/app/schema";
+import { LogbookPage } from "@/core/app-page";
+import { formatDuration } from "@/core/utils/format-duration";
 import {
     fetchRecordStatistics,
     RecordJumps,
     type RecordJump,
     type RecordPeriod,
-} from "@/route-handlers/logbook/statistics/detailed/record-jumps";
+} from "@/app/logbook/statistics/detailed/record-jumps";
 
 function SummaryCard(props: { label: string; value: string }) {
     return (

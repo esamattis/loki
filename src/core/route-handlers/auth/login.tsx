@@ -4,10 +4,10 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { z } from "zod";
-import { AuthFormShell } from "@/components/auth";
-import { findUserForAuth, isSafeRedirectPath } from "@/auth";
-import { Password, TextInput } from "@/route-handlers/auth/components";
-import { createSession } from "@/route-handlers/auth/sessions";
+import { AuthFormShell } from "@/core/components/auth";
+import { findUserForAuth, isSafeRedirectPath } from "@/core/auth";
+import { Password, TextInput } from "@/core/route-handlers/auth/components";
+import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 
 const LoginFormSchema = z.object({

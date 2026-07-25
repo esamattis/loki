@@ -1,6 +1,6 @@
 import { useId } from "hono/jsx";
-import { Script } from "@/components/script";
-import { $renderTemplate, $select } from "@/utils";
+import { Script } from "@/core/components/script";
+import { $renderTemplate, $select } from "@/core/utils";
 
 function $disableViewTransitionsInAutomation(templateId: string) {
     if (!navigator.webdriver) return;

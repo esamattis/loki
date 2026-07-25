@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
 import { CloseIcon } from "@/core/components/icons";
-import { $select } from "@/utils";
-import { Script } from "@/components/script";
+import { $select } from "@/core/utils";
+import { Script } from "@/core/components/script";
 
 export const labelClassName =
     "block text-sm font-medium text-slate-700 dark:text-slate-300";

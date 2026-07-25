@@ -1,7 +1,7 @@
-import { ButtonLink } from "@/components/form";
-import { ImageIcon, LogbookIcon, PlusIcon } from "@/components/icons";
-import { StatisticsIcon } from "@/components/menu-icons";
-import * as routes from "@/routes";
+import { ButtonLink } from "@/core/components/form";
+import { ImageIcon, LogbookIcon, PlusIcon } from "@/app/components/icons";
+import { StatisticsIcon } from "@/app/components/menu-icons";
+import * as routes from "@/app/routes";
 import type { Child } from "hono/jsx";
 
 export function LogbookActions(props: { pathname: string; end?: Child }) {

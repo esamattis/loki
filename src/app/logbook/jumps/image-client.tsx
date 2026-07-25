@@ -1,8 +1,8 @@
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/app/app";
-import { Script } from "@/components/script";
-import { $assertElement, $idb, $renderTemplate, $select } from "@/utils";
-import * as routes from "@/routes";
+import { useAppContext } from "@/core/create-app";
+import { Script } from "@/core/components/script";
+import { $assertElement, $idb, $renderTemplate, $select } from "@/core/utils";
+import * as routes from "@/app/routes";
 import {
     $appendJumpImageDrafts,
     $loadImage,
@@ -11,13 +11,13 @@ import {
     JUMP_IMAGE_KEY,
     JUMP_IMAGE_STORE,
     jumpImageDbName,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
+} from "@/app/logbook/jumps/image-storage-client";
 
 export {
     JUMP_IMAGE_DB_NAME,
     JUMP_IMAGE_KEY,
     JUMP_IMAGE_STORE,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
+} from "@/app/logbook/jumps/image-storage-client";
 
 export const JUMP_IMAGE_MAX_DIMENSION = 2048;
 export const JUMP_IMAGE_TARGET_BYTES = 2 * 1024 * 1024;

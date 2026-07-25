@@ -1,11 +1,15 @@
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
 import {
     AircraftFormPage,
     getAircraftFormValues,
-} from "@/route-handlers/logbook/aircraft/form";
-import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
-import * as routes from "@/routes";
-import { aircrafts } from "@/schema";
+} from "@/app/logbook/aircraft/form";
+import { ResourceSchema } from "@/app/logbook/components/resource";
+import * as routes from "@/app/routes";
+import { aircrafts } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.aircraft.new.route, getNewAircraft);

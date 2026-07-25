@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { gitRevision } from "@/build-info";
+import { gitRevision } from "@/core/build-info";
 import {
     getAppContext,
     type AppRequestContext,

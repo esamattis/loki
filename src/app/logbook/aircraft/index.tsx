@@ -1,12 +1,16 @@
 import { eq, getTableColumns, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { Button, ButtonLink } from "@/components/form";
-import { PlusIcon } from "@/components/icons";
-import { IgnoreReturnRoute } from "@/components/return-after-form-post";
-import { LogbookPage } from "@/app/logbook-page";
-import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
-import * as routes from "@/routes";
-import { aircrafts, jumpsToAircrafts } from "@/schema";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { Button, ButtonLink } from "@/core/components/form";
+import { PlusIcon } from "@/app/components/icons";
+import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
+import { LogbookPage } from "@/core/app-page";
+import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
+import * as routes from "@/app/routes";
+import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.aircraft.index.route, getAircraftList);

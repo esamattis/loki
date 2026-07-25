@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useId, type Child } from "hono/jsx";
-import { $select } from "@/utils";
-import { Script } from "@/components/script";
+import { $select } from "@/core/utils";
+import { Script } from "@/core/components/script";
 
 function $initDialog(dialogId: string, openButtonId: string) {
     const dialog = $select.id(dialogId, HTMLDialogElement);

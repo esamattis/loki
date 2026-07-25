@@ -1,6 +1,6 @@
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { z } from "zod";
-import { getAppContext, type AppRequestContext } from "@/app/app";
+import { getAppContext, type AppRequestContext } from "@/core/create-app";
 import {
     aircrafts,
     gear,
@@ -10,11 +10,11 @@ import {
     jumpsToJumpTypes,
     jumpTypes,
     locations,
-} from "@/schema";
+} from "@/app/schema";
 import {
     getJumpFormValues,
     type JumpFormValues,
-} from "@/route-handlers/logbook/jumps/form";
+} from "@/app/logbook/jumps/form";
 
 export const JUMP_NUMBER_CONFLICT_REPLACE = "replace";
 export const JUMP_NUMBER_CONFLICT_SHIFT = "shift";

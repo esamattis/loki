@@ -1,4 +1,4 @@
-import { $select } from "@/utils/selectors";
+import { $select } from "@/core/utils/selectors";
 
 type TemplateValue = string | Node;
 

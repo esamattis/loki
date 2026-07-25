@@ -1,17 +1,22 @@
-import { LogbookPage } from "@/app/logbook-page";
-import { FormActions, Input, NumberInput, Textarea } from "@/components/form";
-import { ErrorList } from "@/components/feedback";
-import { RedirectBackAfterPost } from "@/components/return-after-form-post";
-import { ArchiveToggleForm } from "@/components/ui/archive-toggle-form";
-import { ConfirmDangerButton } from "@/components/ui/confirm-danger-button";
-import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
-import { DangerZone } from "@/components/ui/danger-zone";
-import { MergeIntoForm } from "@/components/ui/merge-into-form";
+import { LogbookPage } from "@/core/app-page";
+import {
+    FormActions,
+    Input,
+    NumberInput,
+    Textarea,
+} from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
+import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
+import { ArchiveToggleForm } from "@/app/components/archive-toggle-form";
+import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
+import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
+import { DangerZone } from "@/core/components/ui/danger-zone";
+import { MergeIntoForm } from "@/app/components/merge-into-form";
 import {
     RecentJumpsSection,
     type JumpListItem,
-} from "@/route-handlers/logbook/components/jump-list";
-import * as routes from "@/routes";
+} from "@/app/logbook/components/jump-list";
+import * as routes from "@/app/routes";
 
 export interface GearFormValues {
     name?: string;

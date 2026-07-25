@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Details } from "@/components/ui/details";
+import { Details } from "@/core/components/ui/details";
 
 export function DangerZone(props: {
     children: any;

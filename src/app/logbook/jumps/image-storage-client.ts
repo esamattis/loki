@@ -1,4 +1,4 @@
-import { $idb } from "@/utils";
+import { $idb } from "@/core/utils";
 
 export const JUMP_IMAGE_DB_NAME = "loki-jump-from-image";
 export const JUMP_IMAGE_STORE = "images";

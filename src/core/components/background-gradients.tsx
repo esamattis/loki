@@ -1,4 +1,4 @@
-import { Style } from "@/components/style";
+import { Style } from "@/core/components/style";
 
 export function BackgroundGradients() {
     return (

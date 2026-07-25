@@ -4,16 +4,13 @@ import {
     type App,
     type AppRequestContext,
     User,
-} from "@/app/app";
-import { generateSessionToken, hashPassword } from "@/auth";
-import { UserOptionsSchema, parseUserOptions } from "@/options";
-import {
-    importRecords,
-    parseCsvImport,
-} from "@/route-handlers/logbook/transfer/index";
-import { createSession } from "@/route-handlers/auth/sessions";
-import * as routes from "@/routes";
-import { users } from "@/schema";
+} from "@/core/create-app";
+import { generateSessionToken, hashPassword } from "@/core/auth";
+import { UserOptionsSchema, parseUserOptions } from "@/app/options";
+import { importRecords, parseCsvImport } from "@/app/logbook/transfer/index";
+import { createSession } from "@/core/route-handlers/auth/sessions";
+import * as routes from "@/app/routes";
+import { users } from "@/app/schema";
 import exampleLogbookCsv from "@/app/example-logbook.csv?raw";
 
 const DEMO_USERNAME = "demo";

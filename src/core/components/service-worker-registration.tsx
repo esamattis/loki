@@ -1,5 +1,5 @@
-import { Script } from "@/components/script";
-import { $select } from "@/utils";
+import { Script } from "@/core/components/script";
+import { $select } from "@/core/utils";
 
 function $showUpdateToast(toastId: string) {
     const toast = $select.idOrNull(toastId, HTMLElement);

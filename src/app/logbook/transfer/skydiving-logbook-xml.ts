@@ -1,5 +1,5 @@
 import { XMLParser, XMLValidator } from "fast-xml-parser";
-import type { ImportRecord } from "@/route-handlers/logbook/transfer";
+import type { ImportRecord } from "@/app/logbook/transfer";
 
 type ResourceType = Exclude<ImportRecord["type"], "jump">;
 

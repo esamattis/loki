@@ -1,6 +1,6 @@
-import { ChevronUpIcon } from "@/components/icons";
-import { Script } from "@/components/script";
-import { $select } from "@/utils";
+import { ChevronUpIcon } from "@/app/components/icons";
+import { Script } from "@/core/components/script";
+import { $select } from "@/core/utils";
 import { useId } from "hono/jsx";
 
 function $initScrollToTop(buttonId: string) {

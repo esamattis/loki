@@ -1,4 +1,4 @@
-import { Script } from "@/components/script";
+import { Script } from "@/core/components/script";
 
 function $restoreFormScrollPosition() {
     const storageKey = "form-scroll-position";

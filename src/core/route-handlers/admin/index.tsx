@@ -5,13 +5,13 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { AppPage as LogbookPage } from "@/core/app-page";
-import { requireAdmin } from "@/route-handlers/admin/helpers";
+import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import {
     AdminInvitationsSection,
     AdminSectionNavigation,
     AdminSessionsSection,
     AdminUsersSection,
-} from "@/route-handlers/admin/index/sections";
+} from "@/core/route-handlers/admin/index/sections";
 import * as routes from "@/core/routes";
 import { invitations, sessions, users } from "@/core/schema";
 

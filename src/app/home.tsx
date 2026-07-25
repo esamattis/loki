@@ -1,8 +1,12 @@
 import type { Child } from "hono/jsx";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { Button, ButtonLink, buttonClassName } from "@/components/form";
-import { ExternalLink } from "@/components/link";
-import { ThemeToggle } from "@/components/theme-toggle";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { Button, ButtonLink, buttonClassName } from "@/core/components/form";
+import { ExternalLink } from "@/core/components/link";
+import { ThemeToggle } from "@/core/components/theme-toggle";
 import {
     GearIcon,
     LocationIcon,
@@ -10,10 +14,10 @@ import {
     StatisticsIcon,
     TransferIcon,
     InstallIcon,
-} from "@/components/menu-icons";
-import { CameraIcon, ClipboardIcon } from "@/components/icons";
-import { Code } from "@/components/ui/code";
-import * as routes from "@/routes";
+} from "@/app/components/menu-icons";
+import { CameraIcon, ClipboardIcon } from "@/app/components/icons";
+import { Code } from "@/core/components/ui/code";
+import * as routes from "@/app/routes";
 import clsx from "clsx";
 
 const REPOSITORY_URL = "https://github.com/esamattis/loki";

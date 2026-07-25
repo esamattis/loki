@@ -6,13 +6,13 @@ location,Skydive Example,300,,,,,,,,,,Home drop zone
 jump,,,301,,4000,1000,55,Skydive Example,Twin Otter,Navigator 260,Formation skydiving,Training jump`;
 
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/app/app";
-import { ExternalLink } from "@/components/link";
-import { Code } from "@/components/ui/code";
-import { Details } from "@/components/ui/details";
-import { Script } from "@/components/script";
-import * as routes from "@/routes";
-import { $select } from "@/utils";
+import { useAppContext } from "@/core/create-app";
+import { ExternalLink } from "@/core/components/link";
+import { Code } from "@/core/components/ui/code";
+import { Details } from "@/core/components/ui/details";
+import { Script } from "@/core/components/script";
+import * as routes from "@/app/routes";
+import { $select } from "@/core/utils";
 
 /** Inline documentation for downloading the logbook export with curl over Basic auth. */
 export function ExportCurlHelp() {

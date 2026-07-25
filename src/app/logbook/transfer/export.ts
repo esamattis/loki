@@ -1,6 +1,10 @@
 import { eq, sql } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import * as routes from "@/routes";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import * as routes from "@/app/routes";
 import {
     aircrafts,
     gear,
@@ -10,7 +14,7 @@ import {
     jumpsToJumpTypes,
     jumpTypes,
     locations,
-} from "@/schema";
+} from "@/app/schema";
 
 const CSV_HEADERS = [
     "type",

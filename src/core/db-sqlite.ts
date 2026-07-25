@@ -3,8 +3,8 @@ import { chmodSync, closeSync, mkdirSync, openSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, posix, resolve, win32 } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import type { AppDatabase } from "@/db";
-import { measureSqlSync, type ServerTimings } from "@/server-timing";
+import type { AppDatabase } from "@/core/db";
+import { measureSqlSync, type ServerTimings } from "@/core/server-timing";
 
 export function defaultSqliteDirectory(
     platform: NodeJS.Platform = process.platform,

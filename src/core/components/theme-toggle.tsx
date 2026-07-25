@@ -1,11 +1,11 @@
 import { useId } from "hono/jsx";
-import { Script } from "@/components/script";
+import { Script } from "@/core/components/script";
 import {
     DarkThemeIcon,
     LightThemeIcon,
     SystemThemeIcon,
 } from "@/core/components/icons";
-import { $select } from "@/utils";
+import { $select } from "@/core/utils";
 
 export function $initThemeToggle(ids: {
     buttonId: string;

@@ -1,13 +1,13 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { getAppContext } from "@/app/app";
+import type { App, AppRequestContext } from "@/core/create-app";
+import { getAppContext } from "@/core/create-app";
 import {
     JumpTypeFormPage,
     type JumpTypeFormValues,
-} from "@/route-handlers/logbook/jump-types/form";
-import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
-import { getFormString } from "@/utils";
-import * as routes from "@/routes";
-import { jumpTypes } from "@/schema";
+} from "@/app/logbook/jump-types/form";
+import { ResourceSchema } from "@/app/logbook/components/resource";
+import { getFormString } from "@/core/utils";
+import * as routes from "@/app/routes";
+import { jumpTypes } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.jumpTypes.new.route, getNewJumpType);

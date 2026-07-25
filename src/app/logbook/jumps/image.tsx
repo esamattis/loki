@@ -1,11 +1,11 @@
 import clsx from "clsx";
-import { useAppContext } from "@/app/app";
-import { Script } from "@/components/script";
-import { $idb, $select } from "@/utils";
+import { useAppContext } from "@/core/create-app";
+import { Script } from "@/core/components/script";
+import { $idb, $select } from "@/core/utils";
 import {
     $loadImage,
     jumpImageDbName,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
+} from "@/app/logbook/jumps/image-storage-client";
 
 /**
  * Unique DOM id per render. Must not use useId() (collides with parent-page

@@ -1,11 +1,12 @@
 import { count, eq } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import * as routes from "@/routes";
-import { jumps } from "@/schema";
 import {
-    importRecords,
-    parseCsvImport,
-} from "@/route-handlers/logbook/transfer/index";
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import * as routes from "@/app/routes";
+import { jumps } from "@/app/schema";
+import { importRecords, parseCsvImport } from "@/app/logbook/transfer/index";
 import exampleLogbookCsv from "@/app/example-logbook.csv?raw";
 
 export async function handleInjectExampleData(c: AppRequestContext) {

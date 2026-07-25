@@ -1,11 +1,15 @@
 import { useId } from "hono/jsx";
 import { useAppContext } from "@/core/create-app";
-import { Button, controlClassName, labelClassName } from "@/components/form";
+import {
+    Button,
+    controlClassName,
+    labelClassName,
+} from "@/core/components/form";
 import { CalendarIcon } from "@/core/components/icons";
-import { Script } from "@/components/script";
-import { formatCalendarDate } from "@/date-time";
+import { Script } from "@/core/components/script";
+import { formatCalendarDate } from "@/core/date-time";
 import type { CoreUserOptions } from "@/core/options";
-import { $select } from "@/utils";
+import { $select } from "@/core/utils";
 
 function DateInputScript(props: {
     inputId: string;

@@ -6,9 +6,9 @@ import {
     useDateFormatter,
     useNumberFormatter,
     type AppRequestContext,
-} from "@/app/app";
+} from "@/core/create-app";
 import { useAltitudeFormatter, useSpeedFormatter } from "@/app/formatters";
-import * as routes from "@/routes";
+import * as routes from "@/app/routes";
 import {
     aircrafts,
     jumps,
@@ -18,12 +18,12 @@ import {
     jumpTypes,
     gear,
     locations,
-} from "@/schema";
-import { formatDuration } from "@/utils/format-duration";
-import { Script } from "@/components/script";
-import { $select } from "@/utils";
+} from "@/app/schema";
+import { formatDuration } from "@/core/utils/format-duration";
+import { Script } from "@/core/components/script";
+import { $select } from "@/core/utils";
 import { useId } from "hono/jsx";
-import { jumpAnchorId } from "@/route-handlers/logbook/components/search";
+import { jumpAnchorId } from "@/app/logbook/components/search";
 
 export function Distance(props: { meters: number }) {
     const altitudeUnits = useAppContext().getUser().options.altitudeUnits;

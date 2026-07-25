@@ -1,7 +1,11 @@
 import { and, desc, eq } from "drizzle-orm";
-import { getAppContext, type App, type AppRequestContext } from "@/app/app";
-import { Link } from "@/components/link";
-import { altitudeInputValue, altitudeToMeters } from "@/options";
+import {
+    getAppContext,
+    type App,
+    type AppRequestContext,
+} from "@/core/create-app";
+import { Link } from "@/core/components/link";
+import { altitudeInputValue, altitudeToMeters } from "@/app/options";
 import {
     findJumpByNumber,
     getJumpFormResources,
@@ -14,23 +18,23 @@ import {
     parseAndResolveJumpForm,
     parseJumpNumberConflictAction,
     shiftJumpNumberQueries,
-} from "@/route-handlers/logbook/jumps/helpers";
+} from "@/app/logbook/jumps/helpers";
 import {
     getToday,
     JumpFormPage,
     type JumpFormValues,
     type JumpPrefillFrom,
-} from "@/route-handlers/logbook/jumps/form";
-import { JumpNumberError } from "@/route-handlers/logbook/jumps/form/jump-number-field";
-import { JumpImageAssociationComplete } from "@/route-handlers/logbook/jumps/image-created-client";
-import { buildLogbookGoToJumpUrl } from "@/route-handlers/logbook/components/search";
-import * as routes from "@/routes";
+} from "@/app/logbook/jumps/form";
+import { JumpNumberError } from "@/app/logbook/jumps/form/jump-number-field";
+import { JumpImageAssociationComplete } from "@/app/logbook/jumps/image-created-client";
+import { buildLogbookGoToJumpUrl } from "@/app/logbook/components/search";
+import * as routes from "@/app/routes";
 import {
     jumps,
     jumpsToAircrafts,
     jumpsToGear,
     jumpsToJumpTypes,
-} from "@/schema";
+} from "@/app/schema";
 
 function splitQueryList(value: string | undefined): string[] {
     return value

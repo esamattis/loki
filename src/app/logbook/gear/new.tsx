@@ -1,13 +1,10 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { getAppContext } from "@/app/app";
-import {
-    GearFormPage,
-    type GearFormValues,
-} from "@/route-handlers/logbook/gear/form";
-import { ResourceSchema } from "@/route-handlers/logbook/components/resource";
-import { getFormString } from "@/utils";
-import * as routes from "@/routes";
-import { gear } from "@/schema";
+import type { App, AppRequestContext } from "@/core/create-app";
+import { getAppContext } from "@/core/create-app";
+import { GearFormPage, type GearFormValues } from "@/app/logbook/gear/form";
+import { ResourceSchema } from "@/app/logbook/components/resource";
+import { getFormString } from "@/core/utils";
+import * as routes from "@/app/routes";
+import { gear } from "@/app/schema";
 
 export function register(app: App) {
     app.get(routes.logbook.gear.new.route, getNewGear);

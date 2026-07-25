@@ -1,9 +1,9 @@
 import { useId } from "hono/jsx";
 import type { App } from "@/core/create-app";
-import { buttonClassName, controlClassName } from "@/components/form";
-import { Script } from "@/components/script";
+import { buttonClassName, controlClassName } from "@/core/components/form";
+import { Script } from "@/core/components/script";
 import * as routes from "@/core/routes";
-import { $renderTemplate, $select } from "@/utils";
+import { $renderTemplate, $select } from "@/core/utils";
 
 function $initTodoApp(config: {
     emptyTemplateId: string;

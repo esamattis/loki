@@ -1,4 +1,4 @@
-import { useNumberFormatter } from "@/app/app";
+import { useNumberFormatter } from "@/core/create-app";
 
 interface JumpIssueListItem {
     key: string;

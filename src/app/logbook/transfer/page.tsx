@@ -4,18 +4,18 @@ import {
     buttonClassName,
     Checkbox,
     FileInput,
-} from "@/components/form";
-import { ExportIcon, ImportIcon } from "@/components/icons";
-import { Script } from "@/components/script";
-import { SectionHeader } from "@/components/ui/section-header";
-import { LogbookPage } from "@/app/logbook-page";
+} from "@/core/components/form";
+import { ExportIcon, ImportIcon } from "@/app/components/icons";
+import { Script } from "@/core/components/script";
+import { SectionHeader } from "@/core/components/ui/section-header";
+import { LogbookPage } from "@/core/app-page";
 import {
     ExportCurlHelp,
     TransferFormatHelp,
-} from "@/route-handlers/logbook/transfer/format-help";
-import { AgentMigrationCard } from "@/route-handlers/logbook/transfer/agent-migration";
-import { $select } from "@/utils";
-import { ExportLogbookButton } from "@/components/export-logbook-button";
+} from "@/app/logbook/transfer/format-help";
+import { AgentMigrationCard } from "@/app/logbook/transfer/agent-migration";
+import { $select } from "@/core/utils";
+import { ExportLogbookButton } from "@/app/components/export-logbook-button";
 
 interface TransferPageProps {
     errors?: string[];

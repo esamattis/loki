@@ -3,8 +3,8 @@ import {
     type JumpImageDraft,
     type StoredJumpImage,
     type StoredJumpImages,
-} from "@/route-handlers/logbook/jumps/image-storage-client";
-import { $idb } from "@/utils";
+} from "@/app/logbook/jumps/image-storage-client";
+import { $idb } from "@/core/utils";
 
 export type ImageJumpAssociationChange =
     | {

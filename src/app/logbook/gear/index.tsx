@@ -1,11 +1,11 @@
-import type { App, AppRequestContext } from "@/app/app";
-import { getAppContext } from "@/app/app";
-import { Button, ButtonLink } from "@/components/form";
-import { LogbookPage } from "@/app/logbook-page";
-import { IgnoreReturnRoute } from "@/components/return-after-form-post";
-import { JumpItemCounts } from "@/route-handlers/logbook/components/jump-item-counts";
-import * as routes from "@/routes";
-import { gear, jumpsToGear } from "@/schema";
+import type { App, AppRequestContext } from "@/core/create-app";
+import { getAppContext } from "@/core/create-app";
+import { Button, ButtonLink } from "@/core/components/form";
+import { LogbookPage } from "@/core/app-page";
+import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
+import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
+import * as routes from "@/app/routes";
+import { gear, jumpsToGear } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {

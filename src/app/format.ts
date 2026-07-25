@@ -1,10 +1,10 @@
-import { formatCalendarDate, formatUnixDateTime } from "@/date-time";
+import { formatCalendarDate, formatUnixDateTime } from "@/core/date-time";
 import {
     formatAltitude,
     formatNumber,
     formatSpeed,
     type UserOptions,
-} from "@/options";
+} from "@/app/options";
 
 export type NumberFormatter = (
     value: number,

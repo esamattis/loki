@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { useId } from "hono/jsx";
-import { $select } from "@/utils";
-import { buttonClassName } from "@/components/form";
-import { Script } from "@/components/script";
+import { $select } from "@/core/utils";
+import { buttonClassName } from "@/core/components/form";
+import { Script } from "@/core/components/script";
 
 const dangerButtonClassName = buttonClassName({
     variant: "secondary",

@@ -1,18 +1,18 @@
-import { Script } from "@/components/script";
-import { useAppContext } from "@/app/app";
-import { Link } from "@/components/link";
-import { $idb } from "@/utils";
+import { Script } from "@/core/components/script";
+import { useAppContext } from "@/core/create-app";
+import { Link } from "@/core/components/link";
+import { $idb } from "@/core/utils";
 import {
     $applyImageJumpAssociationChange,
     $updateImageJumpAssociation,
     type ImageJumpAssociationChange,
-} from "@/route-handlers/logbook/jumps/image-jump-storage-client";
-import { jumpImageDbName } from "@/route-handlers/logbook/jumps/image-storage-client";
+} from "@/app/logbook/jumps/image-jump-storage-client";
+import { jumpImageDbName } from "@/app/logbook/jumps/image-storage-client";
 import {
     $completeReturnAfterFormPost,
     returnAfterFormPostStorage,
-} from "@/components/return-after-form-post";
-import * as routes from "@/routes";
+} from "@/core/components/return-after-form-post";
+import * as routes from "@/app/routes";
 
 function $completeJumpEditRedirect(
     redirectUrl: string,
