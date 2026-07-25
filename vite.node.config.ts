@@ -1,6 +1,6 @@
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
-import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { buildInfoDefine } from "./vite.build-info";
 
@@ -9,6 +9,11 @@ const serverPlugins = ssrPlugin().filter(
 );
 
 export default defineConfig({
+    resolve: {
+        alias: {
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
+        },
+    },
     build: {
         ssr: "src/node.ts",
         outDir: "dist-server",
@@ -27,9 +32,5 @@ export default defineConfig({
         ...buildInfoDefine(process.env.LOKI_VERSION),
         "process.env.PLAYWRIGHT_TEST": JSON.stringify(""),
     },
-    plugins: [
-        tsconfigPaths(),
-        ...serverPlugins,
-        tailwindcss(),
-    ] satisfies PluginOption[],
+    plugins: [...serverPlugins, tailwindcss()] satisfies PluginOption[],
 });
