@@ -1,6 +1,7 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { Button, ButtonLink } from "@/core/components/form";
 import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
 import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
@@ -9,7 +10,7 @@ import { jumps, locations } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
-    app.get(routes.logbook.locations.index.route, getLocationList);
+    registerRoute(app, "get", routes.logbook.locations.index, getLocationList);
 }
 
 async function getLocationList(c: AppRequestContext) {
@@ -25,7 +26,7 @@ async function getLocationList(c: AppRequestContext) {
         .groupBy(locations.uuid)
         .orderBy(locations.name);
     return c.render(
-        <LogbookPage title="Locations">
+        <AppPage title="Locations">
             <IgnoreReturnRoute />
             <div className="flex flex-wrap items-center gap-3">
                 <ButtonLink
@@ -109,6 +110,6 @@ async function getLocationList(c: AppRequestContext) {
                     ))}
                 </ul>
             )}
-        </LogbookPage>,
+        </AppPage>,
     );
 }

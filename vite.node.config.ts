@@ -29,7 +29,7 @@ export default defineConfig({
         noExternal: true,
     },
     define: {
-        ...buildInfoDefine(process.env.LOKI_VERSION),
+        ...buildInfoDefine(process.env.APP_VERSION),
         "process.env.PLAYWRIGHT_TEST": JSON.stringify(""),
     },
     plugins: [...serverPlugins, tailwindcss()] satisfies PluginOption[],

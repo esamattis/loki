@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -15,8 +16,10 @@ import * as routes from "@/app/routes";
 import { jumps, locations } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.locations.edit.route, (c) => getEditLocation(c));
-    app.post(routes.logbook.locations.edit.route, updateLocation);
+    registerRoute(app, "get", routes.logbook.locations.edit, (c) =>
+        getEditLocation(c),
+    );
+    registerRoute(app, "post", routes.logbook.locations.edit, updateLocation);
 }
 
 async function getEditLocation(c: AppRequestContext, dangerError?: string) {

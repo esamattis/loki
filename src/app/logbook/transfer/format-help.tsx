@@ -8,6 +8,7 @@ jump,,,301,,4000,1000,55,Skydive Example,Twin Otter,Navigator 260,Formation skyd
 import { useId } from "hono/jsx";
 import { useAppContext } from "@/core/create-app";
 import { ExternalLink } from "@/core/components/link";
+import { EXAMPLE_LOGBOOK_URL } from "@/app/metadata";
 import { Code } from "@/core/components/ui/code";
 import { Details } from "@/core/components/ui/details";
 import { Script } from "@/core/components/script";
@@ -72,7 +73,7 @@ export function TransferFormatHelp() {
             <div className="mt-3 space-y-3">
                 <p>
                     Here is an{" "}
-                    <ExternalLink href="https://github.com/esamattis/loki/blob/main/src/example-logbook.csv">
+                    <ExternalLink href={EXAMPLE_LOGBOOK_URL}>
                         example export
                     </ExternalLink>{" "}
                     on GitHub.

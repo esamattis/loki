@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { desc, eq, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -35,5 +36,5 @@ async function render(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.lokiAdmin.route, render);
+    registerRoute(app, "get", routes.lokiAdmin, render);
 }

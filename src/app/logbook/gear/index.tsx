@@ -1,7 +1,8 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import { Button, ButtonLink } from "@/core/components/form";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
 import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
 import * as routes from "@/app/routes";
@@ -9,7 +10,7 @@ import { gear, jumpsToGear } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
-    app.get(routes.logbook.gear.index.route, getGearList);
+    registerRoute(app, "get", routes.logbook.gear.index, getGearList);
 }
 
 async function getGearList(c: AppRequestContext) {
@@ -25,7 +26,7 @@ async function getGearList(c: AppRequestContext) {
         .groupBy(gear.uuid)
         .orderBy(gear.name);
     return c.render(
-        <LogbookPage title="Gear">
+        <AppPage title="Gear">
             <IgnoreReturnRoute />
             <div className="flex flex-wrap items-center gap-3">
                 <ButtonLink
@@ -109,6 +110,6 @@ async function getGearList(c: AppRequestContext) {
                     ))}
                 </ul>
             )}
-        </LogbookPage>,
+        </AppPage>,
     );
 }

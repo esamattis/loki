@@ -7,25 +7,36 @@ import type { AppDatabase } from "@/core/db";
 import { measureSqlSync, type ServerTimings } from "@/core/server-timing";
 
 export function defaultSqliteDirectory(
-    platform: NodeJS.Platform = process.platform,
-    environment: NodeJS.ProcessEnv = process.env,
-    home = homedir(),
+    storageDirectoryName: string,
+    system: {
+        platform?: NodeJS.Platform;
+        environment?: NodeJS.ProcessEnv;
+        home?: string;
+    } = {},
 ): string {
+    const platform = system.platform ?? process.platform;
+    const environment = system.environment ?? process.env;
+    const home = system.home ?? homedir();
     if (platform === "win32") {
         const localAppData = environment.LOCALAPPDATA?.trim();
         return win32.join(
             localAppData || win32.join(home, "AppData", "Local"),
-            "Loki",
+            storageDirectoryName,
             "sqlite",
         );
     }
 
-    return posix.join(home, ".local", "share", "loki", "sqlite");
+    return posix.join(home, ".local", "share", storageDirectoryName, "sqlite");
 }
 
-export function resolveSqlitePath(path = process.env.SQLITE_PATH): string {
+export function resolveSqlitePath(
+    storageDirectoryName: string,
+    sqliteFilename: string,
+    path = process.env.SQLITE_PATH,
+): string {
     return resolve(
-        path?.trim() || join(defaultSqliteDirectory(), "loki.sqlite"),
+        path?.trim() ||
+            join(defaultSqliteDirectory(storageDirectoryName), sqliteFilename),
     );
 }
 
@@ -70,7 +81,7 @@ function prepareSqliteStorage(path: string): void {
 /**
  * Build a Drizzle client against node:sqlite, with a D1-compatible `batch`.
  */
-export function createSqliteDatabase(path = resolveSqlitePath()): {
+export function createSqliteDatabase(path: string): {
     db: AppDatabase;
     sqlite: DatabaseSync;
     path: string;

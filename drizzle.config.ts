@@ -1,7 +1,11 @@
 import { defineConfig } from "drizzle-kit";
+import {
+    drizzleOutputPath,
+    drizzleSchemaPath,
+} from "./drizzle.shared.config.ts";
 
 export default defineConfig({
     dialect: "sqlite",
-    schema: "./src/app/schema.ts",
-    out: "./drizzle",
+    schema: drizzleSchemaPath,
+    out: drizzleOutputPath,
 });

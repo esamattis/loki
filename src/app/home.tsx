@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import type { Child } from "hono/jsx";
 import {
     getAppContext,
@@ -18,15 +19,14 @@ import {
 import { CameraIcon, ClipboardIcon } from "@/app/components/icons";
 import { Code } from "@/core/components/ui/code";
 import * as routes from "@/app/routes";
+import { EXAMPLE_LOGBOOK_URL, REPOSITORY_URL } from "@/app/metadata";
 import clsx from "clsx";
 
-const REPOSITORY_URL = "https://github.com/esamattis/loki";
 const RELEASES_URL = `${REPOSITORY_URL}/releases`;
 const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/PWmL1g-QkMw";
 const INSTALL_COMMAND =
     'bash -c "$(curl -fsSL https://raw.githubusercontent.com/esamattis/loki/main/install.sh)"';
 const INSTALL_SCRIPT_URL = `${REPOSITORY_URL}/blob/main/install.sh`;
-const EXAMPLE_LOGBOOK_URL = `${REPOSITORY_URL}/blob/main/src/example-logbook.csv`;
 
 const cardClassName =
     "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900";
@@ -570,5 +570,5 @@ function renderHome(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.home.route, renderHome);
+    registerRoute(app, "get", routes.home, renderHome);
 }

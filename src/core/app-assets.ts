@@ -1,5 +1,5 @@
 import htmx from "htmx.org/dist/htmx.esm.js?raw";
-import tailwind from "@/tailwind.css?inline";
+import tailwind from "@/core/tailwind.css?inline";
 
 async function fingerprint(content: string) {
     const digest = await crypto.subtle.digest(

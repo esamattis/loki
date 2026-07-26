@@ -4,6 +4,9 @@ import { expect, test } from "./fixtures";
 test("bootstrap admin and require invitations for later users", async ({
     page,
 }) => {
+    await page.goto("/login");
+    await expect(page).toHaveURL("/register");
+
     await page.goto("/");
     await expect(page).toHaveURL("/register");
     await expect(

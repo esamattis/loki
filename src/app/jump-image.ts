@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { altitudeToMeters } from "@/app/altitude";
+import { altitudeToMeters } from "./altitude.ts";
 
 const MAX_JUMP_ITEM_NAME_LENGTH = 200;
 const MAX_JUMP_ITEMS_PER_TYPE = 20;

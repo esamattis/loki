@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -706,8 +707,8 @@ async function handleTransfer(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.transfer.index.route, (c) =>
+    registerRoute(app, "get", routes.logbook.transfer.index, (c) =>
         c.render(<TransferPage />),
     );
-    app.post(routes.logbook.transfer.index.route, handleTransfer);
+    registerRoute(app, "post", routes.logbook.transfer.index, handleTransfer);
 }

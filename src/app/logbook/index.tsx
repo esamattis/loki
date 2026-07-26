@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import {
     and,
     asc,
@@ -30,7 +31,8 @@ import {
 import { Button, ButtonLink } from "@/core/components/form";
 import { Link } from "@/core/components/link";
 import { Details } from "@/core/components/ui/details";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
+import { getLokiUserOptions } from "@/app/options";
 import {
     JumpCard,
     type JumpCardItem,
@@ -386,7 +388,9 @@ function getLogbookJumpConditions(
     const searchPattern = filters.search
         ? `%${filters.search.replace(/[%_\\]/g, "\\$&")}%`
         : null;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        getAppContext(c).getUser(),
+    ).altitudeUnits;
     const exitAltitudeText =
         altitudeUnits === "feet"
             ? sql`CAST(CAST(ROUND(${jumps.exitAltitude} / 0.3048) AS INTEGER) AS TEXT)`
@@ -784,7 +788,7 @@ function LogbookOffsetControls(props: {
 async function renderLogbook(c: AppRequestContext) {
     const appContext = getAppContext(c);
     const user = appContext.getUser();
-    const options = user.options;
+    const options = getLokiUserOptions(user);
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
     const query = new URL(c.req.url).searchParams;
@@ -841,7 +845,7 @@ async function renderLogbook(c: AppRequestContext) {
     });
 
     return c.render(
-        <LogbookPage title={`${jumpSummary?.maxJumpNumber ?? 0} Jumps`}>
+        <AppPage title={`${jumpSummary?.maxJumpNumber ?? 0} Jumps`}>
             <section className="space-y-3">
                 {showCsvBackupReminder && <CsvBackupReminder />}
                 <JumpFilters
@@ -923,10 +927,10 @@ async function renderLogbook(c: AppRequestContext) {
                 <ScrollToJumpHash />
                 <ScrollToTop />
             </section>
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.index.route, renderLogbook);
+    registerRoute(app, "get", routes.logbook.index, renderLogbook);
 }

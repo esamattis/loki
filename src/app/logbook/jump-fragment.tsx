@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     type App,
@@ -12,10 +13,11 @@ import {
     getLogbookJumps,
     JumpList,
 } from "@/app/logbook/index";
+import { getLokiUserOptions } from "@/app/options";
 import * as routes from "@/app/routes";
 
 export async function renderLogbookJumps(c: AppRequestContext) {
-    const options = getAppContext(c).getUser().options;
+    const options = getLokiUserOptions(getAppContext(c).getUser());
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
     const offset = getFragmentOffset(c);
@@ -51,5 +53,5 @@ function getFragmentOffset(c: AppRequestContext): number {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.jumpFragment.route, renderLogbookJumps);
+    registerRoute(app, "get", routes.logbook.jumpFragment, renderLogbookJumps);
 }

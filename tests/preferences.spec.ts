@@ -9,6 +9,97 @@ import {
     queryPlaywrightDb,
 } from "./helpers";
 
+test("clearing the image prompt restores the default", async ({ page }) => {
+    await registerUser(page, "preferences-default-prompt", "Default Prompt");
+    await page.goto("/preferences");
+    await page.locator('textarea[name="jumpImagePrompt"]').fill("   ");
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
+
+    await expect(page).toHaveURL("/logbook");
+    await page.goto("/preferences");
+    await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
+        /Treat "WS" as the jump type "Wingsuit"/,
+    );
+});
+
+test("invalid logbook preferences show errors and retain values", async ({
+    page,
+}) => {
+    await registerUser(page, "preferences-invalid-logbook", "Invalid Logbook");
+    await page.goto("/preferences");
+    await page
+        .locator('textarea[name="jumpImagePrompt"]')
+        .fill("Retain this submitted prompt");
+    await page.locator('select[name="altitudeUnits"]').evaluate((select) => {
+        if (!(select instanceof HTMLSelectElement))
+            throw new Error("Expected altitude units select");
+        const option = document.createElement("option");
+        option.value = "invalid";
+        option.selected = true;
+        select.add(option);
+    });
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
+
+    await expect(page).toHaveURL("/preferences/logbook");
+    await expect(page.getByText(/Invalid option/)).toBeVisible();
+    await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
+        "Retain this submitted prompt",
+    );
+});
+
+test("core and logbook preference updates preserve each other's options", async ({
+    page,
+}) => {
+    const username = "preferences-option-round-trip";
+    await registerUser(page, username, "Option Round Trip");
+    await executePlaywrightDb(`
+        UPDATE users
+        SET options = json_set(
+            options,
+            '$.altitudeUnits', 'feet',
+            '$.jumpImagePrompt', 'Preserve app option'
+        )
+        WHERE username = '${username}';
+    `);
+
+    await page.goto("/preferences");
+    await page
+        .locator('select[name="dateTimeFormat"]')
+        .selectOption("american");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+
+    let options = (
+        await queryPlaywrightDb(`
+            SELECT options FROM users WHERE username = '${username}';
+        `)
+    )[0]?.options;
+    expect(JSON.parse(String(options))).toMatchObject({
+        altitudeUnits: "feet",
+        jumpImagePrompt: "Preserve app option",
+        dateTimeFormat: "american",
+    });
+
+    await page.goto("/preferences");
+    await page.locator('select[name="altitudeUnits"]').selectOption("meters");
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
+
+    options = (
+        await queryPlaywrightDb(`
+            SELECT options FROM users WHERE username = '${username}';
+        `)
+    )[0]?.options;
+    expect(JSON.parse(String(options))).toMatchObject({
+        altitudeUnits: "meters",
+        dateTimeFormat: "american",
+    });
+});
+
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");
     await page.locator('input[name="invitationCode"]').fill("test-invite");

@@ -69,7 +69,7 @@ export function migrateSqlite(
     migrationsFolder = resolve("drizzle"),
 ): void {
     if (isSea()) {
-        const directory = mkdtempSync(join(tmpdir(), "loki-migrations-"));
+        const directory = mkdtempSync(join(tmpdir(), "app-migrations-"));
         try {
             extractSeaMigrations(directory);
             runMigrations(sqlite, directory);

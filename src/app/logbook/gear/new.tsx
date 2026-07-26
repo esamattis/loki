@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import { GearFormPage, type GearFormValues } from "@/app/logbook/gear/form";
@@ -7,8 +8,8 @@ import * as routes from "@/app/routes";
 import { gear } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.gear.new.route, getNewGear);
-    app.post(routes.logbook.gear.new.route, createGear);
+    registerRoute(app, "get", routes.logbook.gear.new, getNewGear);
+    registerRoute(app, "post", routes.logbook.gear.new, createGear);
 }
 
 function getNewGear(c: AppRequestContext) {

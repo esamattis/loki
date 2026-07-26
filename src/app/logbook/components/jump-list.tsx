@@ -8,6 +8,7 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { useAltitudeFormatter, useSpeedFormatter } from "@/app/formatters";
+import { getLokiUserOptions } from "@/app/options";
 import * as routes from "@/app/routes";
 import {
     aircrafts,
@@ -26,7 +27,9 @@ import { useId } from "hono/jsx";
 import { jumpAnchorId } from "@/app/logbook/components/search";
 
 export function Distance(props: { meters: number }) {
-    const altitudeUnits = useAppContext().getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        useAppContext().getUser(),
+    ).altitudeUnits;
     const formatNumber = useNumberFormatter();
     if (altitudeUnits === "feet") {
         return <>{formatNumber(Math.round(props.meters / 0.3048))} ft</>;

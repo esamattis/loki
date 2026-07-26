@@ -7,14 +7,13 @@ export {
     privacy,
     readonly,
     serviceWorker,
-    todo,
 } from "@/core/routes";
 
 /**
- * Route helpers are the URL contract and mirror `src/route-handlers/`.
+ * Route helpers are the URL contract and mirror `src/app/`.
  *
  * Group helpers by URL hierarchy: `routes.logbook.jumps.edit` belongs in
- * `route-handlers/logbook/jumps/edit.tsx`. Use `index.tsx` for a collection
+ * `src/app/logbook/jumps/edit.tsx`. Use `index.tsx` for a collection
  * or section root, `new.tsx` for creation, and `edit.tsx` for a parameterized
  * resource page. Each handler exports `register(app)` for only its own routes;
  * `app/register-routes.ts` is the sole registration composition root.

@@ -1,10 +1,11 @@
+import { registerRoute } from "@/core/register-route";
 import { asc, desc, eq } from "drizzle-orm";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { AppPage as LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import {
     AdminInvitationsSection,
@@ -63,15 +64,15 @@ async function renderAdminPage(c: AppRequestContext) {
     ]);
 
     return c.render(
-        <LogbookPage title="Admin">
+        <AppPage title="Admin">
             <AdminSectionNavigation />
             <AdminInvitationsSection invitations={invitationRows} />
             <AdminUsersSection users={userRows} currentUserUuid={admin.uuid} />
             <AdminSessionsSection sessions={sessionRows} />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.admin.index.route, renderAdminPage);
+    registerRoute(app, "get", routes.admin.index, renderAdminPage);
 }

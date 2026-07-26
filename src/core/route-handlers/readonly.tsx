@@ -1,16 +1,17 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { AppPage as LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { Button } from "@/core/components/form";
 import { LockIcon } from "@/core/components/icons";
 import * as routes from "@/core/routes";
 
 function ReadonlyPage() {
     return (
-        <LogbookPage title="Read-only account">
+        <AppPage title="Read-only account">
             <div className="flex flex-col items-center gap-6 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
                     <LockIcon className="h-8 w-8" />
@@ -26,7 +27,7 @@ function ReadonlyPage() {
                     </Button>
                 </form>
             </div>
-        </LogbookPage>
+        </AppPage>
     );
 }
 
@@ -42,5 +43,5 @@ function renderReadonly(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.readonly.route, renderReadonly);
+    registerRoute(app, "get", routes.readonly, renderReadonly);
 }

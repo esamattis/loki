@@ -24,6 +24,8 @@ export { User } from "@/core/user";
 export interface CreateAppOptions {
     name: string;
     title: string;
+    repositoryUrl: string;
+    buildName: string;
     description: string;
     basicAuthRealm: string;
     authenticatedHome: string;
@@ -31,8 +33,11 @@ export interface CreateAppOptions {
     themeColor: string;
     socialImagePath: string;
     socialImageAlt: string;
+    authenticatedUserSubtitle: (user: User) => string;
+    navigationLabel: string;
     navigation?: () => Child;
     appMenuItems?: () => Child;
+    footerLinks?: () => Child;
     registrationFields?: () => Child;
     preferencesContent?: () => Child;
     privacyPolicyContent: () => Child;

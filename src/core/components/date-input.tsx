@@ -99,7 +99,8 @@ export function DateInput(props: {
     value: string;
     required?: boolean;
     showToday?: boolean;
-    jumpDateTracking?: boolean;
+    inputDataAttributes?: Record<`data-${string}`, string>;
+    pickerDataAttributes?: Record<`data-${string}`, string>;
 }) {
     const inputId = useId();
     const valueId = useId();
@@ -127,9 +128,7 @@ export function DateInput(props: {
                     id={inputId}
                     type="text"
                     inputMode="numeric"
-                    data-loki-jump-date-input={
-                        props.jumpDateTracking ? "" : undefined
-                    }
+                    {...props.inputDataAttributes}
                     placeholder={placeholder}
                     required={props.required}
                     value={formatCalendarDate(props.value, dateTimeFormat)}
@@ -144,9 +143,7 @@ export function DateInput(props: {
                 <input
                     id={pickerId}
                     type="date"
-                    data-loki-jump-date-picker={
-                        props.jumpDateTracking ? "" : undefined
-                    }
+                    {...props.pickerDataAttributes}
                     value={props.value}
                     tabIndex={-1}
                     aria-hidden="true"

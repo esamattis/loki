@@ -1,10 +1,11 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { AppPage as LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import {
     getInvitationFormValues,
     InvitationForm,
@@ -20,9 +21,9 @@ async function renderInvitationNew(c: AppRequestContext) {
     }
 
     return c.render(
-        <LogbookPage title="Add invitation">
+        <AppPage title="Add invitation">
             <InvitationForm submitLabel="Create invitation" />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
@@ -36,13 +37,13 @@ async function handleInvitationNew(c: AppRequestContext) {
     const result = InvitationSchema.safeParse(values);
     if (!result.success) {
         return c.render(
-            <LogbookPage title="Add invitation">
+            <AppPage title="Add invitation">
                 <InvitationForm
                     values={values}
                     errors={result.error.issues.map((issue) => issue.message)}
                     submitLabel="Create invitation"
                 />
-            </LogbookPage>,
+            </AppPage>,
         );
     }
 
@@ -55,13 +56,13 @@ async function handleInvitationNew(c: AppRequestContext) {
 
     if (existing) {
         return c.render(
-            <LogbookPage title="Add invitation">
+            <AppPage title="Add invitation">
                 <InvitationForm
                     values={values}
                     errors={["An invitation with this code already exists"]}
                     submitLabel="Create invitation"
                 />
-            </LogbookPage>,
+            </AppPage>,
         );
     }
 
@@ -77,6 +78,16 @@ async function handleInvitationNew(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.admin.invitations.new.route, renderInvitationNew);
-    app.post(routes.admin.invitations.new.route, handleInvitationNew);
+    registerRoute(
+        app,
+        "get",
+        routes.admin.invitations.new,
+        renderInvitationNew,
+    );
+    registerRoute(
+        app,
+        "post",
+        routes.admin.invitations.new,
+        handleInvitationNew,
+    );
 }

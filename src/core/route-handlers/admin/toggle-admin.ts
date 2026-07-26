@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, eq, or, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -57,5 +58,5 @@ async function handleToggleAdmin(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.admin.toggleAdmin.route, handleToggleAdmin);
+    registerRoute(app, "post", routes.admin.toggleAdmin, handleToggleAdmin);
 }

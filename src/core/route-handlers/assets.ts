@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { htmxAsset, tailwindAsset } from "@/core/app-assets";
 import type { App } from "@/core/create-app";
 import * as routes from "@/core/routes";
@@ -5,7 +6,7 @@ import * as routes from "@/core/routes";
 const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
 export function registerAssetRoutes(app: App) {
-    app.get(routes.assets.tailwindCss.route, (c) => {
+    registerRoute(app, "get", routes.assets.tailwindCss, (c) => {
         if (
             routes.assets.tailwindCss.params(c).fingerprint !==
             tailwindAsset.fingerprint
@@ -17,7 +18,7 @@ export function registerAssetRoutes(app: App) {
             "Content-Type": "text/css; charset=utf-8",
         });
     });
-    app.get(routes.assets.htmxScript.route, (c) => {
+    registerRoute(app, "get", routes.assets.htmxScript, (c) => {
         if (
             routes.assets.htmxScript.params(c).fingerprint !==
             htmxAsset.fingerprint

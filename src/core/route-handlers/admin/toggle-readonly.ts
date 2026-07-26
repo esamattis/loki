@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getAppContext,
@@ -51,5 +52,10 @@ async function handleToggleReadonly(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.admin.toggleReadonly.route, handleToggleReadonly);
+    registerRoute(
+        app,
+        "post",
+        routes.admin.toggleReadonly,
+        handleToggleReadonly,
+    );
 }

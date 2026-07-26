@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     useAppContext,
@@ -99,6 +100,6 @@ async function handle(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.privacy.route, render);
-    app.post(routes.privacy.route, handle);
+    registerRoute(app, "get", routes.privacy, render);
+    registerRoute(app, "post", routes.privacy, handle);
 }

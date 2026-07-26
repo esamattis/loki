@@ -14,10 +14,16 @@ async function registerUnacceptedUser(page: Page, username: string) {
 test("shows terms & privacy policy and footer link", async ({ page }) => {
     await page.goto("/");
 
-    await page
-        .getByRole("navigation", { name: "Footer" })
-        .getByRole("link", { name: "Terms & Privacy" })
-        .click();
+    const footer = page.getByRole("navigation", { name: "Footer" });
+    await expect(footer.getByRole("link", { name: "Home" })).toHaveAttribute(
+        "href",
+        "/",
+    );
+    await expect(footer.getByRole("link", { name: "About" })).toHaveAttribute(
+        "href",
+        "/about",
+    );
+    await footer.getByRole("link", { name: "Terms & Privacy" }).click();
 
     await expect(page).toHaveURL("/privacy");
     await expect(
@@ -35,6 +41,17 @@ test("shows terms & privacy policy and footer link", async ({ page }) => {
     await expect(
         page.getByRole("heading", { name: "Where data is stored" }),
     ).toBeVisible();
+    for (const heading of [
+        "Terms",
+        "Privacy",
+        "Retention and rights",
+        "Self-hosted instances",
+        "Acceptance and changes",
+    ]) {
+        await expect(
+            page.getByRole("heading", { name: heading, exact: true }),
+        ).toBeVisible();
+    }
     await expect(
         page.getByText("Cloudflare D1", { exact: false }),
     ).toBeVisible();
@@ -49,6 +66,18 @@ test("shows terms & privacy policy and footer link", async ({ page }) => {
     ).toBeVisible();
     await expect(
         page.getByText("required login state handling", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("Esa-Matti Suuronen", { exact: true }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("OpenAI under OpenAI’s terms", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("including the GDPR", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("Last updated: 23 July 2026", { exact: true }),
     ).toBeVisible();
 });
 

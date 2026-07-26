@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, desc, eq } from "drizzle-orm";
 import {
     getAppContext,
@@ -5,7 +6,12 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { Link } from "@/core/components/link";
-import { altitudeInputValue, altitudeToMeters } from "@/app/options";
+import {
+    altitudeInputValue,
+    altitudeToMeters,
+    getLokiUserOptions,
+    type UserOptions,
+} from "@/app/options";
 import {
     findJumpByNumber,
     getJumpFormResources,
@@ -185,9 +191,7 @@ async function loadSourceJumpPrefill(
     options: {
         sourceJumpUuid: string;
         userUuid: string;
-        altitudeUnits: ReturnType<
-            ReturnType<typeof getAppContext>["getUser"]
-        >["options"]["altitudeUnits"];
+        altitudeUnits: UserOptions["altitudeUnits"];
         highestJump?: {
             uuid: string;
             jumpNumber: number;
@@ -246,7 +250,9 @@ async function loadSourceJumpPrefill(
 export async function renderNewJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        getAppContext(c).getUser(),
+    ).altitudeUnits;
     const query = routes.logbook.jumps.new.query(c);
     const isImagePrefill = query.fromImage === "1";
     const hasImagePrefill = Boolean(
@@ -397,7 +403,9 @@ export async function handleNewJump(c: AppRequestContext) {
             />,
         );
     }
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        getAppContext(c).getUser(),
+    ).altitudeUnits;
     const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
     if (existingJump && !conflictAction) {
         return c.render(
@@ -482,7 +490,12 @@ export async function handleNewJump(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.jumps.new.route, renderNewJump);
-    app.get(routes.logbook.jumps.jumpNumberError.route, renderJumpNumberError);
-    app.post(routes.logbook.jumps.new.route, handleNewJump);
+    registerRoute(app, "get", routes.logbook.jumps.new, renderNewJump);
+    registerRoute(
+        app,
+        "get",
+        routes.logbook.jumps.jumpNumberError,
+        renderJumpNumberError,
+    );
+    registerRoute(app, "post", routes.logbook.jumps.new, handleNewJump);
 }

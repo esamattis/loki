@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
@@ -8,6 +9,7 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import { Button, Input, Select, Textarea } from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import { Script } from "@/core/components/script";
 import { DangerZone } from "@/core/components/ui/danger-zone";
@@ -17,6 +19,7 @@ import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/app/jump-image";
 import { LokiUserOptionsSchema, updateLokiOptions } from "@/app/options";
 import { aircrafts, gear, jumps, jumpTypes, locations } from "@/app/schema";
 import * as routes from "@/app/routes";
+import { PreferencesPage } from "@/core/route-handlers/preferences/index";
 
 const FormSchema = z.object({
     altitudeUnits: LokiUserOptionsSchema.shape.altitudeUnits,
@@ -25,7 +28,12 @@ const FormSchema = z.object({
     jumpImagePrompt: z.string(),
 });
 
-export function LokiPreferences() {
+export function LokiPreferences(
+    props: {
+        errors?: string[];
+        values?: Record<string, string>;
+    } = {},
+) {
     const options = LokiUserOptionsSchema.parse(
         useAppContext().getUser().options,
     );
@@ -40,17 +48,24 @@ export function LokiPreferences() {
         >
             <RedirectBackAfterPost />
             <h2 className="text-lg font-semibold">Logbook preferences</h2>
+            <ErrorList errors={props.errors ?? []} />
             <div className="grid gap-5 sm:grid-cols-2">
                 <Select name="altitudeUnits" label="Altitude units">
                     <option
                         value="meters"
-                        selected={options.altitudeUnits === "meters"}
+                        selected={
+                            (props.values?.altitudeUnits ??
+                                options.altitudeUnits) === "meters"
+                        }
                     >
                         Meters (m)
                     </option>
                     <option
                         value="feet"
-                        selected={options.altitudeUnits === "feet"}
+                        selected={
+                            (props.values?.altitudeUnits ??
+                                options.altitudeUnits) === "feet"
+                        }
                     >
                         Feet (ft)
                     </option>
@@ -58,19 +73,28 @@ export function LokiPreferences() {
                 <Select name="speedUnits" label="Speed units">
                     <option
                         value="kilometers-per-hour"
-                        selected={options.speedUnits === "kilometers-per-hour"}
+                        selected={
+                            (props.values?.speedUnits ?? options.speedUnits) ===
+                            "kilometers-per-hour"
+                        }
                     >
                         Kilometers per hour (km/h)
                     </option>
                     <option
                         value="meters-per-second"
-                        selected={options.speedUnits === "meters-per-second"}
+                        selected={
+                            (props.values?.speedUnits ?? options.speedUnits) ===
+                            "meters-per-second"
+                        }
                     >
                         Meters per second (m/s)
                     </option>
                     <option
                         value="miles-per-hour"
-                        selected={options.speedUnits === "miles-per-hour"}
+                        selected={
+                            (props.values?.speedUnits ?? options.speedUnits) ===
+                            "miles-per-hour"
+                        }
                     >
                         Miles per hour (mph)
                     </option>
@@ -80,7 +104,7 @@ export function LokiPreferences() {
                 <Input
                     name="openaiApiKey"
                     label="OpenAI API key"
-                    value={options.openaiApiKey}
+                    value={props.values?.openaiApiKey ?? options.openaiApiKey}
                 />
             </div>
             <div id="jump-image-prompt">
@@ -89,7 +113,10 @@ export function LokiPreferences() {
                         name="jumpImagePrompt"
                         label="System prompt for reading images"
                         rows={14}
-                        value={options.jumpImagePrompt}
+                        value={
+                            props.values?.jumpImagePrompt ??
+                            options.jumpImagePrompt
+                        }
                     />
                     <Button id={restoreId} type="button" variant="secondary">
                         Restore default system prompt
@@ -140,15 +167,35 @@ async function handle(c: AppRequestContext) {
             await context.db.delete(table).where(eq(table.userUuid, user.uuid));
         return c.redirect(routes.logbook.index({}));
     }
-    const result = FormSchema.parse(Object.fromEntries(form.entries()));
+    const raw = Object.fromEntries(form.entries());
+    const values = Object.fromEntries(
+        Object.entries(raw).filter(
+            (entry): entry is [string, string] => typeof entry[1] === "string",
+        ),
+    );
+    const result = FormSchema.safeParse(raw);
+    if (!result.success)
+        return c.render(
+            <PreferencesPage
+                appContent={
+                    <LokiPreferences
+                        errors={result.error.issues.map(
+                            (issue) => issue.message,
+                        )}
+                        values={values}
+                    />
+                }
+            />,
+        );
     await updateLokiOptions(user, {
-        ...result,
-        openaiApiKey: result.openaiApiKey.trim(),
-        jumpImagePrompt: result.jumpImagePrompt.trim(),
+        ...result.data,
+        openaiApiKey: result.data.openaiApiKey.trim(),
+        jumpImagePrompt:
+            result.data.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
     });
     return c.redirect(context.appOptions.authenticatedHome);
 }
 
 export function register(app: App) {
-    app.post(routes.lokiPreferences.route, handle);
+    registerRoute(app, "post", routes.lokiPreferences, handle);
 }

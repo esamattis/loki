@@ -1,10 +1,11 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { AppPage as LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import {
     getInvitationFormValues,
     InvitationForm,
@@ -38,7 +39,7 @@ async function renderInvitationEdit(c: AppRequestContext) {
     }
 
     return c.render(
-        <LogbookPage title="Edit invitation">
+        <AppPage title="Edit invitation">
             <InvitationForm
                 values={{
                     code: invitation.code,
@@ -47,7 +48,7 @@ async function renderInvitationEdit(c: AppRequestContext) {
                 submitLabel="Save invitation"
                 codeReadOnly
             />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
@@ -68,14 +69,14 @@ async function handleInvitationEdit(c: AppRequestContext) {
     const result = InvitationSchema.safeParse(values);
     if (!result.success) {
         return c.render(
-            <LogbookPage title="Edit invitation">
+            <AppPage title="Edit invitation">
                 <InvitationForm
                     values={values}
                     errors={result.error.issues.map((issue) => issue.message)}
                     submitLabel="Save invitation"
                     codeReadOnly
                 />
-            </LogbookPage>,
+            </AppPage>,
         );
     }
 
@@ -100,6 +101,16 @@ async function handleInvitationEdit(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.admin.invitations.edit.route, renderInvitationEdit);
-    app.post(routes.admin.invitations.edit.route, handleInvitationEdit);
+    registerRoute(
+        app,
+        "get",
+        routes.admin.invitations.edit,
+        renderInvitationEdit,
+    );
+    registerRoute(
+        app,
+        "post",
+        routes.admin.invitations.edit,
+        handleInvitationEdit,
+    );
 }

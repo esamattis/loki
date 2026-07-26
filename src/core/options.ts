@@ -22,8 +22,7 @@ export const CoreUserOptionsSchema = z
     })
     .passthrough();
 
-export type CoreUserOptions = z.output<typeof CoreUserOptionsSchema> &
-    Record<string, any>;
+export type CoreUserOptions = z.output<typeof CoreUserOptionsSchema>;
 
 export function parseCoreUserOptions(value: string | null): CoreUserOptions {
     if (!value) return CoreUserOptionsSchema.parse({});

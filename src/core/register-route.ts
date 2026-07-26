@@ -1,47 +1,113 @@
 import type { Handler } from "hono";
 import type { App, Env } from "@/core/create-app";
+
 type RegisteredRoute = {
     readonly route: string;
     readonly metadata: { readonly public: boolean };
 };
 
-const publicPatterns = new WeakMap<App, Set<string>>();
+type RouteApp = Pick<App, "on">;
 
-function accessSet(app: App): Set<string> {
-    let patterns = publicPatterns.get(app);
-    if (!patterns) {
-        patterns = new Set();
-        publicPatterns.set(app, patterns);
+type RegisteredMatcher = {
+    readonly expression: RegExp;
+    readonly public: boolean;
+    readonly specificity: readonly number[];
+};
+
+const registeredMatchers = new WeakMap<
+    RouteApp,
+    Map<string, RegisteredMatcher>
+>();
+
+function matcherMap(app: RouteApp): Map<string, RegisteredMatcher> {
+    let matchers = registeredMatchers.get(app);
+    if (!matchers) {
+        matchers = new Map();
+        registeredMatchers.set(app, matchers);
     }
-    return patterns;
+    return matchers;
+}
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function isParameterSegment(segment: string): boolean {
+    return /^:\w+$/.test(segment);
+}
+
+function compileMatcher(route: RegisteredRoute): RegisteredMatcher {
+    const segments = route.route.split("/");
+    const expression = segments
+        .map((segment) =>
+            isParameterSegment(segment) ? "[^/]+" : escapeRegExp(segment),
+        )
+        .join("/");
+    return {
+        expression: new RegExp(`^${expression}$`),
+        public: route.metadata.public,
+        specificity: segments.map((segment) =>
+            isParameterSegment(segment) ? 0 : 1,
+        ),
+    };
+}
+
+function compareSpecificity(
+    left: RegisteredMatcher,
+    right: RegisteredMatcher,
+): number {
+    for (
+        let index = 0;
+        index < Math.max(left.specificity.length, right.specificity.length);
+        index++
+    ) {
+        const difference =
+            (left.specificity[index] ?? -1) - (right.specificity[index] ?? -1);
+        if (difference !== 0) return difference;
+    }
+    return 0;
+}
+
+function registerAccess(app: RouteApp, route: RegisteredRoute): void {
+    const matchers = matcherMap(app);
+    const registered = matchers.get(route.route);
+    if (registered) {
+        if (registered.public !== route.metadata.public) {
+            throw new Error(
+                `Route "${route.route}" cannot be both public and protected`,
+            );
+        }
+        return;
+    }
+    matchers.set(route.route, compileMatcher(route));
 }
 
 export function registerRoute(
-    app: App,
-    registration: {
-        method: "get" | "post" | "put" | "delete" | "patch";
-        route: RegisteredRoute;
-        handler: Handler<Env>;
-    },
+    app: RouteApp,
+    ...registration: readonly [
+        method: "get" | "post" | "put" | "delete" | "patch",
+        route: RegisteredRoute,
+        handler: Handler<Env>,
+    ]
 ): void {
-    registerRouteAccess(app, registration.route);
-    app.on(
-        registration.method.toUpperCase(),
-        registration.route.route,
-        registration.handler,
-    );
+    const [method, route, handler] = registration;
+    registerAccess(app, route);
+    app.on(method.toUpperCase(), route.route, handler);
 }
 
-export function registerRouteAccess(app: App, route: RegisteredRoute): void {
-    if (route.metadata.public) accessSet(app).add(route.route);
-}
-
-export function isRegisteredPublicPath(app: App, path: string): boolean {
-    for (const pattern of accessSet(app)) {
-        const expression = new RegExp(
-            `^${pattern.replace(/:[^/]+/g, "[^/]+")}$`,
-        );
-        if (expression.test(path)) return true;
+export function isRegisteredPublicPath(app: RouteApp, path: string): boolean {
+    let bestMatch: RegisteredMatcher | undefined;
+    for (const matcher of matcherMap(app).values()) {
+        const specificity = bestMatch
+            ? compareSpecificity(matcher, bestMatch)
+            : 1;
+        if (
+            matcher.expression.test(path) &&
+            (specificity > 0 ||
+                (specificity === 0 && bestMatch?.public && !matcher.public))
+        ) {
+            bestMatch = matcher;
+        }
     }
-    return false;
+    return bestMatch?.public ?? false;
 }

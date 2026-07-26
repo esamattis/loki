@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { METERS_PER_FOOT } from "@/app/altitude";
-import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/app/jump-image";
+import { METERS_PER_FOOT } from "./altitude.ts";
+import { DEFAULT_JUMP_IMAGE_PROMPT } from "./jump-image.ts";
+import { CoreUserOptionsSchema } from "../core/options.ts";
 
-export { altitudeToMeters } from "@/app/altitude";
+export { altitudeToMeters } from "./altitude.ts";
 
 /** Vision-capable OpenAI models suited to structured logbook image extraction. */
 export const JUMP_IMAGE_MODEL_IDS = [
@@ -66,33 +67,11 @@ export function resolveJumpImageModel(
     return fallback;
 }
 
-export const DEFAULT_USER_OPTIONS = {
-    altitudeUnits: "meters",
-    speedUnits: "kilometers-per-hour",
-    dateTimeFormat: "iso",
-    numberFormat: "space-comma",
-    openaiApiKey: "",
-    jumpImagePrompt: DEFAULT_JUMP_IMAGE_PROMPT,
-    jumpImageModel: DEFAULT_JUMP_IMAGE_MODEL,
-    jumpImageAdditionalContext: "",
-    htmlCacheEnabled: true,
-    privacyPolicyAccepted: false,
-    readonly: false,
-    exampleDataChecksum: "",
-    lastCsvExportAt: "",
-} as const;
-
-export const LokiUserOptionsSchema = z.object({
+export const LokiUserOptionsSchema = CoreUserOptionsSchema.extend({
     altitudeUnits: z.enum(["meters", "feet"]).default("meters"),
     speedUnits: z
         .enum(["kilometers-per-hour", "miles-per-hour", "meters-per-second"])
         .default("kilometers-per-hour"),
-    dateTimeFormat: z
-        .enum(["finnish", "european", "american", "iso"])
-        .default("iso"),
-    numberFormat: z
-        .enum(["space-comma", "period-comma", "comma-period"])
-        .default("space-comma"),
     openaiApiKey: z.string().default(""),
     jumpImagePrompt: z.string().default(DEFAULT_JUMP_IMAGE_PROMPT),
     jumpImageModel: z
@@ -105,10 +84,6 @@ export const LokiUserOptionsSchema = z.object({
             "Additional context must be 500 characters or fewer.",
         )
         .default(""),
-    htmlCacheEnabled: z.boolean().default(true),
-    privacyPolicyAccepted: z.boolean().default(false),
-    /** Only admins may change this; user preferences never write it. */
-    readonly: z.boolean().default(false),
     /** SHA-256 of the last imported example CSV; demo import skips when equal. */
     exampleDataChecksum: z.string().default(""),
     /** ISO timestamp of the last successful CSV export. */
@@ -117,6 +92,9 @@ export const LokiUserOptionsSchema = z.object({
 
 export type UserOptions = z.output<typeof LokiUserOptionsSchema>;
 export const UserOptionsSchema = LokiUserOptionsSchema;
+export const DEFAULT_USER_OPTIONS: UserOptions = LokiUserOptionsSchema.parse(
+    {},
+);
 
 export async function updateLokiOptions(
     user: import("@/core/user").User,
@@ -163,6 +141,12 @@ export function parseUserOptions(value: string | null): UserOptions {
         console.error("Failed to parse stored user options", error);
         return LokiUserOptionsSchema.parse({});
     }
+}
+
+export function getLokiUserOptions(
+    user: import("@/core/user").User,
+): UserOptions {
+    return LokiUserOptionsSchema.parse(user.options);
 }
 
 export function formatAltitude(

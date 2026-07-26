@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { JumpImage } from "@/app/logbook/jumps/image";
 import * as routes from "@/app/routes";
@@ -87,7 +88,7 @@ function getGalleryQuery(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.jumps.imageGalleryFragment.route, (c) =>
+    registerRoute(app, "get", routes.logbook.jumps.imageGalleryFragment, (c) =>
         c.render(<ImageGalleryFragment {...getGalleryQuery(c)} />),
     );
 }

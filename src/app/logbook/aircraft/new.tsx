@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     type App,
@@ -12,8 +13,8 @@ import * as routes from "@/app/routes";
 import { aircrafts } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.aircraft.new.route, getNewAircraft);
-    app.post(routes.logbook.aircraft.new.route, createAircraft);
+    registerRoute(app, "get", routes.logbook.aircraft.new, getNewAircraft);
+    registerRoute(app, "post", routes.logbook.aircraft.new, createAircraft);
 }
 
 function getNewAircraft(c: AppRequestContext) {

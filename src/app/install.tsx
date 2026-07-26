@@ -1,6 +1,7 @@
+import { registerRoute } from "@/core/register-route";
 import { useId } from "hono/jsx";
 import { type App, type AppRequestContext } from "@/core/create-app";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { Button } from "@/core/components/form";
 import { Script } from "@/core/components/script";
 import * as routes from "@/app/routes";
@@ -231,12 +232,12 @@ function InstallApp() {
 
 function renderInstallPage(c: AppRequestContext) {
     return c.render(
-        <LogbookPage title="Install app">
+        <AppPage title="Install app">
             <InstallApp />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.install.route, renderInstallPage);
+    registerRoute(app, "get", routes.install, renderInstallPage);
 }

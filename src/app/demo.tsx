@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getAppContext,
@@ -6,7 +7,11 @@ import {
     User,
 } from "@/core/create-app";
 import { generateSessionToken, hashPassword } from "@/core/auth";
-import { UserOptionsSchema, parseUserOptions } from "@/app/options";
+import {
+    UserOptionsSchema,
+    parseUserOptions,
+    updateLokiOptions,
+} from "@/app/options";
 import { importRecords, parseCsvImport } from "@/app/logbook/transfer/index";
 import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/app/routes";
@@ -111,7 +116,7 @@ async function ensureDemoExampleData(c: AppRequestContext) {
 
     await importRecords(c, importResult.records, true);
 
-    await user.updateOptions({
+    await updateLokiOptions(user, {
         exampleDataChecksum: checksum,
         readonly: true,
     });
@@ -127,5 +132,5 @@ async function handleTryDemo(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.demo.try.route, handleTryDemo);
+    registerRoute(app, "post", routes.demo.try, handleTryDemo);
 }

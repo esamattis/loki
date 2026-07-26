@@ -9,8 +9,8 @@ permissions:
     contents: read
 
 env:
-    LOKI_REVISION: ${{ github.sha }}
-    LOKI_VERSION: ${{ github.ref_name }}
+    APP_REVISION: ${{ github.sha }}
+    APP_VERSION: ${{ github.ref_name }}
 
 jobs:
     build-linux-arm64:

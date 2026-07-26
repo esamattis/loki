@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
 import clsx from "clsx";
 import {
@@ -19,7 +20,7 @@ import {
     jumpTypes,
     locations,
 } from "@/app/schema";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { formatDuration } from "@/core/utils/format-duration";
 import {
     fetchRecordStatistics,
@@ -627,7 +628,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
             : undefined;
 
     return c.render(
-        <LogbookPage title="Yearly statistics">
+        <AppPage title="Yearly statistics">
             <a
                 href={routes.logbook.statistics.index({})}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
@@ -717,10 +718,15 @@ async function renderDetailedStatistics(c: AppRequestContext) {
                     filteredByYear={filteredByYear}
                 />
             </div>
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.statistics.detailed.route, renderDetailedStatistics);
+    registerRoute(
+        app,
+        "get",
+        routes.logbook.statistics.detailed,
+        renderDetailedStatistics,
+    );
 }

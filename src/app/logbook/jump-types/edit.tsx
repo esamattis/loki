@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -15,8 +16,10 @@ import * as routes from "@/app/routes";
 import { jumpTypes, jumpsToJumpTypes } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.jumpTypes.edit.route, (c) => getEditJumpType(c));
-    app.post(routes.logbook.jumpTypes.edit.route, updateJumpType);
+    registerRoute(app, "get", routes.logbook.jumpTypes.edit, (c) =>
+        getEditJumpType(c),
+    );
+    registerRoute(app, "post", routes.logbook.jumpTypes.edit, updateJumpType);
 }
 
 async function getEditJumpType(c: AppRequestContext, dangerError?: string) {

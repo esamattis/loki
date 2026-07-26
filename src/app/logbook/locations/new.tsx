@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import {
@@ -10,8 +11,8 @@ import * as routes from "@/app/routes";
 import { locations } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.locations.new.route, getNewLocation);
-    app.post(routes.logbook.locations.new.route, createLocation);
+    registerRoute(app, "get", routes.logbook.locations.new, getNewLocation);
+    registerRoute(app, "post", routes.logbook.locations.new, createLocation);
 }
 
 function getNewLocation(c: AppRequestContext) {

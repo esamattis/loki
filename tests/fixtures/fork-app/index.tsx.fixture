@@ -1,0 +1,52 @@
+import type { AppRequestContext } from "@/core/create-app";
+import { createApp } from "@/core/create-app";
+import { registerRoute } from "@/core/register-route";
+import { registerCoreRoutes } from "@/core/register-routes";
+import { AppPage } from "@/core/app-page";
+import * as routes from "@/app/routes";
+
+function PrivacyPolicyContent() {
+    return (
+        <>
+            <h2>Acorn Notes privacy policy</h2>
+            <p>Account data is stored only to provide this service.</p>
+        </>
+    );
+}
+
+function renderHome(c: AppRequestContext) {
+    return c.html(
+        "<!doctype html><html><body><h1>Acorn Notes</h1><a href=\"/dashboard\">Open notes</a></body></html>",
+    );
+}
+
+function renderDashboard(c: AppRequestContext) {
+    return c.render(
+        <AppPage title="Notes">
+            <p>Private Acorn workspace</p>
+        </AppPage>,
+    );
+}
+
+export const app = createApp({
+    name: "Acorn Notes",
+    title: "Acorn Notes",
+    repositoryUrl: "https://example.test/acorn-notes",
+    buildName: "Acorn Notes",
+    description: "A deliberately small note application.",
+    basicAuthRealm: "Acorn Notes",
+    authenticatedHome: routes.dashboard({}),
+    logoPath: "/logo.svg",
+    themeColor: "#166534",
+    socialImagePath: "/logo.svg",
+    socialImageAlt: "Acorn Notes",
+    authenticatedUserSubtitle(user) {
+        return `${user.getDisplayName()}'s notes`;
+    },
+    navigationLabel: "Note actions",
+    privacyPolicyContent: PrivacyPolicyContent,
+});
+
+registerCoreRoutes(app);
+registerRoute(app, "get", routes.home, renderHome);
+registerRoute(app, "get", routes.dashboard, renderDashboard);

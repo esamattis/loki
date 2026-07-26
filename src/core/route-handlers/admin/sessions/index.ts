@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getAppContext,
@@ -44,5 +45,5 @@ async function handleSessions(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.admin.sessions.index.route, handleSessions);
+    registerRoute(app, "post", routes.admin.sessions.index, handleSessions);
 }

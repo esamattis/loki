@@ -31,6 +31,7 @@ export function Footer(props: {
                 </div>
                 <nav aria-label="Footer" className="flex items-center gap-4">
                     <Link href="/">Home</Link>
+                    {options.footerLinks?.()}
                     {props.showPrivacyPolicy && (
                         <Link
                             href={routes.privacy({}, {})}

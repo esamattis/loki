@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     type App,
@@ -173,6 +174,11 @@ function imageShareFallback(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.serviceWorker.route, serviceWorker);
-    app.post(routes.logbook.jumps.imageShare.route, imageShareFallback);
+    registerRoute(app, "get", routes.serviceWorker, serviceWorker);
+    registerRoute(
+        app,
+        "post",
+        routes.logbook.jumps.imageShare,
+        imageShareFallback,
+    );
 }

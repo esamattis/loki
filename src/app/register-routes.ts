@@ -28,14 +28,12 @@ import { register as registerDetailedStatisticsRoutes } from "@/app/logbook/stat
 import { register as registerTransferRoutes } from "@/app/logbook/transfer/index";
 import { register as registerExportRoutes } from "@/app/logbook/transfer/export";
 import { register as registerServiceWorkerRoutes } from "@/app/service-worker";
-import { registerRouteAccess } from "@/core/register-route";
-import { about, demo, home, install, staticAssets } from "@/app/routes";
+import { register as registerStaticAssetRoutes } from "@/app/static-assets";
 import { register as registerLokiPreferences } from "@/app/preferences";
 import { register as registerLokiAdmin } from "@/app/admin";
 
 export function registerAppRoutes(app: App) {
-    for (const route of [home, about, demo.try, install, ...staticAssets])
-        registerRouteAccess(app, route);
+    registerStaticAssetRoutes(app);
     registerHomeRoutes(app);
     registerDemoRoutes(app);
     registerInstallRoutes(app);

@@ -127,7 +127,7 @@ async function authenticateMiddleware(
         !ctx.user &&
         path !== routes.auth.register.route &&
         path !== routes.privacy.route &&
-        (path === "/" || !isPublicPath) &&
+        (path === "/" || path === routes.auth.login.route || !isPublicPath) &&
         !(await hasRegisteredUsers(ctx.db))
     ) {
         return c.redirect(routes.auth.register({}));

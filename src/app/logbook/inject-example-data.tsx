@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { count, eq } from "drizzle-orm";
 import {
     getAppContext,
@@ -45,5 +46,10 @@ export async function handleInjectExampleData(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.logbook.injectExampleData.route, handleInjectExampleData);
+    registerRoute(
+        app,
+        "post",
+        routes.logbook.injectExampleData,
+        handleInjectExampleData,
+    );
 }

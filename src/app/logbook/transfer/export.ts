@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -5,6 +6,7 @@ import {
     type AppRequestContext,
 } from "@/core/create-app";
 import * as routes from "@/app/routes";
+import { updateLokiOptions } from "@/app/options";
 import {
     aircrafts,
     gear,
@@ -120,7 +122,7 @@ function buildExportFilename(displayName: string, date = new Date()): string {
 }
 
 async function recordCsvExport(c: AppRequestContext) {
-    await getAppContext(c).getUser().updateOptions({
+    await updateLokiOptions(getAppContext(c).getUser(), {
         lastCsvExportAt: new Date().toISOString(),
     });
 }
@@ -273,5 +275,5 @@ export async function exportLogbook(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.transfer.export.route, exportLogbook);
+    registerRoute(app, "get", routes.logbook.transfer.export, exportLogbook);
 }

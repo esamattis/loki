@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -7,13 +8,13 @@ import {
 import { Button, ButtonLink } from "@/core/components/form";
 import { PlusIcon } from "@/app/components/icons";
 import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
 import * as routes from "@/app/routes";
 import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.aircraft.index.route, getAircraftList);
+    registerRoute(app, "get", routes.logbook.aircraft.index, getAircraftList);
 }
 
 async function getAircraftList(c: AppRequestContext) {
@@ -32,7 +33,7 @@ async function getAircraftList(c: AppRequestContext) {
         .groupBy(aircrafts.uuid)
         .orderBy(aircrafts.name);
     return c.render(
-        <LogbookPage title="Aircraft">
+        <AppPage title="Aircraft">
             <IgnoreReturnRoute />
             <div className="flex flex-wrap items-center gap-3">
                 <ButtonLink
@@ -123,6 +124,6 @@ async function getAircraftList(c: AppRequestContext) {
                     ))}
                 </ul>
             )}
-        </LogbookPage>,
+        </AppPage>,
     );
 }

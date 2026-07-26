@@ -5,12 +5,20 @@ import { registerAppRoutes } from "@/app/register-routes";
 import * as lokiRoutes from "@/app/routes";
 import { LogbookActions } from "@/app/navigation-actions";
 import { MenuLink } from "@/core/components/ui/dropdown-menu";
+import { Link } from "@/core/components/link";
 import { createDefaultJumpItems } from "@/app/default-jump-items";
 import { aiUsage } from "@/app/schema";
 import { LokiUserOptionsSchema } from "@/app/options";
 import { users } from "@/core/schema";
 import { LokiRegistrationFields } from "@/app/registration-fields";
 import { LokiPreferences } from "@/app/preferences";
+import { LokiPrivacyPolicyContent } from "@/app/privacy-policy-content";
+import {
+    authenticatedUserSubtitle,
+    buildName,
+    navigationLabel,
+    repositoryUrl,
+} from "@/app/identity";
 
 function LokiNavigation() {
     return <LogbookActions pathname={useAppContext().url().pathname} />;
@@ -46,29 +54,8 @@ function LokiMenuItems() {
     );
 }
 
-function LokiPrivacyPolicy() {
-    return (
-        <div className="space-y-5">
-            <p className="font-bold">
-                do not guarantee any data durability, security, backups, or
-                availability of the service
-            </p>
-            <p>We do not sell or share your personal data.</p>
-            <h2 className="text-xl font-semibold">Where data is stored</h2>
-            <p>
-                Hosted account and logbook data is stored in Cloudflare D1, a
-                global edge database.
-            </p>
-            <p>
-                AI Vision is opt-in and sends selected images only when you
-                configure and use it.
-            </p>
-            <p>
-                We do not run analytics. Cookies are limited to required login
-                state handling.
-            </p>
-        </div>
-    );
+function LokiFooterLinks() {
+    return <Link href={lokiRoutes.about({})}>About</Link>;
 }
 
 async function initializeLokiUser(
@@ -108,6 +95,8 @@ async function scrubAiUsageBeforeAccountDeletion(
 export const app = createApp({
     name: "Loki",
     title: "Loki - Skydiving Logbook",
+    repositoryUrl,
+    buildName,
     description:
         "Open source digital skydiving logbook. Self-host, run locally, or use the invite-only hosted version. Your jumps, your gear, your data.",
     basicAuthRealm: "Loki - Skydiving Logbook",
@@ -116,9 +105,12 @@ export const app = createApp({
     themeColor: "#4f46e5",
     socialImagePath: "/og-image.png",
     socialImageAlt: "Loki - Open source skydiving logbook",
+    authenticatedUserSubtitle,
+    navigationLabel,
     navigation: LokiNavigation,
     appMenuItems: LokiMenuItems,
-    privacyPolicyContent: LokiPrivacyPolicy,
+    footerLinks: LokiFooterLinks,
+    privacyPolicyContent: LokiPrivacyPolicyContent,
     registrationFields: LokiRegistrationFields,
     preferencesContent: LokiPreferences,
     afterUserCreated: initializeLokiUser,

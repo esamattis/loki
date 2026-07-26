@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output, type LanguageModelUsage } from "ai";
 import clsx from "clsx";
@@ -22,7 +23,9 @@ import {
     JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX,
     JUMP_IMAGE_MODELS,
     altitudeInputValue,
+    getLokiUserOptions,
     resolveJumpImageModel,
+    updateLokiOptions,
     type UserOptions,
 } from "@/app/options";
 import {
@@ -43,7 +46,7 @@ import {
     type AiUsageTotals,
 } from "@/app/logbook/components/ai-usage";
 import { ImageGallery } from "@/app/logbook/jumps/image-client";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { ClearReturnRoute } from "@/core/components/return-after-form-post";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
@@ -296,7 +299,7 @@ function JumpFromImagePage(props: {
     const formId = useId();
 
     return (
-        <LogbookPage
+        <AppPage
             title="Read jump from image"
             mobileAction={
                 <Button
@@ -370,7 +373,7 @@ function JumpFromImagePage(props: {
                     rows={props.usageRows}
                 />
             </div>
-        </LogbookPage>
+        </AppPage>
     );
 }
 
@@ -381,7 +384,7 @@ async function saveJumpImageReadOptions(
         additionalContext: string;
     },
 ) {
-    await getAppContext(c).getUser().updateOptions({
+    await updateLokiOptions(getAppContext(c).getUser(), {
         jumpImageModel: options.model,
         jumpImageAdditionalContext: options.additionalContext,
     });
@@ -395,7 +398,7 @@ async function renderJumpFromImage(
         model?: UserOptions["jumpImageModel"];
     },
 ) {
-    const userOptions = getAppContext(c).getUser().options;
+    const userOptions = getLokiUserOptions(getAppContext(c).getUser());
     const hasApiKey = Boolean(userOptions.openaiApiKey.trim());
     const model =
         options?.model ??
@@ -671,7 +674,7 @@ function buildJumpNewQuery(
 }
 
 async function handleJumpFromImage(c: AppRequestContext) {
-    const options = getAppContext(c).getUser().options;
+    const options = getLokiUserOptions(getAppContext(c).getUser());
     const apiKey = options.openaiApiKey.trim();
     const formData = await c.req.formData();
     const additionalContextField = formData.get("additionalContext");
@@ -775,8 +778,13 @@ async function handleJumpFromImage(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.jumps.fromImage.route, async (c) =>
+    registerRoute(app, "get", routes.logbook.jumps.fromImage, async (c) =>
         renderJumpFromImage(c),
     );
-    app.post(routes.logbook.jumps.fromImage.route, handleJumpFromImage);
+    registerRoute(
+        app,
+        "post",
+        routes.logbook.jumps.fromImage,
+        handleJumpFromImage,
+    );
 }

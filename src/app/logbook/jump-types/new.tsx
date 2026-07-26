@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import {
@@ -10,8 +11,8 @@ import * as routes from "@/app/routes";
 import { jumpTypes } from "@/app/schema";
 
 export function register(app: App) {
-    app.get(routes.logbook.jumpTypes.new.route, getNewJumpType);
-    app.post(routes.logbook.jumpTypes.new.route, createJumpType);
+    registerRoute(app, "get", routes.logbook.jumpTypes.new, getNewJumpType);
+    registerRoute(app, "post", routes.logbook.jumpTypes.new, createJumpType);
 }
 
 function getNewJumpType(c: AppRequestContext) {

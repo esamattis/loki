@@ -65,7 +65,9 @@ export function AppHeader() {
                             <span className="flex flex-col">
                                 <span>{appContext.appOptions.title}</span>
                                 <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                                    {user.getDisplayName()}'s logbook
+                                    {appContext.appOptions.authenticatedUserSubtitle(
+                                        user,
+                                    )}
                                 </span>
                             </span>
                         </a>
@@ -89,5 +91,3 @@ export function AppHeader() {
         </>
     );
 }
-
-export const LogbookHeader = AppHeader;

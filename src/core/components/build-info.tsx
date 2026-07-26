@@ -8,18 +8,20 @@ import { ExternalLink } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
 
 export function BuildInfo() {
+    const appOptions = useAppContext().appOptions;
+    const appReleaseUrl = releaseUrl(appOptions.repositoryUrl);
     return (
         <>
-            <span>{useAppContext().appOptions.name}</span>
-            {version && releaseUrl && (
+            <span>{appOptions.name}</span>
+            {version && appReleaseUrl && (
                 <>
                     {" "}
-                    <ExternalLink href={releaseUrl}>{version}</ExternalLink>
+                    <ExternalLink href={appReleaseUrl}>{version}</ExternalLink>
                 </>
             )}{" "}
             (
             <ExternalLink
-                href={commitUrl}
+                href={commitUrl(appOptions.repositoryUrl)}
                 data-loki-tooltip="View commit on GitHub this version was built from"
             >
                 {shortGitRevision}

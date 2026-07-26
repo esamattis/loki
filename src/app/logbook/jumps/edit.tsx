@@ -1,10 +1,15 @@
+import { registerRoute } from "@/core/register-route";
 import { and, eq } from "drizzle-orm";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { altitudeInputValue, altitudeToMeters } from "@/app/options";
+import {
+    altitudeInputValue,
+    altitudeToMeters,
+    getLokiUserOptions,
+} from "@/app/options";
 import {
     findJumpByNumber,
     getJumpFormResources,
@@ -34,7 +39,9 @@ import {
 export async function renderEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        getAppContext(c).getUser(),
+    ).altitudeUnits;
     const { uuid } = routes.logbook.jumps.edit.params(c);
     if (!uuid) return c.notFound();
     const jump = await db
@@ -168,7 +175,9 @@ async function saveEditedJump(
 export async function handleEditJump(c: AppRequestContext) {
     const db = getAppContext(c).db;
     const userUuid = getAppContext(c).getUser().uuid;
-    const altitudeUnits = getAppContext(c).getUser().options.altitudeUnits;
+    const altitudeUnits = getLokiUserOptions(
+        getAppContext(c).getUser(),
+    ).altitudeUnits;
     const { uuid } = routes.logbook.jumps.edit.params(c);
     if (!uuid) return c.notFound();
     const existing = await db
@@ -275,6 +284,6 @@ export async function handleEditJump(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.jumps.edit.route, renderEditJump);
-    app.post(routes.logbook.jumps.edit.route, handleEditJump);
+    registerRoute(app, "get", routes.logbook.jumps.edit, renderEditJump);
+    registerRoute(app, "post", routes.logbook.jumps.edit, handleEditJump);
 }

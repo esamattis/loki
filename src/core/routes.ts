@@ -13,7 +13,6 @@ export const auth = {
 export const readonly = route("/readonly");
 export const preferences = route("/preferences");
 export const privacy = route("/privacy").query<{ back?: string }>().public();
-export const todo = route("/todo").public();
 export const admin = {
     index: route("/admin"),
     loginAs: route("/admin/login-as"),

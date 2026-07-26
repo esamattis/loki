@@ -74,7 +74,7 @@ test("shows download and invite actions in both calls to action", async ({
         page.getByRole("link", { name: "(.csv) backup", exact: true }),
     ).toHaveAttribute(
         "href",
-        "https://github.com/esamattis/loki/blob/main/src/example-logbook.csv",
+        "https://github.com/esamattis/loki/blob/main/src/app/example-logbook.csv",
     );
 });
 

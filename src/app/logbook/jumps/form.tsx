@@ -23,14 +23,15 @@ import {
 } from "@/app/components/jump-item-select";
 import { $select } from "@/core/utils";
 import * as routes from "@/app/routes";
-import { LogbookPage } from "@/core/app-page";
-import { DateInput } from "@/core/components/date-input";
+import { AppPage } from "@/core/app-page";
+import { JumpDateInput } from "@/app/components/jump-date-input";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import { JumpImageSource } from "@/app/logbook/jumps/image-source";
 import { JumpNumberField } from "@/app/logbook/jumps/form/jump-number-field";
 import type { JumpNumberConflictAction } from "@/app/logbook/jumps/helpers";
 import {
     altitudeUnitLabel,
+    getLokiUserOptions,
     numberFormatLocale,
     speedConversionFactor,
     speedInputValue,
@@ -164,7 +165,7 @@ function FreefallTimeField(props: {
     openingAltitudeId: string;
     value: string;
 }) {
-    const options = useAppContext().getUser().options;
+    const options = getLokiUserOptions(useAppContext().getUser());
     const formatSpeed = useSpeedFormatter();
     const estimateButtonId = useId();
     const estimateDialogId = useId();
@@ -296,7 +297,7 @@ function CalculatedValue(props: {
 }
 
 function AvgSpeed(props: { values: JumpFormValues }) {
-    const options = useAppContext().getUser().options;
+    const options = getLokiUserOptions(useAppContext().getUser());
     const exitAltitudeId = useId();
     const openingAltitudeId = useId();
     const freefallTimeId = useId();
@@ -658,8 +659,7 @@ function JumpForm(props: {
                 className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
             />
             <div className="grid gap-5 sm:grid-cols-2">
-                <DateInput
-                    jumpDateTracking
+                <JumpDateInput
                     label="Jump date"
                     name="jumpDate"
                     value={values.jumpDate ?? getToday()}
@@ -735,7 +735,7 @@ export function JumpFormPage(props: {
     const formId = useId();
 
     return (
-        <LogbookPage
+        <AppPage
             title={props.title}
             mobileAction={
                 <Button
@@ -806,7 +806,7 @@ export function JumpFormPage(props: {
                     <ConfirmDeleteButton label="Delete jump" />
                 </DangerZone>
             )}
-        </LogbookPage>
+        </AppPage>
     );
 }
 

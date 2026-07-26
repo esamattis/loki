@@ -51,7 +51,7 @@ export function AppPage(props: {
                     </div>
                 )}
                 <nav
-                    aria-label="Logbook actions"
+                    aria-label={appContext.appOptions.navigationLabel}
                     className="border-t border-slate-200 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85"
                 >
                     <div className="mx-auto max-w-3xl px-4 py-2">
@@ -68,5 +68,3 @@ export function AppPage(props: {
         </div>
     );
 }
-
-export const LogbookPage = AppPage;

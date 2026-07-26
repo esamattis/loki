@@ -67,13 +67,13 @@ return (
 );
 ```
 
-Use `$select` from `@/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Use `$select.el(selector, Constructor)`, `$select.all(selector)`, and `$select.id(id, Constructor)`. Pass a root as the third argument for scoped queries. Use `$select.elOrNull` and `$select.idOrNull` when absence is valid. Pass the complete `$select` object to `Script` with `$deps={[$select]}`, never individual methods.
+Use `$select` from `@/core/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Use `$select.el(selector, Constructor)`, `$select.all(selector)`, and `$select.id(id, Constructor)`. Pass a root as the third argument for scoped queries. Use `$select.elOrNull` and `$select.idOrNull` when absence is valid. Pass the complete `$select` object to `Script` with `$deps={[$select]}`, never individual methods.
 
 Use `$assertElement(el, typeclass)` for elements obtained through other APIs. Never use type casts or type arguments such as `el.closest<HTMLElement>("[data-loki-tooltip]");`.
 
 Functions prefixed with `$` must be executable in the browser.
 
-When creating more than one dom element use the $renderTemplate helper from `@/utils/render-template`
+When creating more than one dom element use the $renderTemplate helper from `@/core/utils/render-template`
 
 # Code Conventions
 
@@ -81,7 +81,7 @@ Write named functions with the `function` keyword. Use arrow functions only for 
 
 Write all UI text in English.
 
-Use the `@/` alias for imports from `src` (for example, `@/components/feedback`) instead of relative paths.
+Use the `@/` alias for imports from `src` (for example, `@/core/components/feedback`) instead of relative paths.
 
 # Forms
 
@@ -92,7 +92,7 @@ Opt saveable edit forms into unsaved-change tracking with `data-loki-confirm="Ed
 ## Return Navigation
 
 For form return navigation, use `RedirectBackAfterPost` and
-`IgnoreReturnRoute` from `@/components/return-after-form-post`; follow their
+`IgnoreReturnRoute` from `@/core/components/return-after-form-post`; follow their
 component doc comments.
 
 # General guides

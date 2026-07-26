@@ -1,6 +1,7 @@
+import { registerRoute } from "@/core/register-route";
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { Button, ButtonLink } from "@/core/components/form";
 import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
 import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
@@ -9,7 +10,7 @@ import { jumpsToJumpTypes, jumpTypes } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: App) {
-    app.get(routes.logbook.jumpTypes.index.route, getJumpTypeList);
+    registerRoute(app, "get", routes.logbook.jumpTypes.index, getJumpTypeList);
 }
 
 async function getJumpTypeList(c: AppRequestContext) {
@@ -28,7 +29,7 @@ async function getJumpTypeList(c: AppRequestContext) {
         .groupBy(jumpTypes.uuid)
         .orderBy(jumpTypes.name);
     return c.render(
-        <LogbookPage title="Jump types">
+        <AppPage title="Jump types">
             <IgnoreReturnRoute />
             <div className="flex flex-wrap items-center gap-3">
                 <ButtonLink
@@ -112,6 +113,6 @@ async function getJumpTypeList(c: AppRequestContext) {
                     ))}
                 </ul>
             )}
-        </LogbookPage>,
+        </AppPage>,
     );
 }

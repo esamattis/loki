@@ -1,14 +1,15 @@
+import { registerRoute } from "@/core/register-route";
 import {
     getAppContext,
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { BuildInfo } from "@/core/components/build-info";
 import { ExternalLink, Link } from "@/core/components/link";
 import * as routes from "@/app/routes";
+import { repositoryUrl } from "@/app/identity";
 
-const repositoryUrl = "https://github.com/esamattis/loki";
 const releasesUrl = `${repositoryUrl}/releases`;
 const licenseUrl = `${repositoryUrl}/blob/main/LICENSE`;
 
@@ -136,12 +137,12 @@ function renderAboutPage(c: AppRequestContext) {
         return c.render(<PublicAboutPage />);
     }
     return c.render(
-        <LogbookPage title="About">
+        <AppPage title="About">
             <AboutContent showBuildInfo sqlitePath={appContext.sqlitePath} />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.about.route, renderAboutPage);
+    registerRoute(app, "get", routes.about, renderAboutPage);
 }

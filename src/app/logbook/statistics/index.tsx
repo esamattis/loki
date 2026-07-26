@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import clsx from "clsx";
 import { useId } from "hono/jsx";
@@ -20,7 +21,7 @@ import {
     jumpsToJumpTypes,
 } from "@/app/schema";
 import { $select } from "@/core/utils";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import { JumpIssueList } from "@/app/logbook/statistics/jump-issue-list";
 
 function formatDate(date: Date): string {
@@ -434,7 +435,7 @@ async function renderStatistics(c: AppRequestContext) {
     const thresholdJumpDate = qualifyingJumpDates[9] ?? null;
 
     return c.render(
-        <LogbookPage title="Statistics">
+        <AppPage title="Statistics">
             <ButtonLink
                 href={routes.logbook.statistics.detailed({}, {})}
                 variant="secondary"
@@ -496,10 +497,15 @@ async function renderStatistics(c: AppRequestContext) {
                     href: routes.logbook.jumps.edit({ uuid: jump.uuid }),
                 }))}
             />
-        </LogbookPage>,
+        </AppPage>,
     );
 }
 
 export function register(app: App) {
-    app.get(routes.logbook.statistics.index.route, renderStatistics);
+    registerRoute(
+        app,
+        "get",
+        routes.logbook.statistics.index,
+        renderStatistics,
+    );
 }

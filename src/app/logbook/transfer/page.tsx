@@ -8,7 +8,7 @@ import {
 import { ExportIcon, ImportIcon } from "@/app/components/icons";
 import { Script } from "@/core/components/script";
 import { SectionHeader } from "@/core/components/ui/section-header";
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import {
     ExportCurlHelp,
     TransferFormatHelp,
@@ -235,7 +235,7 @@ function $setupImportFileDrop(config: {
 /** Renders the logbook import and export page. */
 export function TransferPage(props: TransferPageProps) {
     return (
-        <LogbookPage title="Import or export logbook">
+        <AppPage title="Import or export logbook">
             <div className="space-y-6">
                 <section className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <ExportSection />
@@ -247,6 +247,6 @@ export function TransferPage(props: TransferPageProps) {
                 </section>
                 <AgentMigrationCard />
             </div>
-        </LogbookPage>
+        </AppPage>
     );
 }

@@ -1,3 +1,4 @@
+import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import {
     getAppContext,
@@ -172,5 +173,10 @@ export async function handleRemoveJumpGaps(c: AppRequestContext) {
 }
 
 export function register(app: App) {
-    app.post(routes.logbook.jumps.removeGaps.route, handleRemoveJumpGaps);
+    registerRoute(
+        app,
+        "post",
+        routes.logbook.jumps.removeGaps,
+        handleRemoveJumpGaps,
+    );
 }

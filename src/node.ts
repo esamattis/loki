@@ -16,6 +16,7 @@ import {
 import { migrateSqlite } from "@/core/migrate-sqlite";
 import { registerSeaStaticAssets } from "@/core/node-sea";
 import { buildTitle } from "@/core/build-info";
+import { appConfig } from "@/app/config";
 
 const DEFAULT_PORT = 8787;
 const DEFAULT_PORT_RETRIES = 5;
@@ -140,7 +141,7 @@ async function startServer(args: {
     sqliteDir: string;
 }): Promise<void> {
     const { sqlite, path } = createSqliteDatabase(
-        join(resolve(args.sqliteDir), "loki.sqlite"),
+        join(resolve(args.sqliteDir), appConfig.sqliteFilename),
     );
     const selfContained = isSea();
     migrateSqlite(sqlite);
@@ -166,7 +167,7 @@ async function startServer(args: {
         retries,
     });
     const url = `http://${info.address}:${info.port}`;
-    console.log(`Self-hosted Loki - Skydiving Logbook listening on ${url}`);
+    console.log(`Self-hosted ${app.appOptions.title} listening on ${url}`);
     console.log(`SQLite database: ${path}`);
     if (selfContained && !args.noOpen && hasGraphicalSession()) {
         openBrowser(url);
@@ -174,9 +175,9 @@ async function startServer(args: {
 }
 
 function runSmokeTest(): void {
-    const directory = mkdtempSync(join(tmpdir(), "loki-smoke-test-"));
+    const directory = mkdtempSync(join(tmpdir(), "app-executable-smoke-"));
     try {
-        const { sqlite } = createSqliteDatabase(join(directory, "loki.sqlite"));
+        const { sqlite } = createSqliteDatabase(join(directory, "app.sqlite"));
         try {
             migrateSqlite(sqlite);
             sqlite.exec(
@@ -198,9 +199,9 @@ function runSmokeTest(): void {
 }
 
 const cli = command({
-    name: "loki",
-    version: buildTitle,
-    description: "Run Loki - Skydiving Logbook with SQLite",
+    name: app.appOptions.name.toLowerCase().replaceAll(/[^a-z0-9-]/g, "-"),
+    version: buildTitle(appConfig.buildName),
+    description: `Run ${app.appOptions.title} with SQLite`,
     args: {
         port: option({
             long: "port",
@@ -221,14 +222,15 @@ const cli = command({
         sqliteDir: option({
             long: "sqlite-dir",
             type: string,
-            defaultValue: defaultSqliteDirectory,
-            description: "Directory containing loki.sqlite",
+            defaultValue: () =>
+                defaultSqliteDirectory(appConfig.storageDirectoryName()),
+            description: `Directory containing ${appConfig.sqliteFilename}`,
         }),
     },
     handler: startServer,
 });
 
-if (process.env.LOKI_SMOKE_TEST === "1") {
+if (process.env.APP_EXECUTABLE_SMOKE_TEST === "1") {
     runSmokeTest();
 } else {
     run(cli, process.argv.slice(2)).catch((error: unknown) => {

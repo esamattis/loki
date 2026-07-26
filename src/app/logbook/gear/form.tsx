@@ -1,4 +1,4 @@
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import {
     FormActions,
     Input,
@@ -38,7 +38,7 @@ export function GearFormPage(props: {
 }) {
     const values = props.values ?? {};
     return (
-        <LogbookPage title={props.title}>
+        <AppPage title={props.title}>
             <a
                 href={routes.logbook.gear.index({})}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
@@ -136,6 +136,6 @@ export function GearFormPage(props: {
                         recordedUsageCount={props.recordedUsageCount}
                     />
                 )}
-        </LogbookPage>
+        </AppPage>
     );
 }

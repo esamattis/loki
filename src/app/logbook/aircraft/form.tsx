@@ -1,4 +1,4 @@
-import { LogbookPage } from "@/core/app-page";
+import { AppPage } from "@/core/app-page";
 import {
     FormActions,
     Input,
@@ -83,7 +83,7 @@ export function AircraftFormPage(props: {
     recordedUsageCount?: number;
 }) {
     return (
-        <LogbookPage title={props.title}>
+        <AppPage title={props.title}>
             <a
                 href={routes.logbook.aircraft.index({})}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
@@ -134,7 +134,7 @@ export function AircraftFormPage(props: {
                         recordedUsageCount={props.recordedUsageCount}
                     />
                 )}
-        </LogbookPage>
+        </AppPage>
     );
 }
 
