@@ -1,9 +1,12 @@
 import { eq } from "drizzle-orm";
 import { resolve } from "node:path";
-import { createSqliteDatabase, resolveSqlitePath } from "../src/db-sqlite.ts";
-import { migrateSqlite } from "../src/migrate-sqlite.ts";
-import { DEFAULT_USER_OPTIONS_JSON } from "../src/options.ts";
-import { users } from "../src/schema.ts";
+import {
+    createSqliteDatabase,
+    resolveSqlitePath,
+} from "../src/core/db-sqlite.ts";
+import { migrateSqlite } from "../src/core/migrate-sqlite.ts";
+import { DEFAULT_USER_OPTIONS_JSON } from "../src/app/options.ts";
+import { users } from "../src/core/schema.ts";
 
 const username = "developer";
 const displayName = "Developer User";

@@ -1,6 +1,9 @@
 import { resolve } from "node:path";
-import { createSqliteDatabase, resolveSqlitePath } from "../src/db-sqlite.ts";
-import { migrateSqlite } from "../src/migrate-sqlite.ts";
+import {
+    createSqliteDatabase,
+    resolveSqlitePath,
+} from "../src/core/db-sqlite.ts";
+import { migrateSqlite } from "../src/core/migrate-sqlite.ts";
 
 function main(): void {
     const path = resolveSqlitePath();

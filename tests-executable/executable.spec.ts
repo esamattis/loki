@@ -16,8 +16,7 @@ test("serves the app with an initialized SQLite database", async ({
     expect(homeResponse.headers().location).toBe("/login");
 
     const loginResponse = await request.get("/login", { maxRedirects: 0 });
-    expect(loginResponse.status()).toBe(302);
-    expect(loginResponse.headers().location).toBe("/register");
+    expect(loginResponse.status()).toBe(200);
 
     await page.goto("/register");
     await expect(

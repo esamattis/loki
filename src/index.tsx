@@ -1,7 +1,4 @@
-import { app } from "@/app/app";
-import { registerRoutes } from "@/app/register-routes";
-
-registerRoutes(app);
+import { app } from "@/app/index";
 
 export default {
     fetch: app.fetch,

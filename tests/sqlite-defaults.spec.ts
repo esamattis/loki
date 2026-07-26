@@ -7,8 +7,8 @@ import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
     defaultSqliteDirectory,
-} from "../src/db-sqlite";
-import { createServerTimings } from "../src/server-timing";
+} from "../src/core/db-sqlite";
+import { createServerTimings } from "../src/core/server-timing";
 
 test("uses .local/share on Linux and macOS", () => {
     for (const platform of ["linux", "darwin"] as const) {

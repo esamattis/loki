@@ -71,23 +71,11 @@ async function seedAccountData(username: string): Promise<string> {
 }
 
 function deleteAccountButton(page: Page) {
-    return page
-        .locator("form")
-        .filter({
-            has: page.locator('input[name="action"][value="delete"]'),
-        })
-        .getByRole("button");
+    return page.locator('button[name="action"][value="delete"]');
 }
 
 function deleteLogbookDataButton(page: Page) {
-    return page
-        .locator("form")
-        .filter({
-            has: page.locator(
-                'input[name="action"][value="delete-logbook-data"]',
-            ),
-        })
-        .getByRole("button");
+    return page.locator('button[name="action"][value="delete-logbook-data"]');
 }
 
 test("saving preferences returns to the originating route", async ({
@@ -105,10 +93,14 @@ test("saving preferences returns to the originating route", async ({
         ),
     ).toContain("/logbook/jumps/new?jumpNumber=42");
     await expect(
-        page.locator('input[name="__loki_redirect_back_after_post"]'),
+        page.locator(
+            'form[action="/preferences"] input[name="__loki_redirect_back_after_post"]',
+        ),
     ).toHaveValue("true");
 
-    await page.getByRole("button", { name: "Save preferences" }).click();
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
     await expect(page).toHaveURL("/logbook/jumps/new?jumpNumber=42");
     expect(
         await page.evaluate(() =>
@@ -173,6 +165,16 @@ test("a skydiver can update preferences and account details", async ({
     await page.locator('input[name="password"]').fill("new-parachute");
     await page.locator('input[name="confirmPassword"]').fill("new-parachute");
     await page.getByRole("button", { name: "Save preferences" }).click();
+
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page.locator('select[name="altitudeUnits"]').selectOption("feet");
+    await page
+        .locator('select[name="speedUnits"]')
+        .selectOption("meters-per-second");
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
 
     await expect(page).toHaveURL("/logbook");
     await expect(
@@ -274,6 +276,15 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
         .locator('select[name="numberFormat"]')
         .selectOption("period-comma");
     await page.getByRole("button", { name: "Save preferences" }).click();
+    await openMainMenu(page);
+    await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await page.locator('select[name="altitudeUnits"]').selectOption("feet");
+    await page
+        .locator('select[name="speedUnits"]')
+        .selectOption("meters-per-second");
+    await page
+        .getByRole("button", { name: "Save logbook preferences" })
+        .click();
 
     const jump = page.getByRole("link", { name: /#1/ });
     await expect(jump).toContainText("13.123 ft");
@@ -363,7 +374,10 @@ test("a skydiver can permanently delete their account and all jump items", async
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await expect(page).toHaveURL("/preferences");
-    await openDangerZone(page);
+    await page
+        .getByText("Show destructive actions", { exact: true })
+        .nth(1)
+        .click();
 
     const button = deleteAccountButton(page);
     await expect(button).toHaveText("Delete account");

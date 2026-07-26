@@ -112,7 +112,7 @@ test("offers account deletion instead of policy acceptance", async ({
     const deleteButton = page
         .locator("form")
         .filter({
-            has: page.locator('input[name="action"][value="delete"]'),
+            has: page.locator('button[name="action"][value="delete"]'),
         })
         .getByRole("button");
     await deleteButton.click();

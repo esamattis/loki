@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,7 +11,7 @@ const serverPlugins = ssrPlugin().filter(
 export default defineConfig({
     resolve: {
         alias: {
-            "@": new URL("./src", import.meta.url).pathname,
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
     },
     build: {

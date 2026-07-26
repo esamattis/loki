@@ -34,7 +34,7 @@
     },
     "overrides": [
         {
-            "files": ["src/db-sqlite.ts", "src/migrate-sqlite.ts"],
+            "files": ["src/core/db-sqlite.ts", "src/core/migrate-sqlite.ts"],
             "rules": {
                 "typescript/consistent-type-assertions": "off"
             }

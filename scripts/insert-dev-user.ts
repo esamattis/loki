@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
 import { getPlatformProxy } from "wrangler";
-import { DEFAULT_USER_OPTIONS_JSON } from "../src/options.ts";
-import { users } from "../src/schema.ts";
+import { DEFAULT_USER_OPTIONS_JSON } from "../src/app/options.ts";
+import { users } from "../src/core/schema.ts";
 
 const username = "developer";
 const displayName = "Developer User";

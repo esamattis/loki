@@ -2,7 +2,7 @@ import { asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
 import { getPlatformProxy } from "wrangler";
-import { users } from "../src/schema.ts";
+import { users } from "../src/core/schema.ts";
 
 async function main(): Promise<void> {
     const platform = await getPlatformProxy<CloudflareBindings>({
