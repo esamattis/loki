@@ -5,6 +5,7 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import { AppPage } from "@/core/app-page";
 import { isSafeRedirectPath } from "@/core/auth";
 import { Button, Checkbox } from "@/core/components/form";
@@ -15,11 +16,12 @@ import * as routes from "@/core/routes";
 
 function PrivacyPage(props: { back?: string; error?: string }) {
     const context = useAppContext();
+    const appUi = useCoreAppUi();
     const user = context.user;
     const content = (
         <>
             <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                {context.appOptions.privacyPolicyContent()}
+                {appUi.privacyPolicyContent}
             </section>
             {user &&
                 !context.isSelfHosted() &&

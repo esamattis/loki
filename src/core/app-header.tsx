@@ -1,4 +1,5 @@
 import { useAppContext } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import { MainMenu } from "@/core/main-menu";
 import { Script } from "@/core/components/script";
 import { ThemeToggle } from "@/core/components/theme-toggle";
@@ -41,6 +42,7 @@ function $initMobileHeader(headerId: string) {
 
 export function AppHeader() {
     const appContext = useAppContext();
+    const appUi = useCoreAppUi();
     const user = appContext.getUser();
     const headerId = useId();
 
@@ -65,9 +67,7 @@ export function AppHeader() {
                             <span className="flex flex-col">
                                 <span>{appContext.appOptions.title}</span>
                                 <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                                    {appContext.appOptions.authenticatedUserSubtitle(
-                                        user,
-                                    )}
+                                    {appUi.authenticatedUserSubtitle(user)}
                                 </span>
                             </span>
                         </a>
@@ -78,9 +78,9 @@ export function AppHeader() {
                             </div>
                         </div>
                     </div>
-                    {appContext.appOptions.navigation && (
+                    {appUi.navigation && (
                         <div className="mt-2 hidden border-t border-slate-100 pt-2 sm:block dark:border-slate-800">
-                            {appContext.appOptions.navigation({})}
+                            {appUi.navigation({})}
                         </div>
                     )}
                 </div>

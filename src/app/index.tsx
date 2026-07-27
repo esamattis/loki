@@ -1,5 +1,11 @@
 import { eq } from "drizzle-orm";
-import { createApp, useAppContext, type AppContext } from "@/core/create-app";
+import {
+    createApp,
+    useAppContext,
+    type AppContext,
+    type AppRenderProps,
+} from "@/core/create-app";
+import { CoreApp } from "@/core/core-app";
 import { registerCoreRoutes } from "@/core/register-routes";
 import { registerAppRoutes } from "@/app/register-routes";
 import * as lokiRoutes from "@/app/routes";
@@ -123,6 +129,23 @@ async function scrubAiUsageBeforeAccountDeletion(
         .where(eq(aiUsage.userUuid, userUuid));
 }
 
+function renderApp(props: AppRenderProps) {
+    return (
+        <CoreApp
+            authenticatedUserSubtitle={authenticatedUserSubtitle}
+            navigationLabel={navigationLabel}
+            navigation={LokiNavigation}
+            menuItems={<LokiMenuItems />}
+            footerLinks={<LokiFooterLinks />}
+            registrationFields={<LokiRegistrationFields />}
+            preferencesContent={<LokiPreferencesContent />}
+            privacyPolicyContent={<LokiPrivacyPolicyContent />}
+        >
+            {props.children}
+        </CoreApp>
+    );
+}
+
 // Concrete composition root: core never imports app; app imports and configures core.
 export const app = createApp({
     name: "Loki",
@@ -136,14 +159,7 @@ export const app = createApp({
     themeColor: "#4f46e5",
     socialImagePath: "/og-image.png",
     socialImageAlt: "Loki - Open source skydiving logbook",
-    authenticatedUserSubtitle,
-    navigationLabel,
-    navigation: LokiNavigation,
-    appMenuItems: LokiMenuItems,
-    footerLinks: LokiFooterLinks,
-    privacyPolicyContent: LokiPrivacyPolicyContent,
-    registrationFields: LokiRegistrationFields,
-    preferencesContent: LokiPreferencesContent,
+    render: renderApp,
     afterUserCreated: initializeLokiUser,
     beforeUserDeleted: scrubAiUsageBeforeAccountDeletion,
 });

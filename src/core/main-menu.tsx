@@ -12,14 +12,14 @@ import {
     MenuDivider,
     MenuLink,
 } from "@/core/components/ui/dropdown-menu";
-import { useAppContext } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import * as routes from "@/core/routes";
 
 const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
 export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
-    const appOptions = useAppContext().appOptions;
+    const appUi = useCoreAppUi();
     return (
         <DropdownMenu
             label="Menu"
@@ -34,7 +34,7 @@ export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
                 <BuildInfo />
             </div>
             <MenuDivider />
-            {appOptions.appMenuItems?.()}
+            {appUi.menuItems}
             {props.isAdmin && (
                 <MenuLink href={routes.admin.index({})}>
                     <AdminIcon className={menuIconClassName} />

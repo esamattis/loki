@@ -1,5 +1,6 @@
 import { Link } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import * as routes from "@/core/routes";
 import clsx from "clsx";
 
@@ -8,6 +9,7 @@ export function Footer(props: {
     showPrivacyPolicy: boolean;
 }) {
     const options = useAppContext().appOptions;
+    const appUi = useCoreAppUi();
     return (
         <footer
             className={clsx(
@@ -31,7 +33,7 @@ export function Footer(props: {
                 </div>
                 <nav aria-label="Footer" className="flex items-center gap-4">
                     <Link href="/">Home</Link>
-                    {options.footerLinks?.()}
+                    {appUi.footerLinks}
                     {props.showPrivacyPolicy && (
                         <Link
                             href={routes.privacy({}, {})}

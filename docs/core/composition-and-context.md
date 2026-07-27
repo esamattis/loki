@@ -8,13 +8,38 @@ application using `TrieRouter`. The concrete composition root,
 
 - product identity and metadata such as name, title, repository URL, logo,
   theme color, and social image;
-- authenticated navigation, menu, footer, privacy policy, registration, and
-  preferences UI slots;
+- one full-document `render` function;
 - the authenticated home URL and HTTP Basic authentication realm; and
 - optional account lifecycle hooks.
 
-The UI slots are functions returning Hono JSX. This lets the core page shell
-render application-owned content without importing `src/app`.
+The renderer normally returns `CoreApp`, passing authenticated navigation,
+menu, footer, privacy policy, registration, and preferences content as
+component props. This keeps `createApp` focused on application infrastructure
+while allowing the concrete application to use or replace the standard core
+page shell.
+
+```tsx
+function renderApp(props: AppRenderProps) {
+    return (
+        <CoreApp
+            authenticatedUserSubtitle={authenticatedUserSubtitle}
+            navigationLabel="Application actions"
+            menuItems={<ApplicationMenuItems />}
+            privacyPolicyContent={<PrivacyPolicyContent />}
+        >
+            {props.children}
+        </CoreApp>
+    );
+}
+
+export const app = createApp({
+    // Product metadata and runtime configuration.
+    render: renderApp,
+});
+```
+
+The renderer middleware returns HTMX fragment content directly. The
+application renderer is responsible only for full documents.
 
 The account hooks are:
 
@@ -23,9 +48,9 @@ The account hooks are:
 - `beforeUserDeleted(context, userUuid)`, used to scrub or remove product data
   before core deletes the account.
 
-Providing `registrationFields` requires `afterUserCreated`. Registration is
-compensated if application initialization fails, so a partially initialized
-account is not left behind.
+Providing `CoreApp` with `registrationFields` requires configuring
+`afterUserCreated` in `createApp`. Registration is compensated if application
+initialization fails, so a partially initialized account is not left behind.
 
 ## Installed middleware
 

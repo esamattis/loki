@@ -1,5 +1,9 @@
-import type { AppRequestContext } from "@/core/create-app";
+import type {
+    AppRenderProps,
+    AppRequestContext,
+} from "@/core/create-app";
 import { createApp } from "@/core/create-app";
+import { CoreApp } from "@/core/core-app";
 import { registerRoute } from "@/core/register-route";
 import { registerCoreRoutes } from "@/core/register-routes";
 import { AppPage } from "@/core/app-page";
@@ -28,6 +32,20 @@ function renderDashboard(c: AppRequestContext) {
     );
 }
 
+function renderApp(props: AppRenderProps) {
+    return (
+        <CoreApp
+            authenticatedUserSubtitle={(user) =>
+                `${user.getDisplayName()}'s notes`
+            }
+            navigationLabel="Note actions"
+            privacyPolicyContent={<PrivacyPolicyContent />}
+        >
+            {props.children}
+        </CoreApp>
+    );
+}
+
 export const app = createApp({
     name: "Acorn Notes",
     title: "Acorn Notes",
@@ -39,11 +57,7 @@ export const app = createApp({
     themeColor: "#166534",
     socialImagePath: "/logo.svg",
     socialImageAlt: "Acorn Notes",
-    authenticatedUserSubtitle(user) {
-        return `${user.getDisplayName()}'s notes`;
-    },
-    navigationLabel: "Note actions",
-    privacyPolicyContent: PrivacyPolicyContent,
+    render: renderApp,
 });
 
 registerCoreRoutes(app);

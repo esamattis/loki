@@ -47,14 +47,16 @@ A concrete application normally performs three steps:
 
 ```tsx
 export const app = createApp({
-    // Product metadata, UI slots, and lifecycle hooks.
+    // Product metadata, one renderer, and lifecycle hooks.
 });
 
 registerCoreRoutes(app);
 registerAppRoutes(app);
 ```
 
-`createApp` installs cross-cutting middleware and error rendering.
+`createApp` installs cross-cutting middleware and delegates full-document
+rendering to the configured renderer. The concrete renderer normally wraps
+page content in `CoreApp` and supplies its product-specific UI.
 `registerCoreRoutes` adds the reusable account, privacy, preferences, asset, and
 admin endpoints. The concrete route registrar adds product pages and handlers.
 Every handler is registered explicitly; route modules do not register

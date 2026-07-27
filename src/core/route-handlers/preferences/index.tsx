@@ -8,6 +8,7 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import { AppPage } from "@/core/app-page";
 import { hashPassword } from "@/core/auth";
 import {
@@ -171,8 +172,7 @@ export function PreferencesPage(props: {
                 errors={props.errors}
                 values={props.values}
             />
-            {props.appContent ??
-                useAppContext().appOptions.preferencesContent?.()}
+            {props.appContent ?? useCoreAppUi().preferencesContent}
             <form method="post" action={routes.preferences({})}>
                 <DangerZone>
                     <ConfirmDangerButton

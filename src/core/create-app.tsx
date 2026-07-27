@@ -1,7 +1,7 @@
 import { Context, Hono } from "hono";
 import { TrieRouter } from "hono/router/trie-router";
 import { useRequestContext } from "hono/jsx-renderer";
-import type { Child } from "hono/jsx";
+import type { Child, FC } from "hono/jsx";
 import type { AppDatabase } from "@/core/db";
 import { User } from "@/core/user";
 import type { ServerTimings } from "@/core/server-timing";
@@ -32,14 +32,7 @@ export interface CreateAppOptions {
     themeColor: string;
     socialImagePath: string;
     socialImageAlt: string;
-    authenticatedUserSubtitle: (user: User) => string;
-    navigationLabel: string;
-    navigation?: (props: { end?: Child }) => Child;
-    appMenuItems?: () => Child;
-    footerLinks?: () => Child;
-    registrationFields?: () => Child;
-    preferencesContent?: () => Child;
-    privacyPolicyContent: () => Child;
+    render: (props: AppRenderProps) => Exclude<ReturnType<FC>, null>;
     afterUserCreated?: (
         context: AppContext,
         userUuid: string,
@@ -49,6 +42,10 @@ export interface CreateAppOptions {
         context: AppContext,
         userUuid: string,
     ) => Promise<void>;
+}
+
+export interface AppRenderProps {
+    children: Child;
 }
 
 export class App extends Hono<Env> {
@@ -160,9 +157,6 @@ export function useNumberFormatter(): NumberFormatter {
 }
 
 export function createApp(options: CreateAppOptions): App {
-    if (options.registrationFields && !options.afterUserCreated) {
-        throw new Error("registrationFields requires afterUserCreated");
-    }
     const app = new App(options);
     registerErrorHandlers(app);
     registerAppContext(app);

@@ -1,4 +1,5 @@
 import { useAppContext } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import { AppHeader } from "@/core/app-header";
 import { MainMenu } from "@/core/main-menu";
 import { Style } from "@/core/components/style";
@@ -11,6 +12,7 @@ export function AppPage(props: {
     children: any;
 }) {
     const appContext = useAppContext();
+    const appUi = useCoreAppUi();
     const user = appContext.getUser();
 
     return (
@@ -51,12 +53,12 @@ export function AppPage(props: {
                     </div>
                 )}
                 <nav
-                    aria-label={appContext.appOptions.navigationLabel}
+                    aria-label={appUi.navigationLabel}
                     className="border-t border-slate-200 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85"
                 >
                     <div className="mx-auto max-w-3xl px-4 py-2">
-                        {appContext.appOptions.navigation ? (
-                            appContext.appOptions.navigation({
+                        {appUi.navigation ? (
+                            appUi.navigation({
                                 end: (
                                     <MainMenu
                                         isAdmin={user.admin}

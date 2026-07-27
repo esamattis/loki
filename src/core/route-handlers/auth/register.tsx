@@ -6,6 +6,7 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
+import { useCoreAppUi } from "@/core/core-app-context";
 import { users } from "@/core/schema";
 import { z } from "zod";
 import { AuthFormShell } from "@/core/components/auth";
@@ -82,7 +83,7 @@ function RegisterForm(props: {
                 </section>
             )}
             <RegistrationLocaleInputs />
-            {useAppContext().appOptions.registrationFields?.()}
+            {useCoreAppUi().registrationFields}
             {!selfHosted && (
                 <p>
                     Please read the{" "}
