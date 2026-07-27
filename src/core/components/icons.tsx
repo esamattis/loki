@@ -3,6 +3,26 @@ interface IconProps {
     id?: string;
 }
 
+export function BurgerMenuIcon(props: IconProps) {
+    return (
+        <svg
+            id={props.id}
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+            />
+        </svg>
+    );
+}
+
 function Icon(props: IconProps) {
     return (
         <svg
@@ -91,8 +111,11 @@ export function LightThemeIcon(props: IconProps) {
             stroke="currentColor"
             stroke-width="2"
         >
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05 5.636 5.636M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            />
         </svg>
     );
 }
@@ -105,7 +128,11 @@ export function DarkThemeIcon(props: IconProps) {
             stroke="currentColor"
             stroke-width="2"
         >
-            <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z" />
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+            />
         </svg>
     );
 }
@@ -118,8 +145,54 @@ export function SystemThemeIcon(props: IconProps) {
             stroke="currentColor"
             stroke-width="2"
         >
-            <rect x="3" y="4" width="18" height="14" rx="2" />
-            <path d="M8 22h8M12 18v4" />
+            <path d="M12 4a8 8 0 000 16V4z" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="12" r="8" />
         </svg>
+    );
+}
+
+function MenuIcon(props: { className: string; path: string }) {
+    return (
+        <svg
+            aria-hidden="true"
+            className={props.className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d={props.path}
+            />
+        </svg>
+    );
+}
+
+export function AdminIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M12 3l8 3v5c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-3zm0 5v4m0 4h.01"
+        />
+    );
+}
+
+export function PreferencesIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M12 8a4 4 0 100 8 4 4 0 000-8zm0-5v2m0 14v2M3 12h2m14 0h2M5.64 5.64l1.42 1.42m9.88 9.88l1.42 1.42m0-12.72l-1.42 1.42m-9.88 9.88l-1.42 1.42"
+        />
+    );
+}
+
+export function LogoutIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M10 5H5a2 2 0 00-2 2v10a2 2 0 002 2h5m4-4l4-3-4-3m4 3H8"
+        />
     );
 }

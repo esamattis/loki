@@ -4,7 +4,7 @@ import { registerCoreRoutes } from "@/core/register-routes";
 import { registerAppRoutes } from "@/app/register-routes";
 import * as lokiRoutes from "@/app/routes";
 import { LogbookActions } from "@/app/navigation-actions";
-import { MenuLink } from "@/core/components/ui/dropdown-menu";
+import { MenuDivider, MenuLink } from "@/core/components/ui/dropdown-menu";
 import { Link } from "@/core/components/link";
 import { createDefaultJumpItems } from "@/app/default-jump-items";
 import { aiUsage } from "@/app/schema";
@@ -19,9 +19,28 @@ import {
     navigationLabel,
     repositoryUrl,
 } from "@/app/identity";
+import {
+    AboutIcon,
+    AircraftIcon,
+    GearIcon,
+    InstallIcon,
+    JumpTypeIcon,
+    LocationIcon,
+    StatisticsIcon,
+    TransferIcon,
+} from "@/app/components/menu-icons";
+import type { Child } from "hono/jsx";
 
-function LokiNavigation() {
-    return <LogbookActions pathname={useAppContext().url().pathname} />;
+const menuIconClassName =
+    "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
+
+function LokiNavigation(props: { end?: Child }) {
+    return (
+        <LogbookActions
+            pathname={useAppContext().url().pathname}
+            end={props.end}
+        />
+    );
 }
 
 function LokiMenuItems() {
@@ -29,24 +48,38 @@ function LokiMenuItems() {
     return (
         <>
             <MenuLink href={lokiRoutes.logbook.aircraft.index({})}>
+                <AircraftIcon className={menuIconClassName} />
                 Manage aircraft
             </MenuLink>
             <MenuLink href={lokiRoutes.logbook.gear.index({})}>
+                <GearIcon className={menuIconClassName} />
                 Manage gear
             </MenuLink>
             <MenuLink href={lokiRoutes.logbook.jumpTypes.index({})}>
+                <JumpTypeIcon className={menuIconClassName} />
                 Manage jump types
             </MenuLink>
             <MenuLink href={lokiRoutes.logbook.locations.index({})}>
+                <LocationIcon className={menuIconClassName} />
                 Manage locations
             </MenuLink>
+            <MenuDivider />
             <MenuLink href={lokiRoutes.logbook.transfer.index({})}>
+                <TransferIcon className={menuIconClassName} />
                 Import or export
             </MenuLink>
-            <MenuLink href={lokiRoutes.install({})}>Install app</MenuLink>
-            <MenuLink href={lokiRoutes.about({})}>About</MenuLink>
+            <MenuDivider />
+            <MenuLink href={lokiRoutes.install({})}>
+                <InstallIcon className={menuIconClassName} />
+                Install app
+            </MenuLink>
+            <MenuLink href={lokiRoutes.about({})}>
+                <AboutIcon className={menuIconClassName} />
+                About
+            </MenuLink>
             {user.admin && (
                 <MenuLink href={lokiRoutes.lokiAdmin({})}>
+                    <StatisticsIcon className={menuIconClassName} />
                     Recorded jumps
                 </MenuLink>
             )}

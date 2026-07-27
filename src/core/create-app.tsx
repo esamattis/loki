@@ -35,7 +35,7 @@ export interface CreateAppOptions {
     socialImageAlt: string;
     authenticatedUserSubtitle: (user: User) => string;
     navigationLabel: string;
-    navigation?: () => Child;
+    navigation?: (props: { end?: Child }) => Child;
     appMenuItems?: () => Child;
     footerLinks?: () => Child;
     registrationFields?: () => Child;

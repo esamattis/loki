@@ -26,7 +26,12 @@ export function MenuButton(props: {
 }
 
 export function MenuDivider() {
-    return <div className="my-1 h-px bg-slate-100 dark:bg-slate-800"></div>;
+    return (
+        <div
+            role="separator"
+            className="my-1 h-px bg-slate-100 dark:bg-slate-800"
+        ></div>
+    );
 }
 
 function $initDropdownMenu(buttonId: string, menuId: string) {

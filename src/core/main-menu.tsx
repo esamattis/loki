@@ -1,6 +1,12 @@
 import { BuildInfo } from "@/core/components/build-info";
 import { buttonClassName } from "@/core/components/form";
 import {
+    AdminIcon,
+    BurgerMenuIcon,
+    LogoutIcon,
+    PreferencesIcon,
+} from "@/core/components/icons";
+import {
     DropdownMenu,
     MenuButton,
     MenuDivider,
@@ -9,12 +15,15 @@ import {
 import { useAppContext } from "@/core/create-app";
 import * as routes from "@/core/routes";
 
+const menuIconClassName =
+    "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
+
 export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
     const appOptions = useAppContext().appOptions;
     return (
         <DropdownMenu
             label="Menu"
-            button={<span aria-hidden="true">Menu</span>}
+            button={<BurgerMenuIcon className="h-5 w-5" />}
             buttonClassName={buttonClassName({
                 variant: "secondary",
                 className: "px-3 py-2",
@@ -26,14 +35,22 @@ export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
             </div>
             <MenuDivider />
             {appOptions.appMenuItems?.()}
-            <MenuDivider />
             {props.isAdmin && (
-                <MenuLink href={routes.admin.index({})}>Admin</MenuLink>
+                <MenuLink href={routes.admin.index({})}>
+                    <AdminIcon className={menuIconClassName} />
+                    Admin
+                </MenuLink>
             )}
-            <MenuLink href={routes.preferences({})}>Preferences</MenuLink>
+            <MenuLink href={routes.preferences({})}>
+                <PreferencesIcon className={menuIconClassName} />
+                Preferences
+            </MenuLink>
             <MenuDivider />
             <form method="post" action={routes.auth.logout({})}>
-                <MenuButton type="submit">Log out</MenuButton>
+                <MenuButton type="submit">
+                    <LogoutIcon className={menuIconClassName} />
+                    Log out
+                </MenuButton>
             </form>
         </DropdownMenu>
     );

@@ -120,6 +120,10 @@ Comment-only changes do not require rerunning tests.
 
 Note that this does automatic prettier formatting.
 
+For visual changes, test user-facing functionality instead of exact visual
+details. Do not add tests for specific spacing, divider counts, icon markup, or
+other presentation-only implementation details.
+
 For local D1 access in Playwright tests, use `executePlaywrightDb` and
 `queryPlaywrightDb` from `tests/helpers.ts`. Do not reimplement wrangler D1
 commands in individual specs.
