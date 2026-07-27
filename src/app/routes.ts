@@ -48,7 +48,7 @@ export const home = route("/").public();
 export const demo = {
     try: route("/demo").public(),
 };
-export const install = route("/install").public();
+export const install = route("/install");
 export const about = route("/about").public();
 export const lokiPreferences = route("/preferences/logbook");
 export const lokiAdmin = route("/admin/logbook");
