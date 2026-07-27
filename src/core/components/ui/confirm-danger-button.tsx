@@ -12,6 +12,10 @@ const dangerButtonClassName = buttonClassName({
 const confirmDangerCountdownSeconds =
     process.env.PLAYWRIGHT_TEST === "1" ? 0 : 3;
 
+/**
+ * Two-step danger submit: first click starts a countdown, then the button
+ * becomes a confirm submit; outside click resets. Countdown is 0 in Playwright.
+ */
 function $initConfirmDangerButton(config: {
     buttonId: string;
     label: string;
@@ -93,6 +97,7 @@ function $initConfirmDangerButton(config: {
     });
 }
 
+/** Client script bridge for `ConfirmDangerButton`. */
 function ConfirmDangerButtonScript(props: {
     buttonId: string;
     label: string;
@@ -114,6 +119,16 @@ function ConfirmDangerButtonScript(props: {
     );
 }
 
+/**
+ * Submit button that requires a second click (after a short countdown) before
+ * the form posts. Use for irreversible actions inside an existing form.
+ *
+ * @param props.label - Idle button label.
+ * @param props.confirmLabel - Label during countdown and ready-to-submit state.
+ * @param props.className - Extra classes on the button.
+ * @param props.name - Optional submitter `name`.
+ * @param props.value - Optional submitter `value`.
+ */
 export function ConfirmDangerButton(props: {
     label: string;
     confirmLabel: string;

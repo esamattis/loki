@@ -1,6 +1,15 @@
 import clsx from "clsx";
 import { ChevronRightIcon } from "@/core/components/icons";
 
+/**
+ * Styled `<details>` with a chevron that rotates when open.
+ *
+ * @param props.summary - Summary row content (label).
+ * @param props.open - Initial open state.
+ * @param props.className - Classes on the `<details>` element.
+ * @param props.summaryClassName - Classes on the `<summary>` element.
+ * @param props.children - Collapsible body.
+ */
 export function Details(props: {
     summary: any;
     open?: boolean;

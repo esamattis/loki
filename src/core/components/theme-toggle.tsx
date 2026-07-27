@@ -7,6 +7,12 @@ import {
 } from "@/core/components/icons";
 import { $select } from "@/core/utils";
 
+/**
+ * Browser init for `ThemeToggle`: cycles light → dark → system, persists to
+ * `localStorage`, and updates icons and aria labels.
+ *
+ * @param ids - Element ids for the button and the three theme icons.
+ */
 export function $initThemeToggle(ids: {
     buttonId: string;
     lightIconId: string;
@@ -80,6 +86,7 @@ export function $initThemeToggle(ids: {
         });
 }
 
+/** Header control that cycles the color theme between light, dark, and system. */
 export function ThemeToggle() {
     const id = useId();
     const lightIconId = `${id}-light`;

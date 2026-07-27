@@ -1,8 +1,12 @@
+/** Shared props for inline SVG icons. */
 interface IconProps {
+    /** Tailwind size/color classes for the SVG. */
     className: string;
+    /** Optional element id (e.g. for theme toggle icon targets). */
     id?: string;
 }
 
+/** Hamburger menu icon (three horizontal lines). */
 export function BurgerMenuIcon(props: IconProps) {
     return (
         <svg
@@ -23,6 +27,7 @@ export function BurgerMenuIcon(props: IconProps) {
     );
 }
 
+/** Base SVG used by simple path icons (currently close/X). */
 function Icon(props: IconProps) {
     return (
         <svg
@@ -41,9 +46,13 @@ function Icon(props: IconProps) {
         </svg>
     );
 }
+
+/** Close / clear (X) icon. */
 export function CloseIcon(props: IconProps) {
     return <Icon {...props} />;
 }
+
+/** Eye / visible icon. */
 export function EyeIcon(props: IconProps) {
     return (
         <svg
@@ -58,9 +67,13 @@ export function EyeIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Eye-off / hidden icon (shares the close path until a dedicated glyph exists). */
 export function EyeOffIcon(props: IconProps) {
     return <Icon {...props} />;
 }
+
+/** Padlock icon. */
 export function LockIcon(props: IconProps) {
     return (
         <svg
@@ -75,6 +88,8 @@ export function LockIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Chevron pointing right (used in expandable details). */
 export function ChevronRightIcon(props: IconProps) {
     return (
         <svg
@@ -88,6 +103,8 @@ export function ChevronRightIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Calendar icon for date pickers. */
 export function CalendarIcon(props: IconProps) {
     return (
         <svg
@@ -102,6 +119,8 @@ export function CalendarIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Sun icon representing the light color theme. */
 export function LightThemeIcon(props: IconProps) {
     return (
         <svg
@@ -119,6 +138,8 @@ export function LightThemeIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Moon icon representing the dark color theme. */
 export function DarkThemeIcon(props: IconProps) {
     return (
         <svg
@@ -136,6 +157,8 @@ export function DarkThemeIcon(props: IconProps) {
         </svg>
     );
 }
+
+/** Half-filled circle representing the system color theme. */
 export function SystemThemeIcon(props: IconProps) {
     return (
         <svg
@@ -151,6 +174,7 @@ export function SystemThemeIcon(props: IconProps) {
     );
 }
 
+/** Single-path menu icon used by admin/preferences/logout glyphs. */
 function MenuIcon(props: { className: string; path: string }) {
     return (
         <svg
@@ -170,6 +194,11 @@ function MenuIcon(props: { className: string; path: string }) {
     );
 }
 
+/**
+ * Shield icon for admin navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
 export function AdminIcon(props: { className: string }) {
     return (
         <MenuIcon
@@ -179,6 +208,11 @@ export function AdminIcon(props: { className: string }) {
     );
 }
 
+/**
+ * Gear icon for preferences navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
 export function PreferencesIcon(props: { className: string }) {
     return (
         <MenuIcon
@@ -188,6 +222,11 @@ export function PreferencesIcon(props: { className: string }) {
     );
 }
 
+/**
+ * Door/exit icon for logout actions.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
 export function LogoutIcon(props: { className: string }) {
     return (
         <MenuIcon

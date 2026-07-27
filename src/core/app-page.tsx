@@ -6,6 +6,14 @@ import { Style } from "@/core/components/style";
 import clsx from "clsx";
 import { type Child } from "hono/jsx";
 
+/**
+ * Authenticated page chrome: header, main content, optional mobile form action
+ * bar, and bottom navigation (or menu) on small screens.
+ *
+ * @param props.title - Optional page `<h1>`.
+ * @param props.mobileAction - Fixed bar above bottom nav (e.g. form submit).
+ * @param props.children - Main page body.
+ */
 export function AppPage(props: {
     title?: string;
     mobileAction?: Child;

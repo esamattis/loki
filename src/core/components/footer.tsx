@@ -4,6 +4,13 @@ import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
 import clsx from "clsx";
 
+/**
+ * Site footer with logo, name, home link, app-provided footer links, and an
+ * optional Terms & Privacy link.
+ *
+ * @param props.hasBottomNavigation - Adds bottom margin when mobile bottom nav is present.
+ * @param props.showPrivacyPolicy - When true, links to the privacy policy route.
+ */
 export function Footer(props: {
     hasBottomNavigation: boolean;
     showPrivacyPolicy: boolean;

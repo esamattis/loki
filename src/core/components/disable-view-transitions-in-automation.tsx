@@ -2,6 +2,10 @@ import { useId } from "hono/jsx";
 import { Script } from "@/core/components/script";
 import { $renderTemplate, $select } from "@/core/utils";
 
+/**
+ * When `navigator.webdriver` is set, injects CSS that disables view transitions
+ * so automated tests are not flaky.
+ */
 function $disableViewTransitionsInAutomation(templateId: string) {
     if (!navigator.webdriver) return;
     const container = document.createElement("div");
@@ -11,6 +15,10 @@ function $disableViewTransitionsInAutomation(templateId: string) {
     document.head.appendChild(style);
 }
 
+/**
+ * Disables CSS view transitions under WebDriver (Playwright, etc.).
+ * No-op for normal users.
+ */
 export function DisableViewTransitionsInAutomation() {
     const templateId = useId();
     return (

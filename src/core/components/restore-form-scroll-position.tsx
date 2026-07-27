@@ -1,5 +1,9 @@
 import { Script } from "@/core/components/script";
 
+/**
+ * Saves scroll position on form submit and restores it after a same-path
+ * validation re-render so the user stays near the field they were editing.
+ */
 function $restoreFormScrollPosition() {
     const storageKey = "form-scroll-position";
     const storedPosition = sessionStorage.getItem(storageKey);
@@ -24,6 +28,10 @@ function $restoreFormScrollPosition() {
     );
 }
 
+/**
+ * Restores window scroll after form POST validation responses that re-render
+ * the same path. Render once in the layout.
+ */
 export function RestoreFormScrollPosition() {
     return <Script $exec={$restoreFormScrollPosition} />;
 }

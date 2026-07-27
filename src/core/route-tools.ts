@@ -7,6 +7,10 @@ type ExtractRouteParams<T extends string> =
           ? { [K in Param]: string | number }
           : { __empty?: never } | undefined | null;
 
+/**
+ * Builds a path from a route pattern by substituting `:param` segments and
+ * appending a query string. Throws when a required path param is missing.
+ */
 function createUrl<T extends string>(
     pattern: T,
     params: ExtractRouteParams<T>,
@@ -33,6 +37,15 @@ function createUrl<T extends string>(
     return url;
 }
 
+/**
+ * Defines a typed route helper for `src/core/routes.ts` and app routes.
+ *
+ * The returned function builds URLs: `routeFn(params, query?)`. Chain
+ * `.query<Q>()`, `.public()`, or `.publicAsset()` before use. Also exposes
+ * `.route` (pattern), `.params(c)`, `.query(c)` when typed, and `.metadata`.
+ *
+ * @param pattern - Path pattern with optional `:param` segments.
+ */
 export function route<T extends string>(pattern: T) {
     function plain(isPublic: boolean, privacyPolicyExempt = false) {
         function to(

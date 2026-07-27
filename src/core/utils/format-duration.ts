@@ -1,3 +1,9 @@
+/**
+ * Formats a non-negative duration in seconds as a compact `Xd Xh Xmin Xs` string.
+ * Omits leading zero units except seconds, which are always shown.
+ *
+ * @param totalSeconds - Whole seconds to format.
+ */
 export function formatDuration(totalSeconds: number): string {
     const days = Math.floor(totalSeconds / 86_400);
     const hours = Math.floor((totalSeconds % 86_400) / 3_600);

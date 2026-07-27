@@ -108,6 +108,12 @@ function serializeClientValue(
     return source;
 }
 
+/**
+ * Serializes a browser-side dependency (function, class, or plain object) to
+ * source text that can run in an inline `<script>`. Nested function values are
+ * stringified with `Function#toString`; module-qualified references are rewritten
+ * against `dependencies` so Vite's `(0, module.fn)` form works in the browser.
+ */
 export function serializeClientDependency(
     dependency: ClientDependency,
     dependencies: ClientDependency[] = [],
@@ -115,6 +121,17 @@ export function serializeClientDependency(
     return serializeClientValue(dependency, dependencies, new Set());
 }
 
+/**
+ * Emits an inline browser script that runs `$exec` with optional `$args` after
+ * defining any `$deps`. Dependencies and the exec function are deduplicated per
+ * request via `jsDupCache` and exposed as stable globals. All `$deps` and `$exec`
+ * must have a valid `name` or `displayName` so they can be bound in the browser.
+ *
+ * @param props.$exec - Browser function to invoke (must be serializable).
+ * @param props.$deps - Client functions/objects `$exec` closes over; pass whole
+ *   objects (e.g. `$select`), never individual methods.
+ * @param props.$args - JSON-serializable arguments passed to `$exec`.
+ */
 export function Script<T extends readonly unknown[] = []>(props: {
     $exec: ((...args: T) => void) & { displayName?: string };
     $deps?: ClientDependency[];

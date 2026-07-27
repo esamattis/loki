@@ -3,6 +3,7 @@ import { useId } from "hono/jsx";
 import { $select } from "@/core/utils";
 import { Script } from "@/core/components/script";
 
+/** Copies code text to the clipboard and briefly shows “Copied!”. */
 function $initCopyCode(codeId: string, buttonId: string) {
     const code = $select.id(codeId, HTMLElement);
     const button = $select.id(buttonId, HTMLButtonElement);
@@ -16,6 +17,7 @@ function $initCopyCode(codeId: string, buttonId: string) {
     });
 }
 
+/** Client script bridge for `Code` copy button. */
 function CopyCodeScript(props: { codeId: string; buttonId: string }) {
     return (
         <Script
@@ -26,6 +28,14 @@ function CopyCodeScript(props: { codeId: string; buttonId: string }) {
     );
 }
 
+/**
+ * Monospace code block with a Copy button that writes the text to the clipboard.
+ *
+ * @param props.children - Plain text code content (not HTML).
+ * @param props.codeId - Optional id on the `<code>` element.
+ * @param props.codeProps - Extra attributes spread onto `<code>`.
+ * @param props.className - Classes on the `<pre>`; defaults include padding.
+ */
 export function Code(props: {
     children: string;
     codeId?: string;

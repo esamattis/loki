@@ -7,6 +7,10 @@ type TransactionOptions = {
     mode: IDBTransactionMode;
 };
 
+/**
+ * Opens an IndexedDB database, running `upgrade` on `onupgradeneeded`.
+ * Rejects with the upgrade error when the upgrade callback throws.
+ */
 function $open(
     name: string,
     version: number,
@@ -34,6 +38,7 @@ function $open(
     });
 }
 
+/** Wraps an `IDBRequest` as a Promise that resolves with `request.result`. */
 function $request<T>(request: IDBRequest<T>): Promise<T> {
     return new Promise((resolve, reject) => {
         request.onerror = () => {
@@ -43,6 +48,10 @@ function $request<T>(request: IDBRequest<T>): Promise<T> {
     });
 }
 
+/**
+ * Runs `operation` against a single object store and resolves when the
+ * transaction completes. Aborts and rejects if the operation throws.
+ */
 function $transaction<T>(
     database: IDBDatabase,
     options: TransactionOptions,
@@ -102,6 +111,10 @@ function $transaction<T>(
     });
 }
 
+/**
+ * Promise-based IndexedDB helpers for browser scripts (`open`, `request`,
+ * `transaction`). Pass the whole object to `Script` via `$deps={[$idb]}`.
+ */
 export const $idb = Object.defineProperty(
     {
         open: $open,

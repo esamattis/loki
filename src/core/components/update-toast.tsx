@@ -2,6 +2,8 @@ import { $select } from "@/core/utils";
 import { Script } from "@/core/components/script";
 
 const UPDATE_TOAST_ID = "update-toast";
+
+/** Wires Reload and Dismiss actions on the update toast. */
 function $initUpdateToast(toastId: string) {
     const toast = $select.id(toastId, HTMLDivElement);
     const reload = $select.el(
@@ -19,6 +21,10 @@ function $initUpdateToast(toastId: string) {
         toast.hidden = true;
     });
 }
+/**
+ * Fixed toast shown when a new service worker version is available.
+ * Hidden by default; `ServiceWorkerRegistration` reveals it.
+ */
 export function UpdateToast() {
     return (
         <div

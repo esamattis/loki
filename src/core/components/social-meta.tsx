@@ -3,6 +3,12 @@ const IMAGE_WIDTH = "1200";
 const IMAGE_HEIGHT = "630";
 const IMAGE_TYPE = "image/png";
 
+/**
+ * Open Graph and Twitter card meta tags for the current page.
+ *
+ * @param props.title - Page title used for `og:title` / `twitter:title`.
+ * @param props.url - Request URL used to build absolute page and image URLs.
+ */
 export function SocialMeta(props: { title: string; url: URL }) {
     const pageUrl = `${props.url.origin}${props.url.pathname}`;
     const options = useAppContext().appOptions;

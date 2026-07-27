@@ -83,6 +83,12 @@ Write all UI text in English.
 
 Use the `@/` alias for imports from `src` (for example, `@/core/components/feedback`) instead of relative paths.
 
+# Documentation
+
+All core components, their props, and helper functions must have JSDoc doc
+comments. Describe purpose, important props (via `@param props.name`), and any
+usage constraints or caveats. Keep comments accurate when behavior changes.
+
 # Forms
 
 Do not use React-style `defaultValue` on form controls; Hono SSR does not map it to HTML `value`. Use `value={...}` for inputs and selects, and children or `value` for textareas. Mark the selected option with `selected`.

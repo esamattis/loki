@@ -1,6 +1,14 @@
 import clsx from "clsx";
 import { Details } from "@/core/components/ui/details";
 
+/**
+ * Collapsed red-bordered panel for destructive actions. Expand to reveal
+ * children (typically confirm-delete controls).
+ *
+ * @param props.children - Destructive actions shown when expanded.
+ * @param props.label - Summary title; defaults to `"Danger Zone"`.
+ * @param props.className - Extra classes on the outer details panel.
+ */
 export function DangerZone(props: {
     children: any;
     label?: string;

@@ -11,6 +11,10 @@ import { formatCalendarDate } from "@/core/date-time";
 import type { CoreUserOptions } from "@/core/options";
 import { $select } from "@/core/utils";
 
+/**
+ * Client script wiring for `DateInput`: keeps the display field, hidden ISO
+ * value, native date picker, and optional Today button in sync.
+ */
 function DateInputScript(props: {
     inputId: string;
     valueId: string;
@@ -93,6 +97,19 @@ function DateInputScript(props: {
     );
 }
 
+/**
+ * Locale-aware calendar date field. Shows a text input in the user's date
+ * format, submits ISO `YYYY-MM-DD` via a hidden input, and offers a native
+ * date picker button (and optional Today).
+ *
+ * @param props.label - Visible field label.
+ * @param props.name - Name of the hidden ISO date input submitted with the form.
+ * @param props.value - Current ISO date (`YYYY-MM-DD`) for SSR.
+ * @param props.required - Marks the visible input required.
+ * @param props.showToday - When true, shows a Today shortcut button.
+ * @param props.inputDataAttributes - Extra `data-*` attrs on the text input.
+ * @param props.pickerDataAttributes - Extra `data-*` attrs on the native picker.
+ */
 export function DateInput(props: {
     label: string;
     name: string;

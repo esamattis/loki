@@ -3,9 +3,16 @@ import { useId, type Child } from "hono/jsx";
 import { $select } from "@/core/utils";
 import { Script } from "@/core/components/script";
 
+/** Shared Tailwind classes for dropdown menu links and buttons. */
 const menuItemClassName =
     "flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-50 sm:py-2 dark:text-slate-300 dark:hover:bg-slate-800";
 
+/**
+ * Navigation item inside a `DropdownMenu`.
+ *
+ * @param props.href - Destination URL.
+ * @param props.children - Menu item content (icon + label).
+ */
 export function MenuLink(props: { href: string; children: Child }) {
     return (
         <a href={props.href} className={menuItemClassName}>
@@ -14,6 +21,12 @@ export function MenuLink(props: { href: string; children: Child }) {
     );
 }
 
+/**
+ * Button item inside a `DropdownMenu` (e.g. logout submit).
+ *
+ * @param props.type - Button type; defaults to `"button"`.
+ * @param props.children - Menu item content.
+ */
 export function MenuButton(props: {
     type?: "button" | "submit";
     children: Child;
@@ -25,6 +38,7 @@ export function MenuButton(props: {
     );
 }
 
+/** Horizontal rule separating groups inside a `DropdownMenu`. */
 export function MenuDivider() {
     return (
         <div
@@ -34,6 +48,9 @@ export function MenuDivider() {
     );
 }
 
+/**
+ * Toggles the menu on button click; closes on outside click or Escape.
+ */
 function $initDropdownMenu(buttonId: string, menuId: string) {
     const button = $select.id(buttonId, HTMLButtonElement);
     const menu = $select.id(menuId, HTMLDivElement);
@@ -67,6 +84,7 @@ function $initDropdownMenu(buttonId: string, menuId: string) {
     });
 }
 
+/** Client script bridge for `DropdownMenu`. */
 function DropdownMenuScript(props: { buttonId: string; menuId: string }) {
     return (
         <Script
@@ -77,6 +95,17 @@ function DropdownMenuScript(props: { buttonId: string; menuId: string }) {
     );
 }
 
+/**
+ * Disclosure menu anchored to a trigger button. Place `MenuLink`, `MenuButton`,
+ * and `MenuDivider` as children.
+ *
+ * @param props.label - Accessible name for the trigger (`aria-label`).
+ * @param props.button - Trigger content (icon or label).
+ * @param props.buttonClassName - Classes on the trigger button.
+ * @param props.tooltip - Optional `data-loki-tooltip` on the trigger.
+ * @param props.menuClassName - Extra classes on the menu panel.
+ * @param props.children - Menu items.
+ */
 export function DropdownMenu(props: {
     label: string;
     button: Child;

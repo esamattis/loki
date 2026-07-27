@@ -8,6 +8,12 @@ import { ThemeScript } from "@/core/components/theme-script";
 import { useAppContext } from "@/core/create-app";
 import * as routes from "@/core/routes";
 
+/**
+ * Root HTML document shell: head meta, assets, theme script, optional service
+ * worker registration, and body wrapper. Page content goes in `children`.
+ *
+ * @param props.children - Body content (typically `CoreLayout` and page).
+ */
 export function AppShell(props: { children: Child }) {
     const appContext = useAppContext();
     const options = appContext.appOptions;

@@ -16,10 +16,16 @@ import {
 } from "@/core/core-layout-context";
 import { useAppContext } from "@/core/create-app";
 
+/**
+ * Props for `CoreLayout`: app-provided UI slots plus page children.
+ * Extends {@link CoreLayoutUi}.
+ */
 export interface CoreLayoutProps extends CoreLayoutUi {
+    /** Page tree rendered between global chrome and the footer. */
     children: Child;
 }
 
+/** Picks layout UI fields from props for the context provider. */
 function coreLayoutUi(props: CoreLayoutProps): CoreLayoutUi {
     return {
         authenticatedUserSubtitle: props.authenticatedUserSubtitle,
@@ -35,6 +41,12 @@ function coreLayoutUi(props: CoreLayoutProps): CoreLayoutUi {
     };
 }
 
+/**
+ * Authenticated/public layout wrapper: provides layout UI context, background,
+ * footer, and global client behaviors (tooltips, progress, unsaved changes,
+ * return-after-post, update toast). App supplies navigation and content slots
+ * via props; see {@link CoreLayoutUi}.
+ */
 export function CoreLayout(props: CoreLayoutProps) {
     const appContext = useAppContext();
     const user = appContext.user;

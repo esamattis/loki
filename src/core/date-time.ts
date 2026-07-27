@@ -2,6 +2,7 @@ import type { CoreUserOptions } from "@/core/options";
 
 type DateTimeFormat = CoreUserOptions["dateTimeFormat"];
 
+/** Splits an ISO calendar date `YYYY-MM-DD` into parts. */
 function parseCalendarDate(value: string): {
     year: string;
     month: string;
@@ -14,10 +15,18 @@ function parseCalendarDate(value: string): {
     return { year, month, day };
 }
 
+/** Strips a leading zero from a numeric date part string. */
 function withoutLeadingZero(value: string): string {
     return String(Number(value));
 }
 
+/**
+ * Formats an ISO calendar date (`YYYY-MM-DD`) for the user's date format.
+ * Returns `value` unchanged when it is not a full ISO date.
+ *
+ * @param value - ISO date string.
+ * @param format - User date/time format preference.
+ */
 export function formatCalendarDate(
     value: string,
     format: DateTimeFormat,
@@ -38,6 +47,7 @@ export function formatCalendarDate(
     return value;
 }
 
+/** Formats the UTC time portion of `date` for the given format preference. */
 function formatTime(date: Date, format: DateTimeFormat): string {
     const hour = String(date.getUTCHours()).padStart(2, "0");
     const minute = String(date.getUTCMinutes()).padStart(2, "0");
@@ -53,6 +63,13 @@ function formatTime(date: Date, format: DateTimeFormat): string {
     return `${hour}:${minute}:${second}`;
 }
 
+/**
+ * Formats a Unix timestamp (seconds) as a calendar date plus UTC time string
+ * in the user's preferred format.
+ *
+ * @param unixSeconds - Seconds since the Unix epoch.
+ * @param format - User date/time format preference.
+ */
 export function formatUnixDateTime(
     unixSeconds: number,
     format: DateTimeFormat,

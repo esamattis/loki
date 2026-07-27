@@ -3,6 +3,17 @@ import { Button } from "@/core/components/form";
 import { Link } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
 
+/**
+ * Centered card layout for login and registration forms: logo, title, errors,
+ * POST form body, submit button, and an alternate action link.
+ *
+ * @param props.title - Heading above the form.
+ * @param props.errors - Validation or auth error messages.
+ * @param props.submitLabel - Primary submit button label.
+ * @param props.alternateHref - URL for the secondary link (e.g. register/login).
+ * @param props.alternateLabel - Label for the secondary link.
+ * @param props.children - Form fields rendered inside the POST form.
+ */
 export function AuthFormShell(props: {
     title: string;
     errors: string[];

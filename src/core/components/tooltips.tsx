@@ -2,6 +2,10 @@ import { useId } from "hono/jsx";
 import { Script } from "@/core/components/script";
 import { $renderTemplate, $select } from "@/core/utils";
 
+/**
+ * Mounts a single popover tooltip and shows it for elements with
+ * `data-loki-tooltip` on pointer/focus, positioning above or below the target.
+ */
 function $initTooltips(templateId: string) {
     const EDGE_MARGIN = 8;
     const TARGET_GAP = 8;
@@ -115,6 +119,10 @@ function $initTooltips(templateId: string) {
     });
 }
 
+/**
+ * Global tooltip host. Render once in the layout; any element with
+ * `data-loki-tooltip="…"` gets a positioned tooltip on hover/focus.
+ */
 export function Tooltips() {
     const templateId = useId();
     return (

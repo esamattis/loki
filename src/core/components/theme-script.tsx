@@ -1,5 +1,6 @@
 import { Script } from "@/core/components/script";
 
+/** Applies the `localStorage` theme (`light` | `dark` | system) before paint. */
 function $applyStoredTheme() {
     try {
         let theme = localStorage.getItem("theme");
@@ -12,6 +13,10 @@ function $applyStoredTheme() {
     }
 }
 
+/**
+ * Early inline script that sets `light`/`dark` classes from stored preference
+ * so the first paint matches the user's theme.
+ */
 export function ThemeScript() {
     return <Script $exec={$applyStoredTheme} />;
 }

@@ -7,6 +7,10 @@ import {
 import { ExternalLink } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
 
+/**
+ * Inline build identity: app name, optional release version link, and short
+ * git revision linking to the commit on GitHub.
+ */
 export function BuildInfo() {
     const appOptions = useAppContext().appOptions;
     const appReleaseUrl = releaseUrl(appOptions.repositoryUrl);

@@ -6,12 +6,21 @@ const REDIRECT_BACK_AFTER_POST_FIELD = "__loki_redirect_back_after_post";
 const IGNORE_RETURN_ROUTE_SELECTOR = "[data-loki-ignore-return-route]";
 const CLEAR_RETURN_ROUTE_SELECTOR = "[data-loki-clear-return-route]";
 
+/** `sessionStorage` key names used by return-after-form-post navigation. */
 export const returnAfterFormPostStorage = {
     storageKey: "return-after-form-post",
     destinationStorageKey: "return-after-form-post-destination",
     pendingStorageKey: "return-after-form-post-pending",
 };
 
+/**
+ * Completes a client-side return after a POST that stays on the form URL for
+ * post-success work (no server redirect). Navigates to the stored return route
+ * when the current URL matches the expected destination; otherwise `fallbackUrl`.
+ *
+ * @param fallbackUrl - Destination when no valid return route is stored.
+ * @param storage - Key names; usually `returnAfterFormPostStorage`.
+ */
 export function $completeReturnAfterFormPost(
     fallbackUrl: string,
     storage: typeof returnAfterFormPostStorage,

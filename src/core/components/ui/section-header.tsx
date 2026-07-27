@@ -1,6 +1,16 @@
 import clsx from "clsx";
 import type { Child } from "hono/jsx";
 
+/**
+ * Section intro with a colored icon badge, title, description, and optional
+ * extra content under the description.
+ *
+ * @param props.icon - Icon node inside the badge.
+ * @param props.iconClassName - Background/color classes for the badge.
+ * @param props.title - Section heading.
+ * @param props.description - Supporting text or nodes under the title.
+ * @param props.children - Optional content below the description.
+ */
 export function SectionHeader(props: {
     icon: Child;
     iconClassName: string;

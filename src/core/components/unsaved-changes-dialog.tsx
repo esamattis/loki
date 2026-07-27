@@ -4,9 +4,13 @@ import { Script } from "@/core/components/script";
 import { Dialog } from "@/core/components/ui/dialog";
 
 const UNSAVED_CHANGES_DIALOG_ID = "unsaved-changes-dialog";
+
+/** Whether any opted-in form currently has unsaved edits. */
 function $isFormDirty() {
     return document.documentElement.dataset.lokiFormDirty === "true";
 }
+
+/** Clears dirty markers on the document and all tracked forms. */
 function $clearFormDirty() {
     delete document.documentElement.dataset.lokiFormDirty;
     $select
@@ -15,6 +19,10 @@ function $clearFormDirty() {
             delete form.dataset.lokiFormDirty;
         });
 }
+/**
+ * Marks a form dirty when a visible control inside a `data-loki-confirm` POST
+ * form changes. Hidden inputs are ignored.
+ */
 function $markFormDirtyFromEvent(event: Event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
@@ -33,6 +41,10 @@ function $markFormDirtyFromEvent(event: Event) {
     document.documentElement.dataset.lokiFormDirty = "true";
     form.dataset.lokiFormDirty = "true";
 }
+/**
+ * Intercepts Navigation API navigations and `beforeunload` while a tracked form
+ * is dirty, showing the unsaved-changes dialog with Cancel / Save / Leave.
+ */
 function $guardUnsavedFormChanges(dialogId: string) {
     let pendingNavigation: {
         url: string;
@@ -128,6 +140,7 @@ function $guardUnsavedFormChanges(dialogId: string) {
         });
     }
 }
+/** Client script that attaches unsaved-change guards for the dialog. */
 function UnsavedChangesGuard() {
     return (
         <Script
@@ -143,6 +156,11 @@ function UnsavedChangesGuard() {
         />
     );
 }
+/**
+ * Modal and client guard for forms opted in with `data-loki-confirm="…"`.
+ * Prompts before leaving with unsaved edits; Save submits the dirty form.
+ * Render once in the app shell.
+ */
 export function UnsavedChangesDialog() {
     return (
         <>

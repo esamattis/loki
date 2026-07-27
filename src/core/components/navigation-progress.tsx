@@ -2,6 +2,10 @@ import { useId } from "hono/jsx";
 import { Script } from "@/core/components/script";
 import { $renderTemplate, $select } from "@/core/utils";
 
+/**
+ * Appends the shared top progress bar from a template. Skips if one is already
+ * present. POST form submits get a distinct style class.
+ */
 function $showNavigationProgress(options: {
     mode: "form" | "link";
     method?: string;
@@ -26,10 +30,14 @@ function $showNavigationProgress(options: {
     document.body.appendChild(progress);
 }
 
+/** Removes the top navigation progress bar if present. */
 function $clearNavigationProgress() {
     $select.idOrNull("form-submit-progress", HTMLElement)?.remove();
 }
 
+/**
+ * Clears progress UI and re-enables form controls disabled for submit.
+ */
 function $clearFormSubmitProgress(
     form: HTMLFormElement,
     submitter: HTMLElement | null,
@@ -61,6 +69,9 @@ function $clearFormSubmitProgress(
     }
 }
 
+/**
+ * On bfcache restore (`pageshow`), clears stale busy/disabled form submit state.
+ */
 function $clearRestoredFormSubmitProgress() {
     for (const form of $select.all("form[aria-busy]", HTMLFormElement)) {
         const submitter = $select.elOrNull(
@@ -72,6 +83,11 @@ function $clearRestoredFormSubmitProgress() {
     }
 }
 
+/**
+ * On form submit: shows progress, dims the form, adds a spinner on the
+ * submitter, and disables controls (except those with
+ * `data-loki-keep-enabled-on-submit`). Download forms clear after a short delay.
+ */
 function $disableFormOnSubmit(config: {
     progressTemplateId: string;
     spinnerTemplateId: string;
@@ -134,6 +150,10 @@ function $disableFormOnSubmit(config: {
     });
 }
 
+/**
+ * Shows the top progress bar on primary same-origin link clicks (no modifier
+ * keys). Clears on `pageshow`, navigate errors, and after download clicks.
+ */
 function $showProgressOnLinkClick(templateId: string) {
     window.addEventListener("pageshow", $clearNavigationProgress);
     if ("navigation" in window)
@@ -180,6 +200,7 @@ function $showProgressOnLinkClick(templateId: string) {
     });
 }
 
+/** Hidden template for the top navigation / form-submit progress bar. */
 function NavigationProgressTemplate(props: { id: string }) {
     return (
         <template id={props.id}>
@@ -188,6 +209,10 @@ function NavigationProgressTemplate(props: { id: string }) {
     );
 }
 
+/**
+ * Global form-submit UX: progress bar, submitter spinner, and temporary
+ * disable of controls. Render once in the layout.
+ */
 export function DisableFormOnSubmit() {
     const progressTemplateId = useId();
     const spinnerTemplateId = useId();
@@ -212,6 +237,10 @@ export function DisableFormOnSubmit() {
         </>
     );
 }
+/**
+ * Global link-click progress bar for same-origin navigations.
+ * Render once in the layout.
+ */
 export function ShowProgressOnLinkClick() {
     const progressTemplateId = useId();
     return (

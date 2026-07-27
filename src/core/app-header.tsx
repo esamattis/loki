@@ -6,6 +6,10 @@ import { ThemeToggle } from "@/core/components/theme-toggle";
 import { $select } from "@/core/utils";
 import { useId } from "hono/jsx";
 
+/**
+ * On narrow viewports, hides the sticky header when scrolling down and shows it
+ * when scrolling up.
+ */
 function $initMobileHeader(headerId: string) {
     const headerEl = $select.id(headerId, HTMLElement);
     const header = headerEl;
@@ -40,6 +44,10 @@ function $initMobileHeader(headerId: string) {
     mobile.addEventListener("change", updateHeader);
 }
 
+/**
+ * Sticky authenticated app header: logo, user subtitle, theme toggle, desktop
+ * main menu, and optional primary navigation from layout UI.
+ */
 export function AppHeader() {
     const appContext = useAppContext();
     const appUi = useCoreLayoutUi();

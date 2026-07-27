@@ -1,5 +1,6 @@
 import { Style } from "@/core/components/style";
 
+/** Fixed multi-stop body background gradients for light and dark themes. */
 export function BackgroundGradients() {
     return (
         <Style>

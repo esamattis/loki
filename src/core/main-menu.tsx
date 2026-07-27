@@ -18,6 +18,14 @@ import * as routes from "@/core/routes";
 const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
+/**
+ * Account dropdown: build info, app menu items, optional Admin, Preferences,
+ * and Log out.
+ *
+ * @param props.isAdmin - When true, includes the Admin link.
+ * @param props.menuClassName - Extra classes on the dropdown panel (e.g. mobile
+ *   positioning).
+ */
 export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
     const appUi = useCoreLayoutUi();
     return (
