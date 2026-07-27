@@ -1,4 +1,4 @@
-# Forking The Application Core
+# Forking the Application Core
 
 A fork replaces the concrete product without editing `src/core`. The process
 below is exercised by `pn test:fork`, which creates an Acorn Notes fork in a
