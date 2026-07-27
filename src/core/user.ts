@@ -81,8 +81,4 @@ export class User {
         this.readonly = options.readonly;
         this.htmlCacheGeneration += 1;
     }
-
-    async updateOptions(updates: Partial<CoreUserOptions>): Promise<void> {
-        await this.updateCoreOptions(updates);
-    }
 }

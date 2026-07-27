@@ -12,14 +12,11 @@ import {
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import type { AppDatabase } from "@/core/db";
-import { isRegisteredPublicPath } from "@/core/register-route";
+import { isPublicAssetPath } from "@/core/middleware/public-assets";
+import { isRegisteredPublicRoute } from "@/core/register-route";
 import * as routes from "@/core/routes";
 import { sessions, users } from "@/core/schema";
 import { User } from "@/core/user";
-
-function isPublicAssetPath(path: string): boolean {
-    return path.startsWith("/assets/");
-}
 
 function basicAuthChallenge(c: AppRequestContext, realm: string) {
     return c.body("Invalid username or password", 401, {
@@ -49,7 +46,7 @@ async function authenticateMiddleware(
     if (isPublicAssetPath(path)) return next();
 
     const ctx = getAppContext(c);
-    const isPublicPath = isRegisteredPublicPath(ctx.app, path);
+    const isPublicPath = isRegisteredPublicRoute(ctx.app, c.req.method, path);
 
     if (Math.random() < 0.1) {
         const now = Math.floor(Date.now() / 1000);

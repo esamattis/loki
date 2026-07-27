@@ -34,7 +34,7 @@ function createUrl<T extends string>(
 }
 
 export function route<T extends string>(pattern: T) {
-    function plain(isPublic: boolean) {
+    function plain(isPublic: boolean, privacyPolicyExempt = false) {
         function to(
             params: ExtractRouteParams<T>,
             queryParams?: Record<string, any>,
@@ -42,24 +42,35 @@ export function route<T extends string>(pattern: T) {
             return createUrl(pattern, params, queryParams);
         }
         to.route = pattern;
-        to.metadata = Object.freeze({ public: isPublic });
+        to.metadata = Object.freeze({
+            public: isPublic,
+            privacyPolicyExempt,
+        });
         to.params = (c: AppRequestContext) => c.req.param();
         to.query = function query<Q extends Record<string, any>>() {
-            return queried<Q>(isPublic);
+            return queried<Q>(isPublic, privacyPolicyExempt);
         };
         to.public = () => plain(true);
+        to.publicAsset = () => plain(true, true);
         return to;
     }
 
-    function queried<Q extends Record<string, any>>(isPublic: boolean) {
+    function queried<Q extends Record<string, any>>(
+        isPublic: boolean,
+        privacyPolicyExempt: boolean,
+    ) {
         function to(params: ExtractRouteParams<T>, queryParams?: Q): string {
             return createUrl(pattern, params, queryParams);
         }
         to.route = pattern;
-        to.metadata = Object.freeze({ public: isPublic });
+        to.metadata = Object.freeze({
+            public: isPublic,
+            privacyPolicyExempt,
+        });
         to.params = (c: AppRequestContext) => c.req.param();
         to.query = (c: AppRequestContext) => c.req.query();
-        to.public = () => queried<Q>(true);
+        to.public = () => queried<Q>(true, privacyPolicyExempt);
+        to.publicAsset = () => queried<Q>(true, true);
         return to;
     }
 

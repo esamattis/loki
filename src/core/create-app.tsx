@@ -25,7 +25,6 @@ export interface CreateAppOptions {
     name: string;
     title: string;
     repositoryUrl: string;
-    buildName: string;
     description: string;
     basicAuthRealm: string;
     authenticatedHome: string;
@@ -134,36 +133,6 @@ export interface AppBindings extends CloudflareBindings {
 export interface Env {
     Bindings: AppBindings;
     Variables: Variables;
-}
-
-interface CachedFunction<T> {
-    (c: AppContext): Promise<T>;
-    clear: (c: AppContext) => void;
-}
-
-/**
- * Caches the result of a function call for the duration of the request.
- * If the function is called again with the same key, it will return the cached result.
- **/
-export function cached<T>(
-    _key: string,
-    fn: (c: AppContext) => Promise<T>,
-): CachedFunction<T> {
-    const results = new WeakMap<AppContext, Promise<T>>();
-    const cachedFn = async (c: AppContext) => {
-        let result = results.get(c);
-        if (!result) {
-            result = fn(c);
-            results.set(c, result);
-        }
-        return result;
-    };
-
-    cachedFn.clear = (c: AppContext) => {
-        results.delete(c);
-    };
-
-    return cachedFn;
 }
 
 export function getAppContext(c: AppRequestContext): AppContext {

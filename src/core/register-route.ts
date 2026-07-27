@@ -3,14 +3,20 @@ import type { App, Env } from "@/core/create-app";
 
 type RegisteredRoute = {
     readonly route: string;
-    readonly metadata: { readonly public: boolean };
+    readonly metadata: {
+        readonly public: boolean;
+        readonly privacyPolicyExempt: boolean;
+    };
 };
+
+type RegisteredMethod = "get" | "post" | "put" | "delete" | "patch";
 
 type RouteApp = Pick<App, "on">;
 
 type RegisteredMatcher = {
     readonly expression: RegExp;
     readonly public: boolean;
+    readonly privacyPolicyExempt: boolean;
     readonly specificity: readonly number[];
 };
 
@@ -36,7 +42,30 @@ function isParameterSegment(segment: string): boolean {
     return /^:\w+$/.test(segment);
 }
 
+function isStaticSegment(segment: string): boolean {
+    return /^[\w.-]+$/.test(segment);
+}
+
+function validateRoute(route: string): void {
+    if (route === "/") return;
+    const segments = route.split("/");
+    if (
+        !route.startsWith("/") ||
+        segments.some(
+            (segment, index) =>
+                index > 0 &&
+                !isParameterSegment(segment) &&
+                !isStaticSegment(segment),
+        )
+    ) {
+        throw new Error(
+            `Unsupported route pattern "${route}". Routes must use static path segments or named parameters such as ":id".`,
+        );
+    }
+}
+
 function compileMatcher(route: RegisteredRoute): RegisteredMatcher {
+    validateRoute(route.route);
     const segments = route.route.split("/");
     const expression = segments
         .map((segment) =>
@@ -46,6 +75,7 @@ function compileMatcher(route: RegisteredRoute): RegisteredMatcher {
     return {
         expression: new RegExp(`^${expression}$`),
         public: route.metadata.public,
+        privacyPolicyExempt: route.metadata.privacyPolicyExempt,
         specificity: segments.map((segment) =>
             isParameterSegment(segment) ? 0 : 1,
         ),
@@ -68,36 +98,60 @@ function compareSpecificity(
     return 0;
 }
 
-function registerAccess(app: RouteApp, route: RegisteredRoute): void {
+function matcherKey(method: RegisteredMethod, route: string): string {
+    return `${method.toUpperCase()} ${route}`;
+}
+
+function registerAccess(
+    app: RouteApp,
+    method: RegisteredMethod,
+    route: RegisteredRoute,
+): void {
     const matchers = matcherMap(app);
-    const registered = matchers.get(route.route);
+    const key = matcherKey(method, route.route);
+    const registered = matchers.get(key);
     if (registered) {
         if (registered.public !== route.metadata.public) {
             throw new Error(
-                `Route "${route.route}" cannot be both public and protected`,
+                `${method.toUpperCase()} route "${route.route}" cannot be both public and protected`,
+            );
+        }
+        if (
+            registered.privacyPolicyExempt !==
+            route.metadata.privacyPolicyExempt
+        ) {
+            throw new Error(
+                `${method.toUpperCase()} route "${route.route}" cannot have conflicting privacy policy access`,
             );
         }
         return;
     }
-    matchers.set(route.route, compileMatcher(route));
+    matchers.set(key, compileMatcher(route));
 }
 
 export function registerRoute(
     app: RouteApp,
     ...registration: readonly [
-        method: "get" | "post" | "put" | "delete" | "patch",
+        method: RegisteredMethod,
         route: RegisteredRoute,
         handler: Handler<Env>,
     ]
 ): void {
     const [method, route, handler] = registration;
-    registerAccess(app, route);
+    registerAccess(app, method, route);
     app.on(method.toUpperCase(), route.route, handler);
 }
 
-export function isRegisteredPublicPath(app: RouteApp, path: string): boolean {
+function registeredMatcher(
+    app: RouteApp,
+    method: string,
+    path: string,
+): RegisteredMatcher | undefined {
+    const requestMethod = method.toUpperCase();
+    const registeredMethod = requestMethod === "HEAD" ? "GET" : requestMethod;
     let bestMatch: RegisteredMatcher | undefined;
-    for (const matcher of matcherMap(app).values()) {
+    for (const [key, matcher] of matcherMap(app)) {
+        if (!key.startsWith(`${registeredMethod} `)) continue;
         const specificity = bestMatch
             ? compareSpecificity(matcher, bestMatch)
             : 1;
@@ -109,5 +163,21 @@ export function isRegisteredPublicPath(app: RouteApp, path: string): boolean {
             bestMatch = matcher;
         }
     }
-    return bestMatch?.public ?? false;
+    return bestMatch;
+}
+
+export function isRegisteredPublicRoute(
+    app: RouteApp,
+    method: string,
+    path: string,
+): boolean {
+    return registeredMatcher(app, method, path)?.public ?? false;
+}
+
+export function isRegisteredPrivacyPolicyExemptRoute(
+    app: RouteApp,
+    method: string,
+    path: string,
+): boolean {
+    return registeredMatcher(app, method, path)?.privacyPolicyExempt ?? false;
 }

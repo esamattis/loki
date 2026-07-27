@@ -78,9 +78,11 @@ export function AppHeader() {
                             </div>
                         </div>
                     </div>
-                    <div className="mt-2 hidden border-t border-slate-100 pt-2 sm:block dark:border-slate-800">
-                        {appContext.appOptions.navigation?.({})}
-                    </div>
+                    {appContext.appOptions.navigation && (
+                        <div className="mt-2 hidden border-t border-slate-100 pt-2 sm:block dark:border-slate-800">
+                            {appContext.appOptions.navigation({})}
+                        </div>
+                    )}
                 </div>
             </header>
             <Script

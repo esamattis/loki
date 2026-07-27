@@ -7,7 +7,6 @@ import {
 import { migrateSqlite } from "../src/core/migrate-sqlite.ts";
 import { appConfig } from "../src/app/config.ts";
 import { users } from "../src/core/schema.ts";
-import { sqliteFilename, storageDirectoryName } from "../src/app/identity.ts";
 
 const username = "developer";
 const displayName = "Developer User";
@@ -46,7 +45,10 @@ async function hashPassword(value: string): Promise<string> {
 }
 
 async function main(): Promise<void> {
-    const path = resolveSqlitePath(storageDirectoryName(), sqliteFilename);
+    const path = resolveSqlitePath(
+        appConfig.storageDirectoryName(),
+        appConfig.sqliteFilename,
+    );
     const { db, path: absolutePath, sqlite } = createSqliteDatabase(path);
     try {
         migrateSqlite(sqlite, resolve("drizzle"));

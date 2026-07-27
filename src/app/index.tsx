@@ -11,11 +11,10 @@ import { aiUsage } from "@/app/schema";
 import { LokiUserOptionsSchema } from "@/app/options";
 import { users } from "@/core/schema";
 import { LokiRegistrationFields } from "@/app/registration-fields";
-import { LokiPreferences } from "@/app/preferences";
+import { LokiPreferencesContent } from "@/app/preferences";
 import { LokiPrivacyPolicyContent } from "@/app/privacy-policy-content";
 import {
     authenticatedUserSubtitle,
-    buildName,
     navigationLabel,
     repositoryUrl,
 } from "@/app/identity";
@@ -129,7 +128,6 @@ export const app = createApp({
     name: "Loki",
     title: "Loki - Skydiving Logbook",
     repositoryUrl,
-    buildName,
     description:
         "Open source digital skydiving logbook. Self-host, run locally, or use the invite-only hosted version. Your jumps, your gear, your data.",
     basicAuthRealm: "Loki - Skydiving Logbook",
@@ -145,7 +143,7 @@ export const app = createApp({
     footerLinks: LokiFooterLinks,
     privacyPolicyContent: LokiPrivacyPolicyContent,
     registrationFields: LokiRegistrationFields,
-    preferencesContent: LokiPreferences,
+    preferencesContent: LokiPreferencesContent,
     afterUserCreated: initializeLokiUser,
     beforeUserDeleted: scrubAiUsageBeforeAccountDeletion,
 });

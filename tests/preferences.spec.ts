@@ -32,6 +32,7 @@ test("invalid logbook preferences show errors and retain values", async ({
     await page
         .locator('textarea[name="jumpImagePrompt"]')
         .fill("Retain this submitted prompt");
+    await page.locator('input[name="openaiApiKey"]').fill("submitted-api-key");
     await page.locator('select[name="altitudeUnits"]').evaluate((select) => {
         if (!(select instanceof HTMLSelectElement))
             throw new Error("Expected altitude units select");
@@ -49,6 +50,30 @@ test("invalid logbook preferences show errors and retain values", async ({
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         "Retain this submitted prompt",
     );
+    await expect(page.locator('input[name="openaiApiKey"]')).toHaveValue(
+        "submitted-api-key",
+    );
+    await expect(page.locator('input[name="openaiApiKey"]')).toHaveAttribute(
+        "type",
+        "password",
+    );
+});
+
+test("the stored OpenAI API key is masked and editable", async ({ page }) => {
+    const username = "preferences-api-key";
+    await registerUser(page, username, "API Key");
+    await executePlaywrightDb(`
+        UPDATE users
+        SET options = json_set(options, '$.openaiApiKey', 'stored-api-key')
+        WHERE username = '${username}';
+    `);
+
+    await page.goto("/preferences");
+    const apiKey = page.locator('input[name="openaiApiKey"]');
+    await expect(apiKey).toHaveAttribute("type", "password");
+    await expect(apiKey).toHaveValue("stored-api-key");
+    await apiKey.fill("edited-api-key");
+    await expect(apiKey).toHaveValue("edited-api-key");
 });
 
 test("core and logbook preference updates preserve each other's options", async ({
@@ -422,8 +447,17 @@ test("a skydiver can delete all logbook data without deleting their account", as
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
+    await expect(page).toHaveURL("/preferences");
+    await page.goto("/preferences#danger-zone");
+    await expect(page).toHaveURL("/preferences#danger-zone");
     await openDangerZone(page);
     const button = deleteLogbookDataButton(page);
+    const deleteForm = button.locator("..");
+    await expect(deleteForm).toHaveAttribute("action", "/preferences/logbook");
+    await expect(deleteForm).not.toHaveAttribute("data-loki-confirm");
+    await expect(
+        deleteForm.locator('input[name="__loki_redirect_back_after_post"]'),
+    ).toHaveCount(0);
     await expect(button).toHaveText("Delete logbook data");
     await button.click();
     await expect(button).toHaveText("Confirm delete", { timeout: 1000 });

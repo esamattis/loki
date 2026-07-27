@@ -1,5 +1,4 @@
 import {
-    copyFileSync,
     cpSync,
     existsSync,
     mkdtempSync,
@@ -7,10 +6,13 @@ import {
     readdirSync,
     readFileSync,
     readlinkSync,
+    renameSync,
     rmSync,
+    statSync,
     symlinkSync,
     writeFileSync,
 } from "node:fs";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { $ } from "zx";
@@ -54,25 +56,24 @@ function copyFixtureDirectory(source: string, destination: string): void {
         recursive: true,
         filter(path) {
             if (path === source) return true;
-            return path.endsWith(".fixture");
+            return statSync(path).isDirectory() || path.endsWith(".fixture");
         },
     });
     const pending = [destination];
     while (pending.length > 0) {
         const directory = pending.pop();
         if (!directory) continue;
-        for (const name of readFileNames(directory)) {
+        for (const name of readdirSync(directory)) {
             const path = join(directory, name);
+            if (statSync(path).isDirectory()) {
+                pending.push(path);
+                continue;
+            }
             if (!name.endsWith(".fixture")) continue;
             const target = path.slice(0, -".fixture".length);
-            copyFileSync(path, target);
-            rmSync(path);
+            renameSync(path, target);
         }
     }
-}
-
-function readFileNames(directory: string): string[] {
-    return readdirSync(directory);
 }
 
 function prepareFork(): void {
@@ -115,18 +116,45 @@ function readlinkSafe(path: string): boolean {
     }
 }
 
-async function waitForServer(url: string): Promise<void> {
+async function allocatePort(): Promise<number> {
+    const portServer = createServer();
+    await new Promise<void>((resolvePromise, reject) => {
+        portServer.once("error", reject);
+        portServer.listen(0, "127.0.0.1", resolvePromise);
+    });
+    const address = portServer.address();
+    await new Promise<void>((resolvePromise, reject) => {
+        portServer.close((error) => {
+            if (error) reject(error);
+            else resolvePromise();
+        });
+    });
+    if (!address || typeof address === "string")
+        throw new Error("Failed to allocate a fork executable port");
+    return address.port;
+}
+
+async function waitForServer(
+    url: string,
+    processOutput: () => string,
+): Promise<void> {
     let lastError: unknown;
     for (let attempt = 0; attempt < 100; attempt += 1) {
         try {
             const response = await fetch(url);
             if (response.ok) return;
+            lastError = new Error(
+                `Fork executable returned ${String(response.status)}`,
+            );
+            await response.body?.cancel();
         } catch (error) {
             lastError = error;
         }
         await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
     }
-    throw new Error(`Fork executable did not start: ${String(lastError)}`);
+    throw new Error(
+        `Fork executable did not start: ${String(lastError)}\n\nCaptured process output:\n${processOutput() || "(no output captured)"}`,
+    );
 }
 
 function assertIncludes(value: string, expected: string): void {
@@ -211,12 +239,23 @@ async function exerciseAccountLifecycle(baseUrl: string): Promise<void> {
     response = await request("/dashboard");
     const dashboardHtml = await response.text();
     assertIncludes(dashboardHtml, "Private Acorn workspace");
+    assertIncludes(dashboardHtml, 'aria-label="Note actions"');
+    assertIncludes(dashboardHtml, 'aria-label="Menu"');
+    assertIncludes(dashboardHtml, "Preferences");
     assertNoLokiSurface(dashboardHtml);
 
     response = await request("/privacy");
     const privacyHtml = await response.text();
     assertIncludes(privacyHtml, "Acorn Notes privacy policy");
     assertNoLokiSurface(privacyHtml);
+
+    response = await request("/nested/copy-proof.txt");
+    const nestedFixture = await response.text();
+    if (!response.ok)
+        throw new Error(
+            `Nested public fixture failed (${String(response.status)}): ${nestedFixture.slice(0, 500)}`,
+        );
+    assertIncludes(nestedFixture, "nested fixture copied");
 
     response = await request(
         "/preferences",
@@ -272,12 +311,24 @@ async function main(): Promise<void> {
         "dist-executable",
         process.platform === "win32" ? "acorn-notes.exe" : "acorn-notes",
     );
+    const port = await allocatePort();
+    const baseUrl = `http://127.0.0.1:${String(port)}`;
     const server = $$({
-        stdio: "pipe",
-    })`${executable} --no-open --host 127.0.0.1 --port 8797 --sqlite-dir ${sqliteDirectory}`;
+        stdio: ["ignore", "pipe", "pipe"],
+    })`${executable} --no-open --host 127.0.0.1 --port ${port} --sqlite-dir ${sqliteDirectory}`;
+    let stdout = "";
+    let stderr = "";
+    server.stdout.on("data", (chunk) => {
+        stdout += String(chunk);
+    });
+    server.stderr.on("data", (chunk) => {
+        stderr += String(chunk);
+    });
     try {
-        await waitForServer("http://127.0.0.1:8797/");
-        await exerciseAccountLifecycle("http://127.0.0.1:8797");
+        await waitForServer(`${baseUrl}/`, () =>
+            [`stdout:\n${stdout}`, `stderr:\n${stderr}`].join("\n"),
+        );
+        await exerciseAccountLifecycle(baseUrl);
     } finally {
         server.kill("SIGTERM");
         await server.catch(() => undefined);

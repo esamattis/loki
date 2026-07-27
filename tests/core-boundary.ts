@@ -46,6 +46,13 @@ const passingFixtures: Fixture[] = [
         },
     },
     {
+        name: "application dependencies are outside scanner scope",
+        files: {
+            "src/core/index.ts": "export const core = true;",
+            "src/app/index.ts": 'import "./application-only-module";',
+        },
+    },
+    {
         name: "core-owned CSS and JSON assets are allowed",
         files: {
             "src/core/index.ts":
@@ -64,7 +71,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'import "@/app/feature";',
             "src/app/feature.ts": "export {};",
         },
-        error: /reaches src\/app\/feature\.ts \(app\)/,
+        error: /imports src\/app\/feature\.ts \(app\)/,
     },
     {
         name: "indirect core to app import",
@@ -73,7 +80,7 @@ const failingFixtures: Fixture[] = [
             "src/core/helper.ts": 'export * from "@/app/feature";',
             "src/app/feature.ts": "export {};",
         },
-        error: /reaches src\/app\/feature\.ts \(app\)/,
+        error: /src\/core\/helper\.ts imports src\/app\/feature\.ts \(app\)/,
     },
     {
         name: "core cannot bypass app through the root entrypoint",
@@ -82,7 +89,7 @@ const failingFixtures: Fixture[] = [
             "src/index.tsx": 'export * from "@/app/index";',
             "src/app/index.ts": "export {};",
         },
-        error: /reaches src\/index\.tsx \(root\)/,
+        error: /imports src\/index\.tsx \(root\)/,
     },
     {
         name: "core cannot import the node composition root",
@@ -90,7 +97,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'import "@/node";',
             "src/node.ts": "export {};",
         },
-        error: /reaches src\/node\.ts \(root\)/,
+        error: /imports src\/node\.ts \(root\)/,
     },
     {
         name: "relative imports outside owned source are rejected",
@@ -98,7 +105,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'import "../../shared";',
             "shared.ts": "export {};",
         },
-        error: /reaches shared\.ts \(outside\)/,
+        error: /imports shared\.ts \(outside\)/,
     },
     {
         name: "unowned source modules are outside",
@@ -106,7 +113,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'import "@/shared";',
             "src/shared.ts": "export {};",
         },
-        error: /reaches src\/shared\.ts \(outside\)/,
+        error: /imports src\/shared\.ts \(outside\)/,
     },
     {
         name: "type imports are checked",
@@ -114,7 +121,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'import type { App } from "@/app/types";',
             "src/app/types.ts": "export type App = string;",
         },
-        error: /reaches src\/app\/types\.ts \(app\)/,
+        error: /imports src\/app\/types\.ts \(app\)/,
     },
     {
         name: "re-exports are checked",
@@ -122,7 +129,7 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'export type { App } from "@/app/types";',
             "src/app/types.ts": "export type App = string;",
         },
-        error: /reaches src\/app\/types\.ts \(app\)/,
+        error: /imports src\/app\/types\.ts \(app\)/,
     },
     {
         name: "literal dynamic imports are checked",
@@ -130,7 +137,25 @@ const failingFixtures: Fixture[] = [
             "src/core/index.ts": 'export const app = import("@/app/feature");',
             "src/app/feature.ts": "export {};",
         },
-        error: /reaches src\/app\/feature\.ts \(app\)/,
+        error: /imports src\/app\/feature\.ts \(app\)/,
+    },
+    {
+        name: "TypeScript import assignments are checked",
+        files: {
+            "src/core/index.ts": 'import app = require("@/app/feature");',
+            "src/app/feature.ts": "export {};",
+        },
+        error: /imports src\/app\/feature\.ts \(app\)/,
+    },
+    {
+        name: "literal CommonJS require calls are checked",
+        files: {
+            "src/core/index.cjs":
+                'const app = require("../app/feature.cjs"); module.exports = app;',
+            "src/core/types.ts": "export type Placeholder = true;",
+            "src/app/feature.cjs": "module.exports = {};",
+        },
+        error: /imports src\/app\/feature\.cjs \(app\)/,
     },
     {
         name: "nonliteral core dynamic imports are rejected",
@@ -141,19 +166,19 @@ const failingFixtures: Fixture[] = [
         error: /Non-literal dynamic import in src\/core\/index\.ts/,
     },
     {
+        name: "nonliteral core CommonJS require calls are rejected",
+        files: {
+            "src/core/index.ts":
+                'const path = "./feature"; export const feature = require(path);',
+        },
+        error: /Non-literal require in src\/core\/index\.ts/,
+    },
+    {
         name: "unresolved relative imports are errors",
         files: {
             "src/core/index.ts": 'import "./missing";',
         },
         error: /Unresolved internal import "\.\/missing"/,
-    },
-    {
-        name: "unresolved relative app imports are also errors",
-        files: {
-            "src/core/index.ts": "export {};",
-            "src/app/index.ts": 'import "./missing";',
-        },
-        error: /Unresolved internal import "\.\/missing" in src\/app\/index\.ts/,
     },
     {
         name: "CSS imports cannot cross from core to app",
@@ -162,7 +187,16 @@ const failingFixtures: Fixture[] = [
             "src/core/theme.css": '@import "../app/theme.css";',
             "src/app/theme.css": "body { color: red; }",
         },
-        error: /reaches src\/app\/theme\.css \(app\)/,
+        error: /imports src\/app\/theme\.css \(app\)/,
+    },
+    {
+        name: "unquoted CSS URL imports cannot cross from core to app",
+        files: {
+            "src/core/index.ts": 'import "./theme.css";',
+            "src/core/theme.css": "@import url(../app/theme.css);",
+            "src/app/theme.css": "body { color: red; }",
+        },
+        error: /imports src\/app\/theme\.css \(app\)/,
     },
 ];
 

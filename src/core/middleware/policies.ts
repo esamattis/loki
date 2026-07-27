@@ -1,7 +1,8 @@
 import type { App, AppRequestContext } from "@/core/create-app";
 import { getAppContext } from "@/core/create-app";
 import { htmlCacheMiddleware } from "@/core/html-cache";
-import { isRegisteredPublicPath } from "@/core/register-route";
+import { isPublicAssetPath } from "@/core/middleware/public-assets";
+import { isRegisteredPrivacyPolicyExemptRoute } from "@/core/register-route";
 import * as routes from "@/core/routes";
 
 const PRIVACY_POLICY_ALLOWED_PATHS = new Set<string>([
@@ -10,14 +11,15 @@ const PRIVACY_POLICY_ALLOWED_PATHS = new Set<string>([
     routes.serviceWorker.route,
 ]);
 
-const READONLY_ALLOWED_POST_PATHS = new Set<string>([
+const READONLY_ALLOWED_MUTATIONS = new Set<string>([
+    // A read-only user must still be able to end their session.
     routes.auth.logout.route,
+    // Privacy acceptance and account deletion remain available to every user.
     routes.privacy.route,
 ]);
 
-function isPublicAssetPath(path: string): boolean {
-    return path.startsWith("/assets/");
-}
+// All unlisted methods are mutation-capable and therefore denied by default.
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 async function privacyPolicyMiddleware(
     c: AppRequestContext,
@@ -27,7 +29,11 @@ async function privacyPolicyMiddleware(
     if (
         ctx.isSelfHosted() ||
         isPublicAssetPath(c.req.path) ||
-        isRegisteredPublicPath(ctx.app, c.req.path) ||
+        isRegisteredPrivacyPolicyExemptRoute(
+            ctx.app,
+            c.req.method,
+            c.req.path,
+        ) ||
         !ctx.user ||
         ctx.user.options.privacyPolicyAccepted ||
         PRIVACY_POLICY_ALLOWED_PATHS.has(c.req.path)
@@ -43,14 +49,14 @@ async function readonlyMiddleware(
     c: AppRequestContext,
     next: () => Promise<void>,
 ) {
-    if (c.req.method !== "POST") {
+    if (SAFE_METHODS.has(c.req.method.toUpperCase())) {
         return next();
     }
     const user = getAppContext(c).user;
     if (!user?.readonly) {
         return next();
     }
-    if (READONLY_ALLOWED_POST_PATHS.has(c.req.path)) {
+    if (READONLY_ALLOWED_MUTATIONS.has(c.req.path)) {
         return next();
     }
     return c.redirect(routes.readonly({}));

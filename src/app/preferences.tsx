@@ -8,8 +8,9 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { Button, Input, Select, Textarea } from "@/core/components/form";
+import { Button, Select, Textarea } from "@/core/components/form";
 import { ErrorList } from "@/core/components/feedback";
+import { Password } from "@/core/route-handlers/auth/components";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import { Script } from "@/core/components/script";
 import { DangerZone } from "@/core/components/ui/danger-zone";
@@ -101,7 +102,7 @@ export function LokiPreferences(
                 </Select>
             </div>
             <div id="openai">
-                <Input
+                <Password
                     name="openaiApiKey"
                     label="OpenAI API key"
                     value={props.values?.openaiApiKey ?? options.openaiApiKey}
@@ -146,15 +147,38 @@ export function LokiPreferences(
             <Button type="submit" variant="primary">
                 Save logbook preferences
             </Button>
-            <DangerZone>
-                <ConfirmDangerButton
-                    name="action"
-                    value="delete-logbook-data"
-                    label="Delete logbook data"
-                    confirmLabel="Confirm delete"
-                />
-            </DangerZone>
         </form>
+    );
+}
+
+function DeleteLogbookData() {
+    return (
+        <section id="danger-zone">
+            <DangerZone>
+                <form method="post" action={routes.lokiPreferences({})}>
+                    <ConfirmDangerButton
+                        name="action"
+                        value="delete-logbook-data"
+                        label="Delete logbook data"
+                        confirmLabel="Confirm delete"
+                    />
+                </form>
+            </DangerZone>
+        </section>
+    );
+}
+
+export function LokiPreferencesContent(
+    props: {
+        errors?: string[];
+        values?: Record<string, string>;
+    } = {},
+) {
+    return (
+        <>
+            <LokiPreferences errors={props.errors} values={props.values} />
+            <DeleteLogbookData />
+        </>
     );
 }
 
@@ -178,7 +202,7 @@ async function handle(c: AppRequestContext) {
         return c.render(
             <PreferencesPage
                 appContent={
-                    <LokiPreferences
+                    <LokiPreferencesContent
                         errors={result.error.issues.map(
                             (issue) => issue.message,
                         )}

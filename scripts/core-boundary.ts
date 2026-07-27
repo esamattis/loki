@@ -198,8 +198,13 @@ function resolveImport(
 
 function cssImports(source: string): string[] {
     return Array.from(
-        source.matchAll(/@import\s+(?:url\(\s*)?["']([^"']+)["']/g),
-    ).flatMap((match) => (match[1] ? [match[1]] : []));
+        source.matchAll(
+            /@import\s+(?:url\(\s*(?:["']([^"']+)["']|([^'")\s]+))\s*\)|["']([^"']+)["'])/g,
+        ),
+    ).flatMap((match) => {
+        const specifier = match[1] ?? match[2] ?? match[3];
+        return specifier ? [specifier] : [];
+    });
 }
 
 function scriptImports(
@@ -216,6 +221,18 @@ function scriptImports(
         file.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
     );
     function visit(node: ts.Node): void {
+        if (
+            ts.isImportEqualsDeclaration(node) &&
+            ts.isExternalModuleReference(node.moduleReference)
+        ) {
+            const expression = node.moduleReference.expression;
+            if (!expression || !ts.isStringLiteral(expression)) {
+                throw new Error(
+                    `Non-literal module specifier in ${relative(project.root, file)}`,
+                );
+            }
+            results.push(expression.text);
+        }
         if (
             (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
             node.moduleSpecifier
@@ -236,6 +253,22 @@ function scriptImports(
                 if (ownership(project, file) === "core") {
                     throw new Error(
                         `Non-literal dynamic import in ${relative(project.root, file)}`,
+                    );
+                }
+            } else {
+                results.push(argument.text);
+            }
+        }
+        if (
+            ts.isCallExpression(node) &&
+            ts.isIdentifier(node.expression) &&
+            node.expression.text === "require"
+        ) {
+            const argument = node.arguments[0];
+            if (!argument || !ts.isStringLiteral(argument)) {
+                if (ownership(project, file) === "core") {
+                    throw new Error(
+                        `Non-literal require in ${relative(project.root, file)}`,
                     );
                 }
             } else {
@@ -271,38 +304,16 @@ export async function checkCoreBoundary(
     projectRoot: string,
 ): Promise<CoreBoundaryResult> {
     const project = loadProject(resolve(projectRoot));
-    const files = await moduleFiles(project.sourceRoot);
-    const graph = new Map<string, string[]>();
-    async function dependencies(file: string): Promise<string[]> {
-        const cached = graph.get(file);
-        if (cached) return cached;
-        const resolved: string[] = [];
+    const coreFiles = await moduleFiles(join(project.sourceRoot, "core"));
+    for (const file of coreFiles) {
         for (const specifier of await imports(project, file)) {
             const dependency = resolveImport(project, file, specifier);
-            if (dependency) resolved.push(dependency);
-        }
-        graph.set(file, resolved);
-        return resolved;
-    }
-    const coreFiles = files.filter(
-        (file) => ownership(project, file) === "core",
-    );
-    for (const file of files) await dependencies(file);
-    for (const start of coreFiles) {
-        const pending = [start];
-        const visited = new Set<string>();
-        while (pending.length > 0) {
-            const file = pending.pop();
-            if (!file || visited.has(file)) continue;
-            visited.add(file);
-            for (const dependency of await dependencies(file)) {
-                const owner = ownership(project, dependency);
-                if (owner !== "core") {
-                    throw new Error(
-                        `Core boundary violation: ${relative(project.root, start)} reaches ${relative(project.root, dependency)} (${owner})`,
-                    );
-                }
-                pending.push(dependency);
+            if (!dependency) continue;
+            const owner = ownership(project, dependency);
+            if (owner !== "core") {
+                throw new Error(
+                    `Core boundary violation: ${relative(project.root, file)} imports ${relative(project.root, dependency)} (${owner})`,
+                );
             }
         }
     }

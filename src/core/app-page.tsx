@@ -55,14 +55,21 @@ export function AppPage(props: {
                     className="border-t border-slate-200 bg-white/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/85"
                 >
                     <div className="mx-auto max-w-3xl px-4 py-2">
-                        {appContext.appOptions.navigation?.({
-                            end: (
-                                <MainMenu
-                                    isAdmin={user.admin}
-                                    menuClassName="bottom-full mb-2 max-h-[calc(100dvh-5rem)] overflow-y-auto"
-                                />
-                            ),
-                        })}
+                        {appContext.appOptions.navigation ? (
+                            appContext.appOptions.navigation({
+                                end: (
+                                    <MainMenu
+                                        isAdmin={user.admin}
+                                        menuClassName="bottom-full mb-2 max-h-[calc(100dvh-5rem)] overflow-y-auto"
+                                    />
+                                ),
+                            })
+                        ) : (
+                            <MainMenu
+                                isAdmin={user.admin}
+                                menuClassName="bottom-full mb-2 max-h-[calc(100dvh-5rem)] overflow-y-auto"
+                            />
+                        )}
                     </div>
                 </nav>
             </div>

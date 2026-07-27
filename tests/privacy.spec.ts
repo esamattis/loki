@@ -88,6 +88,24 @@ test("requires hosted users to accept the terms & privacy policy", async ({
     await registerUnacceptedUser(page, username);
 
     await expect(page).toHaveURL("/privacy?back=%2Flogbook");
+    await page.goto("/about");
+    await expect(page).toHaveURL("/privacy?back=%2Fabout");
+    await expect(
+        (
+            await page.request.get("/logo.svg", {
+                maxRedirects: 0,
+            })
+        ).status(),
+    ).toBe(200);
+    await expect(
+        (
+            await page.request.get("/sw.js", {
+                maxRedirects: 0,
+            })
+        ).status(),
+    ).toBe(200);
+    await page.goto("/privacy");
+    await expect(page).toHaveURL("/privacy");
     await expect(
         page.getByText(
             "You must accept the terms & privacy policy to continue using Loki.",

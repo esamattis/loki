@@ -65,6 +65,40 @@ test("adding a jump as demo redirects to the read-only page", async ({
     ).toBeVisible();
 });
 
+test("read-only policy allows safe methods and rejects all mutation methods", async ({
+    page,
+}) => {
+    await tryDemo(page);
+
+    for (const method of ["GET", "HEAD", "OPTIONS"]) {
+        const response = await page.request.fetch("/logbook", {
+            method,
+            maxRedirects: 0,
+        });
+        expect(response.headers()["location"]).not.toBe("/readonly");
+    }
+
+    for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+        const response = await page.request.fetch("/logbook", {
+            method,
+            maxRedirects: 0,
+        });
+        expect(response.status()).toBe(302);
+        expect(response.headers()["location"]).toBe("/readonly");
+    }
+
+    const privacyResponse = await page.request.post("/privacy", {
+        maxRedirects: 0,
+    });
+    expect(privacyResponse.headers()["location"]).not.toBe("/readonly");
+
+    const logoutResponse = await page.request.post("/logout", {
+        maxRedirects: 0,
+    });
+    expect(logoutResponse.status()).toBe(302);
+    expect(logoutResponse.headers()["location"]).toBe("/login");
+});
+
 test("try demo skips re-import when example data checksum matches", async ({
     page,
 }) => {

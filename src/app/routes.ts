@@ -53,15 +53,15 @@ export const about = route("/about").public();
 export const lokiPreferences = route("/preferences/logbook");
 export const lokiAdmin = route("/admin/logbook");
 export const staticAssets = [
-    route("/favicon.ico").public(),
-    route("/icon.png").public(),
-    route("/icon-192.png").public(),
-    route("/icon-512.png").public(),
-    route("/og-image.png").public(),
-    route("/apple-72x72.png").public(),
-    route("/apple-144x144.png").public(),
-    route("/logo.svg").public(),
-    route("/manifest.json").public(),
+    route("/favicon.ico").publicAsset(),
+    route("/icon.png").publicAsset(),
+    route("/icon-192.png").publicAsset(),
+    route("/icon-512.png").publicAsset(),
+    route("/og-image.png").publicAsset(),
+    route("/apple-72x72.png").publicAsset(),
+    route("/apple-144x144.png").publicAsset(),
+    route("/logo.svg").publicAsset(),
+    route("/manifest.json").publicAsset(),
 ];
 export const logbook = {
     index: route("/logbook"),

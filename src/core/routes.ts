@@ -1,8 +1,8 @@
 import { route } from "@/core/route-tools";
 
 export const assets = {
-    tailwindCss: route("/assets/:fingerprint/tailwind.css").public(),
-    htmxScript: route("/assets/:fingerprint/htmx.esm.js").public(),
+    tailwindCss: route("/assets/:fingerprint/tailwind.css").publicAsset(),
+    htmxScript: route("/assets/:fingerprint/htmx.esm.js").publicAsset(),
 };
 export const serviceWorker = route("/sw.js");
 export const auth = {

@@ -32,7 +32,6 @@ export const app = createApp({
     name: "Acorn Notes",
     title: "Acorn Notes",
     repositoryUrl: "https://example.test/acorn-notes",
-    buildName: "Acorn Notes",
     description: "A deliberately small note application.",
     basicAuthRealm: "Acorn Notes",
     authenticatedHome: routes.dashboard({}),
