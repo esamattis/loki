@@ -42,6 +42,13 @@ export interface CreateAppOptions {
         context: AppContext,
         userUuid: string,
     ) => Promise<void>;
+    validatePreferencesForm?: (
+        formValues: Readonly<Record<string, string>>,
+    ) => string[];
+    savePreferencesForm?: (
+        context: AppContext,
+        formValues: Readonly<Record<string, string>>,
+    ) => Promise<void>;
 }
 
 export interface AppRenderProps {

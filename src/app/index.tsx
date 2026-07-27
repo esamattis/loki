@@ -18,7 +18,13 @@ import { aiUsage } from "@/app/schema";
 import { LokiUserOptionsSchema } from "@/app/options";
 import { users } from "@/core/schema";
 import { LokiRegistrationFields } from "@/app/registration-fields";
-import { LokiPreferencesContent } from "@/app/preferences";
+import {
+    LokiJumpFromImageSection,
+    LokiPreferencesDangerContent,
+    LokiUnitsSection,
+    saveLokiPreferencesForm,
+    validateLokiPreferencesForm,
+} from "@/app/preferences";
 import { LokiPrivacyPolicyContent } from "@/app/privacy-policy-content";
 import {
     authenticatedUserSubtitle,
@@ -140,7 +146,9 @@ function renderApp(props: AppRenderProps) {
                 menuItems={<LokiMenuItems />}
                 footerLinks={<LokiFooterLinks />}
                 registrationFields={<LokiRegistrationFields />}
-                preferencesContent={<LokiPreferencesContent />}
+                preferencesContent={<LokiUnitsSection />}
+                preferencesAfterFormatting={<LokiJumpFromImageSection />}
+                preferencesDangerContent={<LokiPreferencesDangerContent />}
                 privacyPolicyContent={<LokiPrivacyPolicyContent />}
             >
                 {props.children}
@@ -165,6 +173,8 @@ export const app = createApp({
     render: renderApp,
     afterUserCreated: initializeLokiUser,
     beforeUserDeleted: scrubAiUsageBeforeAccountDeletion,
+    validatePreferencesForm: validateLokiPreferencesForm,
+    savePreferencesForm: saveLokiPreferencesForm,
 });
 
 registerCoreRoutes(app);

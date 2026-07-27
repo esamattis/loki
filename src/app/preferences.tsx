@@ -6,220 +6,231 @@ import {
     getAppContext,
     useAppContext,
     type App,
+    type AppContext,
     type AppRequestContext,
 } from "@/core/create-app";
 import { Button, Select, Textarea } from "@/core/components/form";
-import { ErrorList } from "@/core/components/feedback";
-import { Password } from "@/core/route-handlers/auth/components";
-import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import { Script } from "@/core/components/script";
-import { DangerZone } from "@/core/components/ui/danger-zone";
-import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
+import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
+import { Password } from "@/core/route-handlers/auth/components";
 import { $select } from "@/core/utils";
 import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/app/jump-image";
 import { LokiUserOptionsSchema, updateLokiOptions } from "@/app/options";
 import { aircrafts, gear, jumps, jumpTypes, locations } from "@/app/schema";
 import * as routes from "@/app/routes";
-import { PreferencesPage } from "@/core/route-handlers/preferences/index";
+import {
+    preferencesFieldValue,
+    usePreferencesFormState,
+} from "@/core/route-handlers/preferences/form-context";
 
-const FormSchema = z.object({
+const LokiPreferencesSchema = z.object({
     altitudeUnits: LokiUserOptionsSchema.shape.altitudeUnits,
     speedUnits: LokiUserOptionsSchema.shape.speedUnits,
     openaiApiKey: z.string(),
     jumpImagePrompt: z.string(),
 });
 
-export function LokiPreferences(
-    props: {
-        errors?: string[];
-        values?: Record<string, string>;
-    } = {},
-) {
+export function LokiUnitsSection() {
     const options = LokiUserOptionsSchema.parse(
         useAppContext().getUser().options,
     );
-    const promptId = useId();
-    const restoreId = useId();
+    const state = usePreferencesFormState();
+    const altitudeUnits = preferencesFieldValue(
+        state,
+        "altitudeUnits",
+        options.altitudeUnits,
+    );
+    const speedUnits = preferencesFieldValue(
+        state,
+        "speedUnits",
+        options.speedUnits,
+    );
     return (
-        <form
-            method="post"
-            action={routes.lokiPreferences({})}
-            data-loki-confirm="Edit Logbook Preferences"
-            className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        >
-            <RedirectBackAfterPost />
-            <h2 className="text-lg font-semibold">Logbook preferences</h2>
-            <ErrorList errors={props.errors ?? []} />
+        <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Units
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Choose how altitude and speed are displayed in your logbook.
+                </p>
+            </div>
             <div className="grid gap-5 sm:grid-cols-2">
                 <Select name="altitudeUnits" label="Altitude units">
                     <option
                         value="meters"
-                        selected={
-                            (props.values?.altitudeUnits ??
-                                options.altitudeUnits) === "meters"
-                        }
+                        selected={altitudeUnits === "meters"}
                     >
                         Meters (m)
                     </option>
-                    <option
-                        value="feet"
-                        selected={
-                            (props.values?.altitudeUnits ??
-                                options.altitudeUnits) === "feet"
-                        }
-                    >
+                    <option value="feet" selected={altitudeUnits === "feet"}>
                         Feet (ft)
                     </option>
                 </Select>
                 <Select name="speedUnits" label="Speed units">
                     <option
                         value="kilometers-per-hour"
-                        selected={
-                            (props.values?.speedUnits ?? options.speedUnits) ===
-                            "kilometers-per-hour"
-                        }
+                        selected={speedUnits === "kilometers-per-hour"}
                     >
                         Kilometers per hour (km/h)
                     </option>
                     <option
                         value="meters-per-second"
-                        selected={
-                            (props.values?.speedUnits ?? options.speedUnits) ===
-                            "meters-per-second"
-                        }
+                        selected={speedUnits === "meters-per-second"}
                     >
                         Meters per second (m/s)
                     </option>
                     <option
                         value="miles-per-hour"
-                        selected={
-                            (props.values?.speedUnits ?? options.speedUnits) ===
-                            "miles-per-hour"
-                        }
+                        selected={speedUnits === "miles-per-hour"}
                     >
                         Miles per hour (mph)
                     </option>
                 </Select>
             </div>
-            <div id="openai">
-                <Password
-                    name="openaiApiKey"
-                    label="OpenAI API key"
-                    value={props.values?.openaiApiKey ?? options.openaiApiKey}
-                />
+        </section>
+    );
+}
+
+export function LokiJumpFromImageSection() {
+    const options = LokiUserOptionsSchema.parse(
+        useAppContext().getUser().options,
+    );
+    const state = usePreferencesFormState();
+    const promptContainerId = useId();
+    const restorePromptButtonId = useId();
+    return (
+        <section
+            id="openai"
+            className="scroll-mt-4 space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800"
+        >
+            <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    OpenAI API Key
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Configure OpenAI so you can create jumps from photos of
+                    logbook pages, altimeters, or freefall computers.
+                </p>
             </div>
-            <div id="jump-image-prompt">
-                <div id={promptId}>
+            <Password
+                name="openaiApiKey"
+                label="OpenAI API key"
+                placeholder="sk-..."
+                value={preferencesFieldValue(
+                    state,
+                    "openaiApiKey",
+                    options.openaiApiKey,
+                )}
+            />
+            <div id="jump-image-prompt" className="scroll-mt-4">
+                <div id={promptContainerId}>
                     <Textarea
                         name="jumpImagePrompt"
                         label="System prompt for reading images"
                         rows={14}
                         value={
-                            props.values?.jumpImagePrompt ??
-                            options.jumpImagePrompt
+                            preferencesFieldValue(
+                                state,
+                                "jumpImagePrompt",
+                                options.jumpImagePrompt,
+                            ) || DEFAULT_JUMP_IMAGE_PROMPT
                         }
                     />
-                    <Button id={restoreId} type="button" variant="secondary">
+                    <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                        Standing instructions sent with every jump-from-image
+                        request. For one-off notes, use Additional context on
+                        the read page instead.
+                    </p>
+                    <Button
+                        id={restorePromptButtonId}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="mt-2"
+                    >
                         Restore default system prompt
                     </Button>
                 </div>
-            </div>
-            <Script
-                $deps={[$select]}
-                $args={[promptId, restoreId, DEFAULT_JUMP_IMAGE_PROMPT]}
-                $exec={(promptId, restoreId, prompt) => {
-                    const container = $select.id(promptId, HTMLDivElement);
-                    const textarea = $select.el(
-                        "textarea",
-                        HTMLTextAreaElement,
-                        container,
-                    );
-                    $select
-                        .id(restoreId, HTMLButtonElement)
-                        .addEventListener("click", () => {
-                            textarea.value = prompt;
+                <Script
+                    $deps={[$select]}
+                    $args={[
+                        promptContainerId,
+                        restorePromptButtonId,
+                        DEFAULT_JUMP_IMAGE_PROMPT,
+                    ]}
+                    $exec={(containerId, buttonId, defaultPrompt) => {
+                        const container = $select.id(containerId, HTMLElement);
+                        const textarea = $select.el(
+                            'textarea[name="jumpImagePrompt"]',
+                            HTMLTextAreaElement,
+                            container,
+                        );
+                        const button = $select.id(buttonId, HTMLButtonElement);
+                        button.addEventListener("click", () => {
+                            textarea.value = defaultPrompt;
                             textarea.dispatchEvent(
                                 new Event("input", { bubbles: true }),
                             );
+                            textarea.focus();
                         });
-                }}
-            />
-            <Button type="submit" variant="primary">
-                Save logbook preferences
-            </Button>
-        </form>
-    );
-}
-
-function DeleteLogbookData() {
-    return (
-        <section id="danger-zone">
-            <DangerZone>
-                <form method="post" action={routes.lokiPreferences({})}>
-                    <ConfirmDangerButton
-                        name="action"
-                        value="delete-logbook-data"
-                        label="Delete logbook data"
-                        confirmLabel="Confirm delete"
-                    />
-                </form>
-            </DangerZone>
+                    }}
+                />
+            </div>
         </section>
     );
 }
 
-export function LokiPreferencesContent(
-    props: {
-        errors?: string[];
-        values?: Record<string, string>;
-    } = {},
-) {
+export function LokiPreferencesDangerContent() {
     return (
-        <>
-            <LokiPreferences errors={props.errors} values={props.values} />
-            <DeleteLogbookData />
-        </>
+        <div className="space-y-3">
+            <p className="text-sm text-red-700/90 dark:text-red-300/90">
+                Permanently delete all jumps and jump items, including gear,
+                locations, aircraft, and jump types. Your account and
+                preferences will remain. This cannot be undone.
+            </p>
+            <ConfirmDeleteButton
+                label="Delete logbook data"
+                action="delete-logbook-data"
+                formAction={routes.lokiPreferences({})}
+            />
+        </div>
     );
 }
 
-async function handle(c: AppRequestContext) {
+export function validateLokiPreferencesForm(
+    formValues: Readonly<Record<string, string>>,
+): string[] {
+    const result = LokiPreferencesSchema.safeParse(formValues);
+    if (result.success) return [];
+    return result.error.issues.map((issue) => issue.message);
+}
+
+export async function saveLokiPreferencesForm(
+    context: AppContext,
+    formValues: Readonly<Record<string, string>>,
+): Promise<void> {
+    const result = LokiPreferencesSchema.parse(formValues);
+    await updateLokiOptions(context.getUser(), {
+        altitudeUnits: result.altitudeUnits,
+        speedUnits: result.speedUnits,
+        openaiApiKey: result.openaiApiKey.trim(),
+        jumpImagePrompt:
+            result.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
+    });
+}
+
+async function handleDeleteLogbookData(c: AppRequestContext) {
     const context = getAppContext(c);
     const user = context.getUser();
     const form = await c.req.formData();
-    if (form.get("action") === "delete-logbook-data") {
-        for (const table of [jumps, gear, jumpTypes, aircrafts, locations])
-            await context.db.delete(table).where(eq(table.userUuid, user.uuid));
+    if (form.get("action") !== "delete-logbook-data")
         return c.redirect(routes.logbook.index({}));
-    }
-    const raw = Object.fromEntries(form.entries());
-    const values = Object.fromEntries(
-        Object.entries(raw).filter(
-            (entry): entry is [string, string] => typeof entry[1] === "string",
-        ),
-    );
-    const result = FormSchema.safeParse(raw);
-    if (!result.success)
-        return c.render(
-            <PreferencesPage
-                appContent={
-                    <LokiPreferencesContent
-                        errors={result.error.issues.map(
-                            (issue) => issue.message,
-                        )}
-                        values={values}
-                    />
-                }
-            />,
-        );
-    await updateLokiOptions(user, {
-        ...result.data,
-        openaiApiKey: result.data.openaiApiKey.trim(),
-        jumpImagePrompt:
-            result.data.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
-    });
-    return c.redirect(context.appOptions.authenticatedHome);
+    for (const table of [jumps, gear, jumpTypes, aircrafts, locations])
+        await context.db.delete(table).where(eq(table.userUuid, user.uuid));
+    return c.redirect(routes.logbook.index({}));
 }
 
 export function register(app: App) {
-    registerRoute(app, "post", routes.lokiPreferences, handle);
+    registerRoute(app, "post", routes.lokiPreferences, handleDeleteLogbookData);
 }

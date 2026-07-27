@@ -18,13 +18,20 @@ import {
 import { deleteAccount } from "@/core/delete-account";
 import { CoreUserOptionsSchema } from "@/core/options";
 import { users } from "@/core/schema";
-import { Button, Checkbox, Input, Select } from "@/core/components/form";
+import { Button } from "@/core/components/form";
 import { ErrorList } from "@/core/components/feedback";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
-import { Password } from "@/core/route-handlers/auth/components";
 import { DangerZone } from "@/core/components/ui/danger-zone";
-import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
+import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
 import * as routes from "@/core/routes";
+import { PreferencesFormProvider } from "@/core/route-handlers/preferences/form-context";
+import {
+    FormattingSection,
+    PasswordSection,
+    PerformanceSection,
+    PreferencesSubmitButton,
+    ProfileSection,
+} from "@/core/route-handlers/preferences/form-sections";
 
 const PreferencesSchema = z
     .object({
@@ -35,8 +42,12 @@ const PreferencesSchema = z
                 (value) => !value.includes(":"),
                 "Username cannot contain a colon",
             ),
-        displayName: z.string(),
-        email: z.string().email("Invalid email address"),
+        displayName: z.string().trim(),
+        email: z
+            .string()
+            .trim()
+            .min(1, "Email is required")
+            .email("Invalid email address"),
         password: z.string(),
         confirmPassword: z.string(),
         dateTimeFormat: CoreUserOptionsSchema.shape.dateTimeFormat,
@@ -44,14 +55,22 @@ const PreferencesSchema = z
         htmlCacheEnabled: z.literal("true").optional(),
     })
     .superRefine((value, context) => {
-        if (!value.password && !value.confirmPassword) return;
+        const changingPassword =
+            value.password.length > 0 || value.confirmPassword.length > 0;
+        if (!changingPassword) return;
         if (value.password.length < 6)
             context.addIssue({
                 code: "custom",
                 message: "Password must be at least 6 characters",
                 path: ["password"],
             });
-        if (value.password !== value.confirmPassword)
+        if (!value.confirmPassword)
+            context.addIssue({
+                code: "custom",
+                message: "Confirm your new password",
+                path: ["confirmPassword"],
+            });
+        else if (value.password !== value.confirmPassword)
             context.addIssue({
                 code: "custom",
                 message: "Passwords do not match",
@@ -65,91 +84,59 @@ function CorePreferencesForm(props: {
     values?: Record<string, string>;
 }) {
     const context = useAppContext();
-    const user = context.getUser();
+    const layout = useCoreLayoutUi();
     return (
-        <form
-            id={props.formId}
-            method="post"
-            action={routes.preferences({})}
-            data-loki-confirm="Edit Preferences"
-            className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        >
-            <RedirectBackAfterPost />
-            <ErrorList errors={props.errors ?? []} />
-            <section className="grid gap-5 sm:grid-cols-2">
-                <Input
-                    name="username"
-                    label="Username"
-                    required
-                    value={props.values?.username ?? user.username}
+        <PreferencesFormProvider value={{ values: props.values }}>
+            <form
+                id={props.formId}
+                method="post"
+                action={routes.preferences({})}
+                data-loki-confirm="Edit Preferences"
+                className="space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            >
+                <RedirectBackAfterPost />
+                <ErrorList
+                    errors={props.errors ?? []}
+                    className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
                 />
-                <Input
-                    name="displayName"
-                    label="Display name"
-                    value={props.values?.displayName ?? user.displayName ?? ""}
-                />
-                <Input
-                    name="email"
-                    label="Email"
-                    type="email"
-                    required
-                    value={props.values?.email ?? user.email}
-                />
-            </section>
-            <section className="grid gap-5 sm:grid-cols-2">
-                <Select name="dateTimeFormat" label="Date and time format">
-                    {(["finnish", "european", "american", "iso"] as const).map(
-                        (value) => (
-                            <option
-                                value={value}
-                                selected={
-                                    (props.values?.dateTimeFormat ??
-                                        user.options.dateTimeFormat) === value
-                                }
-                            >
-                                {value}
-                            </option>
-                        ),
-                    )}
-                </Select>
-                <Select name="numberFormat" label="Number format">
-                    {(
-                        ["space-comma", "period-comma", "comma-period"] as const
-                    ).map((value) => (
-                        <option
-                            value={value}
-                            selected={
-                                (props.values?.numberFormat ??
-                                    user.options.numberFormat) === value
-                            }
-                        >
-                            {value}
-                        </option>
-                    ))}
-                </Select>
-            </section>
-            <section className="grid gap-5 sm:grid-cols-2">
-                <Password name="password" label="New password" />
-                <Password name="confirmPassword" label="Confirm new password" />
-            </section>
-            {!context.isSelfHosted() && (
-                <Checkbox
-                    name="htmlCacheEnabled"
-                    value="true"
-                    label="Enable page caching"
-                    checked={user.options.htmlCacheEnabled}
-                />
-            )}
-            <Button type="submit" variant="primary">
-                Save preferences
-            </Button>
-        </form>
+                <ProfileSection />
+                {layout.preferencesContent}
+                <FormattingSection />
+                {layout.preferencesAfterFormatting}
+                <PasswordSection />
+                {!context.isSelfHosted() && <PerformanceSection />}
+                <PreferencesSubmitButton />
+            </form>
+        </PreferencesFormProvider>
+    );
+}
+
+function AccountDangerZone() {
+    const layout = useCoreLayoutUi();
+    return (
+        <div id="danger-zone" className="scroll-mt-4">
+            <DangerZone>
+                {layout.preferencesDangerContent}
+                <div
+                    className={
+                        layout.preferencesDangerContent
+                            ? "mt-5 space-y-3 border-t border-red-200 pt-5 dark:border-red-900/60"
+                            : "space-y-3"
+                    }
+                >
+                    <p className="text-sm text-red-700/90 dark:text-red-300/90">
+                        Permanently delete your account and all logbook data.
+                        This cannot be undone.
+                    </p>
+                    <ConfirmDeleteButton label="Delete account" />
+                </div>
+            </DangerZone>
+        </div>
     );
 }
 
 export function PreferencesPage(props: {
     errors?: string[];
-    appContent?: any;
     values?: Record<string, string>;
 }) {
     const formId = useId();
@@ -172,17 +159,7 @@ export function PreferencesPage(props: {
                 errors={props.errors}
                 values={props.values}
             />
-            {props.appContent ?? useCoreLayoutUi().preferencesContent}
-            <form method="post" action={routes.preferences({})}>
-                <DangerZone>
-                    <ConfirmDangerButton
-                        name="action"
-                        value="delete"
-                        label="Delete account"
-                        confirmLabel="Confirm delete"
-                    />
-                </DangerZone>
-            </form>
+            <AccountDangerZone />
         </AppPage>
     );
 }
@@ -195,26 +172,36 @@ function render(
     return c.render(<PreferencesPage errors={errors} values={values} />);
 }
 
+function formStringValues(form: FormData): Record<string, string> {
+    return Object.fromEntries(
+        [...form.entries()].filter(
+            (entry): entry is [string, string] => typeof entry[1] === "string",
+        ),
+    );
+}
+
 async function handle(c: AppRequestContext) {
     const form = await c.req.formData();
     if (form.get("action") === "delete") {
         await deleteAccount(c);
         return c.redirect(routes.auth.login({}));
     }
-    const raw = Object.fromEntries(form.entries());
-    const values = Object.fromEntries(
-        Object.entries(raw).filter(
-            (entry): entry is [string, string] => typeof entry[1] === "string",
-        ),
-    );
-    const result = PreferencesSchema.safeParse(raw);
-    if (!result.success)
+    const values = formStringValues(form);
+    const result = PreferencesSchema.safeParse(values);
+    const context = getAppContext(c);
+    const appErrors =
+        context.appOptions.validatePreferencesForm?.(values) ?? [];
+    if (!result.success || appErrors.length > 0)
         return render(
             c,
-            result.error.issues.map((issue) => issue.message),
+            [
+                ...(result.success
+                    ? []
+                    : result.error.issues.map((issue) => issue.message)),
+                ...appErrors,
+            ],
             values,
         );
-    const context = getAppContext(c);
     const user = context.getUser();
     const duplicate = await context.db
         .select({ uuid: users.uuid })
@@ -227,6 +214,15 @@ async function handle(c: AppRequestContext) {
         )
         .get();
     if (duplicate) return render(c, ["Username is already in use"], values);
+    const duplicateEmail = await context.db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(
+            and(ne(users.uuid, user.uuid), eq(users.email, result.data.email)),
+        )
+        .get();
+    if (duplicateEmail)
+        return render(c, ["Email address is already in use"], values);
     try {
         await context.db
             .update(users)
@@ -246,6 +242,7 @@ async function handle(c: AppRequestContext) {
                 ? user.options.htmlCacheEnabled
                 : result.data.htmlCacheEnabled === "true",
         });
+        await context.appOptions.savePreferencesForm?.(context, values);
     } catch (error) {
         const field = uniqueAccountField(error);
         if (!field) throw error;

@@ -13,9 +13,7 @@ test("clearing the image prompt restores the default", async ({ page }) => {
     await registerUser(page, "preferences-default-prompt", "Default Prompt");
     await page.goto("/preferences");
     await page.locator('textarea[name="jumpImagePrompt"]').fill("   ");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
 
     await expect(page).toHaveURL("/logbook");
     await page.goto("/preferences");
@@ -41,11 +39,9 @@ test("invalid logbook preferences show errors and retain values", async ({
         option.selected = true;
         select.add(option);
     });
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
 
-    await expect(page).toHaveURL("/preferences/logbook");
+    await expect(page).toHaveURL("/preferences");
     await expect(page.getByText(/Invalid option/)).toBeVisible();
     await expect(page.locator('textarea[name="jumpImagePrompt"]')).toHaveValue(
         "Retain this submitted prompt",
@@ -76,9 +72,7 @@ test("the stored OpenAI API key is masked and editable", async ({ page }) => {
     await expect(apiKey).toHaveValue("edited-api-key");
 });
 
-test("core and logbook preference updates preserve each other's options", async ({
-    page,
-}) => {
+test("preference updates preserve unrelated options", async ({ page }) => {
     const username = "preferences-option-round-trip";
     await registerUser(page, username, "Option Round Trip");
     await executePlaywrightDb(`
@@ -97,7 +91,7 @@ test("core and logbook preference updates preserve each other's options", async 
         .selectOption("american");
     await page.getByRole("button", { name: "Save preferences" }).click();
 
-    let options = (
+    const options = (
         await queryPlaywrightDb(`
             SELECT options FROM users WHERE username = '${username}';
         `)
@@ -105,22 +99,6 @@ test("core and logbook preference updates preserve each other's options", async 
     expect(JSON.parse(String(options))).toMatchObject({
         altitudeUnits: "feet",
         jumpImagePrompt: "Preserve app option",
-        dateTimeFormat: "american",
-    });
-
-    await page.goto("/preferences");
-    await page.locator('select[name="altitudeUnits"]').selectOption("meters");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
-
-    options = (
-        await queryPlaywrightDb(`
-            SELECT options FROM users WHERE username = '${username}';
-        `)
-    )[0]?.options;
-    expect(JSON.parse(String(options))).toMatchObject({
-        altitudeUnits: "meters",
         dateTimeFormat: "american",
     });
 });
@@ -187,11 +165,23 @@ async function seedAccountData(username: string): Promise<string> {
 }
 
 function deleteAccountButton(page: Page) {
-    return page.locator('button[name="action"][value="delete"]');
+    return page
+        .locator("form")
+        .filter({
+            has: page.locator('input[name="action"][value="delete"]'),
+        })
+        .getByRole("button");
 }
 
 function deleteLogbookDataButton(page: Page) {
-    return page.locator('button[name="action"][value="delete-logbook-data"]');
+    return page
+        .locator("form")
+        .filter({
+            has: page.locator(
+                'input[name="action"][value="delete-logbook-data"]',
+            ),
+        })
+        .getByRole("button");
 }
 
 test("saving preferences returns to the originating route", async ({
@@ -209,14 +199,10 @@ test("saving preferences returns to the originating route", async ({
         ),
     ).toContain("/logbook/jumps/new?jumpNumber=42");
     await expect(
-        page.locator(
-            'form[action="/preferences"] input[name="__loki_redirect_back_after_post"]',
-        ),
+        page.locator('input[name="__loki_redirect_back_after_post"]'),
     ).toHaveValue("true");
 
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook/jumps/new?jumpNumber=42");
     expect(
         await page.evaluate(() =>
@@ -281,16 +267,6 @@ test("a skydiver can update preferences and account details", async ({
     await page.locator('input[name="password"]').fill("new-parachute");
     await page.locator('input[name="confirmPassword"]').fill("new-parachute");
     await page.getByRole("button", { name: "Save preferences" }).click();
-
-    await openMainMenu(page);
-    await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await page.locator('select[name="altitudeUnits"]').selectOption("feet");
-    await page
-        .locator('select[name="speedUnits"]')
-        .selectOption("meters-per-second");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
 
     await expect(page).toHaveURL("/logbook");
     await expect(
@@ -392,15 +368,6 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
         .locator('select[name="numberFormat"]')
         .selectOption("period-comma");
     await page.getByRole("button", { name: "Save preferences" }).click();
-    await openMainMenu(page);
-    await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await page.locator('select[name="altitudeUnits"]').selectOption("feet");
-    await page
-        .locator('select[name="speedUnits"]')
-        .selectOption("meters-per-second");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
 
     const jump = page.getByRole("link", { name: /#1/ });
     await expect(jump).toContainText("13.123 ft");
@@ -499,10 +466,7 @@ test("a skydiver can permanently delete their account and all jump items", async
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await expect(page).toHaveURL("/preferences");
-    await page
-        .getByText("Show destructive actions", { exact: true })
-        .nth(1)
-        .click();
+    await openDangerZone(page);
 
     const button = deleteAccountButton(page);
     await expect(button).toHaveText("Delete account");

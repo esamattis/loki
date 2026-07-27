@@ -956,9 +956,7 @@ test("freefall time estimate respects feet altitude units", async ({
     await page
         .locator('select[name="speedUnits"]')
         .selectOption("meters-per-second");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
     await page.getByRole("link", { name: "Add jump", exact: true }).click();

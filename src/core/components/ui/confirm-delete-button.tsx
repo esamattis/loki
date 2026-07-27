@@ -5,9 +5,14 @@ export function ConfirmDeleteButton(props: {
     label: string;
     className?: string;
     action?: string;
+    formAction?: string;
 }) {
     return (
-        <form method="post" className={clsx("flex", props.className)}>
+        <form
+            method="post"
+            action={props.formAction}
+            className={clsx("flex", props.className)}
+        >
             <input
                 type="hidden"
                 name="action"

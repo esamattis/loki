@@ -9,6 +9,8 @@ export interface CoreLayoutUi {
     footerLinks?: Child;
     registrationFields?: Child;
     preferencesContent?: Child;
+    preferencesAfterFormatting?: Child;
+    preferencesDangerContent?: Child;
     privacyPolicyContent: Child;
 }
 

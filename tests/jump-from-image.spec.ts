@@ -50,9 +50,7 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
@@ -481,9 +479,7 @@ test("from image form saves model and additional context to user options", async
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await expect(page.getByLabel("Default AI model")).toHaveCount(0);
     await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
 
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
     await page.locator('select[name="model"]').selectOption("gpt-4o-mini");
@@ -602,9 +598,7 @@ test("from image rejects oversized files on the server", async ({ page }) => {
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
 
     const responseText = await page.evaluate(async () => {
@@ -642,9 +636,7 @@ test("a skydiver can paste a jump image from the clipboard", async ({
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
     await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page
-        .getByRole("button", { name: "Save logbook preferences" })
-        .click();
+    await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page).toHaveURL("/logbook");
 
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();

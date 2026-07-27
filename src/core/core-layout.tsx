@@ -29,6 +29,8 @@ function coreLayoutUi(props: CoreLayoutProps): CoreLayoutUi {
         footerLinks: props.footerLinks,
         registrationFields: props.registrationFields,
         preferencesContent: props.preferencesContent,
+        preferencesAfterFormatting: props.preferencesAfterFormatting,
+        preferencesDangerContent: props.preferencesDangerContent,
         privacyPolicyContent: props.privacyPolicyContent,
     };
 }
@@ -39,6 +41,15 @@ export function CoreLayout(props: CoreLayoutProps) {
 
     if (props.registrationFields && !appContext.appOptions.afterUserCreated) {
         throw new Error("registrationFields requires afterUserCreated");
+    }
+    if (
+        (props.preferencesContent || props.preferencesAfterFormatting) &&
+        (!appContext.appOptions.validatePreferencesForm ||
+            !appContext.appOptions.savePreferencesForm)
+    ) {
+        throw new Error(
+            "preferences content requires validatePreferencesForm and savePreferencesForm",
+        );
     }
 
     return (

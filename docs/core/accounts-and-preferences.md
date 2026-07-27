@@ -67,10 +67,17 @@ writing it.
 
 ## Preferences
 
-The core `/preferences` page owns account and infrastructure settings,
-including display identity, password changes, formatting, and HTML caching. The
-`CoreLayout` `preferencesContent` prop inserts product-specific preferences
-into the shared page.
+The core `/preferences` page owns one saveable account form for display
+identity, password changes, formatting, and HTML caching. Product fields are
+inserted into that same form through `CoreLayout`:
+
+- `preferencesContent` after Profile
+- `preferencesAfterFormatting` after Formatting
+- `preferencesDangerContent` inside the shared Danger Zone
+
+When those slots are used, `CreateAppOptions` must also provide
+`validatePreferencesForm` and `savePreferencesForm` so one Save preferences
+action validates and persists core and product options together.
 
 Saveable edit forms can participate in unsaved-change tracking and return
 navigation. Destructive forms should remain separate and confirmation-gated.
