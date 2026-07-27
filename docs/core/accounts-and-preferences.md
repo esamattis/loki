@@ -21,7 +21,7 @@ hashes are persisted.
 ## Registration and first-run behavior
 
 The core registration page handles username, email, password, invitation, and
-application-provided fields. The `CoreApp` `registrationFields` content
+application-provided fields. The `CoreLayout` `registrationFields` content
 adds product inputs, and `afterUserCreated` validates or persists them.
 
 The first normal account is the bootstrap administrator. After one exists,
@@ -69,8 +69,8 @@ writing it.
 
 The core `/preferences` page owns account and infrastructure settings,
 including display identity, password changes, formatting, and HTML caching. The
-The `CoreApp` `preferencesContent` prop inserts product-specific preferences into the shared
-page.
+`CoreLayout` `preferencesContent` prop inserts product-specific preferences
+into the shared page.
 
 Saveable edit forms can participate in unsaved-change tracking and return
 navigation. Destructive forms should remain separate and confirmation-gated.

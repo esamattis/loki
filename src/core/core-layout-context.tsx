@@ -1,7 +1,7 @@
 import { createContext, type Child, useContext } from "hono/jsx";
 import type { User } from "@/core/user";
 
-export interface CoreAppUi {
+export interface CoreLayoutUi {
     authenticatedUserSubtitle: (user: User) => string;
     navigationLabel: string;
     navigation?: (props: { end?: Child }) => Child;
@@ -12,14 +12,14 @@ export interface CoreAppUi {
     privacyPolicyContent: Child;
 }
 
-const CoreAppContext = createContext<CoreAppUi | null>(null);
+const CoreLayoutContext = createContext<CoreLayoutUi | null>(null);
 
-export const CoreAppProvider = CoreAppContext.Provider;
+export const CoreLayoutProvider = CoreLayoutContext.Provider;
 
-export function useCoreAppUi(): CoreAppUi {
-    const value = useContext(CoreAppContext);
+export function useCoreLayoutUi(): CoreLayoutUi {
+    const value = useContext(CoreLayoutContext);
     if (!value) {
-        throw new Error("Core app UI context not set");
+        throw new Error("Core layout UI context not set");
     }
     return value;
 }

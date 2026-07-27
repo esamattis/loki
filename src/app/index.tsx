@@ -5,7 +5,8 @@ import {
     type AppContext,
     type AppRenderProps,
 } from "@/core/create-app";
-import { CoreApp } from "@/core/core-app";
+import { AppShell } from "@/core/app-shell";
+import { CoreLayout } from "@/core/core-layout";
 import { registerCoreRoutes } from "@/core/register-routes";
 import { registerAppRoutes } from "@/app/register-routes";
 import * as lokiRoutes from "@/app/routes";
@@ -131,18 +132,20 @@ async function scrubAiUsageBeforeAccountDeletion(
 
 function renderApp(props: AppRenderProps) {
     return (
-        <CoreApp
-            authenticatedUserSubtitle={authenticatedUserSubtitle}
-            navigationLabel={navigationLabel}
-            navigation={LokiNavigation}
-            menuItems={<LokiMenuItems />}
-            footerLinks={<LokiFooterLinks />}
-            registrationFields={<LokiRegistrationFields />}
-            preferencesContent={<LokiPreferencesContent />}
-            privacyPolicyContent={<LokiPrivacyPolicyContent />}
-        >
-            {props.children}
-        </CoreApp>
+        <AppShell>
+            <CoreLayout
+                authenticatedUserSubtitle={authenticatedUserSubtitle}
+                navigationLabel={navigationLabel}
+                navigation={LokiNavigation}
+                menuItems={<LokiMenuItems />}
+                footerLinks={<LokiFooterLinks />}
+                registrationFields={<LokiRegistrationFields />}
+                preferencesContent={<LokiPreferencesContent />}
+                privacyPolicyContent={<LokiPrivacyPolicyContent />}
+            >
+                {props.children}
+            </CoreLayout>
+        </AppShell>
     );
 }
 

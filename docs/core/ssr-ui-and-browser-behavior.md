@@ -3,20 +3,22 @@
 ## Server-rendered document shell
 
 Core uses Hono JSX and server-side rendering. `registerRenderer` delegates full
-pages to the renderer configured in `createApp`. The standard `CoreApp`
-component wraps rendered pages with the shared document:
+pages to the renderer configured in `createApp`. `AppShell` wraps rendered
+pages with the shared document:
 
 - product metadata, social metadata, icons, and theme color;
 - fingerprinted Tailwind CSS and HTMX assets;
 - theme initialization and authenticated service-worker registration;
-- background, footer, update, tooltip, navigation-progress, unsaved-change,
-  form-scroll, and return-navigation behavior.
+- a shared body for the configured UI layout.
 
-The concrete application passes its navigation, menu, footer, registration,
-preferences, and privacy content to `CoreApp`. `AppPage` provides the
-authenticated page layout, header, responsive content area, mobile action
-area, application navigation, and account menu. Product pages provide their
-content as JSX and may provide a mobile form action.
+The concrete application renders `CoreLayout` inside `AppShell` and passes its
+navigation, menu, footer, registration, preferences, and privacy content to the
+layout. `CoreLayout` owns shared body-level behavior such as the background,
+footer, dialogs, tooltips, navigation progress, unsaved-change tracking, form
+scroll restoration, and return navigation. `AppPage` provides the authenticated
+page layout, header, responsive content area, mobile action area, application
+navigation, and account menu. Product pages provide their content as JSX and
+may provide a mobile form action.
 
 Requests whose path contains `__` render only their JSX fragment. This is the
 convention used by HTMX fragment endpoints; not-found responses for these paths

@@ -56,7 +56,7 @@ registerAppRoutes(app);
 
 `createApp` installs cross-cutting middleware and delegates full-document
 rendering to the configured renderer. The concrete renderer normally wraps
-page content in `CoreApp` and supplies its product-specific UI.
+`CoreLayout` in `AppShell` and supplies its product-specific UI to the layout.
 `registerCoreRoutes` adds the reusable account, privacy, preferences, asset, and
 admin endpoints. The concrete route registrar adds product pages and handlers.
 Every handler is registered explicitly; route modules do not register

@@ -12,23 +12,29 @@ application using `TrieRouter`. The concrete composition root,
 - the authenticated home URL and HTTP Basic authentication realm; and
 - optional account lifecycle hooks.
 
-The renderer normally returns `CoreApp`, passing authenticated navigation,
-menu, footer, privacy policy, registration, and preferences content as
-component props. This keeps `createApp` focused on application infrastructure
-while allowing the concrete application to use or replace the standard core
-page shell.
+The renderer normally composes two core components:
+
+- `AppShell` renders the HTML document, head metadata and assets, and body.
+- `CoreLayout` renders the shared body layout and receives authenticated
+  navigation, menu, footer, privacy policy, registration, and preferences
+  content as component props.
+
+This keeps `createApp` focused on application infrastructure while allowing the
+concrete application to replace the document shell or UI layout independently.
 
 ```tsx
 function renderApp(props: AppRenderProps) {
     return (
-        <CoreApp
-            authenticatedUserSubtitle={authenticatedUserSubtitle}
-            navigationLabel="Application actions"
-            menuItems={<ApplicationMenuItems />}
-            privacyPolicyContent={<PrivacyPolicyContent />}
-        >
-            {props.children}
-        </CoreApp>
+        <AppShell>
+            <CoreLayout
+                authenticatedUserSubtitle={authenticatedUserSubtitle}
+                navigationLabel="Application actions"
+                menuItems={<ApplicationMenuItems />}
+                privacyPolicyContent={<PrivacyPolicyContent />}
+            >
+                {props.children}
+            </CoreLayout>
+        </AppShell>
     );
 }
 
@@ -48,7 +54,7 @@ The account hooks are:
 - `beforeUserDeleted(context, userUuid)`, used to scrub or remove product data
   before core deletes the account.
 
-Providing `CoreApp` with `registrationFields` requires configuring
+Providing `CoreLayout` with `registrationFields` requires configuring
 `afterUserCreated` in `createApp`. Registration is compensated if application
 initialization fails, so a partially initialized account is not left behind.
 

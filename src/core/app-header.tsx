@@ -1,5 +1,5 @@
 import { useAppContext } from "@/core/create-app";
-import { useCoreAppUi } from "@/core/core-app-context";
+import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { MainMenu } from "@/core/main-menu";
 import { Script } from "@/core/components/script";
 import { ThemeToggle } from "@/core/components/theme-toggle";
@@ -42,7 +42,7 @@ function $initMobileHeader(headerId: string) {
 
 export function AppHeader() {
     const appContext = useAppContext();
-    const appUi = useCoreAppUi();
+    const appUi = useCoreLayoutUi();
     const user = appContext.getUser();
     const headerId = useId();
 

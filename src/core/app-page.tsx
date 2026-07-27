@@ -1,5 +1,5 @@
 import { useAppContext } from "@/core/create-app";
-import { useCoreAppUi } from "@/core/core-app-context";
+import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppHeader } from "@/core/app-header";
 import { MainMenu } from "@/core/main-menu";
 import { Style } from "@/core/components/style";
@@ -12,7 +12,7 @@ export function AppPage(props: {
     children: any;
 }) {
     const appContext = useAppContext();
-    const appUi = useCoreAppUi();
+    const appUi = useCoreLayoutUi();
     const user = appContext.getUser();
 
     return (

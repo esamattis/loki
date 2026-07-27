@@ -3,7 +3,8 @@ import type {
     AppRequestContext,
 } from "@/core/create-app";
 import { createApp } from "@/core/create-app";
-import { CoreApp } from "@/core/core-app";
+import { AppShell } from "@/core/app-shell";
+import { CoreLayout } from "@/core/core-layout";
 import { registerRoute } from "@/core/register-route";
 import { registerCoreRoutes } from "@/core/register-routes";
 import { AppPage } from "@/core/app-page";
@@ -34,15 +35,17 @@ function renderDashboard(c: AppRequestContext) {
 
 function renderApp(props: AppRenderProps) {
     return (
-        <CoreApp
-            authenticatedUserSubtitle={(user) =>
-                `${user.getDisplayName()}'s notes`
-            }
-            navigationLabel="Note actions"
-            privacyPolicyContent={<PrivacyPolicyContent />}
-        >
-            {props.children}
-        </CoreApp>
+        <AppShell>
+            <CoreLayout
+                authenticatedUserSubtitle={(user) =>
+                    `${user.getDisplayName()}'s notes`
+                }
+                navigationLabel="Note actions"
+                privacyPolicyContent={<PrivacyPolicyContent />}
+            >
+                {props.children}
+            </CoreLayout>
+        </AppShell>
     );
 }
 

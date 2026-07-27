@@ -12,14 +12,14 @@ import {
     MenuDivider,
     MenuLink,
 } from "@/core/components/ui/dropdown-menu";
-import { useCoreAppUi } from "@/core/core-app-context";
+import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
 
 const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
 export function MainMenu(props: { isAdmin: boolean; menuClassName?: string }) {
-    const appUi = useCoreAppUi();
+    const appUi = useCoreLayoutUi();
     return (
         <DropdownMenu
             label="Menu"

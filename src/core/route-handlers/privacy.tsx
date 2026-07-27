@@ -5,7 +5,7 @@ import {
     type App,
     type AppRequestContext,
 } from "@/core/create-app";
-import { useCoreAppUi } from "@/core/core-app-context";
+import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppPage } from "@/core/app-page";
 import { isSafeRedirectPath } from "@/core/auth";
 import { Button, Checkbox } from "@/core/components/form";
@@ -16,7 +16,7 @@ import * as routes from "@/core/routes";
 
 function PrivacyPage(props: { back?: string; error?: string }) {
     const context = useAppContext();
-    const appUi = useCoreAppUi();
+    const appUi = useCoreLayoutUi();
     const user = context.user;
     const content = (
         <>

@@ -1,6 +1,6 @@
 import { Link } from "@/core/components/link";
 import { useAppContext } from "@/core/create-app";
-import { useCoreAppUi } from "@/core/core-app-context";
+import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
 import clsx from "clsx";
 
@@ -9,7 +9,7 @@ export function Footer(props: {
     showPrivacyPolicy: boolean;
 }) {
     const options = useAppContext().appOptions;
-    const appUi = useCoreAppUi();
+    const appUi = useCoreLayoutUi();
     return (
         <footer
             className={clsx(
