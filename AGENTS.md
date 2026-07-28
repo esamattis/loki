@@ -85,9 +85,14 @@ Use the `@/` alias for imports from `src` (for example, `@/core/components/feedb
 
 # Documentation
 
-All core components, their props, and helper functions must have JSDoc doc
-comments. Describe purpose, important props (via `@param props.name`), and any
-usage constraints or caveats. Keep comments accurate when behavior changes.
+Every module-level declaration in `src/core`, including non-exported classes,
+types, interfaces, functions, and variables, must have a JSDoc doc comment.
+Every core class constructor, method, getter, setter, and overload must also
+have a JSDoc doc comment.
+
+Document all core components, their props, and helper functions. Describe
+purpose, important props (via `@param props.name`), and any usage constraints or
+caveats. Keep comments accurate when behavior changes.
 
 # Forms
 
