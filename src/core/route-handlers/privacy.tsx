@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import {
-    getAppContext,
-    useAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    useRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppPage } from "@/core/app-page";
@@ -15,7 +15,7 @@ import { deleteAccount } from "@/core/delete-account";
 import * as routes from "@/core/routes";
 
 function PrivacyPage(props: { back?: string; error?: string }) {
-    const context = useAppContext();
+    const context = useRequestContext();
     const appUi = useCoreLayoutUi();
     const user = context.user;
     const content = (
@@ -74,11 +74,11 @@ function PrivacyPage(props: { back?: string; error?: string }) {
     );
 }
 
-function render(c: AppRequestContext) {
+function render(c: HonoRequestContext) {
     return c.render(<PrivacyPage back={routes.privacy.query(c).back} />);
 }
 
-async function handle(c: AppRequestContext) {
+async function handle(c: HonoRequestContext) {
     const form = await c.req.formData();
     if (form.get("action") === "delete") {
         await deleteAccount(c);
@@ -92,7 +92,7 @@ async function handle(c: AppRequestContext) {
                 error="You must check the box to accept the terms & privacy policy."
             />,
         );
-    const context = getAppContext(c);
+    const context = getRequestContext(c);
     await context.getUser().updateCoreOptions({ privacyPolicyAccepted: true });
     return c.redirect(
         back && isSafeRedirectPath(back)
@@ -101,7 +101,7 @@ async function handle(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.privacy, render);
     registerRoute(app, "post", routes.privacy, handle);
 }

@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
     User,
 } from "@/core/create-app";
 import { generateSessionToken, hashPassword } from "@/core/auth";
@@ -32,8 +32,8 @@ async function exampleDataChecksum(csv: string): Promise<string> {
     ).join("");
 }
 
-async function ensureDemoUser(c: AppRequestContext) {
-    const ctx = getAppContext(c);
+async function ensureDemoUser(c: HonoRequestContext) {
+    const ctx = getRequestContext(c);
     const existing = await ctx.db
         .select({
             uuid: users.uuid,
@@ -100,8 +100,8 @@ async function ensureDemoUser(c: AppRequestContext) {
     };
 }
 
-async function ensureDemoExampleData(c: AppRequestContext) {
-    const ctx = getAppContext(c);
+async function ensureDemoExampleData(c: HonoRequestContext) {
+    const ctx = getRequestContext(c);
     const user = ctx.getUser();
     const checksum = await exampleDataChecksum(exampleLogbookCsv);
     if (user.options.exampleDataChecksum === checksum) {
@@ -122,15 +122,15 @@ async function ensureDemoExampleData(c: AppRequestContext) {
     });
 }
 
-async function handleTryDemo(c: AppRequestContext) {
+async function handleTryDemo(c: HonoRequestContext) {
     const demoUser = await ensureDemoUser(c);
-    const ctx = getAppContext(c);
+    const ctx = getRequestContext(c);
     ctx.user = new User(ctx.db, demoUser);
     await ensureDemoExampleData(c);
     await createSession(c, demoUser.uuid);
     return c.redirect(routes.logbook.index({}));
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "post", routes.demo.try, handleTryDemo);
 }

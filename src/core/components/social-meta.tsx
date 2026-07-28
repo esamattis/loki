@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 const IMAGE_WIDTH = "1200";
 const IMAGE_HEIGHT = "630";
 const IMAGE_TYPE = "image/png";
@@ -11,7 +11,7 @@ const IMAGE_TYPE = "image/png";
  */
 export function SocialMeta(props: { title: string; url: URL }) {
     const pageUrl = `${props.url.origin}${props.url.pathname}`;
-    const options = useAppContext().appOptions;
+    const options = useRequestContext().appOptions;
     const imageUrl = `${props.url.origin}${options.socialImagePath}`;
 
     return (

@@ -1,17 +1,17 @@
 import { registerRoute } from "@/core/register-route";
 import { desc, eq, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { users } from "@/core/schema";
 import { jumps } from "@/app/schema";
 import * as routes from "@/app/routes";
 
-async function render(c: AppRequestContext) {
-    const context = getAppContext(c);
+async function render(c: HonoRequestContext) {
+    const context = getRequestContext(c);
     if (!context.getUser().admin) return c.notFound();
     const rows = await context.db
         .select({
@@ -35,6 +35,6 @@ async function render(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.lokiAdmin, render);
 }

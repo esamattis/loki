@@ -1,6 +1,6 @@
 import { registerRoute } from "@/core/register-route";
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import {
     JumpTypeFormPage,
     type JumpTypeFormValues,
@@ -10,18 +10,18 @@ import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { jumpTypes } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumpTypes.new, getNewJumpType);
     registerRoute(app, "post", routes.logbook.jumpTypes.new, createJumpType);
 }
 
-function getNewJumpType(c: AppRequestContext) {
+function getNewJumpType(c: HonoRequestContext) {
     return c.render(
         <JumpTypeFormPage title="Add jump type" submitLabel="Add jump type" />,
     );
 }
 
-async function createJumpType(c: AppRequestContext) {
+async function createJumpType(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const values = getJumpTypeFormValues(formData);
     const result = ResourceSchema.safeParse(values);
@@ -34,9 +34,9 @@ async function createJumpType(c: AppRequestContext) {
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );
-    const app = getAppContext(c);
-    await app.db.insert(jumpTypes).values({
-        userUuid: app.getUser().uuid,
+    const requestContext = getRequestContext(c);
+    await requestContext.db.insert(jumpTypes).values({
+        userUuid: requestContext.getUser().uuid,
         name: result.data.name,
         previousUsageCount: result.data.previousCount,
         description: result.data.description || null,

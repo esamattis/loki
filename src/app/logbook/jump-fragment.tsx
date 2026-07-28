@@ -1,8 +1,8 @@
 import { registerRoute } from "@/core/register-route";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import {
     getAircraftsByJump,
@@ -16,8 +16,8 @@ import {
 import { getLokiUserOptions } from "@/app/options";
 import * as routes from "@/app/routes";
 
-export async function renderLogbookJumps(c: AppRequestContext) {
-    const options = getLokiUserOptions(getAppContext(c).getUser());
+export async function renderLogbookJumps(c: HonoRequestContext) {
+    const options = getLokiUserOptions(getRequestContext(c).getUser());
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
     const offset = getFragmentOffset(c);
@@ -43,7 +43,7 @@ export async function renderLogbookJumps(c: AppRequestContext) {
     );
 }
 
-function getFragmentOffset(c: AppRequestContext): number {
+function getFragmentOffset(c: HonoRequestContext): number {
     const value = new URL(c.req.url).searchParams.get("offset");
     if (value === null || !/^\d+$/.test(value)) {
         return 0;
@@ -52,6 +52,6 @@ function getFragmentOffset(c: AppRequestContext): number {
     return Number.isSafeInteger(offset) && offset > 0 ? offset : 0;
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumpFragment, renderLogbookJumps);
 }

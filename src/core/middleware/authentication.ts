@@ -9,8 +9,8 @@ import {
     sessionCookieOptions,
     SESSION_MAX_AGE,
 } from "@/core/auth";
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import type { AppDatabase } from "@/core/db";
 import { isPublicAssetPath } from "@/core/middleware/public-assets";
 import { isRegisteredPublicRoute } from "@/core/register-route";
@@ -18,7 +18,7 @@ import * as routes from "@/core/routes";
 import { sessions, users } from "@/core/schema";
 import { User } from "@/core/user";
 
-function basicAuthChallenge(c: AppRequestContext, realm: string) {
+function basicAuthChallenge(c: HonoRequestContext, realm: string) {
     return c.body("Invalid username or password", 401, {
         "WWW-Authenticate": `Basic realm="${realm}"`,
         "Content-Type": "text/plain; charset=utf-8",
@@ -38,15 +38,19 @@ async function hasRegisteredUsers(db: AppDatabase): Promise<boolean> {
 }
 
 async function authenticateMiddleware(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
 ) {
     const path = c.req.path;
 
     if (isPublicAssetPath(path)) return next();
 
-    const ctx = getAppContext(c);
-    const isPublicPath = isRegisteredPublicRoute(ctx.app, c.req.method, path);
+    const ctx = getRequestContext(c);
+    const isPublicPath = isRegisteredPublicRoute(
+        ctx.appRouter,
+        c.req.method,
+        path,
+    );
 
     if (Math.random() < 0.1) {
         const now = Math.floor(Date.now() / 1000);
@@ -159,6 +163,6 @@ async function authenticateMiddleware(
     await next();
 }
 
-export function registerAuthentication(app: App): void {
+export function registerAuthentication(app: AppRouter): void {
     app.use("*", authenticateMiddleware);
 }

@@ -6,7 +6,7 @@ location,Skydive Example,300,,,,,,,,,,Home drop zone
 jump,,,301,,4000,1000,55,Skydive Example,Twin Otter,Navigator 260,Formation skydiving,Training jump`;
 
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { ExternalLink } from "@/core/components/link";
 import { EXAMPLE_LOGBOOK_URL } from "@/app/metadata";
 import { Code } from "@/core/components/ui/code";
@@ -18,7 +18,7 @@ import { $select } from "@/core/utils";
 /** Inline documentation for downloading the logbook export with curl over Basic auth. */
 export function ExportCurlHelp() {
     const csvId = useId();
-    const username = useAppContext().getUser().username;
+    const username = useRequestContext().getUser().username;
     const csvPath = routes.logbook.transfer.export({});
     return (
         <Details

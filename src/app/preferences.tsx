@@ -3,11 +3,11 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
 import {
-    getAppContext,
-    useAppContext,
-    type App,
-    type AppContext,
-    type AppRequestContext,
+    getRequestContext,
+    useRequestContext,
+    type AppRouter,
+    type RequestContext,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { Button, Select, Textarea } from "@/core/components/form";
 import { Script } from "@/core/components/script";
@@ -32,7 +32,7 @@ const LokiPreferencesSchema = z.object({
 
 export function LokiUnitsSection() {
     const options = LokiUserOptionsSchema.parse(
-        useAppContext().getUser().options,
+        useRequestContext().getUser().options,
     );
     const state = usePreferencesFormState();
     const altitudeUnits = preferencesFieldValue(
@@ -94,7 +94,7 @@ export function LokiUnitsSection() {
 
 export function LokiJumpFromImageSection() {
     const options = LokiUserOptionsSchema.parse(
-        useAppContext().getUser().options,
+        useRequestContext().getUser().options,
     );
     const state = usePreferencesFormState();
     const promptContainerId = useId();
@@ -207,7 +207,7 @@ export function validateLokiPreferencesForm(
 }
 
 export async function saveLokiPreferencesForm(
-    context: AppContext,
+    context: RequestContext,
     formValues: Readonly<Record<string, string>>,
 ): Promise<void> {
     const result = LokiPreferencesSchema.parse(formValues);
@@ -220,8 +220,8 @@ export async function saveLokiPreferencesForm(
     });
 }
 
-async function handleDeleteLogbookData(c: AppRequestContext) {
-    const context = getAppContext(c);
+async function handleDeleteLogbookData(c: HonoRequestContext) {
+    const context = getRequestContext(c);
     const user = context.getUser();
     const form = await c.req.formData();
     if (form.get("action") !== "delete-logbook-data")
@@ -231,6 +231,6 @@ async function handleDeleteLogbookData(c: AppRequestContext) {
     return c.redirect(routes.logbook.index({}));
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "post", routes.lokiPreferences, handleDeleteLogbookData);
 }

@@ -3,7 +3,7 @@
 ## Server-rendered document shell
 
 Core uses Hono JSX and server-side rendering. `registerRenderer` delegates full
-pages to the renderer configured in `createApp`. `AppShell` wraps rendered
+pages to the renderer configured in `createAppRouter`. `AppShell` wraps rendered
 pages with the shared document:
 
 - product metadata, social metadata, icons, and theme color;
@@ -36,7 +36,7 @@ Reusable components live under `src/core/components`. Major groups include:
   and confirmation buttons under `components/ui`; and
 - `AppPage`, `AppHeader`, and `MainMenu` for authenticated layout.
 
-Components obtain application and user state with `useAppContext()`. Component
+Components obtain application and user state with `useRequestContext()`. Component
 props are accessed as `props.name`; they are not destructured. Tailwind is the
 default styling mechanism, with `clsx` for conditional class names.
 

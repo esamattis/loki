@@ -3,7 +3,7 @@
 ## Database abstraction
 
 Core exposes a D1-shaped Drizzle client as `AppDatabase`. Product handlers use
-the request-scoped client from `AppContext.db`, which keeps query code shared
+the request-scoped client from `RequestContext.db`, which keeps query code shared
 between runtimes.
 
 On Cloudflare, `createD1Database` wraps the D1 binding and records SQL timing.
@@ -82,7 +82,7 @@ registration UI and the install/activate lifecycle helper.
 
 ## Deployment modes
 
-The same `App` runs in:
+The same `AppRouter` runs in:
 
 - Cloudflare Workers with D1;
 - Node through `@hono/node-server` and SQLite; and

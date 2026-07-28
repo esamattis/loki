@@ -1,5 +1,5 @@
 import { registerRoute } from "@/core/register-route";
-import type { App, AppRequestContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { JumpImage } from "@/app/logbook/jumps/image";
 import * as routes from "@/app/routes";
 
@@ -78,7 +78,7 @@ function GalleryImage(props: { imageId: string }) {
     );
 }
 
-function getGalleryQuery(c: AppRequestContext) {
+function getGalleryQuery(c: HonoRequestContext) {
     const searchParams = new URL(c.req.url).searchParams;
     const imageIds = (searchParams.get("imageIds") ?? "")
         .split(",")
@@ -87,7 +87,7 @@ function getGalleryQuery(c: AppRequestContext) {
     return { imageIds };
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumps.imageGalleryFragment, (c) =>
         c.render(<ImageGalleryFragment {...getGalleryQuery(c)} />),
     );

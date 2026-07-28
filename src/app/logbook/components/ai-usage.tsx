@@ -1,10 +1,10 @@
 import type { LanguageModelUsage } from "ai";
 import { desc, eq, sql } from "drizzle-orm";
 import {
-    getAppContext,
+    getRequestContext,
     useDateFormatter,
     useNumberFormatter,
-    type AppRequestContext,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { JUMP_IMAGE_MODELS } from "@/app/options";
 import { aiUsage } from "@/app/schema";
@@ -178,12 +178,12 @@ export function AiUsageSummary(props: {
     );
 }
 
-export async function getAiUsageForUser(c: AppRequestContext): Promise<{
+export async function getAiUsageForUser(c: HonoRequestContext): Promise<{
     totals: AiUsageTotals;
     rows: AiUsageRow[];
 }> {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const [totalsRow, rows] = await Promise.all([
         db
             .select({
@@ -251,13 +251,13 @@ export function buildAiUsageTitle(data: {
 }
 
 export async function recordAiUsage(options: {
-    c: AppRequestContext;
+    c: HonoRequestContext;
     model: string;
     title: string;
     usage: LanguageModelUsage;
 }) {
-    const db = getAppContext(options.c).db;
-    const userUuid = getAppContext(options.c).getUser().uuid;
+    const db = getRequestContext(options.c).db;
+    const userUuid = getRequestContext(options.c).getUser().uuid;
     await db.insert(aiUsage).values({
         userUuid,
         model: options.model,

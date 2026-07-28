@@ -1,10 +1,10 @@
 import { registerRoute } from "@/core/register-route";
 import { eq, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    useAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    useRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { users } from "@/core/schema";
@@ -58,7 +58,7 @@ function RegisterForm(props: {
     displayName?: string;
     email?: string;
 }) {
-    const selfHosted = useAppContext().isSelfHosted();
+    const selfHosted = useRequestContext().isSelfHosted();
 
     return (
         <AuthFormShell
@@ -141,17 +141,17 @@ function RegisterForm(props: {
     );
 }
 
-async function renderRegisterForm(c: AppRequestContext) {
-    if (getAppContext(c).user) {
-        return c.redirect(getAppContext(c).appOptions.authenticatedHome);
+async function renderRegisterForm(c: HonoRequestContext) {
+    if (getRequestContext(c).user) {
+        return c.redirect(getRequestContext(c).appOptions.authenticatedHome);
     }
     return c.render(
         <RegisterForm invitationRequired={await hasRegisteredUsers(c)} />,
     );
 }
 
-async function hasRegisteredUsers(c: AppRequestContext): Promise<boolean> {
-    const user = await getAppContext(c)
+async function hasRegisteredUsers(c: HonoRequestContext): Promise<boolean> {
+    const user = await getRequestContext(c)
         .db.select({ uuid: users.uuid })
         .from(users)
         .where(
@@ -184,7 +184,7 @@ function registerFormProps(raw: {
     };
 }
 
-async function handleRegister(c: AppRequestContext) {
+async function handleRegister(c: HonoRequestContext) {
     const raw = formDataToStrings(await c.req.formData());
     const result = RegisterFormSchema.safeParse(raw);
     const invitationRequired = await hasRegisteredUsers(c);
@@ -206,7 +206,7 @@ async function handleRegister(c: AppRequestContext) {
         dateTimeFormat,
         numberFormat,
     } = result.data;
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const formProps = registerFormProps({
         invitationCode,
         username,
@@ -304,11 +304,11 @@ async function handleRegister(c: AppRequestContext) {
             Object.entries(raw).filter(([name]) => !coreFields.has(name)),
         ),
     );
-    const appOptions = getAppContext(c).appOptions;
+    const appOptions = getRequestContext(c).appOptions;
     if (appOptions.afterUserCreated) {
         try {
             await appOptions.afterUserCreated(
-                getAppContext(c),
+                getRequestContext(c),
                 newUserUuid,
                 appFormValues,
             );
@@ -332,7 +332,7 @@ async function handleRegister(c: AppRequestContext) {
     return c.redirect(appOptions.authenticatedHome);
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.auth.register, renderRegisterForm);
     registerRoute(app, "post", routes.auth.register, handleRegister);
 }

@@ -1,4 +1,4 @@
-import type { AppRequestContext } from "@/core/create-app";
+import type { HonoRequestContext } from "@/core/create-app";
 
 export interface ServerTimings {
     pageStartedAt: number;
@@ -47,7 +47,7 @@ function recordSqlDuration(timings: ServerTimings, duration: number): void {
 }
 
 export function setServerTiming(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     timings: ServerTimings,
 ): void {
     const pageDuration = performance.now() - timings.pageStartedAt;

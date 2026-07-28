@@ -5,9 +5,9 @@ import clsx from "clsx";
 import { and, eq } from "drizzle-orm";
 import { useId } from "hono/jsx";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { ErrorList } from "@/core/components/feedback";
 import { CameraIcon, ClipboardIcon } from "@/app/components/icons";
@@ -93,9 +93,9 @@ function resolveResourceNames(
     return { uuids: [...uuids], unmatchedNames: [...unmatchedNames.values()] };
 }
 
-async function getJumpItemResources(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+async function getJumpItemResources(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const [locationRows, aircraftRows, gearRows, jumpTypeRows] =
         await Promise.all([
             db
@@ -378,27 +378,27 @@ function JumpFromImagePage(props: {
 }
 
 async function saveJumpImageReadOptions(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options: {
         model: UserOptions["jumpImageModel"];
         additionalContext: string;
     },
 ) {
-    await updateLokiOptions(getAppContext(c).getUser(), {
+    await updateLokiOptions(getRequestContext(c).getUser(), {
         jumpImageModel: options.model,
         jumpImageAdditionalContext: options.additionalContext,
     });
 }
 
 async function renderJumpFromImage(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options?: {
         errors?: string[];
         additionalContext?: string;
         model?: UserOptions["jumpImageModel"];
     },
 ) {
-    const userOptions = getLokiUserOptions(getAppContext(c).getUser());
+    const userOptions = getLokiUserOptions(getRequestContext(c).getUser());
     const hasApiKey = Boolean(userOptions.openaiApiKey.trim());
     const model =
         options?.model ??
@@ -673,8 +673,8 @@ function buildJumpNewQuery(
     };
 }
 
-async function handleJumpFromImage(c: AppRequestContext) {
-    const options = getLokiUserOptions(getAppContext(c).getUser());
+async function handleJumpFromImage(c: HonoRequestContext) {
+    const options = getLokiUserOptions(getRequestContext(c).getUser());
     const apiKey = options.openaiApiKey.trim();
     const formData = await c.req.formData();
     const additionalContextField = formData.get("additionalContext");
@@ -777,7 +777,7 @@ async function handleJumpFromImage(c: AppRequestContext) {
     }
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumps.fromImage, async (c) =>
         renderJumpFromImage(c),
     );

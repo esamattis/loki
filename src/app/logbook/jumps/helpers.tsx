@@ -1,6 +1,6 @@
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { z } from "zod";
-import { getAppContext, type AppRequestContext } from "@/core/create-app";
+import { getRequestContext, type HonoRequestContext } from "@/core/create-app";
 import {
     aircrafts,
     gear,
@@ -39,11 +39,11 @@ export function missingJumpNumberConflictError() {
 }
 
 export function shiftJumpNumberQueries(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     fromJumpNumber: number,
 ) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     return [
         db
             .update(jumps)
@@ -121,9 +121,9 @@ const JumpSchema = z.object({
     jumpTypeName: z.string().trim().optional().default(""),
 });
 
-export async function getJumpFormResources(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+export async function getJumpFormResources(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const [locationRows, aircraftRows, gearRows, jumpTypeRows] =
         await Promise.all([
             db
@@ -231,7 +231,7 @@ type ResolvedJumpResources = {
 };
 
 export async function parseAndResolveJumpForm(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     formData: FormData,
 ): Promise<
     | {
@@ -334,7 +334,7 @@ async function resolveJumpItemUuid(options: {
 }
 
 async function resolveJumpResources(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     data: z.infer<typeof JumpSchema>,
     resources: JumpFormResources,
 ): Promise<
@@ -347,8 +347,8 @@ async function resolveJumpResources(
       }
     | { ok: false; error: string }
 > {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
 
     let locationUuid = data.locationUuid;
     if (data.locationName) {
@@ -457,12 +457,12 @@ async function resolveJumpResources(
 }
 
 export async function findJumpByNumber(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     jumpNumber: number,
     excludeUuid?: string,
 ) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     return db
         .select({ uuid: jumps.uuid })
         .from(jumps)
@@ -483,7 +483,7 @@ export type JumpNumberConflict = {
 };
 
 export async function getJumpNumberConflict(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options: {
         value: string | undefined;
         excludeUuid?: string;
@@ -528,7 +528,7 @@ export type JumpWriteLinks = {
 };
 
 export function jumpRelationInserts(
-    db: ReturnType<typeof getAppContext>["db"],
+    db: ReturnType<typeof getRequestContext>["db"],
     jumpUuid: string,
     links: JumpWriteLinks,
 ) {
@@ -546,7 +546,7 @@ export function jumpRelationInserts(
 }
 
 export function jumpRelationDeletes(
-    db: ReturnType<typeof getAppContext>["db"],
+    db: ReturnType<typeof getRequestContext>["db"],
     jumpUuid: string,
 ) {
     return [

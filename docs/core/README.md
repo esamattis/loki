@@ -22,7 +22,7 @@ that lets core reach back into the application.
 ## Feature documentation
 
 - [Composition and request context](composition-and-context.md) explains
-  `createApp`, the application options contract, middleware setup, and access
+  `createAppRouter`, the application options contract, middleware setup, and access
   to request-scoped services.
 - [Routing and policies](routing-and-policies.md) covers typed route helpers,
   route registration, public access metadata, authentication enforcement,
@@ -46,7 +46,7 @@ application-owned file and the required replacement procedure.
 A concrete application normally performs three steps:
 
 ```tsx
-export const app = createApp({
+export const appRouter = createAppRouter({
     // Product metadata, one renderer, and lifecycle hooks.
 });
 
@@ -54,7 +54,7 @@ registerCoreRoutes(app);
 registerAppRoutes(app);
 ```
 
-`createApp` installs cross-cutting middleware and delegates full-document
+`createAppRouter` installs cross-cutting middleware and delegates full-document
 rendering to the configured renderer. The concrete renderer normally wraps
 `CoreLayout` in `AppShell` and supplies its product-specific UI to the layout.
 `registerCoreRoutes` adds the reusable account, privacy, preferences, asset, and

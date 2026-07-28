@@ -3,11 +3,11 @@ import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import clsx from "clsx";
 import { useId } from "hono/jsx";
 import {
-    getAppContext,
-    useAppContext,
+    getRequestContext,
+    useRequestContext,
     useNumberFormatter,
-    type App,
-    type AppRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { ButtonLink } from "@/core/components/form";
 import type { CalendarDuration } from "@/app/format";
@@ -109,8 +109,8 @@ function LastTwelveMonthsFooter(props: {
     thresholdJumpDate: string | null;
     lastTwelveMonthsJumps: number;
 }) {
-    const app = useAppContext();
-    const formatCalendarDuration = app.calendarDurationFormatter();
+    const requestContext = useRequestContext();
+    const formatCalendarDuration = requestContext.calendarDurationFormatter();
     const requirement =
         "In Finland, at least 10 jumps in the last 12 months are required to keep a skydiving license valid.";
     if (props.latestJumpDate === null) {
@@ -123,7 +123,7 @@ function LastTwelveMonthsFooter(props: {
             <>
                 {requirement} The last jump was{" "}
                 {formatCalendarDuration(duration)} ago, on{" "}
-                {app.dateFormatter()(props.latestJumpDate)}.
+                {requestContext.dateFormatter()(props.latestJumpDate)}.
             </>
         );
     }
@@ -136,7 +136,7 @@ function LastTwelveMonthsFooter(props: {
         <>
             {requirement} If no more jumps are made, this count will fall below
             10 in {formatCalendarDuration(duration)}, on{" "}
-            {app.dateFormatter()(dropDate)}.
+            {requestContext.dateFormatter()(dropDate)}.
         </>
     );
 }
@@ -352,9 +352,9 @@ function insufficientJumpDataCondition() {
     );
 }
 
-async function renderStatistics(c: AppRequestContext) {
-    const app = getAppContext(c);
-    const user = app.getUser();
+async function renderStatistics(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const user = requestContext.getUser();
     const userUuid = user.uuid;
     const startOfCurrentYear = getStartOfCurrentYear();
     const startOfCurrentMonth = getStartOfCurrentMonth();
@@ -363,7 +363,7 @@ async function renderStatistics(c: AppRequestContext) {
     const insufficientDataCondition = insufficientJumpDataCondition();
     const [[stats], yearlyRows, jumpNumberRows, insufficientDataJumps] =
         await Promise.all([
-            app.db
+            requestContext.db
                 .select({
                     totalJumps: sql<number>`coalesce(max(${jumps.jumpNumber}), 0)`,
                     firstJumpDate: sql<string | null>`min(${jumps.jumpDate})`,
@@ -374,7 +374,7 @@ async function renderStatistics(c: AppRequestContext) {
                 })
                 .from(jumps)
                 .where(eq(jumps.userUuid, userUuid)),
-            app.db
+            requestContext.db
                 .select({
                     year: sql<string>`substr(${jumps.jumpDate}, 1, 4)`,
                     count: sql<number>`count(*)`,
@@ -383,7 +383,7 @@ async function renderStatistics(c: AppRequestContext) {
                 .where(eq(jumps.userUuid, userUuid))
                 .groupBy(sql`substr(${jumps.jumpDate}, 1, 4)`)
                 .orderBy(sql`substr(${jumps.jumpDate}, 1, 4)`),
-            app.db
+            requestContext.db
                 .select({
                     jumpNumber: jumps.jumpNumber,
                     jumpDate: jumps.jumpDate,
@@ -391,7 +391,7 @@ async function renderStatistics(c: AppRequestContext) {
                 .from(jumps)
                 .where(eq(jumps.userUuid, userUuid))
                 .orderBy(asc(jumps.jumpNumber)),
-            app.db
+            requestContext.db
                 .select({
                     uuid: jumps.uuid,
                     jumpNumber: jumps.jumpNumber,
@@ -414,7 +414,7 @@ async function renderStatistics(c: AppRequestContext) {
         latestJumpDate: null,
         lastMonthJumps: 0,
     };
-    const formatNumber = app.numberFormatter();
+    const formatNumber = requestContext.numberFormatter();
 
     const yearlyData = yearlyRows
         .map((row) => ({
@@ -501,7 +501,7 @@ async function renderStatistics(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(
         app,
         "get",

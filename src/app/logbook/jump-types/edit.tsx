@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import {
     JumpTypeFormPage,
@@ -15,34 +15,34 @@ import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { jumpTypes, jumpsToJumpTypes } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumpTypes.edit, (c) =>
         getEditJumpType(c),
     );
     registerRoute(app, "post", routes.logbook.jumpTypes.edit, updateJumpType);
 }
 
-async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
-    const app = getAppContext(c);
+async function getEditJumpType(c: HonoRequestContext, dangerError?: string) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.jumpTypes.edit.params(c);
     if (!uuid) return c.notFound();
-    const item = await app.db
+    const item = await requestContext.db
         .select()
         .from(jumpTypes)
         .where(
             and(
                 eq(jumpTypes.uuid, uuid),
-                eq(jumpTypes.userUuid, app.getUser().uuid),
+                eq(jumpTypes.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
     if (!item) return c.notFound();
-    const mergeOptions = await app.db
+    const mergeOptions = await requestContext.db
         .select({ uuid: jumpTypes.uuid, name: jumpTypes.name })
         .from(jumpTypes)
         .where(
             and(
-                eq(jumpTypes.userUuid, app.getUser().uuid),
+                eq(jumpTypes.userUuid, requestContext.getUser().uuid),
                 ne(jumpTypes.uuid, item.uuid),
             ),
         )
@@ -50,7 +50,7 @@ async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
     const [recentJumps, recordedUsageCount] = await Promise.all([
         getRecentJumpsForItem({
             c,
-            userUuid: app.getUser().uuid,
+            userUuid: requestContext.getUser().uuid,
             itemUuid: item.uuid,
             relation: "jumpType",
         }),
@@ -75,13 +75,13 @@ async function getEditJumpType(c: AppRequestContext, dangerError?: string) {
     );
 }
 
-async function updateJumpType(c: AppRequestContext) {
-    const app = getAppContext(c);
+async function updateJumpType(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.jumpTypes.edit.params(c);
     if (!uuid) return c.notFound();
     const formData = await c.req.formData();
     if (formData.get("action") === "delete") {
-        const used = await app.db
+        const used = await requestContext.db
             .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
             .from(jumpsToJumpTypes)
             .where(eq(jumpsToJumpTypes.jumpTypeUuid, uuid))
@@ -92,12 +92,12 @@ async function updateJumpType(c: AppRequestContext) {
                 c,
                 "Cannot delete a jump type that is used by jumps. Archive it instead.",
             );
-        const deleted = await app.db
+        const deleted = await requestContext.db
             .delete(jumpTypes)
             .where(
                 and(
                     eq(jumpTypes.uuid, uuid),
-                    eq(jumpTypes.userUuid, app.getUser().uuid),
+                    eq(jumpTypes.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: jumpTypes.uuid })
@@ -109,13 +109,13 @@ async function updateJumpType(c: AppRequestContext) {
     if (formData.get("action") === "merge")
         return mergeJumpType(c, uuid, getFormString(formData, "targetUuid"));
     if (formData.get("action") === "toggleArchive") {
-        const update = await app.db
+        const update = await requestContext.db
             .update(jumpTypes)
             .set({ archived: formData.get("archived") === "true" })
             .where(
                 and(
                     eq(jumpTypes.uuid, uuid),
-                    eq(jumpTypes.userUuid, app.getUser().uuid),
+                    eq(jumpTypes.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: jumpTypes.uuid })
@@ -130,7 +130,7 @@ async function updateJumpType(c: AppRequestContext) {
         const [recentJumps, recordedUsageCount] = await Promise.all([
             getRecentJumpsForItem({
                 c,
-                userUuid: app.getUser().uuid,
+                userUuid: requestContext.getUser().uuid,
                 itemUuid: uuid,
                 relation: "jumpType",
             }),
@@ -147,7 +147,7 @@ async function updateJumpType(c: AppRequestContext) {
             />,
         );
     }
-    const update = await app.db
+    const update = await requestContext.db
         .update(jumpTypes)
         .set({
             name: result.data.name,
@@ -157,7 +157,7 @@ async function updateJumpType(c: AppRequestContext) {
         .where(
             and(
                 eq(jumpTypes.uuid, uuid),
-                eq(jumpTypes.userUuid, app.getUser().uuid),
+                eq(jumpTypes.userUuid, requestContext.getUser().uuid),
             ),
         )
         .returning({ uuid: jumpTypes.uuid })
@@ -168,33 +168,33 @@ async function updateJumpType(c: AppRequestContext) {
 }
 
 async function mergeJumpType(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     sourceUuid: string,
     targetUuid: string,
 ) {
-    const app = getAppContext(c);
+    const requestContext = getRequestContext(c);
     if (!targetUuid || targetUuid === sourceUuid)
         return getEditJumpType(
             c,
             "Select a different jump type to merge into.",
         );
-    const source = await app.db
+    const source = await requestContext.db
         .select()
         .from(jumpTypes)
         .where(
             and(
                 eq(jumpTypes.uuid, sourceUuid),
-                eq(jumpTypes.userUuid, app.getUser().uuid),
+                eq(jumpTypes.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
-    const target = await app.db
+    const target = await requestContext.db
         .select()
         .from(jumpTypes)
         .where(
             and(
                 eq(jumpTypes.uuid, targetUuid),
-                eq(jumpTypes.userUuid, app.getUser().uuid),
+                eq(jumpTypes.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
@@ -203,20 +203,20 @@ async function mergeJumpType(
             c,
             "Select a different jump type to merge into.",
         );
-    const sourceRows = await app.db
+    const sourceRows = await requestContext.db
         .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
         .from(jumpsToJumpTypes)
         .where(eq(jumpsToJumpTypes.jumpTypeUuid, source.uuid));
     const targetJumps = new Set(
         (
-            await app.db
+            await requestContext.db
                 .select({ jumpUuid: jumpsToJumpTypes.jumpUuid })
                 .from(jumpsToJumpTypes)
                 .where(eq(jumpsToJumpTypes.jumpTypeUuid, target.uuid))
         ).map((row) => row.jumpUuid),
     );
-    await app.db.batch([
-        app.db
+    await requestContext.db.batch([
+        requestContext.db
             .update(jumpTypes)
             .set({
                 previousUsageCount:
@@ -226,15 +226,17 @@ async function mergeJumpType(
         ...sourceRows
             .filter((row) => !targetJumps.has(row.jumpUuid))
             .map((row) =>
-                app.db.insert(jumpsToJumpTypes).values({
+                requestContext.db.insert(jumpsToJumpTypes).values({
                     jumpUuid: row.jumpUuid,
                     jumpTypeUuid: target.uuid,
                 }),
             ),
-        app.db
+        requestContext.db
             .delete(jumpsToJumpTypes)
             .where(eq(jumpsToJumpTypes.jumpTypeUuid, source.uuid)),
-        app.db.delete(jumpTypes).where(eq(jumpTypes.uuid, source.uuid)),
+        requestContext.db
+            .delete(jumpTypes)
+            .where(eq(jumpTypes.uuid, source.uuid)),
     ]);
     return c.redirect(routes.logbook.jumpTypes.edit({ uuid: target.uuid }));
 }
@@ -248,10 +250,10 @@ function getJumpTypeFormValues(formData: FormData): JumpTypeFormValues {
 }
 
 async function getJumpTypeRecordedUsageCount(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     jumpTypeUuid: string,
 ): Promise<number> {
-    const row = await getAppContext(c)
+    const row = await getRequestContext(c)
         .db.select({ count: sql<number>`count(*)` })
         .from(jumpsToJumpTypes)
         .where(eq(jumpsToJumpTypes.jumpTypeUuid, jumpTypeUuid))

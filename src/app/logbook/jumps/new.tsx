@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, desc, eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { Link } from "@/core/components/link";
 import {
@@ -118,14 +118,14 @@ function imageReadingWarningNotices(warning: string) {
 type JumpPrefillQuery = ReturnType<typeof routes.logbook.jumps.new.query>;
 
 async function loadJumpRelationUuids(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     jumpUuid: string,
 ): Promise<{
     aircraftUuids: string[];
     gearUuids: string[];
     jumpTypeUuids: string[];
 }> {
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const [aircraftRows, gearRows, jumpTypeRows] = await Promise.all([
         db
             .select({ aircraftUuid: jumpsToAircrafts.aircraftUuid })
@@ -148,7 +148,7 @@ async function loadJumpRelationUuids(
 }
 
 async function applyImageItemPrefill(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options: {
         values: JumpFormValues;
         query: JumpPrefillQuery;
@@ -187,7 +187,7 @@ function jumpRef(
 }
 
 async function loadSourceJumpPrefill(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options: {
         sourceJumpUuid: string;
         userUuid: string;
@@ -203,7 +203,7 @@ async function loadSourceJumpPrefill(
         values: JumpFormValues;
     },
 ): Promise<{ values: JumpFormValues; prefillFrom?: JumpPrefillFrom }> {
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const jump = await db
         .select()
         .from(jumps)
@@ -247,11 +247,11 @@ async function loadSourceJumpPrefill(
     };
 }
 
-export async function renderNewJump(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+export async function renderNewJump(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const altitudeUnits = getLokiUserOptions(
-        getAppContext(c).getUser(),
+        getRequestContext(c).getUser(),
     ).altitudeUnits;
     const query = routes.logbook.jumps.new.query(c);
     const isImagePrefill = query.fromImage === "1";
@@ -349,7 +349,7 @@ export async function renderNewJump(c: AppRequestContext) {
     );
 }
 
-export async function renderJumpNumberError(c: AppRequestContext) {
+export async function renderJumpNumberError(c: HonoRequestContext) {
     const query = routes.logbook.jumps.jumpNumberError.query(c);
     const conflict = await getJumpNumberConflict(c, {
         value: query.jumpNumber,
@@ -359,10 +359,10 @@ export async function renderJumpNumberError(c: AppRequestContext) {
 }
 
 async function getNextJumpNumber(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     userUuid: string,
 ): Promise<string> {
-    const latestJump = await getAppContext(c)
+    const latestJump = await getRequestContext(c)
         .db.select({ jumpNumber: jumps.jumpNumber })
         .from(jumps)
         .where(eq(jumps.userUuid, userUuid))
@@ -372,7 +372,7 @@ async function getNextJumpNumber(
     return String((latestJump?.jumpNumber ?? 0) + 1);
 }
 
-export async function handleNewJump(c: AppRequestContext) {
+export async function handleNewJump(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const sourceImageIdValue = formData.get("sourceImageId");
     const sourceImageId =
@@ -383,7 +383,7 @@ export async function handleNewJump(c: AppRequestContext) {
         formData.get("jumpNumberConflict"),
     );
     const parsed = await parseAndResolveJumpForm(c, formData);
-    const userUuid = getAppContext(c).getUser().uuid;
+    const userUuid = getRequestContext(c).getUser().uuid;
     if (!parsed.ok) {
         return c.render(
             <JumpFormPage
@@ -404,7 +404,7 @@ export async function handleNewJump(c: AppRequestContext) {
         );
     }
     const altitudeUnits = getLokiUserOptions(
-        getAppContext(c).getUser(),
+        getRequestContext(c).getUser(),
     ).altitudeUnits;
     const existingJump = await findJumpByNumber(c, parsed.data.jumpNumber);
     if (existingJump && !conflictAction) {
@@ -426,7 +426,7 @@ export async function handleNewJump(c: AppRequestContext) {
             />,
         );
     }
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const jumpValues = {
         locationUuid: parsed.resolved.locationUuid,
         jumpNumber: parsed.data.jumpNumber,
@@ -489,7 +489,7 @@ export async function handleNewJump(c: AppRequestContext) {
     return c.redirect(redirectUrl);
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumps.new, renderNewJump);
     registerRoute(
         app,

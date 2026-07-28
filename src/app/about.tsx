@@ -1,8 +1,8 @@
 import { registerRoute } from "@/core/register-route";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { BuildInfo } from "@/core/components/build-info";
@@ -131,18 +131,21 @@ function PublicAboutPage() {
     );
 }
 
-function renderAboutPage(c: AppRequestContext) {
-    const appContext = getAppContext(c);
-    if (!appContext.user) {
+function renderAboutPage(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    if (!requestContext.user) {
         return c.render(<PublicAboutPage />);
     }
     return c.render(
         <AppPage title="About">
-            <AboutContent showBuildInfo sqlitePath={appContext.sqlitePath} />
+            <AboutContent
+                showBuildInfo
+                sqlitePath={requestContext.sqlitePath}
+            />
         </AppPage>,
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.about, renderAboutPage);
 }

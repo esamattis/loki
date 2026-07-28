@@ -1,8 +1,8 @@
 import { registerRoute } from "@/core/register-route";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { Button } from "@/core/components/form";
@@ -31,17 +31,17 @@ function ReadonlyPage() {
     );
 }
 
-function renderReadonly(c: AppRequestContext) {
-    const user = getAppContext(c).user;
+function renderReadonly(c: HonoRequestContext) {
+    const user = getRequestContext(c).user;
     if (!user) {
         return c.redirect(routes.auth.login({}));
     }
     if (!user.readonly) {
-        return c.redirect(getAppContext(c).appOptions.authenticatedHome);
+        return c.redirect(getRequestContext(c).appOptions.authenticatedHome);
     }
     return c.render(<ReadonlyPage />);
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.readonly, renderReadonly);
 }

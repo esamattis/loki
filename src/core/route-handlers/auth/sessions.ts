@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { getAppContext, type AppRequestContext } from "@/core/create-app";
+import { getRequestContext, type HonoRequestContext } from "@/core/create-app";
 import {
     generateSessionToken,
     hashToken,
@@ -11,14 +11,14 @@ import {
 import { sessions } from "@/core/schema";
 
 export async function createSession(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     userUuid: string,
 ): Promise<void> {
     const token = generateSessionToken();
     const tokenHash = await hashToken(token);
     const now = Math.floor(Date.now() / 1000);
 
-    await getAppContext(c)
+    await getRequestContext(c)
         .db.insert(sessions)
         .values({
             tokenHash,
@@ -35,11 +35,11 @@ export async function createSession(
     });
 }
 
-export async function destroySession(c: AppRequestContext): Promise<void> {
+export async function destroySession(c: HonoRequestContext): Promise<void> {
     const token = getCookie(c, SESSION_COOKIE_NAME);
     if (token) {
         const tokenHash = await hashToken(token);
-        await getAppContext(c)
+        await getRequestContext(c)
             .db.delete(sessions)
             .where(eq(sessions.tokenHash, tokenHash))
             .run();

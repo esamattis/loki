@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import {
     LocationFormPage,
@@ -15,34 +15,34 @@ import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { jumps, locations } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.locations.edit, (c) =>
         getEditLocation(c),
     );
     registerRoute(app, "post", routes.logbook.locations.edit, updateLocation);
 }
 
-async function getEditLocation(c: AppRequestContext, dangerError?: string) {
-    const app = getAppContext(c);
+async function getEditLocation(c: HonoRequestContext, dangerError?: string) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.locations.edit.params(c);
     if (!uuid) return c.notFound();
-    const item = await app.db
+    const item = await requestContext.db
         .select()
         .from(locations)
         .where(
             and(
                 eq(locations.uuid, uuid),
-                eq(locations.userUuid, app.getUser().uuid),
+                eq(locations.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
     if (!item) return c.notFound();
-    const mergeOptions = await app.db
+    const mergeOptions = await requestContext.db
         .select({ uuid: locations.uuid, name: locations.name })
         .from(locations)
         .where(
             and(
-                eq(locations.userUuid, app.getUser().uuid),
+                eq(locations.userUuid, requestContext.getUser().uuid),
                 ne(locations.uuid, item.uuid),
             ),
         )
@@ -50,7 +50,7 @@ async function getEditLocation(c: AppRequestContext, dangerError?: string) {
     const [recentJumps, recordedUsageCount] = await Promise.all([
         getRecentJumpsForItem({
             c,
-            userUuid: app.getUser().uuid,
+            userUuid: requestContext.getUser().uuid,
             itemUuid: item.uuid,
             relation: "location",
         }),
@@ -75,13 +75,13 @@ async function getEditLocation(c: AppRequestContext, dangerError?: string) {
     );
 }
 
-async function updateLocation(c: AppRequestContext) {
-    const app = getAppContext(c);
+async function updateLocation(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.locations.edit.params(c);
     if (!uuid) return c.notFound();
     const formData = await c.req.formData();
     if (formData.get("action") === "delete") {
-        const used = await app.db
+        const used = await requestContext.db
             .select({ uuid: jumps.uuid })
             .from(jumps)
             .where(eq(jumps.locationUuid, uuid))
@@ -92,12 +92,12 @@ async function updateLocation(c: AppRequestContext) {
                 c,
                 "Cannot delete a location that is used by jumps. Archive it instead.",
             );
-        const deleted = await app.db
+        const deleted = await requestContext.db
             .delete(locations)
             .where(
                 and(
                     eq(locations.uuid, uuid),
-                    eq(locations.userUuid, app.getUser().uuid),
+                    eq(locations.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: locations.uuid })
@@ -109,13 +109,13 @@ async function updateLocation(c: AppRequestContext) {
     if (formData.get("action") === "merge")
         return mergeLocation(c, uuid, getFormString(formData, "targetUuid"));
     if (formData.get("action") === "toggleArchive") {
-        const update = await app.db
+        const update = await requestContext.db
             .update(locations)
             .set({ archived: formData.get("archived") === "true" })
             .where(
                 and(
                     eq(locations.uuid, uuid),
-                    eq(locations.userUuid, app.getUser().uuid),
+                    eq(locations.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: locations.uuid })
@@ -130,7 +130,7 @@ async function updateLocation(c: AppRequestContext) {
         const [recentJumps, recordedUsageCount] = await Promise.all([
             getRecentJumpsForItem({
                 c,
-                userUuid: app.getUser().uuid,
+                userUuid: requestContext.getUser().uuid,
                 itemUuid: uuid,
                 relation: "location",
             }),
@@ -147,7 +147,7 @@ async function updateLocation(c: AppRequestContext) {
             />,
         );
     }
-    const update = await app.db
+    const update = await requestContext.db
         .update(locations)
         .set({
             name: result.data.name,
@@ -157,7 +157,7 @@ async function updateLocation(c: AppRequestContext) {
         .where(
             and(
                 eq(locations.uuid, uuid),
-                eq(locations.userUuid, app.getUser().uuid),
+                eq(locations.userUuid, requestContext.getUser().uuid),
             ),
         )
         .returning({ uuid: locations.uuid })
@@ -168,48 +168,50 @@ async function updateLocation(c: AppRequestContext) {
 }
 
 async function mergeLocation(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     sourceUuid: string,
     targetUuid: string,
 ) {
-    const app = getAppContext(c);
+    const requestContext = getRequestContext(c);
     if (!targetUuid || targetUuid === sourceUuid)
         return getEditLocation(c, "Select a different location to merge into.");
-    const source = await app.db
+    const source = await requestContext.db
         .select()
         .from(locations)
         .where(
             and(
                 eq(locations.uuid, sourceUuid),
-                eq(locations.userUuid, app.getUser().uuid),
+                eq(locations.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
-    const target = await app.db
+    const target = await requestContext.db
         .select()
         .from(locations)
         .where(
             and(
                 eq(locations.uuid, targetUuid),
-                eq(locations.userUuid, app.getUser().uuid),
+                eq(locations.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
     if (!source || !target)
         return getEditLocation(c, "Select a different location to merge into.");
-    await app.db.batch([
-        app.db
+    await requestContext.db.batch([
+        requestContext.db
             .update(jumps)
             .set({ locationUuid: target.uuid })
             .where(eq(jumps.locationUuid, source.uuid)),
-        app.db
+        requestContext.db
             .update(locations)
             .set({
                 previousJumpCount:
                     target.previousJumpCount + source.previousJumpCount,
             })
             .where(eq(locations.uuid, target.uuid)),
-        app.db.delete(locations).where(eq(locations.uuid, source.uuid)),
+        requestContext.db
+            .delete(locations)
+            .where(eq(locations.uuid, source.uuid)),
     ]);
     return c.redirect(routes.logbook.locations.edit({ uuid: target.uuid }));
 }
@@ -223,10 +225,10 @@ function getLocationFormValues(formData: FormData): LocationFormValues {
 }
 
 async function getLocationRecordedUsageCount(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     locationUuid: string,
 ): Promise<number> {
-    const row = await getAppContext(c)
+    const row = await getRequestContext(c)
         .db.select({ count: sql<number>`count(*)` })
         .from(jumps)
         .where(eq(jumps.locationUuid, locationUuid))

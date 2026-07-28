@@ -1,7 +1,7 @@
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 
-function errorHandler(err: Error, c: AppRequestContext) {
+function errorHandler(err: Error, c: HonoRequestContext) {
     return c.render(
         <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm ring-1 ring-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:ring-red-900/40">
             <div className="flex items-start gap-4">
@@ -27,12 +27,12 @@ function errorHandler(err: Error, c: AppRequestContext) {
     );
 }
 
-function notFoundHandler(c: AppRequestContext) {
+function notFoundHandler(c: HonoRequestContext) {
     if (c.req.path.includes("__")) {
         return c.body("Not found", 404, { "Content-Type": "text/plain" });
     }
 
-    const options = getAppContext(c).appOptions;
+    const options = getRequestContext(c).appOptions;
     c.status(404);
     return c.render(
         <div className="mx-auto mt-16 flex max-w-md flex-col items-center gap-6 px-4 text-center">
@@ -57,7 +57,7 @@ function notFoundHandler(c: AppRequestContext) {
     );
 }
 
-export function registerErrorHandlers(app: App): void {
+export function registerErrorHandlers(app: AppRouter): void {
     app.onError(errorHandler);
     app.notFound(notFoundHandler);
 }

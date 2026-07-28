@@ -1,22 +1,22 @@
 import { registerRoute } from "@/core/register-route";
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import { GearFormPage, type GearFormValues } from "@/app/logbook/gear/form";
 import { ResourceSchema } from "@/app/logbook/components/resource";
 import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { gear } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.gear.new, getNewGear);
     registerRoute(app, "post", routes.logbook.gear.new, createGear);
 }
 
-function getNewGear(c: AppRequestContext) {
+function getNewGear(c: HonoRequestContext) {
     return c.render(<GearFormPage title="Add gear" submitLabel="Add gear" />);
 }
 
-async function createGear(c: AppRequestContext) {
+async function createGear(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const values = getGearFormValues(formData);
     const result = ResourceSchema.safeParse(values);
@@ -29,9 +29,9 @@ async function createGear(c: AppRequestContext) {
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );
-    const app = getAppContext(c);
-    await app.db.insert(gear).values({
-        userUuid: app.getUser().uuid,
+    const requestContext = getRequestContext(c);
+    await requestContext.db.insert(gear).values({
+        userUuid: requestContext.getUser().uuid,
         name: result.data.name,
         previousUsageCount: result.data.previousCount,
         description: result.data.description || null,

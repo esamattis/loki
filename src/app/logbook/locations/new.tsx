@@ -1,6 +1,6 @@
 import { registerRoute } from "@/core/register-route";
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import {
     LocationFormPage,
     type LocationFormValues,
@@ -10,18 +10,18 @@ import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { locations } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.locations.new, getNewLocation);
     registerRoute(app, "post", routes.logbook.locations.new, createLocation);
 }
 
-function getNewLocation(c: AppRequestContext) {
+function getNewLocation(c: HonoRequestContext) {
     return c.render(
         <LocationFormPage title="Add location" submitLabel="Add location" />,
     );
 }
 
-async function createLocation(c: AppRequestContext) {
+async function createLocation(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const values = getLocationFormValues(formData);
     const result = ResourceSchema.safeParse(values);
@@ -34,9 +34,9 @@ async function createLocation(c: AppRequestContext) {
                 errors={result.error.issues.map((issue) => issue.message)}
             />,
         );
-    const app = getAppContext(c);
-    await app.db.insert(locations).values({
-        userUuid: app.getUser().uuid,
+    const requestContext = getRequestContext(c);
+    await requestContext.db.insert(locations).values({
+        userUuid: requestContext.getUser().uuid,
         name: result.data.name,
         previousJumpCount: result.data.previousCount,
         description: result.data.description || null,

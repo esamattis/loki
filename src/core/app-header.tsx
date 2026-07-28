@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { MainMenu } from "@/core/main-menu";
 import { Script } from "@/core/components/script";
@@ -49,9 +49,9 @@ function $initMobileHeader(headerId: string) {
  * main menu, and optional primary navigation from layout UI.
  */
 export function AppHeader() {
-    const appContext = useAppContext();
+    const requestContext = useRequestContext();
     const appUi = useCoreLayoutUi();
-    const user = appContext.getUser();
+    const user = requestContext.getUser();
     const headerId = useId();
 
     return (
@@ -63,17 +63,17 @@ export function AppHeader() {
                 <div className="mx-auto max-w-3xl px-4 py-2.5 sm:py-3">
                     <div className="flex items-center gap-3">
                         <a
-                            href={appContext.appOptions.authenticatedHome}
+                            href={requestContext.appOptions.authenticatedHome}
                             className="flex shrink-0 items-center gap-2 text-base font-bold tracking-tight text-slate-900 sm:text-lg dark:text-slate-100"
                         >
                             <img
-                                src={appContext.appOptions.logoPath}
+                                src={requestContext.appOptions.logoPath}
                                 alt=""
                                 aria-hidden="true"
                                 className="h-8 w-auto"
                             />
                             <span className="flex flex-col">
-                                <span>{appContext.appOptions.title}</span>
+                                <span>{requestContext.appOptions.title}</span>
                                 <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                                     {appUi.authenticatedUserSubtitle(user)}
                                 </span>

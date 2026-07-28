@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { isSafeRedirectPath } from "@/core/auth";
 import { Button, ButtonLink, NumberInput } from "@/core/components/form";
@@ -106,7 +106,7 @@ function parsePositiveInteger(value: FormDataEntryValue | null) {
     return Number.isSafeInteger(number) && number > 0 ? number : undefined;
 }
 
-export async function handleRemoveJumpGaps(c: AppRequestContext) {
+export async function handleRemoveJumpGaps(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const lowerJumpNumber = parsePositiveInteger(
         formData.get("lowerJumpNumber"),
@@ -122,8 +122,8 @@ export async function handleRemoveJumpGaps(c: AppRequestContext) {
         return c.text("Invalid jump number gap.", 400);
     }
 
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const boundaryRows = await db
         .select({ jumpNumber: jumps.jumpNumber })
         .from(jumps)
@@ -172,7 +172,7 @@ export async function handleRemoveJumpGaps(c: AppRequestContext) {
     return c.redirect(returnTo);
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(
         app,
         "post",

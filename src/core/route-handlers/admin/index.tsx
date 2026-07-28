@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { asc, desc, eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { requireAdmin } from "@/core/route-handlers/admin/helpers";
@@ -16,13 +16,13 @@ import {
 import * as routes from "@/core/routes";
 import { invitations, sessions, users } from "@/core/schema";
 
-async function renderAdminPage(c: AppRequestContext) {
+async function renderAdminPage(c: HonoRequestContext) {
     const admin = requireAdmin(c);
     if (!admin) {
         return c.notFound();
     }
 
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const [userRows, invitationRows, sessionRows] = await Promise.all([
         db
             .select({
@@ -73,6 +73,6 @@ async function renderAdminPage(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.admin.index, renderAdminPage);
 }

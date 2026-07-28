@@ -1,5 +1,5 @@
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { Script } from "@/core/components/script";
 import { $assertElement, $idb, $renderTemplate, $select } from "@/core/utils";
 import * as routes from "@/app/routes";
@@ -55,7 +55,7 @@ export function ImageGallery(props: {
     cameraButtonId: string;
     clipboardButtonId: string;
 }) {
-    const dbName = jumpImageDbName(useAppContext().getUser().uuid);
+    const dbName = jumpImageDbName(useRequestContext().getUser().uuid);
     const galleryId = useId();
     const galleryImageIdsInputId = useId();
     const resizeNoteId = useId();

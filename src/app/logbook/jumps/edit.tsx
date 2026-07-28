@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import {
     altitudeInputValue,
@@ -36,11 +36,11 @@ import {
     jumpsToJumpTypes,
 } from "@/app/schema";
 
-export async function renderEditJump(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+export async function renderEditJump(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const altitudeUnits = getLokiUserOptions(
-        getAppContext(c).getUser(),
+        getRequestContext(c).getUser(),
     ).altitudeUnits;
     const { uuid } = routes.logbook.jumps.edit.params(c);
     if (!uuid) return c.notFound();
@@ -100,7 +100,7 @@ export async function renderEditJump(c: AppRequestContext) {
 }
 
 async function saveEditedJump(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     options: {
         uuid: string;
         jumpValues: JumpWriteValues;
@@ -110,7 +110,7 @@ async function saveEditedJump(
         shiftConflict: boolean;
     },
 ) {
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     if (options.replaceConflict && options.conflictingJumpUuid) {
         await db.batch([
             db.delete(jumps).where(eq(jumps.uuid, options.conflictingJumpUuid)),
@@ -172,11 +172,11 @@ async function saveEditedJump(
     );
 }
 
-export async function handleEditJump(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+export async function handleEditJump(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const altitudeUnits = getLokiUserOptions(
-        getAppContext(c).getUser(),
+        getRequestContext(c).getUser(),
     ).altitudeUnits;
     const { uuid } = routes.logbook.jumps.edit.params(c);
     if (!uuid) return c.notFound();
@@ -283,7 +283,7 @@ export async function handleEditJump(c: AppRequestContext) {
     });
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumps.edit, renderEditJump);
     registerRoute(app, "post", routes.logbook.jumps.edit, handleEditJump);
 }

@@ -1,5 +1,5 @@
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import { htmlCacheMiddleware } from "@/core/html-cache";
 import { isPublicAssetPath } from "@/core/middleware/public-assets";
 import { isRegisteredPrivacyPolicyExemptRoute } from "@/core/register-route";
@@ -22,15 +22,15 @@ const READONLY_ALLOWED_MUTATIONS = new Set<string>([
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 async function privacyPolicyMiddleware(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
 ) {
-    const ctx = getAppContext(c);
+    const ctx = getRequestContext(c);
     if (
         ctx.isSelfHosted() ||
         isPublicAssetPath(c.req.path) ||
         isRegisteredPrivacyPolicyExemptRoute(
-            ctx.app,
+            ctx.appRouter,
             c.req.method,
             c.req.path,
         ) ||
@@ -46,13 +46,13 @@ async function privacyPolicyMiddleware(
 }
 
 async function readonlyMiddleware(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
 ) {
     if (SAFE_METHODS.has(c.req.method.toUpperCase())) {
         return next();
     }
-    const user = getAppContext(c).user;
+    const user = getRequestContext(c).user;
     if (!user?.readonly) {
         return next();
     }
@@ -62,7 +62,7 @@ async function readonlyMiddleware(
     return c.redirect(routes.readonly({}));
 }
 
-export function registerPolicies(app: App): void {
+export function registerPolicies(app: AppRouter): void {
     app.use("*", privacyPolicyMiddleware);
     app.use("*", readonlyMiddleware);
     app.use("*", htmlCacheMiddleware);

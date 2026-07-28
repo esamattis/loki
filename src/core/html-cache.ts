@@ -1,8 +1,8 @@
 import { eq, sql } from "drizzle-orm";
 import { gitRevision } from "@/core/build-info";
 import {
-    getAppContext,
-    type AppRequestContext,
+    getRequestContext,
+    type HonoRequestContext,
     type User,
 } from "@/core/create-app";
 import * as routes from "@/core/routes";
@@ -32,7 +32,7 @@ function excludedPath(path: string): boolean {
  * synthetic request is never fetched; its URL only namespaces the cached HTML
  * by build, user, generation, role, and the complete requested page URL.
  */
-function cacheKey(c: AppRequestContext, user: User): Request {
+function cacheKey(c: HonoRequestContext, user: User): Request {
     const url = new URL(c.req.url);
     const build = encodeURIComponent(gitRevision || "development");
     const userUuid = encodeURIComponent(user.uuid);
@@ -56,7 +56,7 @@ function responseForClient(
 }
 
 async function bypassCache(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
     cacheStatus: "DISABLED" | "BYPASS",
 ) {
@@ -91,8 +91,8 @@ function cacheableResponse(response: Response): boolean {
     return !cacheControl?.includes("no-store");
 }
 
-async function invalidateUserCache(c: AppRequestContext, userUuid: string) {
-    const ctx = getAppContext(c);
+async function invalidateUserCache(c: HonoRequestContext, userUuid: string) {
+    const ctx = getRequestContext(c);
     await ctx.db
         .update(users)
         .set({
@@ -103,7 +103,7 @@ async function invalidateUserCache(c: AppRequestContext, userUuid: string) {
 }
 
 async function handlePost(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
     user: User,
 ) {
@@ -117,7 +117,7 @@ async function handlePost(
 }
 
 export async function htmlCacheMiddleware(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     next: () => Promise<void>,
 ) {
     if (
@@ -127,7 +127,7 @@ export async function htmlCacheMiddleware(
         return bypassCache(c, next, "BYPASS");
     }
 
-    const user = getAppContext(c).user;
+    const user = getRequestContext(c).user;
     if (!user) {
         return bypassCache(c, next, "BYPASS");
     }

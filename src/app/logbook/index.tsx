@@ -13,9 +13,9 @@ import {
     sql,
 } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import * as routes from "@/app/routes";
 import {
@@ -286,9 +286,9 @@ function JumpFilters(props: {
     );
 }
 
-export async function getLogbookFilterResources(c: AppRequestContext) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+export async function getLogbookFilterResources(c: HonoRequestContext) {
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const [locationRows, gearItems, jumpTypeRows] = await Promise.all([
         db
             .select({
@@ -346,7 +346,7 @@ function parseOffset(value: string | null): number {
 }
 
 export function getLogbookFilters(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     resources: Awaited<ReturnType<typeof getLogbookFilterResources>>,
 ): LogbookFilters {
     const query = new URL(c.req.url).searchParams;
@@ -380,16 +380,16 @@ export function getLogbookFilters(
 }
 
 function getLogbookJumpConditions(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     filters: LogbookFilters,
 ) {
-    const db = getAppContext(c).db;
-    const userUuid = getAppContext(c).getUser().uuid;
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
     const searchPattern = filters.search
         ? `%${filters.search.replace(/[%_\\]/g, "\\$&")}%`
         : null;
     const altitudeUnits = getLokiUserOptions(
-        getAppContext(c).getUser(),
+        getRequestContext(c).getUser(),
     ).altitudeUnits;
     const exitAltitudeText =
         altitudeUnits === "feet"
@@ -515,11 +515,11 @@ function jumpsBeforeSeekCondition(
 }
 
 async function countJumpsBeforeSeek(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     filters: LogbookFilters,
     jumpNumber: number,
 ): Promise<number> {
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const conditions = getLogbookJumpConditions(c, filters);
     const orderFn = filters.sortOrder === "asc" ? asc : desc;
     const primaryOrder =
@@ -551,11 +551,11 @@ async function countJumpsBeforeSeek(
 }
 
 export async function getLogbookJumps(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     filters: LogbookFilters,
     offset = 0,
 ) {
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const orderFn = filters.sortOrder === "asc" ? asc : desc;
     const primaryOrder =
         filters.sortBy === "createdAt" ? jumps.createdAt : jumps.jumpNumber;
@@ -573,14 +573,14 @@ export async function getLogbookJumps(
 }
 
 export async function getJumpTypesByJump(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     jumpUuids: string[],
 ) {
     if (jumpUuids.length === 0) {
         return new Map<string, JumpCardItem[]>();
     }
 
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const rows = await db
         .select({
             jumpUuid: jumpsToJumpTypes.jumpUuid,
@@ -602,13 +602,13 @@ export async function getJumpTypesByJump(
 }
 
 export async function getAircraftsByJump(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     jumpUuids: string[],
 ) {
     if (jumpUuids.length === 0) {
         return new Map<string, JumpCardItem[]>();
     }
-    const rows = await getAppContext(c)
+    const rows = await getRequestContext(c)
         .db.select({
             jumpUuid: jumpsToAircrafts.jumpUuid,
             name: aircrafts.name,
@@ -627,11 +627,14 @@ export async function getAircraftsByJump(
     return aircraftsByJump;
 }
 
-export async function getGearByJump(c: AppRequestContext, jumpUuids: string[]) {
+export async function getGearByJump(
+    c: HonoRequestContext,
+    jumpUuids: string[],
+) {
     if (jumpUuids.length === 0) {
         return new Map<string, JumpCardItem[]>();
     }
-    const rows = await getAppContext(c)
+    const rows = await getRequestContext(c)
         .db.select({
             jumpUuid: jumpsToGear.jumpUuid,
             name: gear.name,
@@ -785,9 +788,9 @@ function LogbookOffsetControls(props: {
     );
 }
 
-async function renderLogbook(c: AppRequestContext) {
-    const appContext = getAppContext(c);
-    const user = appContext.getUser();
+async function renderLogbook(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const user = requestContext.getUser();
     const options = getLokiUserOptions(user);
     const resources = await getLogbookFilterResources(c);
     const filters = getLogbookFilters(c, resources);
@@ -803,7 +806,7 @@ async function renderLogbook(c: AppRequestContext) {
     const offset = parseOffset(query.get("offset"));
     const [jumpRows, [jumpSummary]] = await Promise.all([
         getLogbookJumps(c, filters, offset),
-        appContext.db
+        requestContext.db
             .select({
                 maxJumpNumber: sql<number | null>`max(${jumps.jumpNumber})`,
                 jumpCount: sql<number>`count(*)`,
@@ -931,6 +934,6 @@ async function renderLogbook(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.index, renderLogbook);
 }

@@ -1,5 +1,5 @@
-import { app } from "@/app/index";
+import { appRouter } from "@/app/index";
 
 export default {
-    fetch: app.fetch,
+    fetch: appRouter.fetch,
 };

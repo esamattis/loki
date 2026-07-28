@@ -1,5 +1,5 @@
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import {
     Button,
     controlClassName,
@@ -124,7 +124,7 @@ export function DateInput(props: {
     const pickerId = useId();
     const pickerButtonId = useId();
     const todayButtonId = useId();
-    const dateTimeFormat = useAppContext().getUser().options.dateTimeFormat;
+    const dateTimeFormat = useRequestContext().getUser().options.dateTimeFormat;
     const placeholder =
         dateTimeFormat === "finnish"
             ? "D.M.YYYY"

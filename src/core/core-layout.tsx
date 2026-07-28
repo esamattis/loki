@@ -14,7 +14,7 @@ import {
     CoreLayoutProvider,
     type CoreLayoutUi,
 } from "@/core/core-layout-context";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 
 /**
  * Props for `CoreLayout`: app-provided UI slots plus page children.
@@ -48,16 +48,19 @@ function coreLayoutUi(props: CoreLayoutProps): CoreLayoutUi {
  * via props; see {@link CoreLayoutUi}.
  */
 export function CoreLayout(props: CoreLayoutProps) {
-    const appContext = useAppContext();
-    const user = appContext.user;
+    const requestContext = useRequestContext();
+    const user = requestContext.user;
 
-    if (props.registrationFields && !appContext.appOptions.afterUserCreated) {
+    if (
+        props.registrationFields &&
+        !requestContext.appOptions.afterUserCreated
+    ) {
         throw new Error("registrationFields requires afterUserCreated");
     }
     if (
         (props.preferencesContent || props.preferencesAfterFormatting) &&
-        (!appContext.appOptions.validatePreferencesForm ||
-            !appContext.appOptions.savePreferencesForm)
+        (!requestContext.appOptions.validatePreferencesForm ||
+            !requestContext.appOptions.savePreferencesForm)
     ) {
         throw new Error(
             "preferences content requires validatePreferencesForm and savePreferencesForm",
@@ -71,7 +74,7 @@ export function CoreLayout(props: CoreLayoutProps) {
             <div className="flex-1">{props.children}</div>
             <Footer
                 hasBottomNavigation={Boolean(user)}
-                showPrivacyPolicy={!appContext.isSelfHosted()}
+                showPrivacyPolicy={!requestContext.isSelfHosted()}
             />
             <UnsavedChangesDialog />
             <UpdateToast />

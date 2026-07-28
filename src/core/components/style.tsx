@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 
 /**
  * Tagged-template helper that concatenates CSS source for use with `Style`.
@@ -25,7 +25,7 @@ export function css(
 export function Style(props: {
     children: ((css_: typeof css) => string) | string;
 }) {
-    const cssDupCache = useAppContext().cssDupCache;
+    const cssDupCache = useRequestContext().cssDupCache;
     const cssString =
         typeof props.children === "string"
             ? props.children

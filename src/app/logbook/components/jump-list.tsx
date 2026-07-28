@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    useAppContext,
+    getRequestContext,
+    useRequestContext,
     useDateFormatter,
     useNumberFormatter,
-    type AppRequestContext,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { useAltitudeFormatter, useSpeedFormatter } from "@/app/formatters";
 import { getLokiUserOptions } from "@/app/options";
@@ -28,7 +28,7 @@ import { jumpAnchorId } from "@/app/logbook/components/search";
 
 export function Distance(props: { meters: number }) {
     const altitudeUnits = getLokiUserOptions(
-        useAppContext().getUser(),
+        useRequestContext().getUser(),
     ).altitudeUnits;
     const formatNumber = useNumberFormatter();
     if (altitudeUnits === "feet") {
@@ -363,12 +363,12 @@ export type JumpItemRelation = "aircraft" | "location" | "gear" | "jumpType";
 const RECENT_JUMPS_LIMIT = 50;
 
 export async function getRecentJumpsForItem(config: {
-    c: AppRequestContext;
+    c: HonoRequestContext;
     userUuid: string;
     itemUuid: string;
     relation: JumpItemRelation;
 }): Promise<JumpListItem[]> {
-    const db = getAppContext(config.c).db;
+    const db = getRequestContext(config.c).db;
     const itemCondition =
         config.relation === "aircraft"
             ? inArray(

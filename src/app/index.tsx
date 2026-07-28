@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import {
-    createApp,
-    useAppContext,
-    type AppContext,
-    type AppRenderProps,
+    createAppRouter,
+    useRequestContext,
+    type RequestContext,
+    type AppRouterRenderProps,
 } from "@/core/create-app";
 import { AppShell } from "@/core/app-shell";
 import { CoreLayout } from "@/core/core-layout";
@@ -49,14 +49,14 @@ const menuIconClassName =
 function LokiNavigation(props: { end?: Child }) {
     return (
         <LogbookActions
-            pathname={useAppContext().url().pathname}
+            pathname={useRequestContext().url().pathname}
             end={props.end}
         />
     );
 }
 
 function LokiMenuItems() {
-    const user = useAppContext().getUser();
+    const user = useRequestContext().getUser();
     return (
         <>
             <MenuLink href={lokiRoutes.logbook.aircraft.index({})}>
@@ -104,7 +104,7 @@ function LokiFooterLinks() {
 }
 
 async function initializeLokiUser(
-    context: AppContext,
+    context: RequestContext,
     userUuid: string,
     values: Readonly<Record<string, string>>,
 ): Promise<void> {
@@ -127,7 +127,7 @@ async function initializeLokiUser(
 }
 
 async function scrubAiUsageBeforeAccountDeletion(
-    context: AppContext,
+    context: RequestContext,
     userUuid: string,
 ): Promise<void> {
     await context.db
@@ -136,7 +136,7 @@ async function scrubAiUsageBeforeAccountDeletion(
         .where(eq(aiUsage.userUuid, userUuid));
 }
 
-function renderApp(props: AppRenderProps) {
+function renderApp(props: AppRouterRenderProps) {
     return (
         <AppShell>
             <CoreLayout
@@ -158,7 +158,7 @@ function renderApp(props: AppRenderProps) {
 }
 
 // Concrete composition root: core never imports app; app imports and configures core.
-export const app = createApp({
+export const appRouter = createAppRouter({
     name: "Loki",
     title: "Loki - Skydiving Logbook",
     repositoryUrl,
@@ -177,5 +177,5 @@ export const app = createApp({
     savePreferencesForm: saveLokiPreferencesForm,
 });
 
-registerCoreRoutes(app);
-registerAppRoutes(app);
+registerCoreRoutes(appRouter);
+registerAppRoutes(appRouter);

@@ -1,5 +1,5 @@
 import { eq, or } from "drizzle-orm";
-import type { AppContext } from "@/core/create-app";
+import type { RequestContext } from "@/core/create-app";
 import { User } from "@/core/user";
 import { verifyPassword } from "@/core/password";
 import { users } from "@/core/schema";
@@ -99,7 +99,7 @@ export function parseBasicAuth(
  * Returns the user record (without the password hash) when valid, otherwise null.
  */
 export async function findUserForAuth(
-    db: AppContext["db"],
+    db: RequestContext["db"],
     usernameOrEmail: string,
     password: string,
 ): Promise<User | null> {

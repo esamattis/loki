@@ -1,11 +1,11 @@
 import { registerRoute } from "@/core/register-route";
 import { htmxAsset, tailwindAsset } from "@/core/app-assets";
-import type { App } from "@/core/create-app";
+import type { AppRouter } from "@/core/create-app";
 import * as routes from "@/core/routes";
 
 const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
-export function registerAssetRoutes(app: App) {
+export function registerAssetRoutes(app: AppRouter) {
     registerRoute(app, "get", routes.assets.tailwindCss, (c) => {
         if (
             routes.assets.tailwindCss.params(c).fingerprint !==

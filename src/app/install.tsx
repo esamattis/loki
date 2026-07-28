@@ -1,6 +1,6 @@
 import { registerRoute } from "@/core/register-route";
 import { useId } from "hono/jsx";
-import { type App, type AppRequestContext } from "@/core/create-app";
+import { type AppRouter, type HonoRequestContext } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { Button } from "@/core/components/form";
 import { Script } from "@/core/components/script";
@@ -230,7 +230,7 @@ function InstallApp() {
     );
 }
 
-function renderInstallPage(c: AppRequestContext) {
+function renderInstallPage(c: HonoRequestContext) {
     return c.render(
         <AppPage title="Install app">
             <InstallApp />
@@ -238,6 +238,6 @@ function renderInstallPage(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.install, renderInstallPage);
 }

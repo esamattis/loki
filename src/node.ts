@@ -7,7 +7,7 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
-import { app } from "@/app/index";
+import { appRouter } from "@/app/index";
 import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
@@ -22,14 +22,14 @@ const DEFAULT_PORT = 8787;
 const DEFAULT_PORT_RETRIES = 5;
 
 function registerStaticAssets(): void {
-    if (registerSeaStaticAssets(app)) {
+    if (registerSeaStaticAssets(appRouter)) {
         return;
     }
 
     const distClientRoot = resolve("dist/client");
-    app.use("/assets/*", serveStatic({ root: distClientRoot }));
-    app.use("/*", serveStatic({ root: resolve("public") }));
-    app.use("/*", serveStatic({ root: distClientRoot }));
+    appRouter.use("/assets/*", serveStatic({ root: distClientRoot }));
+    appRouter.use("/*", serveStatic({ root: resolve("public") }));
+    appRouter.use("/*", serveStatic({ root: distClientRoot }));
 }
 
 function openBrowser(url: string): void {
@@ -153,7 +153,7 @@ async function startServer(args: {
 
     const server = createAdaptorServer({
         fetch(request, env) {
-            return app.fetch(request, {
+            return appRouter.fetch(request, {
                 ...env,
                 APP_DB_FACTORY: (timings) =>
                     createSqliteDrizzleDatabase(sqlite, timings),
@@ -167,7 +167,9 @@ async function startServer(args: {
         retries,
     });
     const url = `http://${info.address}:${info.port}`;
-    console.log(`Self-hosted ${app.appOptions.title} listening on ${url}`);
+    console.log(
+        `Self-hosted ${appRouter.appOptions.title} listening on ${url}`,
+    );
     console.log(`SQLite database: ${path}`);
     if (selfContained && !args.noOpen && hasGraphicalSession()) {
         openBrowser(url);
@@ -199,9 +201,11 @@ function runSmokeTest(): void {
 }
 
 const cli = command({
-    name: app.appOptions.name.toLowerCase().replaceAll(/[^a-z0-9-]/g, "-"),
+    name: appRouter.appOptions.name
+        .toLowerCase()
+        .replaceAll(/[^a-z0-9-]/g, "-"),
     version: buildTitle(appConfig.buildName),
-    description: `Run ${app.appOptions.title} with SQLite`,
+    description: `Run ${appRouter.appOptions.title} with SQLite`,
     args: {
         port: option({
             long: "port",

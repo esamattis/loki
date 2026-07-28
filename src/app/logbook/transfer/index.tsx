@@ -2,9 +2,9 @@ import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import * as routes from "@/app/routes";
 import {
@@ -127,7 +127,7 @@ const RESOURCE_STATISTIC: Record<
     location: "locations",
 };
 
-type ImportDatabase = ReturnType<typeof getAppContext>["db"];
+type ImportDatabase = ReturnType<typeof getRequestContext>["db"];
 
 type ImportQuery = Parameters<ImportDatabase["batch"]>[0][number];
 
@@ -587,11 +587,11 @@ class ImportState {
 
 /** Imports validated records for the current user in one atomic D1 batch. */
 export async function importRecords(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     records: ImportRecord[],
     clearAll: boolean,
 ) {
-    const context = getAppContext(c);
+    const context = getRequestContext(c);
     const state = await ImportState.create(
         context.db,
         context.getUser().uuid,
@@ -627,7 +627,7 @@ function jsonImportErrors(error: z.ZodError): string[] {
     });
 }
 
-async function handleJsonTransfer(c: AppRequestContext) {
+async function handleJsonTransfer(c: HonoRequestContext) {
     let body: unknown;
     try {
         body = await c.req.json();
@@ -664,7 +664,7 @@ async function handleJsonTransfer(c: AppRequestContext) {
 }
 
 /** Handles an uploaded logbook import file. */
-async function handleTransfer(c: AppRequestContext) {
+async function handleTransfer(c: HonoRequestContext) {
     if (c.req.header("Content-Type")?.startsWith("application/json")) {
         return handleJsonTransfer(c);
     }
@@ -706,7 +706,7 @@ async function handleTransfer(c: AppRequestContext) {
     }
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.transfer.index, (c) =>
         c.render(<TransferPage />),
     );

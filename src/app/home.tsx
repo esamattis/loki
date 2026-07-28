@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import type { Child } from "hono/jsx";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { Button, ButtonLink, buttonClassName } from "@/core/components/form";
 import { ExternalLink } from "@/core/components/link";
@@ -565,10 +565,12 @@ function LandingPage(props: { loggedIn: boolean }) {
     );
 }
 
-function renderHome(c: AppRequestContext) {
-    return c.render(<LandingPage loggedIn={Boolean(getAppContext(c).user)} />);
+function renderHome(c: HonoRequestContext) {
+    return c.render(
+        <LandingPage loggedIn={Boolean(getRequestContext(c).user)} />,
+    );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.home, renderHome);
 }

@@ -2,10 +2,10 @@ import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
 import clsx from "clsx";
 import {
-    getAppContext,
+    getRequestContext,
     useNumberFormatter,
-    type App,
-    type AppRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { lokiFormatters } from "@/app/formatters";
 import { buttonClassName } from "@/core/components/form";
@@ -334,7 +334,7 @@ interface StatisticsItemRow {
 }
 
 async function fetchTotalJumps(config: {
-    db: ReturnType<typeof getAppContext>["db"];
+    db: ReturnType<typeof getRequestContext>["db"];
     userUuid: string;
     yearCondition: ReturnType<typeof and> | undefined;
 }): Promise<number> {
@@ -354,7 +354,7 @@ async function fetchTotalJumps(config: {
 }
 
 function fetchStatisticsRows(
-    db: ReturnType<typeof getAppContext>["db"],
+    db: ReturnType<typeof getRequestContext>["db"],
     userUuid: string,
     joinCondition: (base: ReturnType<typeof and>) => ReturnType<typeof and>,
 ) {
@@ -456,13 +456,13 @@ function fetchStatisticsRows(
 }
 
 async function fetchDetailedStatistics(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     year: number | undefined,
 ): Promise<DetailedStatisticsResult> {
-    const app = getAppContext(c);
-    const db = app.db;
-    const user = app.getUser();
-    const formatters = lokiFormatters(app);
+    const requestContext = getRequestContext(c);
+    const db = requestContext.db;
+    const user = requestContext.getUser();
+    const formatters = lokiFormatters(requestContext);
     const formatAltitude = formatters.altitude;
     const formatSpeed = formatters.speed;
     const formatDistance = formatters.distance;
@@ -575,10 +575,10 @@ async function fetchDetailedStatistics(
     };
 }
 
-async function renderDetailedStatistics(c: AppRequestContext) {
-    const app = getAppContext(c);
-    const formatNumber = app.numberFormatter();
-    const formatDistance = lokiFormatters(app).distance;
+async function renderDetailedStatistics(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const formatNumber = requestContext.numberFormatter();
+    const formatDistance = lokiFormatters(requestContext).distance;
     const { year: rawYear } = routes.logbook.statistics.detailed.query(c);
     const year = parseYear(rawYear);
     const filteredByYear = year !== undefined;
@@ -722,7 +722,7 @@ async function renderDetailedStatistics(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(
         app,
         "get",

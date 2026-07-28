@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import {
-    getAppContext,
+    getRequestContext,
     useDateFormatter,
     useNumberFormatter,
 } from "@/core/create-app";
@@ -118,7 +118,7 @@ export function RecordJumps(props: {
 }
 
 function fetchAverageSpeedRecord(
-    db: ReturnType<typeof getAppContext>["db"],
+    db: ReturnType<typeof getRequestContext>["db"],
     jumpCondition: ReturnType<typeof and>,
     fastest: boolean,
 ) {
@@ -143,7 +143,7 @@ function fetchAverageSpeedRecord(
 }
 
 export function fetchRecordStatistics(
-    db: ReturnType<typeof getAppContext>["db"],
+    db: ReturnType<typeof getRequestContext>["db"],
     userUuid: string,
     jumpCondition: ReturnType<typeof and>,
 ) {

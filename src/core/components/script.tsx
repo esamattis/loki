@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 
 type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
 type ClientClass = (abstract new (...args: any[]) => unknown) & {
@@ -137,7 +137,7 @@ export function Script<T extends readonly unknown[] = []>(props: {
     $deps?: ClientDependency[];
     $args?: T;
 }) {
-    const jsDupCache = useAppContext().jsDupCache;
+    const jsDupCache = useRequestContext().jsDupCache;
     let depsCode = "";
     for (const dep of props.$deps ?? []) {
         if (!jsDupCache.has(dep)) {

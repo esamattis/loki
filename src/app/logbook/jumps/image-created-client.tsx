@@ -1,5 +1,5 @@
 import { Script } from "@/core/components/script";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { Link } from "@/core/components/link";
 import { $idb } from "@/core/utils";
 import {
@@ -44,7 +44,7 @@ export function JumpImageAssociationComplete(props: {
     redirectUrl: string;
     returnAfterFormPost?: boolean;
 }) {
-    const dbName = jumpImageDbName(useAppContext().getUser().uuid);
+    const dbName = jumpImageDbName(useRequestContext().getUser().uuid);
     const changes = props.changes ?? (props.change ? [props.change] : []);
     const logbookPath = routes.logbook.index({});
 

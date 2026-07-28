@@ -1,16 +1,16 @@
 import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { CoreUserOptionsSchema, parseCoreUserOptions } from "@/core/options";
 import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 
-async function handleToggleReadonly(c: AppRequestContext) {
+async function handleToggleReadonly(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
     }
@@ -22,7 +22,7 @@ async function handleToggleReadonly(c: AppRequestContext) {
         return c.redirect(routes.admin.index({}));
     }
 
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const target = await db
         .select({
             uuid: users.uuid,
@@ -51,7 +51,7 @@ async function handleToggleReadonly(c: AppRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(
         app,
         "post",

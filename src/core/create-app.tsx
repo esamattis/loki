@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { TrieRouter } from "hono/router/trie-router";
-import { useRequestContext } from "hono/jsx-renderer";
+import { useRequestContext as useHonoRequestContext } from "hono/jsx-renderer";
 import type { Child, FC } from "hono/jsx";
 import type { AppDatabase } from "@/core/db";
 import { User } from "@/core/user";
@@ -14,14 +14,14 @@ import {
     type NumberFormatter,
 } from "@/core/format";
 import { registerErrorHandlers } from "@/core/error-handlers";
-import { registerAppContext } from "@/core/middleware/app-context";
+import { registerRequestContext } from "@/core/middleware/request-context";
 import { registerAuthentication } from "@/core/middleware/authentication";
 import { registerPolicies } from "@/core/middleware/policies";
 import { registerRenderer } from "@/core/middleware/renderer";
 
 export { User } from "@/core/user";
 
-export interface CreateAppOptions {
+export interface CreateAppRouterOptions {
     name: string;
     title: string;
     repositoryUrl: string;
@@ -32,64 +32,66 @@ export interface CreateAppOptions {
     themeColor: string;
     socialImagePath: string;
     socialImageAlt: string;
-    render: (props: AppRenderProps) => Exclude<ReturnType<FC>, null>;
+    render: (props: AppRouterRenderProps) => Exclude<ReturnType<FC>, null>;
     afterUserCreated?: (
-        context: AppContext,
+        context: RequestContext,
         userUuid: string,
         appFormValues: Readonly<Record<string, string>>,
     ) => Promise<void>;
     beforeUserDeleted?: (
-        context: AppContext,
+        context: RequestContext,
         userUuid: string,
     ) => Promise<void>;
     validatePreferencesForm?: (
         formValues: Readonly<Record<string, string>>,
     ) => string[];
     savePreferencesForm?: (
-        context: AppContext,
+        context: RequestContext,
         formValues: Readonly<Record<string, string>>,
     ) => Promise<void>;
 }
 
-export interface AppRenderProps {
+export interface AppRouterRenderProps {
     children: Child;
 }
 
-export class App extends Hono<Env> {
-    constructor(readonly appOptions: CreateAppOptions) {
+export class AppRouter extends Hono<Env> {
+    constructor(readonly appOptions: CreateAppRouterOptions) {
         // The trie router remains mutable during Vite module reloads.
         super({ router: new TrieRouter() });
     }
 }
 
-export type AppRequestContext = Context<Env>;
+export type HonoRequestContext = Context<Env>;
 
-interface AppContextOptions {
-    app: App;
+interface RequestContextOptions {
+    appRouter: AppRouter;
     db: AppDatabase;
-    requestContext: AppRequestContext;
+    honoContext: HonoRequestContext;
     serverTimings: ServerTimings;
     sqlitePath?: string;
 }
 
-export class AppContext {
-    readonly app: App;
+export class RequestContext {
+    readonly appRouter: AppRouter;
     readonly db: AppDatabase;
     readonly sqlitePath: string | undefined;
     user: User | null = null;
-    readonly requestContext: AppRequestContext;
+    readonly honoContext: HonoRequestContext;
     readonly cssDupCache = new Set<string>();
     readonly jsDupCache = new Set<object>();
     readonly serverTimings: ServerTimings;
-    readonly appOptions: CreateAppOptions;
 
-    constructor(options: AppContextOptions) {
-        this.app = options.app;
+    constructor(options: RequestContextOptions) {
+        this.appRouter = options.appRouter;
         this.db = options.db;
         this.sqlitePath = options.sqlitePath;
-        this.requestContext = options.requestContext;
+        this.honoContext = options.honoContext;
         this.serverTimings = options.serverTimings;
-        this.appOptions = options.app.appOptions;
+    }
+
+    get appOptions(): CreateAppRouterOptions {
+        return this.appRouter.appOptions;
     }
 
     getUser(): User {
@@ -118,12 +120,12 @@ export class AppContext {
     url(): URL {
         // Use the request URL as provided by the runtime (Cloudflare validates
         // Host). Do not rebuild from the Host header.
-        return new URL(this.requestContext.req.url);
+        return new URL(this.honoContext.req.url);
     }
 }
 
 export interface Variables {
-    appContext: AppContext;
+    requestContext: RequestContext;
 }
 
 /** Bindings for Cloudflare Workers (D1) and optional Node self-host override. */
@@ -139,36 +141,36 @@ export interface Env {
     Variables: Variables;
 }
 
-export function getAppContext(c: AppRequestContext): AppContext {
-    if (!c.var.appContext) {
-        throw new Error("App context not set in request context");
+export function getRequestContext(c: HonoRequestContext): RequestContext {
+    if (!c.var.requestContext) {
+        throw new Error("Request context not set in Hono request context");
     }
-    return c.var.appContext;
+    return c.var.requestContext;
 }
 
-export function useAppContext(): AppContext {
-    const c = useRequestContext<Env>();
-    return getAppContext(c);
+export function useRequestContext(): RequestContext {
+    const c = useHonoRequestContext<Env>();
+    return getRequestContext(c);
 }
 
 export function useCalendarDurationFormatter(): CalendarDurationFormatter {
-    return useAppContext().calendarDurationFormatter();
+    return useRequestContext().calendarDurationFormatter();
 }
 
 export function useDateFormatter(): DateFormatter {
-    return useAppContext().dateFormatter();
+    return useRequestContext().dateFormatter();
 }
 
 export function useNumberFormatter(): NumberFormatter {
-    return useAppContext().numberFormatter();
+    return useRequestContext().numberFormatter();
 }
 
-export function createApp(options: CreateAppOptions): App {
-    const app = new App(options);
-    registerErrorHandlers(app);
-    registerAppContext(app);
-    registerAuthentication(app);
-    registerPolicies(app);
-    registerRenderer(app);
-    return app;
+export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
+    const router = new AppRouter(options);
+    registerErrorHandlers(router);
+    registerRequestContext(router);
+    registerAuthentication(router);
+    registerPolicies(router);
+    registerRenderer(router);
+    return router;
 }

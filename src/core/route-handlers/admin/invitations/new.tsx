@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import {
@@ -15,7 +15,7 @@ import {
 import * as routes from "@/core/routes";
 import { invitations } from "@/core/schema";
 
-async function renderInvitationNew(c: AppRequestContext) {
+async function renderInvitationNew(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
     }
@@ -27,7 +27,7 @@ async function renderInvitationNew(c: AppRequestContext) {
     );
 }
 
-async function handleInvitationNew(c: AppRequestContext) {
+async function handleInvitationNew(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
     }
@@ -47,7 +47,7 @@ async function handleInvitationNew(c: AppRequestContext) {
         );
     }
 
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
     const existing = await db
         .select({ code: invitations.code })
         .from(invitations)
@@ -77,7 +77,7 @@ async function handleInvitationNew(c: AppRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(
         app,
         "get",

@@ -1,8 +1,8 @@
 import { jsxRenderer } from "hono/jsx-renderer";
-import type { App } from "@/core/create-app";
+import type { AppRouter } from "@/core/create-app";
 
-export function registerRenderer(app: App): void {
-    app.use(
+export function registerRenderer(router: AppRouter): void {
+    router.use(
         "*",
         jsxRenderer((props, c) => {
             // fragment for htmx
@@ -10,7 +10,7 @@ export function registerRenderer(app: App): void {
                 return <>{props.children}</>;
             }
 
-            return app.appOptions.render({ children: props.children });
+            return router.appOptions.render({ children: props.children });
         }),
     );
 }

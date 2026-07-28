@@ -1,7 +1,7 @@
 import { z } from "zod";
 import {
-    getAppContext,
-    type AppRequestContext,
+    getRequestContext,
+    type HonoRequestContext,
     type User,
 } from "@/core/create-app";
 import { FormActions, Input, NumberInput } from "@/core/components/form";
@@ -9,8 +9,8 @@ import { ErrorList } from "@/core/components/feedback";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import * as routes from "@/core/routes";
 
-export function requireAdmin(c: AppRequestContext): User | null {
-    const user = getAppContext(c).getUser();
+export function requireAdmin(c: HonoRequestContext): User | null {
+    const user = getRequestContext(c).getUser();
     if (!user.admin) {
         return null;
     }

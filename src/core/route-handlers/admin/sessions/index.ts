@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
@@ -14,14 +14,14 @@ function formString(formData: FormData, name: string): string {
     return typeof value === "string" ? value : "";
 }
 
-async function handleSessions(c: AppRequestContext) {
+async function handleSessions(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
     }
 
     const formData = await c.req.formData();
     const action = formString(formData, "action");
-    const db = getAppContext(c).db;
+    const db = getRequestContext(c).db;
 
     if (action === "delete") {
         const tokenHash = formString(formData, "tokenHash");
@@ -44,6 +44,6 @@ async function handleSessions(c: AppRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "post", routes.admin.sessions.index, handleSessions);
 }

@@ -1,4 +1,4 @@
-import type { AppRequestContext } from "@/core/create-app";
+import type { HonoRequestContext } from "@/core/create-app";
 
 type ExtractRouteParams<T extends string> =
     T extends `${string}:${infer Param}/${infer Rest}`
@@ -59,7 +59,7 @@ export function route<T extends string>(pattern: T) {
             public: isPublic,
             privacyPolicyExempt,
         });
-        to.params = (c: AppRequestContext) => c.req.param();
+        to.params = (c: HonoRequestContext) => c.req.param();
         to.query = function query<Q extends Record<string, any>>() {
             return queried<Q>(isPublic, privacyPolicyExempt);
         };
@@ -80,8 +80,8 @@ export function route<T extends string>(pattern: T) {
             public: isPublic,
             privacyPolicyExempt,
         });
-        to.params = (c: AppRequestContext) => c.req.param();
-        to.query = (c: AppRequestContext) => c.req.query();
+        to.params = (c: HonoRequestContext) => c.req.param();
+        to.query = (c: HonoRequestContext) => c.req.query();
         to.public = () => queried<Q>(true, privacyPolicyExempt);
         to.publicAsset = () => queried<Q>(true, true);
         return to;

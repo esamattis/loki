@@ -1,4 +1,4 @@
-import type { App } from "@/core/create-app";
+import type { AppRouter } from "@/core/create-app";
 import { extname } from "node:path";
 import { getAsset, getAssetKeys, isSea } from "node:sea";
 
@@ -11,7 +11,7 @@ const CONTENT_TYPES: Record<string, string> = {
     ".svg": "image/svg+xml",
 };
 
-export function registerSeaStaticAssets(app: App): boolean {
+export function registerSeaStaticAssets(app: AppRouter): boolean {
     if (!isSea()) {
         return false;
     }

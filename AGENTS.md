@@ -20,7 +20,7 @@ Core never imports app; app imports and configures core.
 
 Never destructure component props; use `props.propName`.
 
-Use `useAppContext()` in components instead of passing app context values through props.
+Use `useRequestContext()` in components instead of passing app context values through props.
 
 Use Tailwind CSS for styling. Combine conditional classes with `clsx`.
 

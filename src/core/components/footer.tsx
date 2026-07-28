@@ -1,5 +1,5 @@
 import { Link } from "@/core/components/link";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
 import clsx from "clsx";
@@ -15,7 +15,7 @@ export function Footer(props: {
     hasBottomNavigation: boolean;
     showPrivacyPolicy: boolean;
 }) {
-    const options = useAppContext().appOptions;
+    const options = useRequestContext().appOptions;
     const appUi = useCoreLayoutUi();
     return (
         <footer

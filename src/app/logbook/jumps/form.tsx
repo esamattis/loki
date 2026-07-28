@@ -1,5 +1,5 @@
 import { useId, type Child } from "hono/jsx";
-import { useAppContext, useDateFormatter } from "@/core/create-app";
+import { useRequestContext, useDateFormatter } from "@/core/create-app";
 import { useSpeedFormatter } from "@/app/formatters";
 import {
     Button,
@@ -165,7 +165,7 @@ function FreefallTimeField(props: {
     openingAltitudeId: string;
     value: string;
 }) {
-    const options = getLokiUserOptions(useAppContext().getUser());
+    const options = getLokiUserOptions(useRequestContext().getUser());
     const formatSpeed = useSpeedFormatter();
     const estimateButtonId = useId();
     const estimateDialogId = useId();
@@ -297,7 +297,7 @@ function CalculatedValue(props: {
 }
 
 function AvgSpeed(props: { values: JumpFormValues }) {
-    const options = getLokiUserOptions(useAppContext().getUser());
+    const options = getLokiUserOptions(useRequestContext().getUser());
     const exitAltitudeId = useId();
     const openingAltitudeId = useId();
     const freefallTimeId = useId();

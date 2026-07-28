@@ -1,4 +1,4 @@
-import type { App } from "@/core/create-app";
+import type { AppRouter } from "@/core/create-app";
 import { register as registerHomeRoutes } from "@/app/home";
 import { register as registerDemoRoutes } from "@/app/demo";
 import { register as registerInstallRoutes } from "@/app/install";
@@ -32,7 +32,7 @@ import { register as registerStaticAssetRoutes } from "@/app/static-assets";
 import { register as registerLokiPreferences } from "@/app/preferences";
 import { register as registerLokiAdmin } from "@/app/admin";
 
-export function registerAppRoutes(app: App) {
+export function registerAppRoutes(app: AppRouter) {
     registerStaticAssetRoutes(app);
     registerHomeRoutes(app);
     registerDemoRoutes(app);

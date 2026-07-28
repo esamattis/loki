@@ -5,7 +5,7 @@ import { DisableViewTransitionsInAutomation } from "@/core/components/disable-vi
 import { ServiceWorkerRegistration } from "@/core/components/service-worker-registration";
 import { SocialMeta } from "@/core/components/social-meta";
 import { ThemeScript } from "@/core/components/theme-script";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import * as routes from "@/core/routes";
 
 /**
@@ -15,9 +15,9 @@ import * as routes from "@/core/routes";
  * @param props.children - Body content (typically `CoreLayout` and page).
  */
 export function AppShell(props: { children: Child }) {
-    const appContext = useAppContext();
-    const options = appContext.appOptions;
-    const user = appContext.user;
+    const requestContext = useRequestContext();
+    const options = requestContext.appOptions;
+    const user = requestContext.user;
     const title = user
         ? `${user.getDisplayName()} – ${options.title}`
         : options.title;
@@ -47,7 +47,7 @@ export function AppShell(props: { children: Child }) {
                 />
 
                 <title>{title}</title>
-                <SocialMeta title={title} url={appContext.url()} />
+                <SocialMeta title={title} url={requestContext.url()} />
                 <ThemeScript />
                 {user && (
                     <ServiceWorkerRegistration

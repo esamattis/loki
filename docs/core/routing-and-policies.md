@@ -37,9 +37,9 @@ Each route handler module exports `register(app)` for its own endpoints and
 uses `registerRoute`:
 
 ```ts
-export function register(app: App): void {
-    registerRoute(app, "get", entries.index, renderIndex);
-    registerRoute(app, "post", entries.index, createEntry);
+export function register(router: AppRouter): void {
+    registerRoute(router, "get", entries.index, renderIndex);
+    registerRoute(router, "post", entries.index, createEntry);
 }
 ```
 

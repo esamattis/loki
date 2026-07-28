@@ -1,8 +1,8 @@
 import { registerRoute } from "@/core/register-route";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { serializeClientDependency } from "@/core/components/script";
 import * as routes from "@/app/routes";
@@ -127,12 +127,12 @@ function $installShareTargetServiceWorker(
     }
 }
 
-function serviceWorker(c: AppRequestContext) {
+function serviceWorker(c: HonoRequestContext) {
     const config: ShareTargetWorkerConfig = {
         shareTargetPath: routes.logbook.jumps.imageShare({}),
         jumpFromImageUrl: routes.logbook.jumps.fromImage({}),
         fileFieldName: "image",
-        dbName: jumpImageDbName(getAppContext(c).getUser().uuid),
+        dbName: jumpImageDbName(getRequestContext(c).getUser().uuid),
         storeName: JUMP_IMAGE_STORE,
         storageKey: JUMP_IMAGE_KEY,
     };
@@ -146,7 +146,7 @@ function serviceWorker(c: AppRequestContext) {
 
 // The worker normally intercepts this POST to persist its image payload.
 // A server response cannot recover the file, so make the failed import explicit.
-function imageShareFallback(c: AppRequestContext) {
+function imageShareFallback(c: HonoRequestContext) {
     c.status(503);
     return c.render(
         <div className="mx-auto mt-16 flex max-w-md flex-col items-center gap-6 px-4 text-center">
@@ -173,7 +173,7 @@ function imageShareFallback(c: AppRequestContext) {
     );
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.serviceWorker, serviceWorker);
     registerRoute(
         app,

@@ -3,10 +3,10 @@ import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
 import {
-    getAppContext,
-    useAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    useRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppPage } from "@/core/app-page";
@@ -83,7 +83,7 @@ function CorePreferencesForm(props: {
     errors?: string[];
     values?: Record<string, string>;
 }) {
-    const context = useAppContext();
+    const context = useRequestContext();
     const layout = useCoreLayoutUi();
     return (
         <PreferencesFormProvider value={{ values: props.values }}>
@@ -165,7 +165,7 @@ export function PreferencesPage(props: {
 }
 
 function render(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     errors?: string[],
     values?: Record<string, string>,
 ) {
@@ -180,7 +180,7 @@ function formStringValues(form: FormData): Record<string, string> {
     );
 }
 
-async function handle(c: AppRequestContext) {
+async function handle(c: HonoRequestContext) {
     const form = await c.req.formData();
     if (form.get("action") === "delete") {
         await deleteAccount(c);
@@ -188,7 +188,7 @@ async function handle(c: AppRequestContext) {
     }
     const values = formStringValues(form);
     const result = PreferencesSchema.safeParse(values);
-    const context = getAppContext(c);
+    const context = getRequestContext(c);
     const appErrors =
         context.appOptions.validatePreferencesForm?.(values) ?? [];
     if (!result.success || appErrors.length > 0)
@@ -251,7 +251,7 @@ async function handle(c: AppRequestContext) {
     return c.redirect(context.appOptions.authenticatedHome);
 }
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.preferences, (c) => render(c));
     registerRoute(app, "post", routes.preferences, handle);
 }

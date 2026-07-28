@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { Button, Checkbox, Input, Select } from "@/core/components/form";
 import { Password } from "@/core/route-handlers/auth/components";
 import {
@@ -7,7 +7,7 @@ import {
 } from "@/core/route-handlers/preferences/form-context";
 
 export function ProfileSection() {
-    const context = useAppContext();
+    const context = useRequestContext();
     const user = context.getUser();
     const state = usePreferencesFormState();
     return (
@@ -53,7 +53,7 @@ export function ProfileSection() {
 }
 
 export function FormattingSection() {
-    const user = useAppContext().getUser();
+    const user = useRequestContext().getUser();
     const state = usePreferencesFormState();
     const dateTimeFormat = preferencesFieldValue(
         state,
@@ -147,7 +147,7 @@ export function PasswordSection() {
 }
 
 export function PerformanceSection() {
-    const user = useAppContext().getUser();
+    const user = useRequestContext().getUser();
     const state = usePreferencesFormState();
     const checked =
         state.values != null

@@ -1,4 +1,4 @@
-import type { App } from "@/core/create-app";
+import type { AppRouter } from "@/core/create-app";
 import { registerAssetRoutes } from "@/core/route-handlers/assets";
 import { register as registerLogin } from "@/core/route-handlers/auth/login";
 import { register as registerRegistration } from "@/core/route-handlers/auth/register";
@@ -14,7 +14,7 @@ import { register as registerAdminSessions } from "@/core/route-handlers/admin/s
 import { register as registerNewInvitation } from "@/core/route-handlers/admin/invitations/new";
 import { register as registerEditInvitation } from "@/core/route-handlers/admin/invitations/edit";
 
-export function registerCoreRoutes(app: App): void {
+export function registerCoreRoutes(app: AppRouter): void {
     registerAssetRoutes(app);
     registerLogin(app);
     registerRegistration(app);

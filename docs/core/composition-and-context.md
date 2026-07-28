@@ -2,9 +2,9 @@
 
 ## Creating the application
 
-`createApp` in `src/core/create-app.tsx` constructs the shared `App`, a Hono
-application using `TrieRouter`. The concrete composition root,
-`src/app/index.tsx`, passes a `CreateAppOptions` object containing:
+`createAppRouter` in `src/core/create-app.tsx` constructs the shared `AppRouter`,
+a Hono application using `TrieRouter`. The concrete composition root,
+`src/app/index.tsx`, passes a `CreateAppRouterOptions` object containing:
 
 - product identity and metadata such as name, title, repository URL, logo,
   theme color, and social image;
@@ -19,11 +19,12 @@ The renderer normally composes two core components:
   navigation, menu, footer, privacy policy, registration, and preferences
   content as component props.
 
-This keeps `createApp` focused on application infrastructure while allowing the
-concrete application to replace the document shell or UI layout independently.
+This keeps `createAppRouter` focused on application infrastructure while
+allowing the concrete application to replace the document shell or UI layout
+independently.
 
 ```tsx
-function renderApp(props: AppRenderProps) {
+function renderApp(props: AppRouterRenderProps) {
     return (
         <AppShell>
             <CoreLayout
@@ -38,7 +39,7 @@ function renderApp(props: AppRenderProps) {
     );
 }
 
-export const app = createApp({
+export const appRouter = createAppRouter({
     // Product metadata and runtime configuration.
     render: renderApp,
 });
@@ -55,15 +56,16 @@ The account hooks are:
   before core deletes the account.
 
 Providing `CoreLayout` with `registrationFields` requires configuring
-`afterUserCreated` in `createApp`. Registration is compensated if application
-initialization fails, so a partially initialized account is not left behind.
+`afterUserCreated` in `createAppRouter`. Registration is compensated if
+application initialization fails, so a partially initialized account is not
+left behind.
 
 ## Installed middleware
 
-`createApp` installs the shared behavior in this order:
+`createAppRouter` installs the shared behavior in this order:
 
 1. Error and not-found handlers.
-2. A request-scoped `AppContext`.
+2. A request-scoped `RequestContext`.
 3. Authentication.
 4. Privacy, read-only, and HTML-cache policies.
 5. The JSX document renderer.
@@ -73,9 +75,9 @@ registering the concrete application's handlers.
 
 ## Request-scoped services
 
-`AppContext` is created for every request and contains:
+`RequestContext` is created for every request and contains:
 
-- `app` and the immutable `appOptions`;
+- `appRouter` and its immutable `appOptions`;
 - a Drizzle database client;
 - the authenticated `user`, when present;
 - the Hono request context and current request URL;
@@ -87,22 +89,22 @@ registering the concrete application's handlers.
 In handlers, obtain it from the Hono context:
 
 ```ts
-const appContext = getAppContext(c);
-const user = appContext.getUser();
+const requestContext = getRequestContext(c);
+const user = requestContext.getUser();
 ```
 
-In JSX components, use `useAppContext()` instead of threading application
+In JSX components, use `useRequestContext()` instead of threading application
 context through props:
 
 ```tsx
 export function ExamplePanel() {
-    const appContext = useAppContext();
-    return <p>Hello, {appContext.getUser().getDisplayName()}</p>;
+    const requestContext = useRequestContext();
+    return <p>Hello, {requestContext.getUser().getDisplayName()}</p>;
 }
 ```
 
 `getUser()` deliberately throws when no authenticated user exists. Components
-or handlers that can run publicly should inspect `appContext.user` instead.
+or handlers that can run publicly should inspect `requestContext.user` instead.
 
 The formatter hooks derive their locale choices from the authenticated user's
 core options:

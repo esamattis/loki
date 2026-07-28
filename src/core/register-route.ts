@@ -1,5 +1,5 @@
 import type { Handler } from "hono";
-import type { App, Env } from "@/core/create-app";
+import type { AppRouter, Env } from "@/core/create-app";
 
 type RegisteredRoute = {
     readonly route: string;
@@ -11,7 +11,7 @@ type RegisteredRoute = {
 
 type RegisteredMethod = "get" | "post" | "put" | "delete" | "patch";
 
-type RouteApp = Pick<App, "on">;
+type RouteApp = Pick<AppRouter, "on">;
 
 type RegisteredMatcher = {
     readonly expression: RegExp;

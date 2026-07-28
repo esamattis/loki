@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import { Button, ButtonLink } from "@/core/components/form";
 import { PlusIcon } from "@/app/components/icons";
@@ -13,13 +13,13 @@ import { JumpItemCounts } from "@/app/logbook/components/jump-item-counts";
 import * as routes from "@/app/routes";
 import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.aircraft.index, getAircraftList);
 }
 
-async function getAircraftList(c: AppRequestContext) {
-    const app = getAppContext(c);
-    const rows = await app.db
+async function getAircraftList(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const rows = await requestContext.db
         .select({
             ...getTableColumns(aircrafts),
             recordedJumpCount: sql<number>`count(${jumpsToAircrafts.jumpUuid})`,
@@ -29,7 +29,7 @@ async function getAircraftList(c: AppRequestContext) {
             jumpsToAircrafts,
             eq(aircrafts.uuid, jumpsToAircrafts.aircraftUuid),
         )
-        .where(eq(aircrafts.userUuid, app.getUser().uuid))
+        .where(eq(aircrafts.userUuid, requestContext.getUser().uuid))
         .groupBy(aircrafts.uuid)
         .orderBy(aircrafts.name);
     return c.render(

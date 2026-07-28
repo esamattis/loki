@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { Script } from "@/core/components/script";
 import { $idb, $select } from "@/core/utils";
 import {
@@ -23,7 +23,7 @@ export function JumpImage(props: {
     revealElementId?: string;
 }) {
     const elementId = jumpImageElementId();
-    const dbName = jumpImageDbName(useAppContext().getUser().uuid);
+    const dbName = jumpImageDbName(useRequestContext().getUser().uuid);
 
     return (
         <>

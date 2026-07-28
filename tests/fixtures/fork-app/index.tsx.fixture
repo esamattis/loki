@@ -1,8 +1,8 @@
 import type {
-    AppRenderProps,
-    AppRequestContext,
+    AppRouterRenderProps,
+    HonoRequestContext,
 } from "@/core/create-app";
-import { createApp } from "@/core/create-app";
+import { createAppRouter } from "@/core/create-app";
 import { AppShell } from "@/core/app-shell";
 import { CoreLayout } from "@/core/core-layout";
 import { registerRoute } from "@/core/register-route";
@@ -19,13 +19,13 @@ function PrivacyPolicyContent() {
     );
 }
 
-function renderHome(c: AppRequestContext) {
+function renderHome(c: HonoRequestContext) {
     return c.html(
         "<!doctype html><html><body><h1>Acorn Notes</h1><a href=\"/dashboard\">Open notes</a></body></html>",
     );
 }
 
-function renderDashboard(c: AppRequestContext) {
+function renderDashboard(c: HonoRequestContext) {
     return c.render(
         <AppPage title="Notes">
             <p>Private Acorn workspace</p>
@@ -33,7 +33,7 @@ function renderDashboard(c: AppRequestContext) {
     );
 }
 
-function renderApp(props: AppRenderProps) {
+function renderApp(props: AppRouterRenderProps) {
     return (
         <AppShell>
             <CoreLayout
@@ -49,7 +49,7 @@ function renderApp(props: AppRenderProps) {
     );
 }
 
-export const app = createApp({
+export const appRouter = createAppRouter({
     name: "Acorn Notes",
     title: "Acorn Notes",
     repositoryUrl: "https://example.test/acorn-notes",

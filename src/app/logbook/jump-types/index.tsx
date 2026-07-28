@@ -1,6 +1,6 @@
 import { registerRoute } from "@/core/register-route";
-import type { App, AppRequestContext } from "@/core/create-app";
-import { getAppContext } from "@/core/create-app";
+import type { AppRouter, HonoRequestContext } from "@/core/create-app";
+import { getRequestContext } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { Button, ButtonLink } from "@/core/components/form";
 import { IgnoreReturnRoute } from "@/core/components/return-after-form-post";
@@ -9,13 +9,13 @@ import * as routes from "@/app/routes";
 import { jumpsToJumpTypes, jumpTypes } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.jumpTypes.index, getJumpTypeList);
 }
 
-async function getJumpTypeList(c: AppRequestContext) {
-    const app = getAppContext(c);
-    const rows = await app.db
+async function getJumpTypeList(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const rows = await requestContext.db
         .select({
             ...getTableColumns(jumpTypes),
             recordedJumpCount: sql<number>`count(${jumpsToJumpTypes.jumpUuid})`,
@@ -25,7 +25,7 @@ async function getJumpTypeList(c: AppRequestContext) {
             jumpsToJumpTypes,
             eq(jumpTypes.uuid, jumpsToJumpTypes.jumpTypeUuid),
         )
-        .where(eq(jumpTypes.userUuid, app.getUser().uuid))
+        .where(eq(jumpTypes.userUuid, requestContext.getUser().uuid))
         .groupBy(jumpTypes.uuid)
         .orderBy(jumpTypes.name);
     return c.render(

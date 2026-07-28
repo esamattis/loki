@@ -75,7 +75,7 @@ inserted into that same form through `CoreLayout`:
 - `preferencesAfterFormatting` after Formatting
 - `preferencesDangerContent` inside the shared Danger Zone
 
-When those slots are used, `CreateAppOptions` must also provide
+When those slots are used, `CreateAppRouterOptions` must also provide
 `validatePreferencesForm` and `savePreferencesForm` so one Save preferences
 action validates and persists core and product options together.
 

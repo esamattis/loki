@@ -1,5 +1,5 @@
 import { useId } from "hono/jsx";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { ExternalLink } from "@/core/components/link";
 import { Code } from "@/core/components/ui/code";
 import { Details } from "@/core/components/ui/details";
@@ -98,7 +98,7 @@ If the user did not provide the password or any data file paths in the prompt, a
 /** Guidance that can be pasted into an AI agent to migrate another logbook. */
 export function AgentMigrationCard() {
     const codeId = useId();
-    const username = useAppContext().getUser().username;
+    const username = useRequestContext().getUser().username;
     const uploadPath = routes.logbook.transfer.index({});
     return (
         <section className="rounded-2xl border border-violet-200 bg-white p-6 shadow-sm dark:border-violet-900/60 dark:bg-slate-900">

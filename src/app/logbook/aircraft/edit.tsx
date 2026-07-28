@@ -1,9 +1,9 @@
 import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
-    getAppContext,
-    type App,
-    type AppRequestContext,
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
 } from "@/core/create-app";
 import {
     AircraftFormPage,
@@ -15,34 +15,34 @@ import { getFormString } from "@/core/utils";
 import * as routes from "@/app/routes";
 import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
-export function register(app: App) {
+export function register(app: AppRouter) {
     registerRoute(app, "get", routes.logbook.aircraft.edit, (c) =>
         getEditAircraft(c),
     );
     registerRoute(app, "post", routes.logbook.aircraft.edit, updateAircraft);
 }
 
-async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
-    const app = getAppContext(c);
+async function getEditAircraft(c: HonoRequestContext, dangerError?: string) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.aircraft.edit.params(c);
     if (!uuid) return c.notFound();
-    const aircraft = await app.db
+    const aircraft = await requestContext.db
         .select()
         .from(aircrafts)
         .where(
             and(
                 eq(aircrafts.uuid, uuid),
-                eq(aircrafts.userUuid, app.getUser().uuid),
+                eq(aircrafts.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
     if (!aircraft) return c.notFound();
-    const mergeOptions = await app.db
+    const mergeOptions = await requestContext.db
         .select({ uuid: aircrafts.uuid, name: aircrafts.name })
         .from(aircrafts)
         .where(
             and(
-                eq(aircrafts.userUuid, app.getUser().uuid),
+                eq(aircrafts.userUuid, requestContext.getUser().uuid),
                 ne(aircrafts.uuid, aircraft.uuid),
             ),
         )
@@ -50,7 +50,7 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
     const [recentJumps, recordedUsageCount] = await Promise.all([
         getRecentJumpsForItem({
             c,
-            userUuid: app.getUser().uuid,
+            userUuid: requestContext.getUser().uuid,
             itemUuid: aircraft.uuid,
             relation: "aircraft",
         }),
@@ -75,13 +75,13 @@ async function getEditAircraft(c: AppRequestContext, dangerError?: string) {
     );
 }
 
-async function updateAircraft(c: AppRequestContext) {
-    const app = getAppContext(c);
+async function updateAircraft(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
     const { uuid } = routes.logbook.aircraft.edit.params(c);
     if (!uuid) return c.notFound();
     const formData = await c.req.formData();
     if (formData.get("action") === "delete") {
-        const usedByJump = await app.db
+        const usedByJump = await requestContext.db
             .select({ jumpUuid: jumpsToAircrafts.jumpUuid })
             .from(jumpsToAircrafts)
             .where(eq(jumpsToAircrafts.aircraftUuid, uuid))
@@ -93,12 +93,12 @@ async function updateAircraft(c: AppRequestContext) {
                 "Cannot delete an aircraft that is used by jumps. Archive it instead.",
             );
         }
-        const deleted = await app.db
+        const deleted = await requestContext.db
             .delete(aircrafts)
             .where(
                 and(
                     eq(aircrafts.uuid, uuid),
-                    eq(aircrafts.userUuid, app.getUser().uuid),
+                    eq(aircrafts.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: aircrafts.uuid })
@@ -111,13 +111,13 @@ async function updateAircraft(c: AppRequestContext) {
         return mergeAircraft(c, uuid, getFormString(formData, "targetUuid"));
     }
     if (formData.get("action") === "toggleArchive") {
-        const update = await app.db
+        const update = await requestContext.db
             .update(aircrafts)
             .set({ archived: formData.get("archived") === "true" })
             .where(
                 and(
                     eq(aircrafts.uuid, uuid),
-                    eq(aircrafts.userUuid, app.getUser().uuid),
+                    eq(aircrafts.userUuid, requestContext.getUser().uuid),
                 ),
             )
             .returning({ uuid: aircrafts.uuid })
@@ -132,7 +132,7 @@ async function updateAircraft(c: AppRequestContext) {
         const [recentJumps, recordedUsageCount] = await Promise.all([
             getRecentJumpsForItem({
                 c,
-                userUuid: app.getUser().uuid,
+                userUuid: requestContext.getUser().uuid,
                 itemUuid: uuid,
                 relation: "aircraft",
             }),
@@ -149,7 +149,7 @@ async function updateAircraft(c: AppRequestContext) {
             />,
         );
     }
-    const update = await app.db
+    const update = await requestContext.db
         .update(aircrafts)
         .set({
             name: result.data.name,
@@ -159,7 +159,7 @@ async function updateAircraft(c: AppRequestContext) {
         .where(
             and(
                 eq(aircrafts.uuid, uuid),
-                eq(aircrafts.userUuid, app.getUser().uuid),
+                eq(aircrafts.userUuid, requestContext.getUser().uuid),
             ),
         )
         .returning({ uuid: aircrafts.uuid })
@@ -170,47 +170,47 @@ async function updateAircraft(c: AppRequestContext) {
 }
 
 async function mergeAircraft(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     sourceUuid: string,
     targetUuid: string,
 ) {
-    const app = getAppContext(c);
+    const requestContext = getRequestContext(c);
     if (!targetUuid || targetUuid === sourceUuid) {
         return getEditAircraft(c, "Select a different aircraft to merge into.");
     }
-    const source = await app.db
+    const source = await requestContext.db
         .select()
         .from(aircrafts)
         .where(
             and(
                 eq(aircrafts.uuid, sourceUuid),
-                eq(aircrafts.userUuid, app.getUser().uuid),
+                eq(aircrafts.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
-    const target = await app.db
+    const target = await requestContext.db
         .select()
         .from(aircrafts)
         .where(
             and(
                 eq(aircrafts.uuid, targetUuid),
-                eq(aircrafts.userUuid, app.getUser().uuid),
+                eq(aircrafts.userUuid, requestContext.getUser().uuid),
             ),
         )
         .get();
     if (!source || !target) {
         return getEditAircraft(c, "Select a different aircraft to merge into.");
     }
-    const sourceRelations = await app.db
+    const sourceRelations = await requestContext.db
         .select({ jumpUuid: jumpsToAircrafts.jumpUuid })
         .from(jumpsToAircrafts)
         .where(eq(jumpsToAircrafts.aircraftUuid, source.uuid));
-    await app.db.batch([
-        app.db
+    await requestContext.db.batch([
+        requestContext.db
             .delete(jumpsToAircrafts)
             .where(eq(jumpsToAircrafts.aircraftUuid, source.uuid)),
         ...sourceRelations.map((relation) =>
-            app.db
+            requestContext.db
                 .insert(jumpsToAircrafts)
                 .values({
                     jumpUuid: relation.jumpUuid,
@@ -218,23 +218,25 @@ async function mergeAircraft(
                 })
                 .onConflictDoNothing(),
         ),
-        app.db
+        requestContext.db
             .update(aircrafts)
             .set({
                 previousJumpCount:
                     target.previousJumpCount + source.previousJumpCount,
             })
             .where(eq(aircrafts.uuid, target.uuid)),
-        app.db.delete(aircrafts).where(eq(aircrafts.uuid, source.uuid)),
+        requestContext.db
+            .delete(aircrafts)
+            .where(eq(aircrafts.uuid, source.uuid)),
     ]);
     return c.redirect(routes.logbook.aircraft.edit({ uuid: target.uuid }));
 }
 
 async function getAircraftRecordedUsageCount(
-    c: AppRequestContext,
+    c: HonoRequestContext,
     aircraftUuid: string,
 ): Promise<number> {
-    const row = await getAppContext(c)
+    const row = await getRequestContext(c)
         .db.select({ count: sql<number>`count(*)` })
         .from(jumpsToAircrafts)
         .where(eq(jumpsToAircrafts.aircraftUuid, aircraftUuid))

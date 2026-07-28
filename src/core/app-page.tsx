@@ -1,4 +1,4 @@
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppHeader } from "@/core/app-header";
 import { MainMenu } from "@/core/main-menu";
@@ -19,9 +19,9 @@ export function AppPage(props: {
     mobileAction?: Child;
     children: any;
 }) {
-    const appContext = useAppContext();
+    const requestContext = useRequestContext();
     const appUi = useCoreLayoutUi();
-    const user = appContext.getUser();
+    const user = requestContext.getUser();
 
     return (
         <div>

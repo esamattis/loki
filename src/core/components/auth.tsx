@@ -1,7 +1,7 @@
 import { ErrorList } from "@/core/components/feedback";
 import { Button } from "@/core/components/form";
 import { Link } from "@/core/components/link";
-import { useAppContext } from "@/core/create-app";
+import { useRequestContext } from "@/core/create-app";
 
 /**
  * Centered card layout for login and registration forms: logo, title, errors,
@@ -22,7 +22,7 @@ export function AuthFormShell(props: {
     alternateLabel: string;
     children: any;
 }) {
-    const options = useAppContext().appOptions;
+    const options = useRequestContext().appOptions;
     return (
         <div className="mx-4 mt-8 max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-900/5 sm:mx-auto sm:mt-16 sm:p-8 dark:bg-slate-900 dark:ring-slate-100/10">
             <a
