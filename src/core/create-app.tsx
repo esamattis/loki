@@ -82,6 +82,7 @@ export class AppRouter extends Hono<Env> {
     override delete = this.createRouteMethod("delete");
     override patch = this.createRouteMethod("patch");
 
+    /** Creates a router configured with the concrete application options. */
     constructor(readonly appOptions: CreateAppRouterOptions) {
         // The trie router remains mutable during Vite module reloads.
         super({ router: new TrieRouter() });
@@ -91,6 +92,7 @@ export class AppRouter extends Hono<Env> {
     private createRouteMethod<M extends RegisteredMethod>(
         method: M,
     ): Hono<Env>[M] & AppRouteHandler;
+    /** Implements typed route registration and delegates untyped calls to Hono. */
     private createRouteMethod(method: RegisteredMethod): unknown {
         const honoMethod = this[method];
         return (...registration: readonly unknown[]) => {
@@ -130,6 +132,7 @@ export class RequestContext {
     readonly jsDupCache = new Set<object>();
     readonly serverTimings: ServerTimings;
 
+    /** Creates a request context from the router, database, and runtime context. */
     constructor(options: RequestContextOptions) {
         this.appRouter = options.appRouter;
         this.db = options.db;
@@ -138,10 +141,12 @@ export class RequestContext {
         this.serverTimings = options.serverTimings;
     }
 
+    /** Returns the concrete application's router options. */
     get appOptions(): CreateAppRouterOptions {
         return this.appRouter.appOptions;
     }
 
+    /** Returns the authenticated user or throws when authentication is absent. */
     getUser(): User {
         if (!this.user) {
             throw new Error("No user set in context");
@@ -149,22 +154,27 @@ export class RequestContext {
         return this.user;
     }
 
+    /** Returns a duration formatter configured for the authenticated user. */
     calendarDurationFormatter(): CalendarDurationFormatter {
         return createCalendarDurationFormatter(this.numberFormatter());
     }
 
+    /** Returns a date formatter configured for the authenticated user. */
     dateFormatter(): DateFormatter {
         return createDateFormatter(this.getUser().options.dateTimeFormat);
     }
 
+    /** Returns a number formatter configured for the authenticated user. */
     numberFormatter(): NumberFormatter {
         return createNumberFormatter(this.getUser().options.numberFormat);
     }
 
+    /** Returns whether the request is served by the self-hosted runtime. */
     isSelfHosted(): boolean {
         return Boolean(this.sqlitePath);
     }
 
+    /** Returns the validated request URL supplied by the runtime. */
     url(): URL {
         // Use the request URL as provided by the runtime (Cloudflare validates
         // Host). Do not rebuild from the Host header.

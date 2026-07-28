@@ -32,6 +32,7 @@ export class User {
     htmlCacheGeneration: number;
     readonly #db: AppDatabase;
 
+    /** Creates a user model from a database row. */
     constructor(db: AppDatabase, user: UserData) {
         const options = parseCoreUserOptions(user.options);
         this.#db = db;
@@ -45,10 +46,12 @@ export class User {
         this.htmlCacheGeneration = user.htmlCacheGeneration;
     }
 
+    /** Returns the display name, falling back to the username. */
     getDisplayName(): string {
         return this.displayName || this.username;
     }
 
+    /** Updates the core-owned subset of user options. */
     async updateCoreOptions(
         updates: Partial<
             Pick<
@@ -64,6 +67,7 @@ export class User {
         await this.replaceOptions({ ...this.options, ...updates });
     }
 
+    /** Validates and replaces user options while invalidating cached HTML. */
     async replaceOptions(optionsValue: Record<string, unknown>): Promise<void> {
         const options = CoreUserOptionsSchema.parse({
             ...this.options,
