@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, eq, or, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -58,5 +57,5 @@ async function handleToggleAdmin(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "post", routes.admin.toggleAdmin, handleToggleAdmin);
+    app.post(routes.admin.toggleAdmin, handleToggleAdmin);
 }

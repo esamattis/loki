@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
@@ -10,7 +9,7 @@ import { jumps, locations } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.locations.index, getLocationList);
+    app.get(routes.logbook.locations.index, getLocationList);
 }
 
 async function getLocationList(c: HonoRequestContext) {

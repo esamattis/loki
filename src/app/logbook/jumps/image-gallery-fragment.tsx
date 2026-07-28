@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { JumpImage } from "@/app/logbook/jumps/image";
 import * as routes from "@/app/routes";
@@ -88,7 +87,7 @@ function getGalleryQuery(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.jumps.imageGalleryFragment, (c) =>
+    app.get(routes.logbook.jumps.imageGalleryFragment, (c) =>
         c.render(<ImageGalleryFragment {...getGalleryQuery(c)} />),
     );
 }

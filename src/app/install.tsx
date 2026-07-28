@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { useId } from "hono/jsx";
 import { type AppRouter, type HonoRequestContext } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
@@ -239,5 +238,5 @@ function renderInstallPage(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.install, renderInstallPage);
+    app.get(routes.install, renderInstallPage);
 }

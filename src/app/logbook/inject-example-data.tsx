@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { count, eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -46,10 +45,5 @@ export async function handleInjectExampleData(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(
-        app,
-        "post",
-        routes.logbook.injectExampleData,
-        handleInjectExampleData,
-    );
+    app.post(routes.logbook.injectExampleData, handleInjectExampleData);
 }

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -16,10 +15,8 @@ import * as routes from "@/app/routes";
 import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.aircraft.edit, (c) =>
-        getEditAircraft(c),
-    );
-    registerRoute(app, "post", routes.logbook.aircraft.edit, updateAircraft);
+    app.get(routes.logbook.aircraft.edit, (c) => getEditAircraft(c));
+    app.post(routes.logbook.aircraft.edit, updateAircraft);
 }
 
 async function getEditAircraft(c: HonoRequestContext, dangerError?: string) {

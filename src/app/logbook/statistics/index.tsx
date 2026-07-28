@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import clsx from "clsx";
 import { useId } from "hono/jsx";
@@ -502,10 +501,5 @@ async function renderStatistics(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(
-        app,
-        "get",
-        routes.logbook.statistics.index,
-        renderStatistics,
-    );
+    app.get(routes.logbook.statistics.index, renderStatistics);
 }

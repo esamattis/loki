@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, desc, eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -490,12 +489,7 @@ export async function handleNewJump(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.jumps.new, renderNewJump);
-    registerRoute(
-        app,
-        "get",
-        routes.logbook.jumps.jumpNumberError,
-        renderJumpNumberError,
-    );
-    registerRoute(app, "post", routes.logbook.jumps.new, handleNewJump);
+    app.get(routes.logbook.jumps.new, renderNewJump);
+    app.get(routes.logbook.jumps.jumpNumberError, renderJumpNumberError);
+    app.post(routes.logbook.jumps.new, handleNewJump);
 }

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     getRequestContext,
     useRequestContext,
@@ -102,6 +101,6 @@ async function handle(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.privacy, render);
-    registerRoute(app, "post", routes.privacy, handle);
+    app.get(routes.privacy, render);
+    app.post(routes.privacy, handle);
 }

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { asc, desc, eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -74,5 +73,5 @@ async function renderAdminPage(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.admin.index, renderAdminPage);
+    app.get(routes.admin.index, renderAdminPage);
 }

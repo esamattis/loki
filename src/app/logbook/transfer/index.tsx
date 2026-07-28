@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -707,8 +706,6 @@ async function handleTransfer(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.transfer.index, (c) =>
-        c.render(<TransferPage />),
-    );
-    registerRoute(app, "post", routes.logbook.transfer.index, handleTransfer);
+    app.get(routes.logbook.transfer.index, (c) => c.render(<TransferPage />));
+    app.post(routes.logbook.transfer.index, handleTransfer);
 }

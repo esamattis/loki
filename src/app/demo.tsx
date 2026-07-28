@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -132,5 +131,5 @@ async function handleTryDemo(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "post", routes.demo.try, handleTryDemo);
+    app.post(routes.demo.try, handleTryDemo);
 }

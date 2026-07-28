@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     getRequestContext,
     type AppRouter,
@@ -53,5 +52,5 @@ function getFragmentOffset(c: HonoRequestContext): number {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.jumpFragment, renderLogbookJumps);
+    app.get(routes.logbook.jumpFragment, renderLogbookJumps);
 }

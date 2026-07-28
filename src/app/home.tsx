@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { Child } from "hono/jsx";
 import {
     getRequestContext,
@@ -572,5 +571,5 @@ function renderHome(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.home, renderHome);
+    app.get(routes.home, renderHome);
 }

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 import { Button, ButtonLink } from "@/core/components/form";
@@ -10,7 +9,7 @@ import { gear, jumpsToGear } from "@/app/schema";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.gear.index, getGearList);
+    app.get(routes.logbook.gear.index, getGearList);
 }
 
 async function getGearList(c: HonoRequestContext) {

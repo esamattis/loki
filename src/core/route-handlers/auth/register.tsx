@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -333,6 +332,6 @@ async function handleRegister(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.auth.register, renderRegisterForm);
-    registerRoute(app, "post", routes.auth.register, handleRegister);
+    app.get(routes.auth.register, renderRegisterForm);
+    app.post(routes.auth.register, handleRegister);
 }

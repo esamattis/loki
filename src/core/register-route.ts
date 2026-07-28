@@ -1,15 +1,35 @@
 import type { Handler } from "hono";
 import type { AppRouter, Env } from "@/core/create-app";
 
-type RegisteredRoute = {
-    readonly route: string;
+/** Route pattern and access metadata consumed during registration. */
+export type RegisteredRoute<Path extends string = string> = {
+    readonly route: Path;
     readonly metadata: {
         readonly public: boolean;
         readonly privacyPolicyExempt: boolean;
     };
 };
 
-type RegisteredMethod = "get" | "post" | "put" | "delete" | "patch";
+/** HTTP methods supported by typed application routes. */
+export type RegisteredMethod = "get" | "post" | "put" | "delete" | "patch";
+
+/** Returns whether a runtime value has the typed route registration shape. */
+export function isRegisteredRoute(value: unknown): value is RegisteredRoute {
+    if (
+        value === null ||
+        (typeof value !== "object" && typeof value !== "function")
+    ) {
+        return false;
+    }
+    const metadata = Reflect.get(value, "metadata");
+    return (
+        typeof Reflect.get(value, "route") === "string" &&
+        typeof metadata === "object" &&
+        metadata !== null &&
+        typeof Reflect.get(metadata, "public") === "boolean" &&
+        typeof Reflect.get(metadata, "privacyPolicyExempt") === "boolean"
+    );
+}
 
 type RouteApp = Pick<AppRouter, "on">;
 
@@ -129,6 +149,7 @@ function registerAccess(
     matchers.set(key, compileMatcher(route));
 }
 
+/** Registers a Hono handler and records the route's access metadata. */
 export function registerRoute(
     app: RouteApp,
     ...registration: readonly [
@@ -166,6 +187,7 @@ function registeredMatcher(
     return bestMatch;
 }
 
+/** Returns whether the request matches a registered public route. */
 export function isRegisteredPublicRoute(
     app: RouteApp,
     method: string,
@@ -174,6 +196,7 @@ export function isRegisteredPublicRoute(
     return registeredMatcher(app, method, path)?.public ?? false;
 }
 
+/** Returns whether the request bypasses privacy-policy acceptance. */
 export function isRegisteredPrivacyPolicyExemptRoute(
     app: RouteApp,
     method: string,

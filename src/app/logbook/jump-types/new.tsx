@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 import {
@@ -11,8 +10,8 @@ import * as routes from "@/app/routes";
 import { jumpTypes } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.jumpTypes.new, getNewJumpType);
-    registerRoute(app, "post", routes.logbook.jumpTypes.new, createJumpType);
+    app.get(routes.logbook.jumpTypes.new, getNewJumpType);
+    app.post(routes.logbook.jumpTypes.new, createJumpType);
 }
 
 function getNewJumpType(c: HonoRequestContext) {

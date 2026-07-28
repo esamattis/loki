@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, eq, ne, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -16,10 +15,8 @@ import * as routes from "@/app/routes";
 import { jumps, locations } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.locations.edit, (c) =>
-        getEditLocation(c),
-    );
-    registerRoute(app, "post", routes.logbook.locations.edit, updateLocation);
+    app.get(routes.logbook.locations.edit, (c) => getEditLocation(c));
+    app.post(routes.logbook.locations.edit, updateLocation);
 }
 
 async function getEditLocation(c: HonoRequestContext, dangerError?: string) {

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     getRequestContext,
     type AppRouter,
@@ -13,8 +12,8 @@ import * as routes from "@/app/routes";
 import { aircrafts } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.aircraft.new, getNewAircraft);
-    registerRoute(app, "post", routes.logbook.aircraft.new, createAircraft);
+    app.get(routes.logbook.aircraft.new, getNewAircraft);
+    app.post(routes.logbook.aircraft.new, createAircraft);
 }
 
 function getNewAircraft(c: HonoRequestContext) {

@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -45,5 +44,5 @@ async function handleSessions(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "post", routes.admin.sessions.index, handleSessions);
+    app.post(routes.admin.sessions.index, handleSessions);
 }

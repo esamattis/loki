@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     getRequestContext,
     type AppRouter,
@@ -174,11 +173,6 @@ function imageShareFallback(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.serviceWorker, serviceWorker);
-    registerRoute(
-        app,
-        "post",
-        routes.logbook.jumps.imageShare,
-        imageShareFallback,
-    );
+    app.get(routes.serviceWorker, serviceWorker);
+    app.post(routes.logbook.jumps.imageShare, imageShareFallback);
 }

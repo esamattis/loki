@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import {
     getRequestContext,
@@ -78,16 +77,6 @@ async function handleInvitationNew(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(
-        app,
-        "get",
-        routes.admin.invitations.new,
-        renderInvitationNew,
-    );
-    registerRoute(
-        app,
-        "post",
-        routes.admin.invitations.new,
-        handleInvitationNew,
-    );
+    app.get(routes.admin.invitations.new, renderInvitationNew);
+    app.post(routes.admin.invitations.new, handleInvitationNew);
 }

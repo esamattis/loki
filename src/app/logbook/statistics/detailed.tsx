@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
 import clsx from "clsx";
 import {
@@ -723,10 +722,5 @@ async function renderDetailedStatistics(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(
-        app,
-        "get",
-        routes.logbook.statistics.detailed,
-        renderDetailedStatistics,
-    );
+    app.get(routes.logbook.statistics.detailed, renderDetailedStatistics);
 }

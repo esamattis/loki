@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -14,7 +13,7 @@ import * as routes from "@/app/routes";
 import { aircrafts, jumpsToAircrafts } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.aircraft.index, getAircraftList);
+    app.get(routes.logbook.aircraft.index, getAircraftList);
 }
 
 async function getAircraftList(c: HonoRequestContext) {

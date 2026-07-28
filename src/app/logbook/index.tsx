@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     and,
     asc,
@@ -935,5 +934,5 @@ async function renderLogbook(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.index, renderLogbook);
+    app.get(routes.logbook.index, renderLogbook);
 }

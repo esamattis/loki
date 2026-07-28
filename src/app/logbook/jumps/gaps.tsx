@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import {
     getRequestContext,
@@ -173,10 +172,5 @@ export async function handleRemoveJumpGaps(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(
-        app,
-        "post",
-        routes.logbook.jumps.removeGaps,
-        handleRemoveJumpGaps,
-    );
+    app.post(routes.logbook.jumps.removeGaps, handleRemoveJumpGaps);
 }

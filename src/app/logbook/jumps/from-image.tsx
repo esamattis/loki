@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output, type LanguageModelUsage } from "ai";
 import clsx from "clsx";
@@ -778,13 +777,8 @@ async function handleJumpFromImage(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.jumps.fromImage, async (c) =>
+    app.get(routes.logbook.jumps.fromImage, async (c) =>
         renderJumpFromImage(c),
     );
-    registerRoute(
-        app,
-        "post",
-        routes.logbook.jumps.fromImage,
-        handleJumpFromImage,
-    );
+    app.post(routes.logbook.jumps.fromImage, handleJumpFromImage);
 }

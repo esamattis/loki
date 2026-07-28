@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
@@ -252,6 +251,6 @@ async function handle(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.preferences, (c) => render(c));
-    registerRoute(app, "post", routes.preferences, handle);
+    app.get(routes.preferences, (c) => render(c));
+    app.post(routes.preferences, handle);
 }

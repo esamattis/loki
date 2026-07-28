@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 import {
@@ -11,8 +10,8 @@ import * as routes from "@/app/routes";
 import { locations } from "@/app/schema";
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.logbook.locations.new, getNewLocation);
-    registerRoute(app, "post", routes.logbook.locations.new, createLocation);
+    app.get(routes.logbook.locations.new, getNewLocation);
+    app.post(routes.logbook.locations.new, createLocation);
 }
 
 function getNewLocation(c: HonoRequestContext) {

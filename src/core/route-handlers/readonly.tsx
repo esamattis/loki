@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import {
     getRequestContext,
     type AppRouter,
@@ -43,5 +42,5 @@ function renderReadonly(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "get", routes.readonly, renderReadonly);
+    app.get(routes.readonly, renderReadonly);
 }

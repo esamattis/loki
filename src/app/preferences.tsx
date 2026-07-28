@@ -1,4 +1,3 @@
-import { registerRoute } from "@/core/register-route";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
@@ -232,5 +231,5 @@ async function handleDeleteLogbookData(c: HonoRequestContext) {
 }
 
 export function register(app: AppRouter) {
-    registerRoute(app, "post", routes.lokiPreferences, handleDeleteLogbookData);
+    app.post(routes.lokiPreferences, handleDeleteLogbookData);
 }
