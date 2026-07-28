@@ -18,6 +18,7 @@ import * as routes from "@/core/routes";
 import { sessions, users } from "@/core/schema";
 import { User } from "@/core/user";
 
+/** Builds a Basic Authentication challenge response. */
 function basicAuthChallenge(c: HonoRequestContext, realm: string) {
     return c.body("Invalid username or password", 401, {
         "WWW-Authenticate": `Basic realm="${realm}"`,
@@ -25,6 +26,7 @@ function basicAuthChallenge(c: HonoRequestContext, realm: string) {
     });
 }
 
+/** Returns whether registered users. */
 async function hasRegisteredUsers(db: AppDatabase): Promise<boolean> {
     const user = await db
         .select({ uuid: users.uuid })
@@ -37,6 +39,7 @@ async function hasRegisteredUsers(db: AppDatabase): Promise<boolean> {
     return Boolean(user);
 }
 
+/** Authenticates middleware. */
 async function authenticateMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -159,6 +162,7 @@ async function authenticateMiddleware(
     await next();
 }
 
+/** Registers authentication. */
 export function registerAuthentication(app: AppRouter): void {
     app.use("*", authenticateMiddleware);
 }

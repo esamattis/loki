@@ -1,5 +1,6 @@
 import type { CoreUserOptions } from "@/core/options";
 
+/** Describes date time format. */
 type DateTimeFormat = CoreUserOptions["dateTimeFormat"];
 
 /** Splits an ISO calendar date `YYYY-MM-DD` into parts. */

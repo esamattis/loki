@@ -4,11 +4,14 @@ import { User } from "@/core/user";
 import { verifyPassword } from "@/core/password";
 import { users } from "@/core/schema";
 
+/** Stores the session token bytes used by this module. */
 const SESSION_TOKEN_BYTES = 32; // 256 bits
 
 export { hashPassword } from "@/core/password";
 
+/** Stores the session cookie name used by this module. */
 export const SESSION_COOKIE_NAME = "session";
+/** Stores the session max age used by this module. */
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 /** Cookie options; `secure` follows the request protocol (HTTPS on Cloudflare). */
@@ -41,6 +44,7 @@ export function isSafeRedirectPath(path: string | undefined): path is string {
     return true;
 }
 
+/** Encodes bytes as a Base64 string. */
 export function bytesToBase64(bytes: Uint8Array): string {
     let binary = "";
     for (const byte of bytes) {
@@ -49,6 +53,7 @@ export function bytesToBase64(bytes: Uint8Array): string {
     return btoa(binary);
 }
 
+/** Generates session token. */
 export function generateSessionToken(): string {
     const bytes = crypto.getRandomValues(
         new Uint8Array(new ArrayBuffer(SESSION_TOKEN_BYTES)),
@@ -58,6 +63,7 @@ export function generateSessionToken(): string {
     return b64.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
+/** Hashes a session token for persistent storage. */
 export async function hashToken(token: string): Promise<string> {
     const data = new TextEncoder().encode(token);
     const digest = await crypto.subtle.digest("SHA-256", data);

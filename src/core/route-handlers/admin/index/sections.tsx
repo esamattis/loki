@@ -5,6 +5,7 @@ import { parseCoreUserOptions as parseUserOptions } from "@/core/options";
 import * as routes from "@/core/routes";
 import type { Child } from "hono/jsx";
 
+/** Describes admin user row. */
 export interface AdminUserRow {
     uuid: string;
     username: string;
@@ -17,6 +18,7 @@ export interface AdminUserRow {
     lastUsedAt: number;
 }
 
+/** Describes admin session row. */
 export interface AdminSessionRow {
     tokenHash: string;
     userUuid: string;
@@ -27,11 +29,13 @@ export interface AdminSessionRow {
     lastUsedAt: number;
 }
 
+/** Describes invitation row. */
 export interface InvitationRow {
     code: string;
     count: number;
 }
 
+/** Renders navigation between administrative page sections. */
 export function AdminSectionNavigation() {
     return (
         <nav
@@ -54,6 +58,12 @@ export function AdminSectionNavigation() {
     );
 }
 
+/**
+ * Provides the metadata item behavior.
+ *
+ * @param props.label - Visible field label.
+ * @param props.children - Content rendered inside the component.
+ */
 function MetadataItem(props: { label: string; children: Child }) {
     return (
         <div className="min-w-0">
@@ -68,6 +78,11 @@ function MetadataItem(props: { label: string; children: Child }) {
     );
 }
 
+/**
+ * Provides the admin invitations section behavior.
+ *
+ * @param props.invitations - Value used to configure invitations.
+ */
 export function AdminInvitationsSection(props: {
     invitations: InvitationRow[];
 }) {
@@ -118,6 +133,12 @@ export function AdminInvitationsSection(props: {
     );
 }
 
+/**
+ * Provides the admin users section behavior.
+ *
+ * @param props.users - Value used to configure users.
+ * @param props.currentUserUuid - Value used to configure current user uuid.
+ */
 export function AdminUsersSection(props: {
     users: AdminUserRow[];
     currentUserUuid: string;
@@ -193,6 +214,14 @@ export function AdminUsersSection(props: {
     );
 }
 
+/**
+ * Provides the user actions behavior.
+ *
+ * @param props.user - Value used to configure user.
+ * @param props.readonly - Value used to configure readonly.
+ * @param props.currentUserUuid - Value used to configure current user uuid.
+ * @param props.canRemoveAdmin - Value used to configure can remove admin.
+ */
 function UserActions(props: {
     user: AdminUserRow;
     readonly: boolean;
@@ -247,6 +276,11 @@ function UserActions(props: {
     );
 }
 
+/**
+ * Provides the admin sessions section behavior.
+ *
+ * @param props.sessions - Value used to configure sessions.
+ */
 export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
     const now = Math.floor(Date.now() / 1000);
     const formatDate = useDateFormatter();
@@ -374,6 +408,11 @@ export function AdminSessionsSection(props: { sessions: AdminSessionRow[] }) {
     );
 }
 
+/**
+ * Provides the empty state behavior.
+ *
+ * @param props.children - Content rendered inside the component.
+ */
 function EmptyState(props: { children: Child }) {
     return (
         <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">

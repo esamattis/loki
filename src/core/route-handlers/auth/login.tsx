@@ -10,12 +10,20 @@ import { Password, TextInput } from "@/core/route-handlers/auth/components";
 import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 
+/** Validates login form values. */
 const LoginFormSchema = z.object({
     usernameOrEmail: z.string().min(1, "Username or email is required"),
     password: z.string().min(1, "Password is required"),
     back: z.string().optional(),
 });
 
+/**
+ * Provides the login form behavior.
+ *
+ * @param props.errors - Errors to display.
+ * @param props.usernameOrEmail - Value used to configure username or email.
+ * @param props.back - Value used to configure back.
+ */
 function LoginForm(props: {
     errors?: string[];
     usernameOrEmail?: string;
@@ -48,6 +56,7 @@ function LoginForm(props: {
     );
 }
 
+/** Renders login form. */
 async function renderLoginForm(c: HonoRequestContext) {
     const user = getRequestContext(c).user;
     const back = c.req.query("back") ?? undefined;
@@ -61,6 +70,7 @@ async function renderLoginForm(c: HonoRequestContext) {
     return c.render(<LoginForm back={back} />);
 }
 
+/** Converts login form data entries to string values. */
 function formDataToStrings(formData: FormData): Record<string, string> {
     const values: Record<string, string> = {};
     for (const [key, value] of formData.entries()) {
@@ -71,6 +81,7 @@ function formDataToStrings(formData: FormData): Record<string, string> {
     return values;
 }
 
+/** Handles login. */
 async function handleLogin(c: HonoRequestContext) {
     const formData = await c.req.formData();
     const raw = formDataToStrings(formData);
@@ -109,6 +120,7 @@ async function handleLogin(c: HonoRequestContext) {
     return c.redirect(redirectTo);
 }
 
+/** Registers the login routes. */
 export function register(app: AppRouter) {
     app.get(routes.auth.login, renderLoginForm);
     app.post(routes.auth.login, handleLogin);

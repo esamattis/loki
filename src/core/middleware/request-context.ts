@@ -3,6 +3,7 @@ import { createServerTimings, setServerTiming } from "@/core/server-timing";
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { RequestContext } from "@/core/create-app";
 
+/** Creates and attaches the request-scoped core context. */
 async function requestContextMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -28,6 +29,7 @@ async function requestContextMiddleware(
     }
 }
 
+/** Registers request context. */
 export function registerRequestContext(router: AppRouter): void {
     router.use("*", (c, next) => requestContextMiddleware(c, next, router));
 }

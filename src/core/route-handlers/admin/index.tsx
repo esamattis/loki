@@ -15,6 +15,7 @@ import {
 import * as routes from "@/core/routes";
 import { invitations, sessions, users } from "@/core/schema";
 
+/** Renders admin page. */
 async function renderAdminPage(c: HonoRequestContext) {
     const admin = requireAdmin(c);
     if (!admin) {
@@ -72,6 +73,7 @@ async function renderAdminPage(c: HonoRequestContext) {
     );
 }
 
+/** Registers the administrative overview route. */
 export function register(app: AppRouter) {
     app.get(routes.admin.index, renderAdminPage);
 }

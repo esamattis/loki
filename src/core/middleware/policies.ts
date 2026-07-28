@@ -5,12 +5,14 @@ import { isPublicAssetPath } from "@/core/middleware/public-assets";
 import { isRegisteredPrivacyPolicyExemptRoute } from "@/core/register-route";
 import * as routes from "@/core/routes";
 
+/** Stores the privacy policy allowed paths used by this module. */
 const PRIVACY_POLICY_ALLOWED_PATHS = new Set<string>([
     routes.privacy.route,
     routes.auth.logout.route,
     routes.serviceWorker.route,
 ]);
 
+/** Stores the readonly allowed mutations used by this module. */
 const READONLY_ALLOWED_MUTATIONS = new Set<string>([
     // A read-only user must still be able to end their session.
     routes.auth.logout.route,
@@ -19,8 +21,10 @@ const READONLY_ALLOWED_MUTATIONS = new Set<string>([
 ]);
 
 // All unlisted methods are mutation-capable and therefore denied by default.
+/** Stores the safe methods used by this module. */
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
+/** Requires authenticated users to accept the current privacy policy. */
 async function privacyPolicyMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -41,6 +45,7 @@ async function privacyPolicyMiddleware(
     return c.redirect(routes.privacy({}, { back: url.pathname + url.search }));
 }
 
+/** Rejects mutations that are unavailable to read-only users. */
 async function readonlyMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -58,6 +63,7 @@ async function readonlyMiddleware(
     return c.redirect(routes.readonly({}));
 }
 
+/** Registers policies. */
 export function registerPolicies(app: AppRouter): void {
     app.use("*", privacyPolicyMiddleware);
     app.use("*", readonlyMiddleware);

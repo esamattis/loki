@@ -2,8 +2,10 @@ import { htmxAsset, tailwindAsset } from "@/core/app-assets";
 import type { AppRouter } from "@/core/create-app";
 import * as routes from "@/core/routes";
 
+/** Stores the immutable cache control used by this module. */
 const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
+/** Registers asset routes. */
 export function registerAssetRoutes(app: AppRouter) {
     app.get(routes.assets.tailwindCss, (c) => {
         if (

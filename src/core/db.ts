@@ -4,6 +4,7 @@ import { measureSql, type ServerTimings } from "@/core/server-timing";
 /** App DB client. D1-shaped so existing `.batch` / query typings keep working. */
 export type AppDatabase = ReturnType<typeof drizzleD1>;
 
+/** Provides timed d1 prepared statement behavior. */
 class TimedD1PreparedStatement {
     constructor(
         private readonly statement: D1PreparedStatement,
@@ -55,6 +56,7 @@ class TimedD1PreparedStatement {
     }
 }
 
+/** Provides timed d1 database behavior. */
 class TimedD1Database {
     constructor(
         private readonly database: D1Database,
@@ -97,6 +99,7 @@ class TimedD1Database {
     }
 }
 
+/** Creates d1 database. */
 export function createD1Database(
     d1: D1Database,
     timings?: ServerTimings,

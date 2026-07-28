@@ -41,10 +41,13 @@ export function isRegisteredRoute(value: unknown): value is RegisteredRoute {
     );
 }
 
+/** Describes route app. */
 type RouteApp = Pick<AppRouter, "on">;
 
+/** Describes registered route metadata. */
 type RegisteredRouteMetadata = RegisteredRoute["metadata"];
 
+/** Stores the registered metadata used by this module. */
 const registeredMetadata = new WeakMap<
     RouteApp,
     Map<string, RegisteredRouteMetadata>

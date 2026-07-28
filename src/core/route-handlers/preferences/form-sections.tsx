@@ -6,6 +6,7 @@ import {
     usePreferencesFormState,
 } from "@/core/route-handlers/preferences/form-context";
 
+/** Renders profile fields in the preferences form. */
 export function ProfileSection() {
     const context = useRequestContext();
     const user = context.getUser();
@@ -52,6 +53,7 @@ export function ProfileSection() {
     );
 }
 
+/** Renders locale and formatting fields in the preferences form. */
 export function FormattingSection() {
     const user = useRequestContext().getUser();
     const state = usePreferencesFormState();
@@ -119,6 +121,7 @@ export function FormattingSection() {
     );
 }
 
+/** Renders password fields in the preferences form. */
 export function PasswordSection() {
     return (
         <section className="space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
@@ -146,6 +149,7 @@ export function PasswordSection() {
     );
 }
 
+/** Renders performance settings in the preferences form. */
 export function PerformanceSection() {
     const user = useRequestContext().getUser();
     const state = usePreferencesFormState();
@@ -174,6 +178,7 @@ export function PerformanceSection() {
     );
 }
 
+/** Renders the preferences form submit button. */
 export function PreferencesSubmitButton() {
     return (
         <div className="hidden sm:block">

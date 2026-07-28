@@ -1,6 +1,7 @@
 import { $select } from "@/core/utils";
 import { Script } from "@/core/components/script";
 
+/** Stores the update toast id used by this module. */
 const UPDATE_TOAST_ID = "update-toast";
 
 /** Wires Reload and Dismiss actions on the update toast. */

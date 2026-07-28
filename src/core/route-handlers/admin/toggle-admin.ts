@@ -8,6 +8,7 @@ import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 
+/** Handles toggle admin. */
 async function handleToggleAdmin(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -56,6 +57,7 @@ async function handleToggleAdmin(c: HonoRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
+/** Registers the route for changing administrator access. */
 export function register(app: AppRouter) {
     app.post(routes.admin.toggleAdmin, handleToggleAdmin);
 }

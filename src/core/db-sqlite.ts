@@ -6,6 +6,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { AppDatabase } from "@/core/db";
 import { measureSqlSync, type ServerTimings } from "@/core/server-timing";
 
+/** Returns sqlite directory. */
 export function defaultSqliteDirectory(
     storageDirectoryName: string,
     system: {
@@ -29,6 +30,7 @@ export function defaultSqliteDirectory(
     return posix.join(home, ".local", "share", storageDirectoryName, "sqlite");
 }
 
+/** Resolves sqlite path. */
 export function resolveSqlitePath(
     storageDirectoryName: string,
     sqliteFilename: string,
@@ -40,6 +42,7 @@ export function resolveSqlitePath(
     );
 }
 
+/** Describes batchable query. */
 type BatchableQuery = {
     run?: () => unknown;
     all?: () => unknown;
@@ -47,6 +50,7 @@ type BatchableQuery = {
     execute?: () => unknown;
 };
 
+/** Runs batch query. */
 function runBatchQuery(query: BatchableQuery): unknown {
     if (typeof query.run === "function") {
         return query.run();
@@ -63,6 +67,7 @@ function runBatchQuery(query: BatchableQuery): unknown {
     throw new Error("Unsupported batch query");
 }
 
+/** Prepares sqlite storage. */
 function prepareSqliteStorage(path: string): void {
     const directory = dirname(path);
     if (process.platform === "win32") {
@@ -102,6 +107,7 @@ export function createSqliteDatabase(path: string): {
     };
 }
 
+/** Creates sqlite drizzle database. */
 export function createSqliteDrizzleDatabase(
     sqlite: DatabaseSync,
     timings?: ServerTimings,
@@ -124,6 +130,7 @@ export function createSqliteDrizzleDatabase(
     return drizzleDb as unknown as AppDatabase;
 }
 
+/** Wraps a SQLite client to record query timings. */
 function timedSqliteClient(
     sqlite: DatabaseSync,
     timings: ServerTimings,

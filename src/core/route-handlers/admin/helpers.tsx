@@ -9,6 +9,7 @@ import { ErrorList } from "@/core/components/feedback";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import * as routes from "@/core/routes";
 
+/** Requires admin. */
 export function requireAdmin(c: HonoRequestContext): User | null {
     const user = getRequestContext(c).getUser();
     if (!user.admin) {
@@ -17,6 +18,7 @@ export function requireAdmin(c: HonoRequestContext): User | null {
     return user;
 }
 
+/** Validates invitation values. */
 export const InvitationSchema = z.object({
     code: z
         .string()
@@ -29,11 +31,20 @@ export const InvitationSchema = z.object({
         .min(0, "Count must be 0 or greater"),
 });
 
+/** Describes invitation form values. */
 interface InvitationFormValues {
     code?: string;
     count?: string;
 }
 
+/**
+ * Provides the invitation form behavior.
+ *
+ * @param props.values - Value used to configure values.
+ * @param props.errors - Errors to display.
+ * @param props.submitLabel - Value used to configure submit label.
+ * @param props.codeReadOnly - Value used to configure code read only.
+ */
 export function InvitationForm(props: {
     values?: InvitationFormValues;
     errors?: string[];
@@ -88,6 +99,7 @@ export function InvitationForm(props: {
     );
 }
 
+/** Returns invitation form values. */
 export function getInvitationFormValues(
     formData: FormData,
 ): InvitationFormValues {

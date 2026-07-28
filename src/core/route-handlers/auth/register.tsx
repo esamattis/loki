@@ -25,6 +25,7 @@ import {
     uniqueAccountField,
 } from "@/core/account-uniqueness";
 
+/** Validates register form values. */
 const RegisterFormSchema = z
     .object({
         invitationCode: z.string().optional(),
@@ -49,6 +50,16 @@ const RegisterFormSchema = z
         path: ["confirmPassword"],
     });
 
+/**
+ * Provides the register form behavior.
+ *
+ * @param props.errors - Errors to display.
+ * @param props.invitationRequired - Value used to configure invitation required.
+ * @param props.invitationCode - Value used to configure invitation code.
+ * @param props.username - Value used to configure username.
+ * @param props.displayName - Value used to configure display name.
+ * @param props.email - Value used to configure email.
+ */
 function RegisterForm(props: {
     errors?: string[];
     invitationRequired: boolean;
@@ -140,6 +151,7 @@ function RegisterForm(props: {
     );
 }
 
+/** Renders register form. */
 async function renderRegisterForm(c: HonoRequestContext) {
     if (getRequestContext(c).user) {
         return c.redirect(getRequestContext(c).appOptions.authenticatedHome);
@@ -149,6 +161,7 @@ async function renderRegisterForm(c: HonoRequestContext) {
     );
 }
 
+/** Returns whether registered users. */
 async function hasRegisteredUsers(c: HonoRequestContext): Promise<boolean> {
     const user = await getRequestContext(c)
         .db.select({ uuid: users.uuid })
@@ -161,6 +174,7 @@ async function hasRegisteredUsers(c: HonoRequestContext): Promise<boolean> {
     return Boolean(user);
 }
 
+/** Converts registration form data entries to string values. */
 function formDataToStrings(formData: FormData): Record<string, string> {
     const values: Record<string, string> = {};
     for (const [key, value] of formData.entries()) {
@@ -169,6 +183,7 @@ function formDataToStrings(formData: FormData): Record<string, string> {
     return values;
 }
 
+/** Registers form props. */
 function registerFormProps(raw: {
     invitationCode?: string;
     username?: string;
@@ -183,6 +198,7 @@ function registerFormProps(raw: {
     };
 }
 
+/** Handles register. */
 async function handleRegister(c: HonoRequestContext) {
     const raw = formDataToStrings(await c.req.formData());
     const result = RegisterFormSchema.safeParse(raw);
@@ -331,6 +347,7 @@ async function handleRegister(c: HonoRequestContext) {
     return c.redirect(appOptions.authenticatedHome);
 }
 
+/** Registers the account registration routes. */
 export function register(app: AppRouter) {
     app.get(routes.auth.register, renderRegisterForm);
     app.post(routes.auth.register, handleRegister);

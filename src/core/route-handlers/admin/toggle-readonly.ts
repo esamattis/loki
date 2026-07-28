@@ -9,6 +9,7 @@ import { requireAdmin } from "@/core/route-handlers/admin/helpers";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 
+/** Handles toggle readonly. */
 async function handleToggleReadonly(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -50,6 +51,7 @@ async function handleToggleReadonly(c: HonoRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
+/** Registers the route for changing read-only access. */
 export function register(app: AppRouter) {
     app.post(routes.admin.toggleReadonly, handleToggleReadonly);
 }

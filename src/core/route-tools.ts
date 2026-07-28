@@ -1,5 +1,6 @@
 import type { HonoRequestContext } from "@/core/create-app";
 
+/** Describes extract route params. */
 type ExtractRouteParams<T extends string> =
     T extends `${string}:${infer Param}/${infer Rest}`
         ? { [K in Param]: string | number } & ExtractRouteParams<`/${Rest}`>

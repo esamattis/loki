@@ -3,6 +3,7 @@ import type { AppDatabase } from "@/core/db";
 import type { CoreUserOptions } from "@/core/options";
 import { invitations, users } from "@/core/schema";
 
+/** Describes registration user values. */
 export interface RegistrationUserValues {
     username: string;
     displayName?: string;
@@ -11,11 +12,13 @@ export interface RegistrationUserValues {
     options: CoreUserOptions;
 }
 
+/** Describes registration user result. */
 export type RegistrationUserResult =
     | { uuid: string; consumedInvitation: boolean }
     | { error: "Invitation code is required" }
     | { error: "Invalid or exhausted invitation code" };
 
+/** Inserts first user. */
 async function insertFirstUser(
     db: AppDatabase,
     values: RegistrationUserValues,
@@ -39,6 +42,7 @@ async function insertFirstUser(
     return created?.uuid;
 }
 
+/** Consumes invitation. */
 async function consumeInvitation(
     db: AppDatabase,
     invitationCode: string,
@@ -54,6 +58,7 @@ async function consumeInvitation(
     return Boolean(consumed);
 }
 
+/** Creates registration user. */
 export async function createRegistrationUser(
     db: AppDatabase,
     values: RegistrationUserValues,
@@ -87,6 +92,7 @@ export async function createRegistrationUser(
     return { uuid, consumedInvitation: true };
 }
 
+/** Compensates for registration. */
 export async function compensateRegistration(
     db: AppDatabase,
     registration: {

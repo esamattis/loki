@@ -6,6 +6,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 
 // Keep this default stable. Concrete applications fill their complete options JSON.
+/** Defines the users database table. */
 export const users = sqliteTable(
     "users",
     {
@@ -36,11 +37,13 @@ export const users = sqliteTable(
     }),
 );
 
+/** Defines the invitations database table. */
 export const invitations = sqliteTable("invitations", {
     code: text("code").primaryKey(),
     count: integer("count").notNull().default(0),
 });
 
+/** Defines the sessions database table. */
 export const sessions = sqliteTable("sessions", {
     tokenHash: text("token_hash").primaryKey(),
     userUuid: text("user_uuid")

@@ -32,6 +32,7 @@ import {
     ProfileSection,
 } from "@/core/route-handlers/preferences/form-sections";
 
+/** Validates preferences values. */
 const PreferencesSchema = z
     .object({
         username: z
@@ -77,6 +78,13 @@ const PreferencesSchema = z
             });
     });
 
+/**
+ * Provides the core preferences form behavior.
+ *
+ * @param props.formId - Value used to configure form id.
+ * @param props.errors - Errors to display.
+ * @param props.values - Value used to configure values.
+ */
 function CorePreferencesForm(props: {
     formId: string;
     errors?: string[];
@@ -110,6 +118,7 @@ function CorePreferencesForm(props: {
     );
 }
 
+/** Renders destructive account actions. */
 function AccountDangerZone() {
     const layout = useCoreLayoutUi();
     return (
@@ -134,6 +143,12 @@ function AccountDangerZone() {
     );
 }
 
+/**
+ * Provides the preferences page behavior.
+ *
+ * @param props.errors - Errors to display.
+ * @param props.values - Value used to configure values.
+ */
 export function PreferencesPage(props: {
     errors?: string[];
     values?: Record<string, string>;
@@ -163,6 +178,7 @@ export function PreferencesPage(props: {
     );
 }
 
+/** Renders the account preferences page response. */
 function render(
     c: HonoRequestContext,
     errors?: string[],
@@ -171,6 +187,7 @@ function render(
     return c.render(<PreferencesPage errors={errors} values={values} />);
 }
 
+/** Converts preference form data entries to string values. */
 function formStringValues(form: FormData): Record<string, string> {
     return Object.fromEntries(
         [...form.entries()].filter(
@@ -179,6 +196,7 @@ function formStringValues(form: FormData): Record<string, string> {
     );
 }
 
+/** Handles account preference updates. */
 async function handle(c: HonoRequestContext) {
     const form = await c.req.formData();
     if (form.get("action") === "delete") {
@@ -250,6 +268,7 @@ async function handle(c: HonoRequestContext) {
     return c.redirect(context.appOptions.authenticatedHome);
 }
 
+/** Registers the account preferences routes. */
 export function register(app: AppRouter) {
     app.get(routes.preferences, (c) => render(c));
     app.post(routes.preferences, handle);

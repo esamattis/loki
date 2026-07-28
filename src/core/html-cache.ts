@@ -8,17 +8,24 @@ import {
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 
+/** Stores the cache name used by this module. */
 const CACHE_NAME = "loki-html-v1";
+/** Stores the cache ttl seconds used by this module. */
 const CACHE_TTL_SECONDS = 5 * 60;
+/** Stores the readonly cache ttl seconds used by this module. */
 const READONLY_CACHE_TTL_SECONDS = 60 * 60 * 24;
+/** Stores the cache status header used by this module. */
 const CACHE_STATUS_HEADER = "X-Loki-HTML-Cache";
 
+/** Describes cache status. */
 type CacheStatus = "HIT" | "MISS" | "DISABLED" | "BYPASS";
 
+/** Returns whether cache api available. */
 function cacheApiAvailable(): boolean {
     return typeof caches !== "undefined";
 }
 
+/** Returns whether path. */
 function excludedPath(path: string): boolean {
     return (
         path === routes.preferences.route ||
@@ -41,6 +48,7 @@ function cacheKey(c: HonoRequestContext, user: User): Request {
     return new Request(url, { method: "GET" });
 }
 
+/** Builds for client. */
 function responseForClient(
     response: Response,
     cacheStatus: CacheStatus,
@@ -55,6 +63,7 @@ function responseForClient(
     });
 }
 
+/** Builds cache. */
 async function bypassCache(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -64,6 +73,7 @@ async function bypassCache(
     c.header(CACHE_STATUS_HEADER, cacheStatus);
 }
 
+/** Builds for cache. */
 function responseForCache(response: Response, user: User): Response {
     const ttlSeconds = user.readonly
         ? READONLY_CACHE_TTL_SECONDS
@@ -79,6 +89,7 @@ function responseForCache(response: Response, user: User): Response {
     });
 }
 
+/** Returns whether response. */
 function cacheableResponse(response: Response): boolean {
     if (response.status !== 200 || response.headers.has("Set-Cookie")) {
         return false;
@@ -91,6 +102,7 @@ function cacheableResponse(response: Response): boolean {
     return !cacheControl?.includes("no-store");
 }
 
+/** Invalidates user cache. */
 async function invalidateUserCache(c: HonoRequestContext, userUuid: string) {
     const ctx = getRequestContext(c);
     await ctx.db
@@ -102,6 +114,7 @@ async function invalidateUserCache(c: HonoRequestContext, userUuid: string) {
         .run();
 }
 
+/** Handles post. */
 async function handlePost(
     c: HonoRequestContext,
     next: () => Promise<void>,
@@ -116,6 +129,7 @@ async function handlePost(
     }
 }
 
+/** Caches eligible HTML responses and invalidates user entries after writes. */
 export async function htmlCacheMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,

@@ -3,6 +3,7 @@ import { Button } from "@/core/components/form";
 import { Script } from "@/core/components/script";
 import { Dialog } from "@/core/components/ui/dialog";
 
+/** Stores the unsaved changes dialog id used by this module. */
 const UNSAVED_CHANGES_DIALOG_ID = "unsaved-changes-dialog";
 
 /** Whether any opted-in form currently has unsaved edits. */

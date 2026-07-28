@@ -15,6 +15,7 @@ import {
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
 
+/** Stores the menu icon class name used by this module. */
 const menuIconClassName =
     "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 

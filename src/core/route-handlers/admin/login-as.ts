@@ -9,6 +9,7 @@ import { createSession } from "@/core/route-handlers/auth/sessions";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
 
+/** Handles login as. */
 async function handleLoginAs(c: HonoRequestContext) {
     const admin = requireAdmin(c);
     if (!admin) {
@@ -37,6 +38,7 @@ async function handleLoginAs(c: HonoRequestContext) {
     return c.redirect(getRequestContext(c).appOptions.authenticatedHome);
 }
 
+/** Registers the administrator impersonation route. */
 export function register(app: AppRouter) {
     app.post(routes.admin.loginAs, handleLoginAs);
 }

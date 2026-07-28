@@ -14,6 +14,7 @@ import {
 import * as routes from "@/core/routes";
 import { invitations } from "@/core/schema";
 
+/** Renders invitation new. */
 async function renderInvitationNew(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -26,6 +27,7 @@ async function renderInvitationNew(c: HonoRequestContext) {
     );
 }
 
+/** Handles invitation new. */
 async function handleInvitationNew(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -76,6 +78,7 @@ async function handleInvitationNew(c: HonoRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
+/** Registers the invitation creation routes. */
 export function register(app: AppRouter) {
     app.get(routes.admin.invitations.new, renderInvitationNew);
     app.post(routes.admin.invitations.new, handleInvitationNew);

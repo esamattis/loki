@@ -27,6 +27,7 @@ import {
 
 export { User } from "@/core/user";
 
+/** Describes create app router options. */
 export interface CreateAppRouterOptions {
     name: string;
     title: string;
@@ -57,6 +58,7 @@ export interface CreateAppRouterOptions {
     ) => Promise<void>;
 }
 
+/** Describes app router render props. */
 export interface AppRouterRenderProps {
     children: Child;
 }
@@ -72,6 +74,7 @@ function isHandler(value: unknown): value is Handler<Env> {
     return typeof value === "function";
 }
 
+/** Provides app router behavior. */
 export class AppRouter extends Hono<Env> {
     override get = this.createRouteMethod("get");
     override post = this.createRouteMethod("post");
@@ -104,8 +107,10 @@ export class AppRouter extends Hono<Env> {
     }
 }
 
+/** Hono context configured with the core environment. */
 export type HonoRequestContext = Context<Env>;
 
+/** Describes request context options. */
 interface RequestContextOptions {
     appRouter: AppRouter;
     db: AppDatabase;
@@ -114,6 +119,7 @@ interface RequestContextOptions {
     sqlitePath?: string;
 }
 
+/** Provides request context behavior. */
 export class RequestContext {
     readonly appRouter: AppRouter;
     readonly db: AppDatabase;
@@ -166,6 +172,7 @@ export class RequestContext {
     }
 }
 
+/** Request-scoped variables exposed through Hono. */
 export interface Variables {
     requestContext: RequestContext;
 }
@@ -178,11 +185,13 @@ export interface AppBindings extends CloudflareBindings {
     APP_SQLITE_PATH?: string;
 }
 
+/** Hono environment containing application bindings and request variables. */
 export interface Env {
     Bindings: AppBindings;
     Variables: Variables;
 }
 
+/** Returns request context. */
 export function getRequestContext(c: HonoRequestContext): RequestContext {
     if (!c.var.requestContext) {
         throw new Error("Request context not set in Hono request context");
@@ -190,23 +199,28 @@ export function getRequestContext(c: HonoRequestContext): RequestContext {
     return c.var.requestContext;
 }
 
+/** Returns request context. */
 export function useRequestContext(): RequestContext {
     const c = useHonoRequestContext<Env>();
     return getRequestContext(c);
 }
 
+/** Returns calendar duration formatter. */
 export function useCalendarDurationFormatter(): CalendarDurationFormatter {
     return useRequestContext().calendarDurationFormatter();
 }
 
+/** Returns date formatter. */
 export function useDateFormatter(): DateFormatter {
     return useRequestContext().dateFormatter();
 }
 
+/** Returns number formatter. */
 export function useNumberFormatter(): NumberFormatter {
     return useRequestContext().numberFormatter();
 }
 
+/** Creates app router. */
 export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     const router = new AppRouter(options);
     registerErrorHandlers(router);

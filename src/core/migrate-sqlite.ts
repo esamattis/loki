@@ -7,6 +7,7 @@ import { join, resolve } from "node:path";
 import { getAsset, getAssetKeys, isSea } from "node:sea";
 import type { DatabaseSync } from "node:sqlite";
 
+/** Extracts sea migrations. */
 function extractSeaMigrations(directory: string): void {
     for (const key of getAssetKeys()) {
         const match = /^drizzle\/([^/]+)\/migration\.sql$/.exec(key);
@@ -23,6 +24,7 @@ function extractSeaMigrations(directory: string): void {
     }
 }
 
+/** Returns applied migration names. */
 function getAppliedMigrationNames(sqlite: DatabaseSync): Set<string> {
     const table = sqlite
         .prepare(
@@ -41,6 +43,7 @@ function getAppliedMigrationNames(sqlite: DatabaseSync): Set<string> {
     );
 }
 
+/** Runs migrations. */
 function runMigrations(sqlite: DatabaseSync, migrationsFolder: string): void {
     const db = drizzle({ client: sqlite });
     const appliedNames = getAppliedMigrationNames(sqlite);
@@ -64,6 +67,7 @@ function runMigrations(sqlite: DatabaseSync, migrationsFolder: string): void {
     }
 }
 
+/** Applies pending embedded migrations to a SQLite database. */
 export function migrateSqlite(
     sqlite: DatabaseSync,
     migrationsFolder = resolve("drizzle"),

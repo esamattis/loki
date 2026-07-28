@@ -14,6 +14,7 @@ import { register as registerAdminSessions } from "@/core/route-handlers/admin/s
 import { register as registerNewInvitation } from "@/core/route-handlers/admin/invitations/new";
 import { register as registerEditInvitation } from "@/core/route-handlers/admin/invitations/edit";
 
+/** Registers core routes. */
 export function registerCoreRoutes(app: AppRouter): void {
     registerAssetRoutes(app);
     registerLogin(app);

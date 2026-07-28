@@ -2,6 +2,7 @@ import { useId } from "hono/jsx";
 import { Script } from "@/core/components/script";
 import { $select } from "@/core/utils";
 
+/** Sets registration locale preferences. */
 function $setRegistrationLocalePreferences(containerId: string) {
     const container = $select.id(containerId, HTMLDivElement);
 
@@ -44,6 +45,7 @@ function $setRegistrationLocalePreferences(containerId: string) {
     }
 }
 
+/** Renders locale and formatting inputs for account registration. */
 export function RegistrationLocaleInputs() {
     const id = useId();
     return (

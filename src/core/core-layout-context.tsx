@@ -31,6 +31,7 @@ export interface CoreLayoutUi {
     privacyPolicyContent: Child;
 }
 
+/** Provides the core layout context shared by this module. */
 const CoreLayoutContext = createContext<CoreLayoutUi | null>(null);
 
 /** Provider for {@link CoreLayoutUi}; used by `CoreLayout`. */

@@ -1,5 +1,7 @@
+/** Describes account identity field. */
 export type AccountIdentityField = "username" | "email";
 
+/** Collects messages from an error and its chained causes. */
 function errorChainMessages(error: unknown): string[] {
     const messages: string[] = [];
     let current = error;
@@ -10,6 +12,7 @@ function errorChainMessages(error: unknown): string[] {
     return messages;
 }
 
+/** Identifies account field. */
 export function uniqueAccountField(
     error: unknown,
 ): AccountIdentityField | undefined {
@@ -34,6 +37,7 @@ export function uniqueAccountField(
     }
 }
 
+/** Returns the user-facing uniqueness error for an account identity field. */
 export function accountIdentityError(field: AccountIdentityField): string {
     return field === "username"
         ? "Username is already in use"

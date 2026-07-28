@@ -1,6 +1,9 @@
 import { useRequestContext } from "@/core/create-app";
+/** Stores the image width used by this module. */
 const IMAGE_WIDTH = "1200";
+/** Stores the image height used by this module. */
 const IMAGE_HEIGHT = "630";
+/** Stores the image type used by this module. */
 const IMAGE_TYPE = "image/png";
 
 /**

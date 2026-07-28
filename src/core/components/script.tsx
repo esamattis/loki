@@ -1,10 +1,14 @@
 import { useRequestContext } from "@/core/create-app";
 
+/** Describes client function. */
 type ClientFunction = ((...args: any[]) => any) & { displayName?: string };
+/** Describes client class. */
 type ClientClass = (abstract new (...args: any[]) => unknown) & {
     displayName?: string;
 };
+/** Describes client code. */
 type ClientCode = ClientFunction | ClientClass;
+/** Describes client value. */
 type ClientValue =
     | null
     | boolean
@@ -13,12 +17,16 @@ type ClientValue =
     | ClientCode
     | readonly ClientValue[]
     | { readonly [key: string]: ClientValue };
+/** Describes client object. */
 type ClientObject = { displayName?: string } & {
     readonly [key: string]: ClientValue | undefined;
 };
+/** Describes client dependency. */
 type ClientDependency = ClientCode | ClientObject;
+/** Stores the name cache used by this module. */
 const nameCache = new WeakMap<object, string>();
 
+/** Returns dependency name. */
 function getDependencyName(dependency: ClientDependency): string {
     const name =
         dependency.displayName ||
@@ -32,6 +40,7 @@ function getDependencyName(dependency: ClientDependency): string {
     return name;
 }
 
+/** Returns global name. */
 function getGlobalName(dependency: ClientDependency): string {
     const cachedName = nameCache.get(dependency);
     if (cachedName) return cachedName;
@@ -44,6 +53,7 @@ function getGlobalName(dependency: ClientDependency): string {
     return globalName;
 }
 
+/** Rewrites serialized dependency references to local argument names. */
 function localizeDependencyReferences(
     source: string,
     dependencies: ClientDependency[],
@@ -69,6 +79,7 @@ function localizeDependencyReferences(
     return source;
 }
 
+/** Serializes a supported value for embedding in browser JavaScript. */
 function serializeClientValue(
     value: ClientValue | ClientObject,
     dependencies: ClientDependency[],

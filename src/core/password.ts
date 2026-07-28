@@ -1,6 +1,9 @@
+/** Stores the pbkdf2 iterations used by this module. */
 const PBKDF2_ITERATIONS = 100_000;
+/** Stores the pbkdf2 keylen bits used by this module. */
 const PBKDF2_KEYLEN_BITS = 256;
 
+/** Encodes bytes as a Base64 string. */
 function bytesToBase64(bytes: Uint8Array): string {
     let binary = "";
     for (const byte of bytes) {
@@ -9,6 +12,7 @@ function bytesToBase64(bytes: Uint8Array): string {
     return btoa(binary);
 }
 
+/** Derives password hash. */
 async function derivePasswordHash(
     password: string,
     salt: Uint8Array<ArrayBuffer>,
@@ -35,12 +39,14 @@ async function derivePasswordHash(
     return bytesToBase64(new Uint8Array(derived));
 }
 
+/** Hashes a password using the configured PBKDF2 parameters. */
 export async function hashPassword(password: string): Promise<string> {
     const salt = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(16)));
     const hash = await derivePasswordHash(password, salt, PBKDF2_ITERATIONS);
     return `${PBKDF2_ITERATIONS}:${bytesToBase64(salt)}:${hash}`;
 }
 
+/** Verifies password. */
 export async function verifyPassword(
     password: string,
     storedHash: string,

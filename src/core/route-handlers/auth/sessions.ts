@@ -10,6 +10,7 @@ import {
 } from "@/core/auth";
 import { sessions } from "@/core/schema";
 
+/** Creates session. */
 export async function createSession(
     c: HonoRequestContext,
     userUuid: string,
@@ -35,6 +36,7 @@ export async function createSession(
     });
 }
 
+/** Deletes session. */
 export async function destroySession(c: HonoRequestContext): Promise<void> {
     const token = getCookie(c, SESSION_COOKIE_NAME);
     if (token) {

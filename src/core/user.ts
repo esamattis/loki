@@ -7,6 +7,7 @@ import {
 } from "@/core/options";
 import { users } from "@/core/schema";
 
+/** Describes user data. */
 type UserData = Pick<
     typeof users.$inferSelect,
     | "uuid"
@@ -18,6 +19,7 @@ type UserData = Pick<
     | "htmlCacheGeneration"
 >;
 
+/** Provides user behavior. */
 export class User {
     readonly username: string;
     readonly uuid: string;

@@ -13,6 +13,12 @@ import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button"
 import { deleteAccount } from "@/core/delete-account";
 import * as routes from "@/core/routes";
 
+/**
+ * Provides the privacy page behavior.
+ *
+ * @param props.back - Value used to configure back.
+ * @param props.error - Value used to configure error.
+ */
 function PrivacyPage(props: { back?: string; error?: string }) {
     const context = useRequestContext();
     const appUi = useCoreLayoutUi();
@@ -73,10 +79,12 @@ function PrivacyPage(props: { back?: string; error?: string }) {
     );
 }
 
+/** Renders the privacy policy page response. */
 function render(c: HonoRequestContext) {
     return c.render(<PrivacyPage back={routes.privacy.query(c).back} />);
 }
 
+/** Handles privacy policy acknowledgement. */
 async function handle(c: HonoRequestContext) {
     const form = await c.req.formData();
     if (form.get("action") === "delete") {
@@ -100,6 +108,7 @@ async function handle(c: HonoRequestContext) {
     );
 }
 
+/** Registers the privacy policy routes. */
 export function register(app: AppRouter) {
     app.get(routes.privacy, render);
     app.post(routes.privacy, handle);

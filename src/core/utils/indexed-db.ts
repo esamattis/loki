@@ -1,7 +1,9 @@
+/** Describes upgrade database. */
 type UpgradeDatabase = (
     database: IDBDatabase,
     event: IDBVersionChangeEvent,
 ) => void;
+/** Describes transaction options. */
 type TransactionOptions = {
     storeName: string;
     mode: IDBTransactionMode;

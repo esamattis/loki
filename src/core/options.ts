@@ -1,17 +1,20 @@
 import { z } from "zod";
 
+/** Validates date time format values. */
 export const DateTimeFormatSchema = z.enum([
     "finnish",
     "european",
     "american",
     "iso",
 ]);
+/** Validates number format values. */
 export const NumberFormatSchema = z.enum([
     "space-comma",
     "period-comma",
     "comma-period",
 ]);
 
+/** Validates core user options values. */
 export const CoreUserOptionsSchema = z
     .object({
         dateTimeFormat: DateTimeFormatSchema.default("iso"),
@@ -22,8 +25,10 @@ export const CoreUserOptionsSchema = z
     })
     .passthrough();
 
+/** Describes core user options. */
 export type CoreUserOptions = z.output<typeof CoreUserOptionsSchema>;
 
+/** Parses core user options. */
 export function parseCoreUserOptions(value: string | null): CoreUserOptions {
     if (!value) return CoreUserOptionsSchema.parse({});
     try {

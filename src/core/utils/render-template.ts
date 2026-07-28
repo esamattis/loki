@@ -1,5 +1,6 @@
 import { $select } from "@/core/utils/selectors";
 
+/** Describes template value. */
 type TemplateValue = string | Node;
 
 /**

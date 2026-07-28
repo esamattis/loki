@@ -1,5 +1,8 @@
+/** Describes element constructor. */
 type ElementConstructor<T> = abstract new (...args: any[]) => T;
+/** Describes selector root. */
 type SelectorRoot = Pick<ParentNode, "querySelector" | "querySelectorAll">;
+/** Describes id selector root. */
 type IdSelectorRoot = Pick<Document, "getElementById">;
 
 /**
@@ -43,11 +46,13 @@ function $elOrNull<T>(
  * that type; without one, returns `Element[]`.
  */
 function $all(selector: string, root?: SelectorRoot): Element[];
+/** Queries all matching elements without runtime type narrowing. */
 function $all<T>(
     selector: string,
     constructor: ElementConstructor<T>,
     root?: SelectorRoot,
 ): T[];
+/** Queries all matching elements and narrows them to the expected type. */
 function $all<T>(
     selector: string,
     constructorOrRoot: ElementConstructor<T> | SelectorRoot = document,

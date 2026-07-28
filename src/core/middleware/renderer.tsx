@@ -1,6 +1,7 @@
 import { jsxRenderer } from "hono/jsx-renderer";
 import type { AppRouter } from "@/core/create-app";
 
+/** Registers renderer. */
 export function registerRenderer(router: AppRouter): void {
     router.use(
         "*",

@@ -5,6 +5,17 @@ import { EyeIcon, EyeOffIcon } from "@/core/components/icons";
 import { Script } from "@/core/components/script";
 import { $select } from "@/core/utils";
 
+/**
+ * Renders a password field with a visibility toggle.
+ *
+ * @param props.name - Form field name.
+ * @param props.label - Visible field label.
+ * @param props.placeholder - Optional input placeholder.
+ * @param props.required - Whether the field is required.
+ * @param props.autofocus - Whether the field receives initial focus.
+ * @param props.value - Current field value.
+ * @param props.className - Optional classes applied to the component.
+ */
 export function Password(props: {
     name: string;
     label: string;
@@ -91,6 +102,18 @@ export function Password(props: {
     );
 }
 
+/**
+ * Renders a labeled text input.
+ *
+ * @param props.name - Form field name.
+ * @param props.label - Visible field label.
+ * @param props.type - Input type.
+ * @param props.placeholder - Optional input placeholder.
+ * @param props.required - Whether the field is required.
+ * @param props.autofocus - Whether the field receives initial focus.
+ * @param props.value - Current field value.
+ * @param props.className - Optional classes applied to the component.
+ */
 export function TextInput(props: {
     name: string;
     label: string;

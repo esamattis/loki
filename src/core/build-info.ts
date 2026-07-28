@@ -1,4 +1,6 @@
+/** Declares the source revision injected by the build. */
 declare const __APP_REVISION__: string;
+/** Declares the application version injected by the build. */
 declare const __APP_VERSION__: string;
 
 /** Full git revision injected at build time. */

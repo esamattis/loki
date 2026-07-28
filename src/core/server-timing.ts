@@ -1,5 +1,6 @@
 import type { HonoRequestContext } from "@/core/create-app";
 
+/** Describes server timings. */
 export interface ServerTimings {
     pageStartedAt: number;
     sqlQueries: number;
@@ -7,6 +8,7 @@ export interface ServerTimings {
     longestSqlDuration: number;
 }
 
+/** Creates server timings. */
 export function createServerTimings(): ServerTimings {
     return {
         pageStartedAt: performance.now(),
@@ -16,6 +18,7 @@ export function createServerTimings(): ServerTimings {
     };
 }
 
+/** Measures sql. */
 export async function measureSql<T>(
     timings: ServerTimings,
     operation: () => Promise<T>,
@@ -28,6 +31,7 @@ export async function measureSql<T>(
     }
 }
 
+/** Measures sql sync. */
 export function measureSqlSync<T>(
     timings: ServerTimings,
     operation: () => T,
@@ -40,12 +44,14 @@ export function measureSqlSync<T>(
     }
 }
 
+/** Records sql duration. */
 function recordSqlDuration(timings: ServerTimings, duration: number): void {
     timings.sqlQueries += 1;
     timings.sqlDuration += duration;
     timings.longestSqlDuration = Math.max(timings.longestSqlDuration, duration);
 }
 
+/** Sets server timing. */
 export function setServerTiming(
     c: HonoRequestContext,
     timings: ServerTimings,

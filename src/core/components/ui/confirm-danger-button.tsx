@@ -4,11 +4,13 @@ import { $select } from "@/core/utils";
 import { buttonClassName } from "@/core/components/form";
 import { Script } from "@/core/components/script";
 
+/** Stores the danger button class name used by this module. */
 const dangerButtonClassName = buttonClassName({
     variant: "secondary",
     className:
         "border-red-300 text-red-600 hover:bg-red-50 focus:ring-red-500/40 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40 dark:focus:ring-red-400/40",
 });
+/** Stores the confirm danger countdown seconds used by this module. */
 const confirmDangerCountdownSeconds =
     process.env.PLAYWRIGHT_TEST === "1" ? 0 : 3;
 

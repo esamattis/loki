@@ -1,6 +1,7 @@
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 
+/** Renders unexpected errors while preserving Hono HTTP exceptions. */
 function errorHandler(err: Error, c: HonoRequestContext) {
     return c.render(
         <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm ring-1 ring-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:ring-red-900/40">
@@ -27,6 +28,7 @@ function errorHandler(err: Error, c: HonoRequestContext) {
     );
 }
 
+/** Renders the core not-found response. */
 function notFoundHandler(c: HonoRequestContext) {
     if (c.req.path.includes("__")) {
         return c.body("Not found", 404, { "Content-Type": "text/plain" });
@@ -57,6 +59,7 @@ function notFoundHandler(c: HonoRequestContext) {
     );
 }
 
+/** Registers error handlers. */
 export function registerErrorHandlers(app: AppRouter): void {
     app.onError(errorHandler);
     app.notFound(notFoundHandler);

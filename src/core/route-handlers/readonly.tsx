@@ -8,6 +8,7 @@ import { Button } from "@/core/components/form";
 import { LockIcon } from "@/core/components/icons";
 import * as routes from "@/core/routes";
 
+/** Renders the read-only mode notice page. */
 function ReadonlyPage() {
     return (
         <AppPage title="Read-only account">
@@ -30,6 +31,7 @@ function ReadonlyPage() {
     );
 }
 
+/** Renders readonly. */
 function renderReadonly(c: HonoRequestContext) {
     const user = getRequestContext(c).user;
     if (!user) {
@@ -41,6 +43,7 @@ function renderReadonly(c: HonoRequestContext) {
     return c.render(<ReadonlyPage />);
 }
 
+/** Registers the read-only notice route. */
 export function register(app: AppRouter) {
     app.get(routes.readonly, renderReadonly);
 }

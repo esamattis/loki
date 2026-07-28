@@ -2,8 +2,11 @@ import { Script } from "@/core/components/script";
 import * as routes from "@/core/routes";
 import { $select } from "@/core/utils";
 
+/** Stores the redirect back after post field used by this module. */
 const REDIRECT_BACK_AFTER_POST_FIELD = "__loki_redirect_back_after_post";
+/** Stores the ignore return route selector used by this module. */
 const IGNORE_RETURN_ROUTE_SELECTOR = "[data-loki-ignore-return-route]";
+/** Stores the clear return route selector used by this module. */
 const CLEAR_RETURN_ROUTE_SELECTOR = "[data-loki-clear-return-route]";
 
 /** `sessionStorage` key names used by return-after-form-post navigation. */
@@ -44,6 +47,7 @@ export function $completeReturnAfterFormPost(
     window.location.replace(destination);
 }
 
+/** Restores or records return navigation around form submissions. */
 function $returnAfterFormPost(config: {
     storageKey: string;
     destinationStorageKey: string;

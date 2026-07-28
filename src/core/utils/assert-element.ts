@@ -1,3 +1,4 @@
+/** Describes element constructor. */
 type ElementConstructor<T> = abstract new (...args: any[]) => T;
 
 /**
@@ -12,10 +13,12 @@ export function $assertElement<T>(
     node: any,
     el: ElementConstructor<T>,
 ): asserts node is T;
+/** Asserts against any constructor in an allowed list. */
 export function $assertElement<T>(
     node: any,
     els: readonly ElementConstructor<T>[],
 ): asserts node is T;
+/** Implements element assertions for one or more constructors. */
 export function $assertElement<T>(
     node: any,
     el: ElementConstructor<T> | readonly ElementConstructor<T>[],

@@ -12,6 +12,7 @@ export const labelClassName =
 export const controlClassName =
     "block w-full rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/30";
 
+/** Stores the labeled control class name used by this module. */
 const labeledControlClassName = clsx("mt-1.5", controlClassName);
 
 /** Shared Tailwind classes for native file inputs. */
@@ -23,6 +24,7 @@ type ButtonVariant = "primary" | "secondary" | "danger";
 /** Size token for `Button` / `ButtonLink`. */
 type ButtonSize = "md" | "sm";
 
+/** Stores the button variant class name used by this module. */
 const buttonVariantClassName: Record<ButtonVariant, string> = {
     primary:
         "bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:ring-indigo-500/40 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-indigo-400/40",
@@ -31,6 +33,7 @@ const buttonVariantClassName: Record<ButtonVariant, string> = {
     danger: "bg-red-600 text-white shadow-sm hover:bg-red-700 focus:ring-red-500/40 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-400/40",
 };
 
+/** Stores the button size class name used by this module. */
 const buttonSizeClassName: Record<ButtonSize, string> = {
     md: "rounded-lg px-4 py-2.5 font-medium",
     sm: "rounded-lg px-3 py-1.5 text-sm font-medium",

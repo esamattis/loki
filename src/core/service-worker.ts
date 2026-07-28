@@ -1,3 +1,4 @@
+/** Describes service worker lifecycle scope. */
 export interface ServiceWorkerLifecycleScope {
     skipWaiting(): void;
     clients: { claim(): Promise<void> };
@@ -10,6 +11,7 @@ export interface ServiceWorkerLifecycleScope {
     ): void;
 }
 
+/** Installs cache cleanup and activation handlers on a service worker. */
 export function $installServiceWorkerLifecycle(
     scope: ServiceWorkerLifecycleScope,
 ): void {

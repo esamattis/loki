@@ -14,6 +14,7 @@ import {
 import * as routes from "@/core/routes";
 import { invitations } from "@/core/schema";
 
+/** Renders invitation edit. */
 async function renderInvitationEdit(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -51,6 +52,7 @@ async function renderInvitationEdit(c: HonoRequestContext) {
     );
 }
 
+/** Handles invitation edit. */
 async function handleInvitationEdit(c: HonoRequestContext) {
     if (!requireAdmin(c)) {
         return c.notFound();
@@ -99,6 +101,7 @@ async function handleInvitationEdit(c: HonoRequestContext) {
     return c.redirect(routes.admin.index({}));
 }
 
+/** Registers the invitation editing routes. */
 export function register(app: AppRouter) {
     app.get(routes.admin.invitations.edit, renderInvitationEdit);
     app.post(routes.admin.invitations.edit, handleInvitationEdit);
