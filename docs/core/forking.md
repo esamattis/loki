@@ -1,9 +1,8 @@
 # Forking the Application Core
 
-A fork replaces the concrete product without editing `src/core`. The process
-below is exercised by `pn test:fork`, which creates an Acorn Notes fork in a
-temporary directory, generates its first migration, builds every runtime, starts
-the executable, and exercises the account lifecycle.
+A fork replaces the concrete product without editing `src/core`. Follow this
+procedure to replace the application while preserving the boundary between the
+reusable core and concrete product.
 
 ## Replacement procedure
 
@@ -26,8 +25,7 @@ the executable, and exercises the account lifecycle.
 5. Update the distribution and deployment files in the mapping below.
 6. Remove app-only dependencies such as `@ai-sdk/openai`, `ai`, and
    `fast-xml-parser` if the replacement does not use them.
-7. Run `pn test` and `pn test:fork` (or adapt the smoke fixture to the new
-   product while preserving its assertions).
+7. Run `pn test`.
 
 `src/app/config.ts` is the application-to-repository-script contract:
 

@@ -18,9 +18,8 @@ compared against an unavailable external checkout or database.
 | HTML cache isolation, invalidation, and response headers          | `tests/html-cache.spec.ts`                                                                 |
 | Footer identity and application-owned links                       | `tests/privacy.spec.ts`, `tests/home.spec.ts`                                              |
 | Fingerprinted assets, public assets, and service worker behavior  | `tests/asset-caching.spec.ts`, `tests/jump-from-image.spec.ts`, `tests/mobile-nav.spec.ts` |
-| Worker, Node, and executable builds and executable startup        | `pn test`, including `test:executable`; `pn test:fork`                                     |
-| Drizzle schema paths and clean migration initialization           | `tests/repository-paths.spec.ts`, `pn test:fork`                                           |
-| Replacement application without core edits or Loki surface        | `pn test:fork`                                                                             |
+| Worker, Node, and executable builds and executable startup        | `pn test`, including `test:executable`                                                     |
+| Drizzle schema paths and clean migration initialization           | `tests/repository-paths.spec.ts`                                                           |
 
 The credential-free Drizzle check imports both configuration modules with
 placeholder remote credentials, verifies that they share the same schema and

@@ -1,7 +1,0 @@
-{
-    "name": "Acorn Notes",
-    "short_name": "Acorn",
-    "start_url": "/",
-    "display": "standalone",
-    "theme_color": "#166534"
-}

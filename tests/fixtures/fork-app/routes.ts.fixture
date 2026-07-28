@@ -1,4 +1,0 @@
-import { route } from "@/core/route-tools";
-
-export const home = route("/welcome").public();
-export const dashboard = route("/dashboard");
