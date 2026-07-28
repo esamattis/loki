@@ -2,8 +2,8 @@
 
 This document records the final in-repository parity coverage for the core
 extraction. The automated suite validates the current implementation and the
-legacy behaviors stated in `docs/core-extraction-plan.md`; it does not claim to
-have compared against an unavailable external checkout or database.
+legacy behaviors stated in the extraction plan; it does not claim to have
+compared against an unavailable external checkout or database.
 
 ## Automated coverage
 
