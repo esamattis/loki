@@ -29,11 +29,7 @@ async function privacyPolicyMiddleware(
     if (
         ctx.isSelfHosted() ||
         isPublicAssetPath(c.req.path) ||
-        isRegisteredPrivacyPolicyExemptRoute(
-            ctx.appRouter,
-            c.req.method,
-            c.req.path,
-        ) ||
+        isRegisteredPrivacyPolicyExemptRoute(ctx.appRouter, c) ||
         !ctx.user ||
         ctx.user.options.privacyPolicyAccepted ||
         PRIVACY_POLICY_ALLOWED_PATHS.has(c.req.path)

@@ -9,6 +9,9 @@ import { route } from "@/core/route-tools";
 
 let AppRouterClass: typeof import("@/core/create-app").AppRouter;
 
+const PUBLIC_HEADER = "X-Test-Registered-Public";
+const PRIVACY_EXEMPT_HEADER = "X-Test-Privacy-Exempt";
+
 test.beforeAll(async () => {
     Reflect.set(globalThis, "__APP_REVISION__", "test-revision");
     Reflect.set(globalThis, "__APP_VERSION__", "");
@@ -16,7 +19,7 @@ test.beforeAll(async () => {
 });
 
 function createTestApp(): AppRouter {
-    return new AppRouterClass({
+    const app = new AppRouterClass({
         name: "Test",
         title: "Test",
         repositoryUrl: "https://example.com",
@@ -31,45 +34,61 @@ function createTestApp(): AppRouter {
             Test
         `,
     });
+    app.use("*", async function accessMetadataProbe(context, next) {
+        context.header(
+            PUBLIC_HEADER,
+            String(isRegisteredPublicRoute(app, context)),
+        );
+        context.header(
+            PRIVACY_EXEMPT_HEADER,
+            String(isRegisteredPrivacyPolicyExemptRoute(app, context)),
+        );
+        await next();
+    });
+    return app;
 }
 
-test("matches literal dots and dashes exactly", () => {
+async function isPublic(
+    app: AppRouter,
+    path: string,
+    method = "GET",
+): Promise<boolean> {
+    const response = await app.request(path, { method });
+    return response.headers.get(PUBLIC_HEADER) === "true";
+}
+
+async function isPrivacyExempt(app: AppRouter, path: string): Promise<boolean> {
+    const response = await app.request(path);
+    return response.headers.get(PRIVACY_EXEMPT_HEADER) === "true";
+}
+
+test("uses Hono matching for literal dots and dashes", async () => {
     const app = createTestApp();
     app.get(route("/favicon.ico").public(), (context) => context.text("icon"));
     app.get(route("/release-notes").public(), (context) =>
         context.text("notes"),
     );
 
-    expect(isRegisteredPublicRoute(app, "GET", "/favicon.ico")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/faviconXico")).toBe(false);
-    expect(isRegisteredPublicRoute(app, "GET", "/release-notes")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/releaseXnotes")).toBe(false);
+    expect(await isPublic(app, "/favicon.ico")).toBe(true);
+    expect(await isPublic(app, "/faviconXico")).toBe(false);
+    expect(await isPublic(app, "/release-notes")).toBe(true);
+    expect(await isPublic(app, "/releaseXnotes")).toBe(false);
 });
 
-test("matches encoded and multiple route parameters by segment", () => {
+test("uses Hono matching for encoded and multiple route parameters", async () => {
     const app = createTestApp();
     app.get(route("/files/:directory/:filename").public(), (context) =>
         context.text(context.req.param("filename")),
     );
 
-    expect(
-        isRegisteredPublicRoute(app, "GET", "/files/my%20docs/report.pdf"),
-    ).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/files/a%2Fb/report.pdf")).toBe(
-        true,
-    );
-    expect(
-        isRegisteredPublicRoute(app, "GET", "/files/my-docs/report.pdf"),
-    ).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/files/report.pdf")).toBe(
-        false,
-    );
-    expect(isRegisteredPublicRoute(app, "GET", "/files/a/b/report.pdf")).toBe(
-        false,
-    );
+    expect(await isPublic(app, "/files/my%20docs/report.pdf")).toBe(true);
+    expect(await isPublic(app, "/files/a%2Fb/report.pdf")).toBe(true);
+    expect(await isPublic(app, "/files/my-docs/report.pdf")).toBe(true);
+    expect(await isPublic(app, "/files/report.pdf")).toBe(false);
+    expect(await isPublic(app, "/files/a/b/report.pdf")).toBe(false);
 });
 
-test("protected routes win overlapping matches at equal or greater specificity", () => {
+test("uses Hono execution order for overlapping routes", async () => {
     const app = createTestApp();
     app.get(route("/accounts/:accountId").public(), (context) =>
         context.text("public account"),
@@ -77,30 +96,30 @@ test("protected routes win overlapping matches at equal or greater specificity",
     app.get(route("/accounts/settings"), (context) =>
         context.text("protected settings"),
     );
-    app.get(route("/reports/:publicId").public(), (context) =>
-        context.text("public report"),
-    );
     app.get(route("/reports/:protectedId"), (context) =>
         context.text("protected report"),
     );
-
-    expect(isRegisteredPublicRoute(app, "GET", "/accounts/example")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/accounts/settings")).toBe(
-        false,
+    app.get(route("/reports/:publicId").public(), (context) =>
+        context.text("public report"),
     );
-    expect(isRegisteredPublicRoute(app, "GET", "/reports/example")).toBe(false);
+
+    const accountResponse = await app.request("/accounts/settings");
+    expect(await accountResponse.text()).toBe("public account");
+    expect(accountResponse.headers.get(PUBLIC_HEADER)).toBe("true");
+
+    const reportResponse = await app.request("/reports/example");
+    expect(await reportResponse.text()).toBe("protected report");
+    expect(reportResponse.headers.get(PUBLIC_HEADER)).toBe("false");
 });
 
-test("public route declarations without handlers do not grant stale access", () => {
+test("public route declarations without handlers do not grant stale access", async () => {
     const app = createTestApp();
     const removedRoute = route("/removed/:id").public();
     app.get(route("/protected/:id"), (context) => context.text("protected"));
 
     expect(removedRoute.metadata.public).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/removed/example")).toBe(false);
-    expect(isRegisteredPublicRoute(app, "GET", "/protected/example")).toBe(
-        false,
-    );
+    expect(await isPublic(app, "/removed/example")).toBe(false);
+    expect(await isPublic(app, "/protected/example")).toBe(false);
 });
 
 test("typed routes attach every supported request method", async () => {
@@ -113,10 +132,10 @@ test("typed routes attach every supported request method", async () => {
     for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) {
         const response = await app.request("/methods", { method });
         expect(await response.text()).toBe(method);
+        expect(response.headers.get(PUBLIC_HEADER)).toBe("true");
     }
-    expect(isRegisteredPublicRoute(app, "GET", "/methods")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "HEAD", "/methods")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "GET", "/protected")).toBe(false);
+    expect(await isPublic(app, "/methods", "HEAD")).toBe(true);
+    expect(await isPublic(app, "/protected")).toBe(false);
 });
 
 test("native Hono route overloads remain available", async () => {
@@ -134,43 +153,41 @@ test("native Hono route overloads remain available", async () => {
     const nativeResponse = await app.request("/native");
     expect(await nativeResponse.text()).toBe("native");
     expect(nativeResponse.headers.get("X-Middleware")).toBe("true");
+    expect(nativeResponse.headers.get(PUBLIC_HEADER)).toBe("false");
     expect(await (await app.request("/current")).text()).toBe("current");
-    expect(isRegisteredPublicRoute(app, "GET", "/native")).toBe(false);
 });
 
-test("access metadata is independent for each method on the same route", () => {
+test("access metadata is independent for each method on the same route", async () => {
     const app = createTestApp();
     const publicEndpoint = route("/shared").public();
     const protectedEndpoint = route("/shared");
     app.get(publicEndpoint, (context) => context.text("public"));
     app.post(protectedEndpoint, (context) => context.text("protected"));
 
-    expect(isRegisteredPublicRoute(app, "GET", "/shared")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "HEAD", "/shared")).toBe(true);
-    expect(isRegisteredPublicRoute(app, "POST", "/shared")).toBe(false);
+    expect(await isPublic(app, "/shared")).toBe(true);
+    expect(await isPublic(app, "/shared", "HEAD")).toBe(true);
+    expect(await isPublic(app, "/shared", "POST")).toBe(false);
 });
 
-test("public asset routes are exempt from privacy acceptance", () => {
+test("public asset routes are exempt from privacy acceptance", async () => {
     const app = createTestApp();
     app.get(route("/logo.svg").publicAsset(), (context) =>
         context.text("logo"),
     );
     app.get(route("/about").public(), (context) => context.text("about"));
 
-    expect(isRegisteredPrivacyPolicyExemptRoute(app, "GET", "/logo.svg")).toBe(
-        true,
-    );
-    expect(isRegisteredPrivacyPolicyExemptRoute(app, "GET", "/about")).toBe(
-        false,
-    );
+    expect(await isPrivacyExempt(app, "/logo.svg")).toBe(true);
+    expect(await isPrivacyExempt(app, "/about")).toBe(false);
 });
 
-test("rejects route patterns outside the supported grammar", () => {
+test("supports Hono custom route patterns", async () => {
     const app = createTestApp();
 
-    expect(() =>
-        app.get(route("/files/:path{.+}"), (context) =>
-            context.text("unsupported"),
-        ),
-    ).toThrow(/Unsupported route pattern/);
+    app.get(route("/files/:path{.+}").public(), (context) =>
+        context.text(context.req.param("path")),
+    );
+
+    const response = await app.request("/files/reports/2026");
+    expect(await response.text()).toBe("reports/2026");
+    expect(response.headers.get(PUBLIC_HEADER)).toBe("true");
 });

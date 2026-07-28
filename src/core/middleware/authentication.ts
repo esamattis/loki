@@ -46,11 +46,7 @@ async function authenticateMiddleware(
     if (isPublicAssetPath(path)) return next();
 
     const ctx = getRequestContext(c);
-    const isPublicPath = isRegisteredPublicRoute(
-        ctx.appRouter,
-        c.req.method,
-        path,
-    );
+    const isPublicPath = isRegisteredPublicRoute(ctx.appRouter, c);
 
     if (Math.random() < 0.1) {
         const now = Math.floor(Date.now() / 1000);

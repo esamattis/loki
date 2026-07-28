@@ -27,19 +27,21 @@ Routes are protected by default. Add `.public()` for an endpoint that works
 without authentication. Add `.publicAsset()` only for a public asset that must
 also bypass privacy-policy acceptance.
 
-Route patterns accepted by the access-metadata matcher are `/`, static path
-segments, and named parameters such as `:entryUuid`. More advanced Hono route
-syntax is intentionally rejected.
+Access checks use Hono's already-computed matched routes, so access metadata
+follows the selected Hono router's matching behavior and route syntax. When
+route patterns overlap, the first method-specific route in Hono's execution
+order determines access. Routes registered through native Hono overloads do
+not carry access metadata and remain protected by default.
 
 ## Explicit registration
 
 Each route handler module exports `register(app)` for its own endpoints and
-uses `registerRoute`:
+passes typed route helpers to `AppRouter`:
 
 ```ts
 export function register(router: AppRouter): void {
-    registerRoute(router, "get", entries.index, renderIndex);
-    registerRoute(router, "post", entries.index, createEntry);
+    router.get(entries.index, renderIndex);
+    router.post(entries.index, createEntry);
 }
 ```
 
