@@ -2,11 +2,11 @@ import { acceptPrivacyPolicyIfRequired } from "./helpers";
 import path from "node:path";
 import { expect, test, type Page } from "./fixtures";
 import { openMainMenu, openManageLogbook } from "./helpers";
-import { formatCalendarDate, formatUnixDateTime } from "@/date-time";
+import { formatCalendarDate, formatUnixDateTime } from "@/core/date-time";
 import {
     createCalendarDurationFormatter,
     createNumberFormatter,
-} from "@/format";
+} from "@/app/format";
 
 const xmlFixturePath = path.join(
     import.meta.dirname,

@@ -1,0 +1,114 @@
+import { z } from "zod";
+import {
+    getRequestContext,
+    type HonoRequestContext,
+    type User,
+} from "@/core/create-app";
+import { FormActions, Input, NumberInput } from "@/core/components/form";
+import { ErrorList } from "@/core/components/feedback";
+import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
+import * as routes from "@/core/routes";
+
+/** Requires admin. */
+export function requireAdmin(c: HonoRequestContext): User | null {
+    const user = getRequestContext(c).getUser();
+    if (!user.admin) {
+        return null;
+    }
+    return user;
+}
+
+/** Validates invitation values. */
+export const InvitationSchema = z.object({
+    code: z
+        .string()
+        .trim()
+        .min(1, "Code is required")
+        .max(100, "Code is too long"),
+    count: z.coerce
+        .number()
+        .int("Count must be an integer")
+        .min(0, "Count must be 0 or greater"),
+});
+
+/** Describes invitation form values. */
+interface InvitationFormValues {
+    code?: string;
+    count?: string;
+}
+
+/**
+ * Provides the invitation form behavior.
+ *
+ * @param props.values - Value used to configure values.
+ * @param props.errors - Errors to display.
+ * @param props.submitLabel - Value used to configure submit label.
+ * @param props.codeReadOnly - Value used to configure code read only.
+ */
+export function InvitationForm(props: {
+    values?: InvitationFormValues;
+    errors?: string[];
+    submitLabel: string;
+    codeReadOnly?: boolean;
+}) {
+    const values = props.values ?? {};
+    return (
+        <form
+            method="post"
+            data-loki-confirm={
+                props.codeReadOnly ? "Edit Invitation" : "Add Invitation"
+            }
+            className="max-w-xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+        >
+            <RedirectBackAfterPost />
+            <ErrorList
+                errors={props.errors ?? []}
+                className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+            />
+            {props.codeReadOnly ? (
+                <div>
+                    <p className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Invitation code
+                    </p>
+                    <p className="mt-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                        {values.code}
+                    </p>
+                    <input type="hidden" name="code" value={values.code} />
+                </div>
+            ) : (
+                <Input
+                    name="code"
+                    label="Invitation code"
+                    required
+                    autofocus
+                    value={values.code}
+                />
+            )}
+            <NumberInput
+                name="count"
+                label="Remaining uses"
+                min="0"
+                required
+                value={values.count ?? "0"}
+            />
+            <FormActions
+                submitLabel={props.submitLabel}
+                cancelHref={routes.admin.index({})}
+            />
+        </form>
+    );
+}
+
+/** Returns invitation form values. */
+export function getInvitationFormValues(
+    formData: FormData,
+): InvitationFormValues {
+    function getValue(name: string): string {
+        const value = formData.get(name);
+        return typeof value === "string" ? value : "";
+    }
+    return {
+        code: getValue("code"),
+        count: getValue("count"),
+    };
+}

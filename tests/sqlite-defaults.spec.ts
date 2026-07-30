@@ -7,33 +7,43 @@ import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
     defaultSqliteDirectory,
-} from "../src/db-sqlite";
-import { createServerTimings } from "../src/server-timing";
+} from "../src/core/db-sqlite";
+import { createServerTimings } from "../src/core/server-timing";
 
 test("uses .local/share on Linux and macOS", () => {
     for (const platform of ["linux", "darwin"] as const) {
-        expect(defaultSqliteDirectory(platform, {}, "/home/example")).toBe(
-            "/home/example/.local/share/loki/sqlite",
-        );
+        expect(
+            defaultSqliteDirectory("example-product", {
+                platform,
+                environment: {},
+                home: "/home/example",
+            }),
+        ).toBe("/home/example/.local/share/example-product/sqlite");
     }
 });
 
 test("uses Windows local application data", () => {
     expect(
-        defaultSqliteDirectory(
-            "win32",
-            { LOCALAPPDATA: String.raw`C:\Users\Example\AppData\Local` },
-            String.raw`C:\Users\Example`,
-        ),
-    ).toBe(String.raw`C:\Users\Example\AppData\Local\Loki\sqlite`);
+        defaultSqliteDirectory("Example Product", {
+            platform: "win32",
+            environment: {
+                LOCALAPPDATA: String.raw`C:\Users\Example\AppData\Local`,
+            },
+            home: String.raw`C:\Users\Example`,
+        }),
+    ).toBe(String.raw`C:\Users\Example\AppData\Local\Example Product\sqlite`);
     expect(
-        defaultSqliteDirectory("win32", {}, String.raw`C:\Users\Example`),
+        defaultSqliteDirectory("Example Product", {
+            platform: "win32",
+            environment: {},
+            home: String.raw`C:\Users\Example`,
+        }),
     ).toBe(
         win32.join(
             String.raw`C:\Users\Example`,
             "AppData",
             "Local",
-            "Loki",
+            "Example Product",
             "sqlite",
         ),
     );

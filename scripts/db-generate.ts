@@ -6,8 +6,8 @@
  * This script fails generation if a new migration would drop a table that other
  * tables reference with ON DELETE CASCADE.
  */
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { $ } from "zx";
 
@@ -15,11 +15,12 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const migrationsDir = join(root, "drizzle");
 const $$ = $({ cwd: root, stdio: "inherit" });
 
-function listSqlFiles(): string[] {
-    return readdirSync(migrationsDir, { withFileTypes: true })
+export function listSqlFiles(directory = migrationsDir): string[] {
+    mkdirSync(directory, { recursive: true });
+    return readdirSync(directory, { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
         .map((entry) => join(entry.name, "migration.sql"))
-        .filter((path) => existsSync(join(migrationsDir, path)))
+        .filter((path) => existsSync(join(directory, path)))
         .sort();
 }
 
@@ -101,7 +102,12 @@ async function main(): Promise<void> {
     process.exit(1);
 }
 
-main().catch((error: unknown) => {
-    console.error(error);
-    process.exit(1);
-});
+if (
+    process.argv[1] &&
+    fileURLToPath(import.meta.url) === resolve(process.argv[1])
+) {
+    main().catch((error: unknown) => {
+        console.error(error);
+        process.exit(1);
+    });
+}

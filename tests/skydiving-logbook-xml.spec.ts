@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { parseSkydivingLogbookXml } from "@/route-handlers/logbook/transfer/skydiving-logbook-xml";
+import { parseSkydivingLogbookXml } from "@/app/logbook/transfer/skydiving-logbook-xml";
 
 test("XML import ignores empty catalog placeholders and rig collections", () => {
     const records = parseSkydivingLogbookXml(`

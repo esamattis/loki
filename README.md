@@ -44,6 +44,9 @@ pn install
 pn dev
 ```
 
+The reusable application infrastructure is documented in the
+[core feature guide](docs/core/README.md).
+
 ## End-to-end tests
 
 Run the Playwright end-to-end test suite:

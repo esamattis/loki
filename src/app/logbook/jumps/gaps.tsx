@@ -1,0 +1,176 @@
+import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
+import {
+    getRequestContext,
+    type AppRouter,
+    type HonoRequestContext,
+} from "@/core/create-app";
+import { isSafeRedirectPath } from "@/core/auth";
+import { Button, ButtonLink, NumberInput } from "@/core/components/form";
+import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
+import * as routes from "@/app/routes";
+import { jumps } from "@/app/schema";
+
+const MAX_MISSING_JUMP_LINKS = 10;
+
+export function MissingJumpCard(props: {
+    jumpNumbers: number[];
+    lowerJumpNumber: number;
+    upperJumpNumber: number;
+    returnTo: string;
+}) {
+    const gapCount = props.jumpNumbers.length;
+    const lowestMissing = Math.min(...props.jumpNumbers);
+    const highestMissing = Math.max(...props.jumpNumbers);
+    const title =
+        gapCount === 1
+            ? `Missing jump #${lowestMissing}`
+            : `Missing jumps #${lowestMissing} - #${highestMissing}`;
+    return (
+        <li className="col-span-full rounded-2xl border border-dashed border-indigo-300 bg-indigo-50/50 px-5 py-4 dark:border-indigo-800 dark:bg-indigo-950/20">
+            <div>
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                    {title}
+                </h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Add {gapCount === 1 ? "this jump" : "these jumps"} to fill
+                    the missing {gapCount === 1 ? "number" : "numbers"} in your
+                    logbook.
+                </p>
+                <div className="mt-3 flex flex-wrap items-end gap-2">
+                    {gapCount > MAX_MISSING_JUMP_LINKS ? (
+                        <form
+                            action={routes.logbook.jumps.new({}, {})}
+                            method="get"
+                            className="flex flex-wrap items-end gap-2"
+                        >
+                            <NumberInput
+                                name="jumpNumber"
+                                label="Jump number"
+                                min={String(lowestMissing)}
+                                max={String(highestMissing)}
+                                step="1"
+                                required
+                                value={String(lowestMissing)}
+                                className="w-36"
+                            />
+                            <Button type="submit">Add jump</Button>
+                        </form>
+                    ) : (
+                        props.jumpNumbers.map((jumpNumber) => (
+                            <ButtonLink
+                                href={routes.logbook.jumps.new(
+                                    {},
+                                    { jumpNumber: String(jumpNumber) },
+                                )}
+                                size="sm"
+                                key={jumpNumber}
+                            >
+                                Add jump #{jumpNumber}
+                            </ButtonLink>
+                        ))
+                    )}
+                </div>
+            </div>
+            <hr className="my-4 border-indigo-200 dark:border-indigo-900" />
+            <form action={routes.logbook.jumps.removeGaps({})} method="post">
+                <input
+                    type="hidden"
+                    name="lowerJumpNumber"
+                    value={String(props.lowerJumpNumber)}
+                />
+                <input
+                    type="hidden"
+                    name="upperJumpNumber"
+                    value={String(props.upperJumpNumber)}
+                />
+                <input type="hidden" name="back" value={props.returnTo} />
+                <ConfirmDangerButton
+                    label="Remove gaps"
+                    confirmLabel="Confirm remove gaps"
+                />
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    Renumbers jump #{props.upperJumpNumber} and every jump after
+                    it down by {gapCount}. No jump records will be deleted.
+                </p>
+            </form>
+        </li>
+    );
+}
+
+function parsePositiveInteger(value: FormDataEntryValue | null) {
+    if (typeof value !== "string" || !/^\d+$/.test(value)) {
+        return undefined;
+    }
+    const number = Number(value);
+    return Number.isSafeInteger(number) && number > 0 ? number : undefined;
+}
+
+export async function handleRemoveJumpGaps(c: HonoRequestContext) {
+    const formData = await c.req.formData();
+    const lowerJumpNumber = parsePositiveInteger(
+        formData.get("lowerJumpNumber"),
+    );
+    const upperJumpNumber = parsePositiveInteger(
+        formData.get("upperJumpNumber"),
+    );
+    if (
+        lowerJumpNumber === undefined ||
+        upperJumpNumber === undefined ||
+        upperJumpNumber <= lowerJumpNumber + 1
+    ) {
+        return c.text("Invalid jump number gap.", 400);
+    }
+
+    const db = getRequestContext(c).db;
+    const userUuid = getRequestContext(c).getUser().uuid;
+    const boundaryRows = await db
+        .select({ jumpNumber: jumps.jumpNumber })
+        .from(jumps)
+        .where(
+            and(
+                eq(jumps.userUuid, userUuid),
+                gte(jumps.jumpNumber, lowerJumpNumber),
+                lte(jumps.jumpNumber, upperJumpNumber),
+            ),
+        )
+        .orderBy(asc(jumps.jumpNumber));
+    if (
+        boundaryRows.length !== 2 ||
+        boundaryRows[0]?.jumpNumber !== lowerJumpNumber ||
+        boundaryRows[1]?.jumpNumber !== upperJumpNumber
+    ) {
+        return c.text("Jump number gap no longer exists.", 400);
+    }
+
+    const gapCount = upperJumpNumber - lowerJumpNumber - 1;
+    await db.batch([
+        db
+            .update(jumps)
+            .set({ jumpNumber: sql`-${jumps.jumpNumber}` })
+            .where(
+                and(
+                    eq(jumps.userUuid, userUuid),
+                    gte(jumps.jumpNumber, upperJumpNumber),
+                ),
+            ),
+        db
+            .update(jumps)
+            .set({ jumpNumber: sql`-${jumps.jumpNumber} - ${gapCount}` })
+            .where(
+                and(
+                    eq(jumps.userUuid, userUuid),
+                    lte(jumps.jumpNumber, -upperJumpNumber),
+                ),
+            ),
+    ]);
+    const back = formData.get("back");
+    const returnTo =
+        typeof back === "string" && isSafeRedirectPath(back)
+            ? back
+            : routes.logbook.index({});
+    return c.redirect(returnTo);
+}
+
+export function register(app: AppRouter) {
+    app.post(routes.logbook.jumps.removeGaps, handleRemoveJumpGaps);
+}

@@ -2,10 +2,11 @@ import { readMigrationFiles } from "drizzle-orm/migrator";
 import { join, relative, resolve, sep } from "node:path";
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { $ } from "zx";
+import { appConfig } from "../src/app/config.ts";
 
 const root = resolve(import.meta.dirname, "..");
 const outputDirectory = join(root, "dist-executable");
-const executableName = process.platform === "win32" ? "loki.exe" : "loki";
+const executableName = appConfig.executableName;
 const executablePath = join(outputDirectory, executableName);
 const $$ = $({
     cwd: root,
@@ -80,7 +81,7 @@ async function main(): Promise<void> {
     }
     const smokeTestPath = `./${relative(root, executablePath).split(sep).join("/")}`;
     const $smokeTest = $$({
-        env: { ...process.env, LOKI_SMOKE_TEST: "1" },
+        env: { ...process.env, APP_EXECUTABLE_SMOKE_TEST: "1" },
     });
     await $smokeTest`${smokeTestPath}`;
     console.log(`Executable built: ${executablePath}`);

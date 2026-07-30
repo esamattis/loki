@@ -1,4 +1,5 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig, type PluginOption } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
 import tailwindcss from "@tailwindcss/vite";
@@ -7,7 +8,7 @@ import { buildInfoDefine } from "./vite.build-info";
 export default defineConfig({
     resolve: {
         alias: {
-            "@": new URL("./src", import.meta.url).pathname,
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
     },
     build: {

@@ -28,7 +28,10 @@ test("shows open source and self-hosting information", async ({ page }) => {
     await page.locator('input[name="password"]').fill("test-admin-password");
     await page.getByRole("button", { name: "Log in" }).click();
     await openMainMenu(page);
-    await page.getByRole("link", { name: "About", exact: true }).click();
+    await page
+        .locator('[id^="dropdown-menu-"]')
+        .getByRole("link", { name: "About", exact: true })
+        .click();
 
     await expect(page).toHaveURL("/about");
     await expect(page.getByLabel("Build information")).toBeVisible();

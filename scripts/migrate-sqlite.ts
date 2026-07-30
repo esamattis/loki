@@ -1,9 +1,16 @@
 import { resolve } from "node:path";
-import { createSqliteDatabase, resolveSqlitePath } from "../src/db-sqlite.ts";
-import { migrateSqlite } from "../src/migrate-sqlite.ts";
+import {
+    createSqliteDatabase,
+    resolveSqlitePath,
+} from "../src/core/db-sqlite.ts";
+import { migrateSqlite } from "../src/core/migrate-sqlite.ts";
+import { appConfig } from "../src/app/config.ts";
 
 function main(): void {
-    const path = resolveSqlitePath();
+    const path = resolveSqlitePath(
+        appConfig.storageDirectoryName(),
+        appConfig.sqliteFilename,
+    );
     const { path: absolutePath, sqlite } = createSqliteDatabase(path);
     try {
         migrateSqlite(sqlite, resolve("drizzle"));

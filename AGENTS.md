@@ -2,11 +2,25 @@
 
 Use Hono.js with JSX and server-side rendering (SSR) only.
 
+# Architecture Boundary
+
+Core never imports app; app imports and configures core.
+
+- Reusable application infrastructure belongs under `src/core`.
+- Concrete application behavior belongs under `src/app`. In this repository,
+  `src/app` is Loki and its logbook.
+- `src/core` must not directly or indirectly import `@/app`.
+- `src/app/index.tsx` is the concrete composition root. It creates and configures
+  the core, then registers the application's routes and behavior.
+- When core needs application-specific behavior, add the smallest direct input
+  to the core API and provide it from app. Do not add feature registries,
+  dependency lookups, or imports from core back into app.
+
 # Components And Styling
 
 Never destructure component props; use `props.propName`.
 
-Use `useAppContext()` in components instead of passing app context values through props.
+Use `useRequestContext()` in components instead of passing app context values through props.
 
 Use Tailwind CSS for styling. Combine conditional classes with `clsx`.
 
@@ -20,7 +34,7 @@ For vanilla CSS, use the `Style` helper:
 </Style>
 ```
 
-Import `Style` from `@/components/style` and `Script` from `@/components/script`.
+Import `Style` from `@/core/components/style` and `Script` from `@/core/components/script`.
 
 # Browser Scripts
 
@@ -53,13 +67,13 @@ return (
 );
 ```
 
-Use `$select` from `@/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Use `$select.el(selector, Constructor)`, `$select.all(selector)`, and `$select.id(id, Constructor)`. Pass a root as the third argument for scoped queries. Use `$select.elOrNull` and `$select.idOrNull` when absence is valid. Pass the complete `$select` object to `Script` with `$deps={[$select]}`, never individual methods.
+Use `$select` from `@/core/utils` instead of calling `querySelector`, `querySelectorAll`, or `getElementById` directly. Use `$select.el(selector, Constructor)`, `$select.all(selector)`, and `$select.id(id, Constructor)`. Pass a root as the third argument for scoped queries. Use `$select.elOrNull` and `$select.idOrNull` when absence is valid. Pass the complete `$select` object to `Script` with `$deps={[$select]}`, never individual methods.
 
 Use `$assertElement(el, typeclass)` for elements obtained through other APIs. Never use type casts or type arguments such as `el.closest<HTMLElement>("[data-loki-tooltip]");`.
 
 Functions prefixed with `$` must be executable in the browser.
 
-When creating more than one dom element use the $renderTemplate helper from `@/utils/render-template`
+When creating more than one dom element use the $renderTemplate helper from `@/core/utils/render-template`
 
 # Code Conventions
 
@@ -67,7 +81,18 @@ Write named functions with the `function` keyword. Use arrow functions only for 
 
 Write all UI text in English.
 
-Use the `@/` alias for imports from `src` (for example, `@/components/feedback`) instead of relative paths.
+Use the `@/` alias for imports from `src` (for example, `@/core/components/feedback`) instead of relative paths.
+
+# Documentation
+
+Every module-level declaration in `src/core`, including non-exported classes,
+types, interfaces, functions, and variables, must have a JSDoc doc comment.
+Every core class constructor, method, getter, setter, and overload must also
+have a JSDoc doc comment.
+
+Document all core components, their props, and helper functions. Describe
+purpose, important props (via `@param props.name`), and any usage constraints or
+caveats. Keep comments accurate when behavior changes.
 
 # Forms
 
@@ -78,18 +103,12 @@ Opt saveable edit forms into unsaved-change tracking with `data-loki-confirm="Ed
 ## Return Navigation
 
 For form return navigation, use `RedirectBackAfterPost` and
-`IgnoreReturnRoute` from `@/components/return-after-form-post`; follow their
+`IgnoreReturnRoute` from `@/core/components/return-after-form-post`; follow their
 component doc comments.
-
-# Terminology
-
-"Jump items" are gear, locations, aircraft, and jump types assignable to a jump.
 
 # General guides
 
 Never use git commands unless explicitly instructed.
-
-Never use subagents unless explicitly instructed.
 
 # Dependency Patches
 
@@ -112,6 +131,10 @@ Comment-only changes do not require rerunning tests.
 
 Note that this does automatic prettier formatting.
 
+For visual changes, test user-facing functionality instead of exact visual
+details. Do not add tests for specific spacing, divider counts, icon markup, or
+other presentation-only implementation details.
+
 For local D1 access in Playwright tests, use `executePlaywrightDb` and
 `queryPlaywrightDb` from `tests/helpers.ts`. Do not reimplement wrangler D1
 commands in individual specs.
@@ -129,12 +152,12 @@ If a file exceeds the lint line limit:
 
 # Route Helpers
 
-Use the nested helpers in `src/routes.tsx` for every internal URL and route
-parameter. They define the route-handler file layout; see that module's comment.
+Use the nested helpers in `src/core/routes.ts` and `src/app/routes.ts` for every
+internal URL and route parameter.
 
 Each route handler exports `register(app)` for only its own endpoints. Register
-all handlers explicitly in `src/app/register-routes.ts`; never use side-effect
-imports for registration.
+all core handlers in `src/core/register-routes.ts` and concrete handlers in
+`src/app/register-routes.ts`; never use side-effect imports for registration.
 
 # Scripts
 

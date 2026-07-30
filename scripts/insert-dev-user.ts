@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
 import { getPlatformProxy } from "wrangler";
-import { DEFAULT_USER_OPTIONS_JSON } from "../src/options.ts";
-import { users } from "../src/schema.ts";
+import { appConfig } from "../src/app/config.ts";
+import { users } from "../src/core/schema.ts";
 
 const username = "developer";
 const displayName = "Developer User";
@@ -76,7 +76,7 @@ async function main(): Promise<void> {
                     displayName,
                     password: passwordHash,
                     email,
-                    options: DEFAULT_USER_OPTIONS_JSON,
+                    options: appConfig.defaultUserOptionsJson,
                     admin: true,
                 })
                 .run();

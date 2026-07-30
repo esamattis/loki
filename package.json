@@ -29,11 +29,12 @@
         "test:e2e": "playwright test",
         "test:executable": "$npm_execpath run build:executable && playwright test --config playwright.executable.config.ts",
         "test:tsc": "tsc",
+        "test:boundary": "node tests/core-boundary.ts && node scripts/check-core-boundary.ts",
         "prettier-write": "prettier --write .",
         "prettier-check": "prettier --check .",
         "lint": "oxlint",
         "lint:fix": "oxlint --fix",
-        "test": "$npm_execpath run prettier-write && $npm_execpath run prettier-check && $npm_execpath run lint && $npm_execpath run test:tsc && $npm_execpath run test:e2e && $npm_execpath run test:executable"
+        "test": "$npm_execpath run prettier-write && $npm_execpath run prettier-check && $npm_execpath run lint && $npm_execpath run test:boundary && $npm_execpath run test:tsc && $npm_execpath run test:e2e && $npm_execpath run test:executable"
     },
     "dependencies": {
         "@ai-sdk/openai": "^4.0.11",

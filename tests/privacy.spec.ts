@@ -14,10 +14,16 @@ async function registerUnacceptedUser(page: Page, username: string) {
 test("shows terms & privacy policy and footer link", async ({ page }) => {
     await page.goto("/");
 
-    await page
-        .getByRole("navigation", { name: "Footer" })
-        .getByRole("link", { name: "Terms & Privacy" })
-        .click();
+    const footer = page.getByRole("navigation", { name: "Footer" });
+    await expect(footer.getByRole("link", { name: "Home" })).toHaveAttribute(
+        "href",
+        "/",
+    );
+    await expect(footer.getByRole("link", { name: "About" })).toHaveAttribute(
+        "href",
+        "/about",
+    );
+    await footer.getByRole("link", { name: "Terms & Privacy" }).click();
 
     await expect(page).toHaveURL("/privacy");
     await expect(
@@ -35,6 +41,17 @@ test("shows terms & privacy policy and footer link", async ({ page }) => {
     await expect(
         page.getByRole("heading", { name: "Where data is stored" }),
     ).toBeVisible();
+    for (const heading of [
+        "Terms",
+        "Privacy",
+        "Retention and rights",
+        "Self-hosted instances",
+        "Acceptance and changes",
+    ]) {
+        await expect(
+            page.getByRole("heading", { name: heading, exact: true }),
+        ).toBeVisible();
+    }
     await expect(
         page.getByText("Cloudflare D1", { exact: false }),
     ).toBeVisible();
@@ -50,6 +67,18 @@ test("shows terms & privacy policy and footer link", async ({ page }) => {
     await expect(
         page.getByText("required login state handling", { exact: false }),
     ).toBeVisible();
+    await expect(
+        page.getByText("Esa-Matti Suuronen", { exact: true }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("OpenAI under OpenAI’s terms", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("including the GDPR", { exact: false }),
+    ).toBeVisible();
+    await expect(
+        page.getByText("Last updated: 23 July 2026", { exact: true }),
+    ).toBeVisible();
 });
 
 test("requires hosted users to accept the terms & privacy policy", async ({
@@ -59,6 +88,24 @@ test("requires hosted users to accept the terms & privacy policy", async ({
     await registerUnacceptedUser(page, username);
 
     await expect(page).toHaveURL("/privacy?back=%2Flogbook");
+    await page.goto("/about");
+    await expect(page).toHaveURL("/privacy?back=%2Fabout");
+    await expect(
+        (
+            await page.request.get("/logo.svg", {
+                maxRedirects: 0,
+            })
+        ).status(),
+    ).toBe(200);
+    await expect(
+        (
+            await page.request.get("/sw.js", {
+                maxRedirects: 0,
+            })
+        ).status(),
+    ).toBe(200);
+    await page.goto("/privacy");
+    await expect(page).toHaveURL("/privacy");
     await expect(
         page.getByText(
             "You must accept the terms & privacy policy to continue using Loki.",
@@ -112,7 +159,7 @@ test("offers account deletion instead of policy acceptance", async ({
     const deleteButton = page
         .locator("form")
         .filter({
-            has: page.locator('input[name="action"][value="delete"]'),
+            has: page.locator('button[name="action"][value="delete"]'),
         })
         .getByRole("button");
     await deleteButton.click();

@@ -7,29 +7,29 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { isSea } from "node:sea";
-import { app } from "@/app/app";
-import { registerRoutes } from "@/app/register-routes";
+import { appRouter } from "@/app/index";
 import {
     createSqliteDatabase,
     createSqliteDrizzleDatabase,
     defaultSqliteDirectory,
-} from "@/db-sqlite";
-import { migrateSqlite } from "@/migrate-sqlite";
-import { registerSeaStaticAssets } from "@/node-sea";
-import { buildTitle } from "@/build-info";
+} from "@/core/db-sqlite";
+import { migrateSqlite } from "@/core/migrate-sqlite";
+import { registerSeaStaticAssets } from "@/core/node-sea";
+import { buildTitle } from "@/core/build-info";
+import { appConfig } from "@/app/config";
 
 const DEFAULT_PORT = 8787;
 const DEFAULT_PORT_RETRIES = 5;
 
 function registerStaticAssets(): void {
-    if (registerSeaStaticAssets(app)) {
+    if (registerSeaStaticAssets(appRouter)) {
         return;
     }
 
     const distClientRoot = resolve("dist/client");
-    app.use("/assets/*", serveStatic({ root: distClientRoot }));
-    app.use("/*", serveStatic({ root: resolve("public") }));
-    app.use("/*", serveStatic({ root: distClientRoot }));
+    appRouter.use("/assets/*", serveStatic({ root: distClientRoot }));
+    appRouter.use("/*", serveStatic({ root: resolve("public") }));
+    appRouter.use("/*", serveStatic({ root: distClientRoot }));
 }
 
 function openBrowser(url: string): void {
@@ -140,10 +140,8 @@ async function startServer(args: {
     port: number;
     sqliteDir: string;
 }): Promise<void> {
-    registerRoutes(app);
-
     const { sqlite, path } = createSqliteDatabase(
-        join(resolve(args.sqliteDir), "loki.sqlite"),
+        join(resolve(args.sqliteDir), appConfig.sqliteFilename),
     );
     const selfContained = isSea();
     migrateSqlite(sqlite);
@@ -155,7 +153,7 @@ async function startServer(args: {
 
     const server = createAdaptorServer({
         fetch(request, env) {
-            return app.fetch(request, {
+            return appRouter.fetch(request, {
                 ...env,
                 APP_DB_FACTORY: (timings) =>
                     createSqliteDrizzleDatabase(sqlite, timings),
@@ -169,7 +167,9 @@ async function startServer(args: {
         retries,
     });
     const url = `http://${info.address}:${info.port}`;
-    console.log(`Self-hosted Loki - Skydiving Logbook listening on ${url}`);
+    console.log(
+        `Self-hosted ${appRouter.appOptions.title} listening on ${url}`,
+    );
     console.log(`SQLite database: ${path}`);
     if (selfContained && !args.noOpen && hasGraphicalSession()) {
         openBrowser(url);
@@ -177,9 +177,9 @@ async function startServer(args: {
 }
 
 function runSmokeTest(): void {
-    const directory = mkdtempSync(join(tmpdir(), "loki-smoke-test-"));
+    const directory = mkdtempSync(join(tmpdir(), "app-executable-smoke-"));
     try {
-        const { sqlite } = createSqliteDatabase(join(directory, "loki.sqlite"));
+        const { sqlite } = createSqliteDatabase(join(directory, "app.sqlite"));
         try {
             migrateSqlite(sqlite);
             sqlite.exec(
@@ -201,9 +201,11 @@ function runSmokeTest(): void {
 }
 
 const cli = command({
-    name: "loki",
-    version: buildTitle,
-    description: "Run Loki - Skydiving Logbook with SQLite",
+    name: appRouter.appOptions.name
+        .toLowerCase()
+        .replaceAll(/[^a-z0-9-]/g, "-"),
+    version: buildTitle(appConfig.buildName),
+    description: `Run ${appRouter.appOptions.title} with SQLite`,
     args: {
         port: option({
             long: "port",
@@ -224,14 +226,15 @@ const cli = command({
         sqliteDir: option({
             long: "sqlite-dir",
             type: string,
-            defaultValue: defaultSqliteDirectory,
-            description: "Directory containing loki.sqlite",
+            defaultValue: () =>
+                defaultSqliteDirectory(appConfig.storageDirectoryName()),
+            description: `Directory containing ${appConfig.sqliteFilename}`,
         }),
     },
     handler: startServer,
 });
 
-if (process.env.LOKI_SMOKE_TEST === "1") {
+if (process.env.APP_EXECUTABLE_SMOKE_TEST === "1") {
     runSmokeTest();
 } else {
     run(cli, process.argv.slice(2)).catch((error: unknown) => {

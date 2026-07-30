@@ -1,0 +1,40 @@
+import { useRequestContext } from "@/core/create-app";
+/** Stores the image width used by this module. */
+const IMAGE_WIDTH = "1200";
+/** Stores the image height used by this module. */
+const IMAGE_HEIGHT = "630";
+/** Stores the image type used by this module. */
+const IMAGE_TYPE = "image/png";
+
+/**
+ * Open Graph and Twitter card meta tags for the current page.
+ *
+ * @param props.title - Page title used for `og:title` / `twitter:title`.
+ * @param props.url - Request URL used to build absolute page and image URLs.
+ */
+export function SocialMeta(props: { title: string; url: URL }) {
+    const pageUrl = `${props.url.origin}${props.url.pathname}`;
+    const options = useRequestContext().appOptions;
+    const imageUrl = `${props.url.origin}${options.socialImagePath}`;
+
+    return (
+        <>
+            <meta name="description" content={options.description} />
+            <meta property="og:type" content="website" />
+            <meta property="og:site_name" content={options.title} />
+            <meta property="og:title" content={props.title} />
+            <meta property="og:description" content={options.description} />
+            <meta property="og:url" content={pageUrl} />
+            <meta property="og:image" content={imageUrl} />
+            <meta property="og:image:type" content={IMAGE_TYPE} />
+            <meta property="og:image:width" content={IMAGE_WIDTH} />
+            <meta property="og:image:height" content={IMAGE_HEIGHT} />
+            <meta property="og:image:alt" content={options.socialImageAlt} />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={props.title} />
+            <meta name="twitter:description" content={options.description} />
+            <meta name="twitter:image" content={imageUrl} />
+            <meta name="twitter:image:alt" content={options.socialImageAlt} />
+        </>
+    );
+}

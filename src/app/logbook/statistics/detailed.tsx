@@ -1,0 +1,726 @@
+import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
+import clsx from "clsx";
+import {
+    getRequestContext,
+    useNumberFormatter,
+    type AppRouter,
+    type HonoRequestContext,
+} from "@/core/create-app";
+import { lokiFormatters } from "@/app/formatters";
+import { buttonClassName } from "@/core/components/form";
+import * as routes from "@/app/routes";
+import {
+    aircrafts,
+    gear,
+    jumps,
+    jumpsToAircrafts,
+    jumpsToGear,
+    jumpsToJumpTypes,
+    jumpTypes,
+    locations,
+} from "@/app/schema";
+import { AppPage } from "@/core/app-page";
+import { formatDuration } from "@/core/utils/format-duration";
+import {
+    fetchRecordStatistics,
+    RecordJumps,
+    type RecordJump,
+    type RecordPeriod,
+} from "@/app/logbook/statistics/detailed/record-jumps";
+
+function SummaryCard(props: { label: string; value: string }) {
+    return (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {props.label}
+            </dt>
+            <dd className="mt-2 text-3xl font-bold tracking-tight text-slate-900 tabular-nums dark:text-slate-100">
+                {props.value}
+            </dd>
+        </div>
+    );
+}
+
+interface StatisticsItem {
+    uuid: string;
+    name: string;
+    archived: boolean;
+    previousJumpCount: number;
+    recordedJumpCount: number;
+    href: string;
+}
+
+function getTotalJumpCount(item: StatisticsItem): number {
+    return item.previousJumpCount + item.recordedJumpCount;
+}
+
+function compareStatisticsItems(
+    first: StatisticsItem,
+    second: StatisticsItem,
+): number {
+    const countDifference =
+        getTotalJumpCount(second) - getTotalJumpCount(first);
+    return countDifference || first.name.localeCompare(second.name);
+}
+
+function StatisticsCount(props: {
+    item: StatisticsItem;
+    filteredByYear: boolean;
+}) {
+    const formatNumber = useNumberFormatter();
+    const showRecordedCount =
+        !props.filteredByYear && props.item.previousJumpCount > 0;
+    const count = props.filteredByYear
+        ? props.item.recordedJumpCount
+        : getTotalJumpCount(props.item);
+
+    return (
+        <span
+            className={clsx(
+                "items-baseline justify-end",
+                props.filteredByYear
+                    ? "inline-flex"
+                    : "inline-grid grid-cols-[auto_7ch] gap-1",
+            )}
+        >
+            <span
+                data-loki-tooltip={
+                    props.filteredByYear
+                        ? "Usage count from recorded jumps"
+                        : "Total usage count, including previous usage"
+                }
+            >
+                {formatNumber(count)}
+            </span>
+            {showRecordedCount && (
+                <span
+                    className="font-normal text-slate-400 dark:text-slate-500"
+                    data-loki-tooltip="Usage count from recorded jumps"
+                >
+                    ({formatNumber(props.item.recordedJumpCount)})
+                </span>
+            )}
+        </span>
+    );
+}
+
+function YearNavigationBar(props: {
+    year: number | undefined;
+    availableYears: number[];
+    previousYear: number | undefined;
+    nextYear: number | undefined;
+}) {
+    const allYearsHref = routes.logbook.statistics.detailed({}, {});
+    const sortedAscending = [...props.availableYears].sort((a, b) => a - b);
+
+    function linkClass(active: boolean): string {
+        return buttonClassName({
+            variant: "secondary",
+            size: "sm",
+            className: active
+                ? "border-indigo-500 bg-indigo-50 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/40"
+                : "text-slate-600 dark:text-slate-400",
+        });
+    }
+
+    function navLinkClass(enabled: boolean): string {
+        return buttonClassName({
+            variant: "secondary",
+            size: "sm",
+            className: enabled
+                ? "gap-1"
+                : "pointer-events-none gap-1 border-slate-100 bg-slate-50 text-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-700",
+        });
+    }
+
+    return (
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+                <div className="flex items-center gap-2">
+                    <a
+                        href={
+                            props.previousYear !== undefined
+                                ? routes.logbook.statistics.detailed(
+                                      {},
+                                      {
+                                          year: props.previousYear,
+                                      },
+                                  )
+                                : undefined
+                        }
+                        aria-disabled={props.previousYear === undefined}
+                        className={navLinkClass(
+                            props.previousYear !== undefined,
+                        )}
+                    >
+                        ← {props.previousYear ?? "—"}
+                    </a>
+                    <a
+                        href={
+                            props.nextYear !== undefined
+                                ? routes.logbook.statistics.detailed(
+                                      {},
+                                      {
+                                          year: props.nextYear,
+                                      },
+                                  )
+                                : undefined
+                        }
+                        aria-disabled={props.nextYear === undefined}
+                        className={navLinkClass(props.nextYear !== undefined)}
+                    >
+                        {props.nextYear ?? "—"} →
+                    </a>
+                    <a
+                        href={allYearsHref}
+                        className={linkClass(props.year === undefined)}
+                    >
+                        All years
+                    </a>
+                </div>
+            </div>
+            {sortedAscending.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1.5 border-t border-slate-200 pt-3 dark:border-slate-800">
+                    {sortedAscending.map((availableYear) => (
+                        <a
+                            key={availableYear}
+                            href={routes.logbook.statistics.detailed(
+                                {},
+                                {
+                                    year: availableYear,
+                                },
+                            )}
+                            className={linkClass(props.year === availableYear)}
+                        >
+                            {availableYear}
+                        </a>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function StatisticsSection(props: {
+    title: string;
+    items: StatisticsItem[];
+    filteredByYear: boolean;
+}) {
+    return (
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex items-baseline justify-between gap-4 border-b border-slate-200 px-5 py-4 dark:border-slate-800">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {props.title}
+                </h2>
+                <span className="text-sm text-slate-400 dark:text-slate-500">
+                    {props.items.length} items
+                </span>
+            </div>
+            {props.items.length === 0 ? (
+                <p className="px-5 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                    No {props.title.toLowerCase()} yet.
+                </p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-800">
+                        <thead className="bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500 dark:bg-slate-950/50 dark:text-slate-400">
+                            <tr>
+                                <th scope="col" className="px-5 py-3">
+                                    Item
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="px-5 py-3 text-right"
+                                >
+                                    {props.filteredByYear ? (
+                                        "Jumps"
+                                    ) : (
+                                        <span className="inline-grid grid-cols-[auto_7ch] gap-1">
+                                            <span>Total jumps</span>
+                                        </span>
+                                    )}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {props.items.map((item) => (
+                                <tr key={item.uuid}>
+                                    <td className="px-5 py-3.5 font-medium text-slate-900 dark:text-slate-100">
+                                        <a
+                                            href={item.href}
+                                            className="transition hover:text-indigo-600 hover:underline dark:hover:text-indigo-400"
+                                        >
+                                            {item.name}
+                                        </a>
+                                        {item.archived && (
+                                            <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                                Archived
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-5 py-3.5 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                                        <StatisticsCount
+                                            item={item}
+                                            filteredByYear={
+                                                props.filteredByYear
+                                            }
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </section>
+    );
+}
+
+function toStatisticsItems(
+    rows: Array<{
+        uuid: string;
+        name: string;
+        archived: boolean;
+        previousJumpCount: number;
+        recordedJumpCount: number;
+    }>,
+    getHref: (uuid: string) => string,
+): StatisticsItem[] {
+    return rows
+        .map((row) => ({ ...row, href: getHref(row.uuid) }))
+        .sort(compareStatisticsItems);
+}
+
+function parseYear(value: unknown): number | undefined {
+    if (value === undefined || value === null || value === "") {
+        return undefined;
+    }
+    const year = Number(value);
+    if (!Number.isInteger(year) || year < 1 || year > 9999) {
+        return undefined;
+    }
+    return year;
+}
+
+interface DetailedStatisticsResult {
+    locationRows: StatisticsItemRow[];
+    aircraftRows: StatisticsItemRow[];
+    gearRows: StatisticsItemRow[];
+    jumpTypeRows: StatisticsItemRow[];
+    years: number[];
+    totalJumps: number;
+    totalFreefallTime: number;
+    totalFreefallDistance: number;
+    longestFreefall: RecordJump | undefined;
+    longestFreefallDistance: RecordJump | undefined;
+    highestExit: RecordJump | undefined;
+    lowestExit: RecordJump | undefined;
+    highestOpening: RecordJump | undefined;
+    lowestOpening: RecordJump | undefined;
+    fastestAverageSpeed: RecordJump | undefined;
+    slowestAverageSpeed: RecordJump | undefined;
+    mostJumpsDay: RecordPeriod | undefined;
+    mostJumpsWeek: RecordPeriod | undefined;
+    mostJumpsMonth: RecordPeriod | undefined;
+}
+
+interface StatisticsItemRow {
+    uuid: string;
+    name: string;
+    archived: boolean;
+    previousJumpCount: number;
+    recordedJumpCount: number;
+}
+
+async function fetchTotalJumps(config: {
+    db: ReturnType<typeof getRequestContext>["db"];
+    userUuid: string;
+    yearCondition: ReturnType<typeof and> | undefined;
+}): Promise<number> {
+    const [row] = await config.db
+        .select({
+            totalJumps: config.yearCondition
+                ? sql<number>`count(*)`
+                : sql<number>`coalesce(max(${jumps.jumpNumber}), 0)`,
+        })
+        .from(jumps)
+        .where(
+            config.yearCondition
+                ? and(eq(jumps.userUuid, config.userUuid), config.yearCondition)
+                : eq(jumps.userUuid, config.userUuid),
+        );
+    return row?.totalJumps ?? 0;
+}
+
+function fetchStatisticsRows(
+    db: ReturnType<typeof getRequestContext>["db"],
+    userUuid: string,
+    joinCondition: (base: ReturnType<typeof and>) => ReturnType<typeof and>,
+) {
+    return Promise.all([
+        db
+            .select({
+                uuid: locations.uuid,
+                name: locations.name,
+                archived: locations.archived,
+                previousJumpCount: locations.previousJumpCount,
+                recordedJumpCount: sql<number>`count(${jumps.uuid})`,
+            })
+            .from(locations)
+            .leftJoin(
+                jumps,
+                joinCondition(
+                    and(
+                        eq(locations.uuid, jumps.locationUuid),
+                        eq(jumps.userUuid, userUuid),
+                    ),
+                ),
+            )
+            .where(eq(locations.userUuid, userUuid))
+            .groupBy(locations.uuid)
+            .orderBy(asc(locations.name)),
+        db
+            .select({
+                uuid: aircrafts.uuid,
+                name: aircrafts.name,
+                archived: aircrafts.archived,
+                previousJumpCount: aircrafts.previousJumpCount,
+                recordedJumpCount: sql<number>`count(${jumps.uuid})`,
+            })
+            .from(aircrafts)
+            .leftJoin(
+                jumpsToAircrafts,
+                eq(aircrafts.uuid, jumpsToAircrafts.aircraftUuid),
+            )
+            .leftJoin(
+                jumps,
+                joinCondition(
+                    and(
+                        eq(jumpsToAircrafts.jumpUuid, jumps.uuid),
+                        eq(jumps.userUuid, userUuid),
+                    ),
+                ),
+            )
+            .where(eq(aircrafts.userUuid, userUuid))
+            .groupBy(aircrafts.uuid)
+            .orderBy(asc(aircrafts.name)),
+        db
+            .select({
+                uuid: gear.uuid,
+                name: gear.name,
+                archived: gear.archived,
+                previousJumpCount: gear.previousUsageCount,
+                recordedJumpCount: sql<number>`count(${jumps.uuid})`,
+            })
+            .from(gear)
+            .leftJoin(jumpsToGear, eq(gear.uuid, jumpsToGear.gearUuid))
+            .leftJoin(
+                jumps,
+                joinCondition(
+                    and(
+                        eq(jumpsToGear.jumpUuid, jumps.uuid),
+                        eq(jumps.userUuid, userUuid),
+                    ),
+                ),
+            )
+            .where(eq(gear.userUuid, userUuid))
+            .groupBy(gear.uuid)
+            .orderBy(asc(gear.name)),
+        db
+            .select({
+                uuid: jumpTypes.uuid,
+                name: jumpTypes.name,
+                archived: jumpTypes.archived,
+                previousJumpCount: jumpTypes.previousUsageCount,
+                recordedJumpCount: sql<number>`count(${jumps.uuid})`,
+            })
+            .from(jumpTypes)
+            .leftJoin(
+                jumpsToJumpTypes,
+                eq(jumpTypes.uuid, jumpsToJumpTypes.jumpTypeUuid),
+            )
+            .leftJoin(
+                jumps,
+                joinCondition(
+                    and(
+                        eq(jumpsToJumpTypes.jumpUuid, jumps.uuid),
+                        eq(jumps.userUuid, userUuid),
+                    ),
+                ),
+            )
+            .where(eq(jumpTypes.userUuid, userUuid))
+            .groupBy(jumpTypes.uuid)
+            .orderBy(asc(jumpTypes.name)),
+    ]);
+}
+
+async function fetchDetailedStatistics(
+    c: HonoRequestContext,
+    year: number | undefined,
+): Promise<DetailedStatisticsResult> {
+    const requestContext = getRequestContext(c);
+    const db = requestContext.db;
+    const user = requestContext.getUser();
+    const formatters = lokiFormatters(requestContext);
+    const formatAltitude = formatters.altitude;
+    const formatSpeed = formatters.speed;
+    const formatDistance = formatters.distance;
+    const userUuid = user.uuid;
+    const yearCondition = year
+        ? and(
+              gte(jumps.jumpDate, `${year}-01-01`),
+              lt(jumps.jumpDate, `${year + 1}-01-01`),
+          )
+        : undefined;
+    const joinCondition = (base: ReturnType<typeof and>) =>
+        yearCondition ? and(base, yearCondition) : base;
+    const jumpCondition = yearCondition
+        ? and(eq(jumps.userUuid, userUuid), yearCondition)
+        : eq(jumps.userUuid, userUuid);
+
+    const [resourceRows, recordStatistics] = await Promise.all([
+        fetchStatisticsRows(db, userUuid, joinCondition),
+        fetchRecordStatistics(db, userUuid, jumpCondition),
+    ]);
+    const [locationRows, aircraftRows, gearRows, jumpTypeRows] = resourceRows;
+    const [
+        yearRows,
+        mostJumpsDayRows,
+        mostJumpsWeekRows,
+        mostJumpsMonthRows,
+        longestFreefallRows,
+        longestFreefallDistanceRows,
+        highestExitRows,
+        lowestExitRows,
+        highestOpeningRows,
+        lowestOpeningRows,
+        fastestAverageSpeedRows,
+        slowestAverageSpeedRows,
+        [freefallTotals],
+    ] = recordStatistics;
+
+    const years = yearRows
+        .map((row) => Number(row.year))
+        .filter((y): y is number => Number.isInteger(y) && y > 0)
+        .sort((a, b) => b - a);
+
+    const totalJumps = await fetchTotalJumps({
+        db,
+        userUuid,
+        yearCondition,
+    });
+
+    return {
+        locationRows,
+        aircraftRows,
+        gearRows,
+        jumpTypeRows,
+        years,
+        mostJumpsDay: mostJumpsDayRows[0],
+        mostJumpsWeek: mostJumpsWeekRows[0],
+        mostJumpsMonth: mostJumpsMonthRows[0],
+        totalJumps,
+        totalFreefallTime: freefallTotals?.totalFreefallTime ?? 0,
+        totalFreefallDistance: freefallTotals?.totalFreefallDistance ?? 0,
+        longestFreefall: longestFreefallRows[0]
+            ? {
+                  ...longestFreefallRows[0],
+                  value: formatDuration(longestFreefallRows[0].value),
+                  tooltip: `${longestFreefallRows[0].value}s`,
+              }
+            : undefined,
+        longestFreefallDistance: longestFreefallDistanceRows[0]
+            ? {
+                  ...longestFreefallDistanceRows[0],
+                  value: formatDistance(longestFreefallDistanceRows[0].value),
+              }
+            : undefined,
+        highestExit: highestExitRows[0]
+            ? {
+                  ...highestExitRows[0],
+                  value: formatAltitude(highestExitRows[0].value),
+              }
+            : undefined,
+        lowestExit: lowestExitRows[0]
+            ? {
+                  ...lowestExitRows[0],
+                  value: formatAltitude(lowestExitRows[0].value),
+              }
+            : undefined,
+        highestOpening: highestOpeningRows[0]
+            ? {
+                  ...highestOpeningRows[0],
+                  value: formatAltitude(highestOpeningRows[0].value),
+              }
+            : undefined,
+        lowestOpening: lowestOpeningRows[0]
+            ? {
+                  ...lowestOpeningRows[0],
+                  value: formatAltitude(lowestOpeningRows[0].value),
+              }
+            : undefined,
+        fastestAverageSpeed: fastestAverageSpeedRows[0]
+            ? {
+                  ...fastestAverageSpeedRows[0],
+                  value: formatSpeed(fastestAverageSpeedRows[0].value),
+              }
+            : undefined,
+        slowestAverageSpeed: slowestAverageSpeedRows[0]
+            ? {
+                  ...slowestAverageSpeedRows[0],
+                  value: formatSpeed(slowestAverageSpeedRows[0].value),
+              }
+            : undefined,
+    };
+}
+
+async function renderDetailedStatistics(c: HonoRequestContext) {
+    const requestContext = getRequestContext(c);
+    const formatNumber = requestContext.numberFormatter();
+    const formatDistance = lokiFormatters(requestContext).distance;
+    const { year: rawYear } = routes.logbook.statistics.detailed.query(c);
+    const year = parseYear(rawYear);
+    const filteredByYear = year !== undefined;
+
+    const {
+        locationRows,
+        aircraftRows,
+        gearRows,
+        jumpTypeRows,
+        years: availableYears,
+        totalJumps,
+        totalFreefallTime,
+        totalFreefallDistance,
+        longestFreefall,
+        longestFreefallDistance,
+        highestExit,
+        lowestExit,
+        highestOpening,
+        lowestOpening,
+        fastestAverageSpeed,
+        slowestAverageSpeed,
+        mostJumpsDay,
+        mostJumpsWeek,
+        mostJumpsMonth,
+    } = await fetchDetailedStatistics(c, year);
+
+    const locationsWithCounts = toStatisticsItems(locationRows, (uuid) =>
+        routes.logbook.locations.edit({ uuid }),
+    ).filter((item) => getTotalJumpCount(item) > 0);
+    const aircraftWithCounts = toStatisticsItems(aircraftRows, (uuid) =>
+        routes.logbook.aircraft.edit({ uuid }),
+    ).filter((item) => getTotalJumpCount(item) > 0);
+    const gearWithCounts = toStatisticsItems(gearRows, (uuid) =>
+        routes.logbook.gear.edit({ uuid }),
+    ).filter((item) => getTotalJumpCount(item) > 0);
+    const jumpTypesWithCounts = toStatisticsItems(jumpTypeRows, (uuid) =>
+        routes.logbook.jumpTypes.edit({ uuid }),
+    ).filter((item) => getTotalJumpCount(item) > 0);
+
+    const previousYear =
+        year !== undefined && availableYears.includes(year)
+            ? availableYears.find((y) => y < year)
+            : undefined;
+    const nextYear =
+        year !== undefined && availableYears.includes(year)
+            ? [...availableYears].sort((a, b) => a - b).find((y) => y > year)
+            : undefined;
+
+    return c.render(
+        <AppPage title="Yearly statistics">
+            <a
+                href={routes.logbook.statistics.index({})}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+            >
+                ← Back to statistics
+            </a>
+            <YearNavigationBar
+                year={year}
+                availableYears={availableYears}
+                previousYear={previousYear}
+                nextYear={nextYear}
+            />
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                {year === undefined ? "All Time" : `Jumps from ${year}`}
+            </h2>
+            <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <SummaryCard
+                    label="Total jumps"
+                    value={formatNumber(totalJumps)}
+                />
+                <SummaryCard
+                    label="Total freefall time"
+                    value={formatDuration(totalFreefallTime)}
+                />
+                <SummaryCard
+                    label="Total freefall distance"
+                    value={formatDistance(totalFreefallDistance)}
+                />
+            </dl>
+            <div className="space-y-6">
+                <RecordJumps
+                    periods={[
+                        {
+                            label: "Most jumps in a day",
+                            period: mostJumpsDay,
+                        },
+                        {
+                            label: "Most jumps in a week",
+                            period: mostJumpsWeek,
+                        },
+                        {
+                            label: "Most jumps in a month",
+                            period: mostJumpsMonth,
+                        },
+                    ]}
+                    records={[
+                        {
+                            label: "Longest freefall time",
+                            jump: longestFreefall,
+                        },
+                        {
+                            label: "Longest freefall distance",
+                            jump: longestFreefallDistance,
+                        },
+                        { label: "Highest jump altitude", jump: highestExit },
+                        { label: "Lowest jump altitude", jump: lowestExit },
+                        { label: "Highest opening", jump: highestOpening },
+                        { label: "Lowest opening", jump: lowestOpening },
+                        {
+                            label: "Fastest average freefall speed",
+                            jump: fastestAverageSpeed,
+                        },
+                        {
+                            label: "Slowest average freefall speed",
+                            jump: slowestAverageSpeed,
+                        },
+                    ]}
+                />
+                <StatisticsSection
+                    title="Locations"
+                    items={locationsWithCounts}
+                    filteredByYear={filteredByYear}
+                />
+                <StatisticsSection
+                    title="Aircraft"
+                    items={aircraftWithCounts}
+                    filteredByYear={filteredByYear}
+                />
+                <StatisticsSection
+                    title="Gear"
+                    items={gearWithCounts}
+                    filteredByYear={filteredByYear}
+                />
+                <StatisticsSection
+                    title="Jump types"
+                    items={jumpTypesWithCounts}
+                    filteredByYear={filteredByYear}
+                />
+            </div>
+        </AppPage>,
+    );
+}
+
+export function register(app: AppRouter) {
+    app.get(routes.logbook.statistics.detailed, renderDetailedStatistics);
+}
