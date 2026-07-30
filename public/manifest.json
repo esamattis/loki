@@ -18,6 +18,14 @@
             "type": "image/png"
         }
     ],
+    "file_handlers": [
+        {
+            "action": "/logbook/transfer",
+            "accept": {
+                "text/csv": [".csv"]
+            }
+        }
+    ],
     "share_target": {
         "action": "/logbook/jumps/new/from-image/share",
         "method": "POST",

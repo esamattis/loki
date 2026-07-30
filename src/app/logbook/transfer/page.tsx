@@ -160,6 +160,56 @@ function $setupImportFileDrop(config: {
         return name.endsWith(".csv") || name.endsWith(".xml");
     }
 
+    function selectImportFile(file: File) {
+        if (!isImportFile(file)) {
+            return;
+        }
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        fileInput.files = transfer.files;
+        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        fileInput.focus();
+    }
+
+    function registerFileLaunchConsumer() {
+        const launchQueue = Reflect.get(window, "launchQueue");
+        if (!(launchQueue instanceof Object)) {
+            return;
+        }
+        const setConsumer = Reflect.get(launchQueue, "setConsumer");
+        if (typeof setConsumer !== "function") {
+            return;
+        }
+        setConsumer.call(launchQueue, async (launchParams: unknown) => {
+            try {
+                if (!(launchParams instanceof Object)) {
+                    return;
+                }
+                const handles = Reflect.get(launchParams, "files");
+                if (!Array.isArray(handles)) {
+                    return;
+                }
+                const handle = handles[0];
+                if (!(handle instanceof Object)) {
+                    return;
+                }
+                const getFile = Reflect.get(handle, "getFile");
+                if (typeof getFile !== "function") {
+                    return;
+                }
+                const file = await getFile.call(handle);
+                if (file instanceof File) {
+                    selectImportFile(file);
+                }
+            } catch (error) {
+                console.error(
+                    "Could not open the launched logbook file",
+                    error,
+                );
+            }
+        });
+    }
+
     function syncSubmitButton() {
         const hasFile = (fileInput.files?.length ?? 0) > 0;
         submitButton.className = hasFile
@@ -180,6 +230,7 @@ function $setupImportFileDrop(config: {
 
     fileInput.addEventListener("change", syncSubmitButton);
     syncSubmitButton();
+    registerFileLaunchConsumer();
 
     window.addEventListener("dragenter", (event) => {
         if (!hasFiles(event)) {
@@ -222,13 +273,10 @@ function $setupImportFileDrop(config: {
             return;
         }
         const file = files.item(0);
-        if (!file || !isImportFile(file)) {
+        if (!file) {
             return;
         }
-        const transfer = new DataTransfer();
-        transfer.items.add(file);
-        fileInput.files = transfer.files;
-        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        selectImportFile(file);
     });
 }
 
