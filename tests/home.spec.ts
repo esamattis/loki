@@ -90,13 +90,15 @@ test("fits the landing page within a small viewport", async ({ page }) => {
     expect(pageWidth.scroll).toBe(pageWidth.client);
 });
 
-test("the landing page remains visible after logging in", async ({ page }) => {
+test("the landing page remains visible after logging in", async ({
+    page,
+}, testInfo) => {
+    const retrySuffix = testInfo.retry === 0 ? "" : `-${testInfo.retry}`;
+    const username = `landing-page-user${retrySuffix}`;
     await page.goto("/register");
     await page.locator('input[name="invitationCode"]').fill("test-invite");
-    await page.locator('input[name="username"]').fill("landing-page-user");
-    await page
-        .locator('input[name="email"]')
-        .fill("landing-page-user@example.test");
+    await page.locator('input[name="username"]').fill(username);
+    await page.locator('input[name="email"]').fill(`${username}@example.test`);
     await page.locator('input[name="password"]').fill("parachute");
     await page.locator('input[name="confirmPassword"]').fill("parachute");
     await page.getByRole("button", { name: "Create account" }).click();
