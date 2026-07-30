@@ -251,6 +251,11 @@ function LocalInstallation() {
     return (
         <section className="mx-auto mt-12 max-w-5xl px-4 sm:mt-16">
             <h2 className={sectionHeadingClassName}>Local Installation</h2>
+            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-400">
+                Run Loki locally or self-host it to keep your logbook under your
+                control, use it without relying on a third-party service, and
+                keep access to your data wherever you deploy it.
+            </p>
             <div className="mt-8 grid gap-5 lg:grid-cols-2 lg:items-stretch">
                 <LandingCard
                     className="min-w-0"
@@ -259,11 +264,7 @@ function LocalInstallation() {
                 >
                     <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
                         Prebuilt binaries for Linux, macOS, and Windows from
-                        GitHub Releases. On Windows, grab{" "}
-                        <code className="font-mono text-slate-600 dark:text-slate-300">
-                            loki.exe
-                        </code>
-                        .
+                        GitHub Releases.
                     </p>
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <DownloadButton />
@@ -351,7 +352,7 @@ const FEATURES: Feature[] = [
         icon: <JumpTypeIcon className={cardIconClassName} />,
         title: "Customizable jump types",
         description:
-            "Create your own jump types and assign multiple types to each jump, such as freefly with load organizer or cutaway.",
+            "Create your own jump types and assign multiple types to each jump, such as freefly with load organizer or cutaway, or a student jump with FS and Student types.",
     },
     {
         icon: <LocationIcon className={cardIconClassName} />,
@@ -369,13 +370,13 @@ const FEATURES: Feature[] = [
         icon: <StatisticsIcon className={cardIconClassName} />,
         title: "Total & yearly statistics",
         description:
-            "Review all-time totals and jumps by year. Compare freefall time and distance, plus jump counts by location, aircraft, gear, and jump type.",
+            "Review all-time totals and jumps by year. Compare freefall time and distance, plus jump counts by location, aircraft, gear, jump type, etc.",
     },
     {
         icon: <StatisticsIcon className={cardIconClassName} />,
         title: "Record statistics",
         description:
-            "Find your longest freefall, altitude and speed records, and the most jumps you have made in a day, week, or month.",
+            "Find your longest freefall, altitude and speed records, the most jumps you have made in a day, week, or month, etc.",
     },
     {
         icon: <CameraIcon className={cardIconClassName} />,
@@ -393,7 +394,7 @@ const FEATURES: Feature[] = [
         icon: <TransferIcon className={cardIconClassName} />,
         title: "CSV import & export",
         description:
-            "Bring your existing logbook in via CSV and keep a portable backup. No lock-in — your data is always exportable.",
+            "Export your logbook anytime—whether you are making a backup, moving to another Loki instance, or leaving for Excel.",
     },
 ];
 
