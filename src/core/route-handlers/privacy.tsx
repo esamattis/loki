@@ -1,3 +1,4 @@
+import type { Child } from "hono/jsx";
 import {
     getRequestContext,
     useRequestContext,
@@ -6,6 +7,7 @@ import {
 } from "@/core/create-app";
 import { AppPage } from "@/core/app-page";
 import { isSafeRedirectPath } from "@/core/auth";
+import { ErrorList } from "@/core/components/feedback";
 import { Button, Checkbox } from "@/core/components/form";
 import { RedirectBackAfterPost } from "@/core/components/return-after-form-post";
 import { ConfirmDangerButton } from "@/core/components/ui/confirm-danger-button";
@@ -13,7 +15,95 @@ import { deleteAccount } from "@/core/delete-account";
 import * as routes from "@/core/routes";
 
 /**
- * Provides the privacy page behavior.
+ * Renders the unauthenticated privacy policy page.
+ *
+ * @param props.children - Concrete application privacy policy content.
+ */
+function PublicPrivacyPage(props: { children: Child }) {
+    const context = useRequestContext();
+    return (
+        <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:py-16">
+            <a
+                href={routes.auth.login({})}
+                className="flex items-center justify-center gap-2 text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100"
+            >
+                <img
+                    src={context.appOptions.logoPath}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-8 w-auto"
+                />
+                <span>{context.appOptions.title}</span>
+            </a>
+            <h1 className="text-center text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+                Terms & Privacy Policy
+            </h1>
+            {props.children}
+        </main>
+    );
+}
+
+/**
+ * Renders the required privacy policy acceptance controls.
+ *
+ * @param props.back - Optional safe return path after acceptance.
+ * @param props.error - Optional acceptance validation error.
+ */
+function PrivacyPolicyDecision(props: { back?: string; error?: string }) {
+    return (
+        <section className="mt-8 space-y-5 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <ErrorList
+                errors={props.error ? [props.error] : []}
+                className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+            />
+            <form
+                method="post"
+                action={routes.privacy(
+                    {},
+                    props.back ? { back: props.back } : {},
+                )}
+                className="space-y-4"
+            >
+                <RedirectBackAfterPost />
+                <Checkbox
+                    name="accepted"
+                    value="true"
+                    label="I have read and accept the terms & privacy policy"
+                />
+                <Button type="submit" variant="primary">
+                    Accept terms & privacy policy
+                </Button>
+            </form>
+            <div className="space-y-3 border-t border-slate-200 pt-5 dark:border-slate-800">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                    If you do not accept the terms & privacy policy, you can
+                    permanently delete your account and all your data instead.
+                </p>
+                <form method="post" action={routes.privacy({})}>
+                    <ConfirmDangerButton
+                        name="action"
+                        value="delete"
+                        label="Delete account"
+                        confirmLabel="Confirm delete"
+                    />
+                </form>
+            </div>
+        </section>
+    );
+}
+
+/** Renders the notice shown while a hosted user must accept the policy. */
+function PrivacyPolicyWarning() {
+    const context = useRequestContext();
+    return (
+        <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+            You must accept the terms & privacy policy to continue using{" "}
+            {context.appOptions.name}.
+        </p>
+    );
+}
+
+/** Provides the privacy page behavior.
  *
  * @param props.back - Value used to configure back.
  * @param props.error - Value used to configure error.
@@ -25,59 +115,22 @@ function PrivacyPage(props: { back?: string; error?: string }) {
         throw new Error("Privacy policy content is not configured");
     }
     const user = context.user;
-    const content = (
-        <>
-            <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <PrivacyPolicyContent />
-            </section>
-            {user &&
-                !context.isSelfHosted() &&
-                !user.options.privacyPolicyAccepted && (
-                    <>
-                        <p>
-                            You must accept the terms & privacy policy to
-                            continue using {context.appOptions.name}.
-                        </p>
-                        <form
-                            method="post"
-                            action={routes.privacy(
-                                {},
-                                props.back ? { back: props.back } : {},
-                            )}
-                            className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
-                        >
-                            <RedirectBackAfterPost />
-                            {props.error && (
-                                <p className="text-red-700">{props.error}</p>
-                            )}
-                            <Checkbox
-                                name="accepted"
-                                value="true"
-                                label="I accept the terms and privacy policy"
-                            />
-                            <Button type="submit" variant="primary">
-                                Accept terms & privacy policy
-                            </Button>
-                        </form>
-                        <form method="post" action={routes.privacy({})}>
-                            <ConfirmDangerButton
-                                name="action"
-                                value="delete"
-                                label="Delete account"
-                                confirmLabel="Confirm delete"
-                            />
-                        </form>
-                    </>
-                )}
-        </>
-    );
+    const mustDecide =
+        user !== null &&
+        !context.isSelfHosted() &&
+        !user.options.privacyPolicyAccepted;
     return user ? (
-        <AppPage title="Terms & Privacy Policy">{content}</AppPage>
+        <AppPage title="Terms & Privacy Policy">
+            {mustDecide && <PrivacyPolicyWarning />}
+            <PrivacyPolicyContent />
+            {mustDecide && (
+                <PrivacyPolicyDecision back={props.back} error={props.error} />
+            )}
+        </AppPage>
     ) : (
-        <main className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-            <h1 className="text-3xl font-bold">Terms & Privacy Policy</h1>
-            {content}
-        </main>
+        <PublicPrivacyPage>
+            <PrivacyPolicyContent />
+        </PublicPrivacyPage>
     );
 }
 
