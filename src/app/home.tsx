@@ -217,8 +217,13 @@ function Hero(props: { loggedIn: boolean }) {
                 Loki is an{" "}
                 <ExternalLink href={REPOSITORY_URL}>open source</ExternalLink>{" "}
                 digital logbook for skydivers. Self-host, run it locally on your
-                laptop, or possibly use the invite-only hosted version. Use AI
-                vision to scan paper logbooks and instruments, or let an
+                laptop, or possibly use the invite-only hosted version.
+            </p>
+            <h3 className="mt-5 text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400">
+                AI-powered imports
+            </h3>
+            <p className="mx-auto mt-2 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-400">
+                Use AI vision to scan paper logbooks and instruments, or let an
                 AI agent automatically migrate your existing logbook files.
                 Export an Excel compatible{" "}
                 <ExternalLink href={EXAMPLE_LOGBOOK_URL}>
