@@ -27,8 +27,6 @@ export interface CoreLayoutUi {
     preferencesAfterFormatting?: Child;
     /** Destructive preferences actions inside the danger zone. */
     preferencesDangerContent?: Child;
-    /** Body of the privacy policy page. */
-    privacyPolicyContent: Child;
 }
 
 /** Provides the core layout context shared by this module. */

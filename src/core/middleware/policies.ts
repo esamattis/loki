@@ -31,6 +31,7 @@ async function privacyPolicyMiddleware(
 ) {
     const ctx = getRequestContext(c);
     if (
+        !ctx.appOptions.privacyPolicyContent ||
         ctx.isSelfHosted() ||
         isPublicAssetPath(c.req.path) ||
         isRegisteredPrivacyPolicyExemptRoute(ctx.appRouter, c) ||

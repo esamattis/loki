@@ -73,8 +73,11 @@ sessions are removed opportunistically.
 
 ## Privacy-policy enforcement
 
-Hosted authenticated users must accept the privacy policy before using the
-application. Until then, requests redirect to `/privacy`.
+Applications opt into the privacy policy by providing
+`privacyPolicyContent` to `createAppRouter`. Core then registers `/privacy`,
+shows links to it, and requires hosted authenticated users to accept it before
+using the application. Applications that omit the component have no privacy
+route or acceptance enforcement.
 
 The policy does not apply to:
 

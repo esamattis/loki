@@ -6,8 +6,10 @@ import {
     isRegisteredPublicRoute,
 } from "@/core/register-route";
 import { route } from "@/core/route-tools";
+import * as coreRoutes from "@/core/routes";
 
 let AppRouterClass: typeof import("@/core/create-app").AppRouter;
+let registerPrivacyRoutes: typeof import("@/core/register-privacy-routes").registerPrivacyRoutes;
 
 const PUBLIC_HEADER = "X-Test-Registered-Public";
 const PRIVACY_EXEMPT_HEADER = "X-Test-Privacy-Exempt";
@@ -16,9 +18,17 @@ test.beforeAll(async () => {
     Reflect.set(globalThis, "__APP_REVISION__", "test-revision");
     Reflect.set(globalThis, "__APP_VERSION__", "");
     AppRouterClass = (await import("@/core/create-app")).AppRouter;
+    registerPrivacyRoutes = (await import("@/core/register-privacy-routes"))
+        .registerPrivacyRoutes;
 });
 
-function createTestApp(): AppRouter {
+function TestPrivacyPolicyContent() {
+    return html`
+        Test privacy policy
+    `;
+}
+
+function createTestApp(withPrivacyPolicy = false): AppRouter {
     const app = new AppRouterClass({
         name: "Test",
         title: "Test",
@@ -33,6 +43,9 @@ function createTestApp(): AppRouter {
         render: () => html`
             Test
         `,
+        ...(withPrivacyPolicy
+            ? { privacyPolicyContent: TestPrivacyPolicyContent }
+            : {}),
     });
     app.use("*", async function accessMetadataProbe(context, next) {
         context.header(
@@ -47,6 +60,31 @@ function createTestApp(): AppRouter {
     });
     return app;
 }
+
+test("registers privacy routes only when the app opts in", () => {
+    const optedOutApp = createTestApp();
+    registerPrivacyRoutes(optedOutApp);
+    expect(
+        optedOutApp.routes.some(
+            (registered) =>
+                registered.path === coreRoutes.privacy.route &&
+                (registered.method === "GET" || registered.method === "POST"),
+        ),
+    ).toBe(false);
+
+    const optedInApp = createTestApp(true);
+    registerPrivacyRoutes(optedInApp);
+    expect(
+        optedInApp.routes.filter(
+            (registered) => registered.path === coreRoutes.privacy.route,
+        ),
+    ).toEqual(
+        expect.arrayContaining([
+            expect.objectContaining({ method: "GET" }),
+            expect.objectContaining({ method: "POST" }),
+        ]),
+    );
+});
 
 async function isPublic(
     app: AppRouter,

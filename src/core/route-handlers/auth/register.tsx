@@ -68,7 +68,10 @@ function RegisterForm(props: {
     displayName?: string;
     email?: string;
 }) {
-    const selfHosted = useRequestContext().isSelfHosted();
+    const requestContext = useRequestContext();
+    const showPrivacyPolicy =
+        Boolean(requestContext.appOptions.privacyPolicyContent) &&
+        !requestContext.isSelfHosted();
 
     return (
         <AuthFormShell
@@ -94,7 +97,7 @@ function RegisterForm(props: {
             )}
             <RegistrationLocaleInputs />
             {useCoreLayoutUi().registrationFields}
-            {!selfHosted && (
+            {showPrivacyPolicy && (
                 <p>
                     Please read the{" "}
                     <Link href={routes.privacy({}, {})}>

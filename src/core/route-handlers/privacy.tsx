@@ -4,7 +4,6 @@ import {
     type AppRouter,
     type HonoRequestContext,
 } from "@/core/create-app";
-import { useCoreLayoutUi } from "@/core/core-layout-context";
 import { AppPage } from "@/core/app-page";
 import { isSafeRedirectPath } from "@/core/auth";
 import { Button, Checkbox } from "@/core/components/form";
@@ -21,12 +20,15 @@ import * as routes from "@/core/routes";
  */
 function PrivacyPage(props: { back?: string; error?: string }) {
     const context = useRequestContext();
-    const appUi = useCoreLayoutUi();
+    const PrivacyPolicyContent = context.appOptions.privacyPolicyContent;
+    if (!PrivacyPolicyContent) {
+        throw new Error("Privacy policy content is not configured");
+    }
     const user = context.user;
     const content = (
         <>
             <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                {appUi.privacyPolicyContent}
+                <PrivacyPolicyContent />
             </section>
             {user &&
                 !context.isSelfHosted() &&

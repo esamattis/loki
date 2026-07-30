@@ -10,14 +10,14 @@ a Hono application using `TrieRouter`. The concrete composition root,
   theme color, and social image;
 - one full-document `render` function;
 - the authenticated home URL and HTTP Basic authentication realm; and
-- optional account lifecycle hooks.
+- optional capabilities and account lifecycle hooks.
 
 The renderer normally composes two core components:
 
 - `AppShell` renders the HTML document, head metadata and assets, and body.
 - `CoreLayout` renders the shared body layout and receives authenticated
-  navigation, menu, footer, privacy policy, registration, and preferences
-  content as component props.
+  navigation, menu, footer, registration, and preferences content as component
+  props.
 
 This keeps `createAppRouter` focused on application infrastructure while
 allowing the concrete application to replace the document shell or UI layout
@@ -31,7 +31,6 @@ function renderApp(props: AppRouterRenderProps) {
                 authenticatedUserSubtitle={authenticatedUserSubtitle}
                 navigationLabel="Application actions"
                 menuItems={<ApplicationMenuItems />}
-                privacyPolicyContent={<PrivacyPolicyContent />}
             >
                 {props.children}
             </CoreLayout>
@@ -42,6 +41,8 @@ function renderApp(props: AppRouterRenderProps) {
 export const appRouter = createAppRouter({
     // Product metadata and runtime configuration.
     render: renderApp,
+    // Omit this component to disable the privacy route, link, and acceptance.
+    privacyPolicyContent: PrivacyPolicyContent,
 });
 ```
 
@@ -54,6 +55,11 @@ The account hooks are:
   product options or related records after core creates an account; and
 - `beforeUserDeleted(context, userUuid)`, used to scrub or remove product data
   before core deletes the account.
+
+Providing `privacyPolicyContent` opts the application into the hosted privacy
+policy capability. Core then registers the privacy route, links to it from
+hosted pages, and requires hosted authenticated users to accept it. Omitting
+the component disables all of those behaviors.
 
 Providing `CoreLayout` with `registrationFields` requires configuring
 `afterUserCreated` in `createAppRouter`. Registration is compensated if

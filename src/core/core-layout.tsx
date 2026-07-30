@@ -37,7 +37,6 @@ function coreLayoutUi(props: CoreLayoutProps): CoreLayoutUi {
         preferencesContent: props.preferencesContent,
         preferencesAfterFormatting: props.preferencesAfterFormatting,
         preferencesDangerContent: props.preferencesDangerContent,
-        privacyPolicyContent: props.privacyPolicyContent,
     };
 }
 
@@ -72,10 +71,7 @@ export function CoreLayout(props: CoreLayoutProps) {
             <BackgroundGradients />
             <ReturnAfterFormPost />
             <div className="flex-1">{props.children}</div>
-            <Footer
-                hasBottomNavigation={Boolean(user)}
-                showPrivacyPolicy={!requestContext.isSelfHosted()}
-            />
+            <Footer hasBottomNavigation={Boolean(user)} />
             <UnsavedChangesDialog />
             <UpdateToast />
             <RestoreFormScrollPosition />

@@ -149,7 +149,6 @@ function renderApp(props: AppRouterRenderProps) {
                 preferencesContent={<LokiUnitsSection />}
                 preferencesAfterFormatting={<LokiJumpFromImageSection />}
                 preferencesDangerContent={<LokiPreferencesDangerContent />}
-                privacyPolicyContent={<LokiPrivacyPolicyContent />}
             >
                 {props.children}
             </CoreLayout>
@@ -171,6 +170,7 @@ export const appRouter = createAppRouter({
     socialImagePath: "/og-image.png",
     socialImageAlt: "Loki - Open source skydiving logbook",
     render: renderApp,
+    privacyPolicyContent: LokiPrivacyPolicyContent,
     afterUserCreated: initializeLokiUser,
     beforeUserDeleted: scrubAiUsageBeforeAccountDeletion,
     validatePreferencesForm: validateLokiPreferencesForm,

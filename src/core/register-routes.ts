@@ -5,7 +5,7 @@ import { register as registerRegistration } from "@/core/route-handlers/auth/reg
 import { register as registerLogout } from "@/core/route-handlers/auth/logout";
 import { register as registerReadonly } from "@/core/route-handlers/readonly";
 import { register as registerPreferences } from "@/core/route-handlers/preferences/index";
-import { register as registerPrivacy } from "@/core/route-handlers/privacy";
+import { registerPrivacyRoutes } from "@/core/register-privacy-routes";
 import { register as registerAdmin } from "@/core/route-handlers/admin/index";
 import { register as registerLoginAs } from "@/core/route-handlers/admin/login-as";
 import { register as registerToggleAdmin } from "@/core/route-handlers/admin/toggle-admin";
@@ -22,7 +22,7 @@ export function registerCoreRoutes(app: AppRouter): void {
     registerLogout(app);
     registerReadonly(app);
     registerPreferences(app);
-    registerPrivacy(app);
+    registerPrivacyRoutes(app);
     registerAdmin(app);
     registerLoginAs(app);
     registerToggleAdmin(app);

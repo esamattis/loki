@@ -6,17 +6,16 @@ import clsx from "clsx";
 
 /**
  * Site footer with logo, name, home link, app-provided footer links, and an
- * optional Terms & Privacy link.
+ * opted-in Terms & Privacy link for hosted deployments.
  *
  * @param props.hasBottomNavigation - Adds bottom margin when mobile bottom nav is present.
- * @param props.showPrivacyPolicy - When true, links to the privacy policy route.
  */
-export function Footer(props: {
-    hasBottomNavigation: boolean;
-    showPrivacyPolicy: boolean;
-}) {
-    const options = useRequestContext().appOptions;
+export function Footer(props: { hasBottomNavigation: boolean }) {
+    const requestContext = useRequestContext();
+    const options = requestContext.appOptions;
     const appUi = useCoreLayoutUi();
+    const showPrivacyPolicy =
+        Boolean(options.privacyPolicyContent) && !requestContext.isSelfHosted();
     return (
         <footer
             className={clsx(
@@ -41,7 +40,7 @@ export function Footer(props: {
                 <nav aria-label="Footer" className="flex items-center gap-4">
                     <Link href="/">Home</Link>
                     {appUi.footerLinks}
-                    {props.showPrivacyPolicy && (
+                    {showPrivacyPolicy && (
                         <Link
                             href={routes.privacy({}, {})}
                             aria-label="Footer terms & privacy policy"

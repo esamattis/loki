@@ -41,15 +41,18 @@ export function isRegisteredRoute(value: unknown): value is RegisteredRoute {
     );
 }
 
-/** Describes route app. */
-type RouteApp = Pick<AppRouter, "on">;
+/**
+ * Minimal router surface used to register handlers and associate route
+ * metadata with the receiving router instance.
+ */
+type RouteRegistrationTarget = Pick<AppRouter, "on">;
 
 /** Describes registered route metadata. */
 type RegisteredRouteMetadata = RegisteredRoute["metadata"];
 
 /** Stores the registered metadata used by this module. */
 const registeredMetadata = new WeakMap<
-    RouteApp,
+    RouteRegistrationTarget,
     Map<string, RegisteredRouteMetadata>
 >();
 
@@ -61,7 +64,9 @@ const registeredMetadata = new WeakMap<
  * @param app - Application whose registered route metadata is needed.
  * @returns The mutable metadata map owned by `app`.
  */
-function metadataMap(app: RouteApp): Map<string, RegisteredRouteMetadata> {
+function metadataMap(
+    app: RouteRegistrationTarget,
+): Map<string, RegisteredRouteMetadata> {
     let metadata = registeredMetadata.get(app);
     if (!metadata) {
         metadata = new Map();
@@ -92,7 +97,7 @@ function metadataKey(method: string, route: string): string {
  * metadata.
  */
 function registerAccess(
-    app: RouteApp,
+    app: RouteRegistrationTarget,
     method: RegisteredMethod,
     route: RegisteredRoute,
 ): void {
@@ -128,7 +133,7 @@ function registerAccess(
  * registered for the same method and route.
  */
 export function registerRoute(
-    app: RouteApp,
+    app: RouteRegistrationTarget,
     ...registration: readonly [
         method: RegisteredMethod,
         route: RegisteredRoute,
@@ -153,7 +158,7 @@ export function registerRoute(
  * endpoint was not registered as a typed route.
  */
 function matchedRouteMetadata(
-    app: RouteApp,
+    app: RouteRegistrationTarget,
     context: HonoRequestContext,
 ): RegisteredRouteMetadata | undefined {
     for (const route of matchedRoutes(context)) {
@@ -171,7 +176,7 @@ function matchedRouteMetadata(
  * @returns Whether the first matched endpoint is public.
  */
 export function isRegisteredPublicRoute(
-    app: RouteApp,
+    app: RouteRegistrationTarget,
     context: HonoRequestContext,
 ): boolean {
     return matchedRouteMetadata(app, context)?.public ?? false;
@@ -186,7 +191,7 @@ export function isRegisteredPublicRoute(
  * @returns Whether the first matched endpoint is privacy-policy exempt.
  */
 export function isRegisteredPrivacyPolicyExemptRoute(
-    app: RouteApp,
+    app: RouteRegistrationTarget,
     context: HonoRequestContext,
 ): boolean {
     return matchedRouteMetadata(app, context)?.privacyPolicyExempt ?? false;

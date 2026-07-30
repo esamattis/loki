@@ -40,6 +40,8 @@ export interface CreateAppRouterOptions {
     socialImagePath: string;
     socialImageAlt: string;
     render: (props: AppRouterRenderProps) => Exclude<ReturnType<FC>, null>;
+    /** Enables hosted privacy-policy routes and acceptance with this content. */
+    privacyPolicyContent?: FC;
     afterUserCreated?: (
         context: RequestContext,
         userUuid: string,
