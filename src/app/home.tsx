@@ -329,7 +329,7 @@ function VideoEmbed() {
                 </div>
             </div>
             <p className="mt-3 text-center text-sm text-slate-500 dark:text-slate-400">
-                Quick glance at Loki's features
+                See AI powered logbook scanning in action
             </p>
         </div>
     );
