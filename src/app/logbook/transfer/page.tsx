@@ -23,6 +23,14 @@ interface TransferPageProps {
     clearAll?: boolean;
 }
 
+interface FileLaunchParams {
+    files: FileSystemFileHandle[];
+}
+
+interface FileLaunchQueue {
+    setConsumer(consumer: (params: FileLaunchParams) => void): void;
+}
+
 function ExportSection() {
     return (
         <div>
@@ -172,35 +180,19 @@ function $setupImportFileDrop(config: {
     }
 
     function registerFileLaunchConsumer() {
-        const launchQueue = Reflect.get(window, "launchQueue");
-        if (!(launchQueue instanceof Object)) {
+        const launchQueueValue = Reflect.get(window, "launchQueue");
+        if (!launchQueueValue) {
             return;
         }
-        const setConsumer = Reflect.get(launchQueue, "setConsumer");
-        if (typeof setConsumer !== "function") {
-            return;
-        }
-        setConsumer.call(launchQueue, async (launchParams: unknown) => {
+        // eslint-disable-next-line typescript/consistent-type-assertions -- The File Handling API is not defined by TypeScript's DOM library.
+        const launchQueue = launchQueueValue as FileLaunchQueue;
+        launchQueue.setConsumer(async (launchParams) => {
             try {
-                if (!(launchParams instanceof Object)) {
+                const handle = launchParams.files[0];
+                if (!handle) {
                     return;
                 }
-                const handles = Reflect.get(launchParams, "files");
-                if (!Array.isArray(handles)) {
-                    return;
-                }
-                const handle = handles[0];
-                if (!(handle instanceof Object)) {
-                    return;
-                }
-                const getFile = Reflect.get(handle, "getFile");
-                if (typeof getFile !== "function") {
-                    return;
-                }
-                const file = await getFile.call(handle);
-                if (file instanceof File) {
-                    selectImportFile(file);
-                }
+                selectImportFile(await handle.getFile());
             } catch (error) {
                 console.error(
                     "Could not open the launched logbook file",
