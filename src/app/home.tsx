@@ -254,7 +254,8 @@ function LocalInstallation() {
             <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-400">
                 Run Loki locally or self-host it to keep your logbook under your
                 control, use it without relying on a third-party service, and
-                keep access to your data wherever you deploy it.
+                keep access to your data wherever you deploy it. Loki uses
+                SQLite, so no separate database setup is required.
             </p>
             <div className="mt-8 grid gap-5 lg:grid-cols-2 lg:items-stretch">
                 <LandingCard
