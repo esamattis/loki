@@ -12,7 +12,7 @@ import {
 } from "@/core/components/form";
 import { ErrorList } from "@/core/components/feedback";
 import { Link } from "@/core/components/link";
-import { CopyIcon } from "@/app/components/icons";
+import { CopyIcon, LogbookIcon } from "@/app/components/icons";
 import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
 import { DangerZone } from "@/core/components/ui/danger-zone";
 import { Dialog } from "@/core/components/ui/dialog";
@@ -723,6 +723,7 @@ export function JumpFormPage(props: {
     };
     excludeJumpUuid?: string;
     copyHref?: string;
+    viewHref?: string;
     canDelete?: boolean;
     sourceImageId?: string;
     jumpUuid?: string;
@@ -769,15 +770,27 @@ export function JumpFormPage(props: {
                     title="Source image"
                 />
             )}
-            {props.copyHref && (
-                <ButtonLink
-                    href={props.copyHref}
-                    icon={<CopyIcon className="h-4 w-4" />}
-                    variant="secondary"
-                    className="gap-1.5"
-                >
-                    Copy to new
-                </ButtonLink>
+            {(props.copyHref || props.viewHref) && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    {props.copyHref && (
+                        <Link
+                            href={props.copyHref}
+                            className="inline-flex items-center gap-1.5"
+                        >
+                            <CopyIcon className="h-3.5 w-3.5" />
+                            Copy to new
+                        </Link>
+                    )}
+                    {props.viewHref && (
+                        <Link
+                            href={props.viewHref}
+                            className="inline-flex items-center gap-1.5"
+                        >
+                            <LogbookIcon className="h-3.5 w-3.5" />
+                            View in logbook
+                        </Link>
+                    )}
+                </div>
             )}
             {props.prefillFrom && (
                 <JumpPrefillFromNotice

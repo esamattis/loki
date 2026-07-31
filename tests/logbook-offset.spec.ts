@@ -108,6 +108,19 @@ test("editing a jump scrolls back to that jump", async ({ page }) => {
     await expectLogbookAroundJump(page, 1);
     await page.getByRole("link", { name: /^#1 / }).click();
     await expect(page).toHaveURL(/\/logbook\/jumps\//);
+
+    const viewInLogbook = page.getByRole("link", {
+        name: "View in logbook",
+    });
+    await expect(viewInLogbook).toHaveAttribute(
+        "href",
+        "/logbook?goto=1#jump-1",
+    );
+    await viewInLogbook.click();
+    await expectLogbookAroundJump(page, 1);
+    await expect(page).toHaveURL(/#jump-1$/);
+
+    await page.getByRole("link", { name: /^#1 / }).click();
     await page
         .locator('textarea[name="description"]')
         .fill("Edited with scroll target");
