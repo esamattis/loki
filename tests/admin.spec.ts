@@ -1,11 +1,8 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
-import {
-    executePlaywrightDb,
-    logOut,
-    openMainMenu,
-    queryPlaywrightDb,
-} from "./helpers";
+import { logOut, openMainMenu } from "./helpers";
 import { expect, test, type APIRequestContext, type Page } from "./fixtures";
+import { eq } from "drizzle-orm";
+import { jumps, sessions, users } from "@/app/schema";
 
 async function registerUser(page: Page, username: string) {
     await page.goto("/register");
@@ -106,24 +103,27 @@ test("shows the invitation code used to register each user", async ({
     await expect(seededAdmin).toContainText("Invitation code: Not recorded");
 });
 
-test("shows the recorded jump count for each user", async ({ page }) => {
+test("shows the recorded jump count for each user", async ({ page, db }) => {
     await registerUser(page, "jump-count-user");
-    const userRows = await queryPlaywrightDb(`
-        SELECT uuid FROM users WHERE username = 'jump-count-user'
-    `);
-    const userUuid = userRows[0]?.uuid;
-    if (typeof userUuid !== "string") {
+    const [user] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, "jump-count-user"));
+    if (!user) {
         throw new Error("Expected jump count user");
     }
-    await executePlaywrightDb(`
-        INSERT INTO jumps (
-            uuid, user_uuid, jump_number, jump_date,
-            exit_altitude, opening_altitude, freefall_time, created_at
-        ) VALUES
-            ('jump-count-1', '${userUuid}', 1, '2024-01-01', 4000, 1000, 60, 1),
-            ('jump-count-2', '${userUuid}', 2, '2024-01-02', 4000, 1000, 60, 1),
-            ('jump-count-3', '${userUuid}', 3, '2024-01-03', 4000, 1000, 60, 1)
-    `);
+    await db.insert(jumps).values(
+        [1, 2, 3].map((jumpNumber) => ({
+            uuid: `jump-count-${jumpNumber}`,
+            userUuid: user.uuid,
+            jumpNumber,
+            jumpDate: `2024-01-0${jumpNumber}`,
+            exitAltitude: 4000,
+            openingAltitude: 1000,
+            freefallTime: 60,
+            createdAt: 1,
+        })),
+    );
     await logOut(page);
 
     await page.locator('input[name="usernameOrEmail"]').fill("test-admin");
@@ -209,32 +209,25 @@ test("admin can make a user read-only and log in as them", async ({ page }) => {
 
 test("admin can delete one session or clear all sessions for a user", async ({
     page,
+    db,
 }) => {
     await registerUser(page, "session-delete-target");
     await page.context().clearCookies();
 
-    const targetRows = await queryPlaywrightDb(`
-        SELECT uuid FROM users WHERE username = 'session-delete-target'
-    `);
-    const targetUuid = targetRows[0]?.uuid;
-    if (typeof targetUuid !== "string") {
+    const [target] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, "session-delete-target"));
+    if (!target) {
         throw new Error("Expected session deletion target user");
     }
-    await executePlaywrightDb(`
-        INSERT INTO sessions (
-            token_hash,
-            user_uuid,
-            created_at,
-            expires_at,
-            last_used_at
-        ) VALUES (
-            'session-delete-extra',
-            '${targetUuid}',
-            1,
-            4102444800,
-            4102440000
-        )
-    `);
+    await db.insert(sessions).values({
+        tokenHash: "session-delete-extra",
+        userUuid: target.uuid,
+        createdAt: 1,
+        expiresAt: 4102444800,
+        lastUsedAt: 4102440000,
+    });
 
     await page.goto("/login");
     await page.locator('input[name="usernameOrEmail"]').fill("test-admin");
@@ -279,9 +272,10 @@ test("admin can delete one session or clear all sessions for a user", async ({
         }),
     ).toHaveCount(0);
 
-    const remainingSessions = await queryPlaywrightDb(`
-        SELECT token_hash FROM sessions WHERE user_uuid = '${targetUuid}'
-    `);
+    const remainingSessions = await db
+        .select({ tokenHash: sessions.tokenHash })
+        .from(sessions)
+        .where(eq(sessions.userUuid, target.uuid));
     expect(remainingSessions).toEqual([]);
 });
 

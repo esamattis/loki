@@ -1,14 +1,12 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
 import { expect, test } from "./fixtures";
-import {
-    executePlaywrightDb,
-    jumpItemSummary,
-    openManageLogbook,
-    queryPlaywrightDb,
-} from "./helpers";
+import { jumpItemSummary, openManageLogbook } from "./helpers";
+import { and, eq } from "drizzle-orm";
+import { jumps, users } from "@/app/schema";
 
 test("new jump prefills from highest jump number and can switch to last added", async ({
     page,
+    db,
 }) => {
     await page.goto("/register");
     await page.locator('input[name="invitationCode"]').fill("test-invite");
@@ -38,23 +36,21 @@ test("new jump prefills from highest jump number and can switch to last added", 
     await page.getByRole("button", { name: "Import logbook" }).click();
     await expect(page.getByText("Imported 2 jumps")).toBeVisible();
 
-    const userRows = await queryPlaywrightDb(`
-        SELECT uuid FROM users WHERE username = 'prefill-skydiver'
-    `);
-    const userUuid = userRows[0]?.uuid;
-    if (typeof userUuid !== "string") {
+    const [user] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, "prefill-skydiver"));
+    if (!user) {
         throw new Error("Expected prefill user");
     }
-    await executePlaywrightDb(`
-        UPDATE jumps
-        SET created_at = 100
-        WHERE user_uuid = '${userUuid}' AND jump_number = 10
-    `);
-    await executePlaywrightDb(`
-        UPDATE jumps
-        SET created_at = 200
-        WHERE user_uuid = '${userUuid}' AND jump_number = 5
-    `);
+    await db
+        .update(jumps)
+        .set({ createdAt: 100 })
+        .where(and(eq(jumps.userUuid, user.uuid), eq(jumps.jumpNumber, 10)));
+    await db
+        .update(jumps)
+        .set({ createdAt: 200 })
+        .where(and(eq(jumps.userUuid, user.uuid), eq(jumps.jumpNumber, 5)));
 
     await page
         .getByRole("link", { name: /Prefill Skydiver's logbook/ })

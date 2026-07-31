@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "./fixtures";
-import { queryPlaywrightDb } from "./helpers";
+import { count, eq } from "drizzle-orm";
+import { users } from "@/app/schema";
 
 async function registerUnacceptedUser(page: Page, username: string) {
     await page.goto("/register");
@@ -83,6 +84,7 @@ test("shows terms & privacy policy and footer link", async ({ page }) => {
 
 test("requires hosted users to accept the terms & privacy policy", async ({
     page,
+    db,
 }) => {
     const username = "privacy-acceptance-user";
     await registerUnacceptedUser(page, username);
@@ -138,12 +140,13 @@ test("requires hosted users to accept the terms & privacy policy", async ({
         .click();
     await expect(page).toHaveURL("/logbook");
 
-    const accepted = await queryPlaywrightDb(`
-        SELECT json_extract(options, '$.privacyPolicyAccepted') AS accepted
-        FROM users
-        WHERE username = '${username}';
-    `);
-    expect(Number(accepted[0]?.accepted)).toBe(1);
+    const [storedUser] = await db
+        .select({ options: users.options })
+        .from(users)
+        .where(eq(users.username, username));
+    expect(JSON.parse(storedUser?.options ?? "{}").privacyPolicyAccepted).toBe(
+        true,
+    );
 
     await page.goto("/preferences");
     await page.getByRole("button", { name: "Save preferences" }).click();
@@ -152,6 +155,7 @@ test("requires hosted users to accept the terms & privacy policy", async ({
 
 test("offers account deletion instead of policy acceptance", async ({
     page,
+    db,
 }) => {
     const username = "privacy-delete-user";
     await registerUnacceptedUser(page, username);
@@ -167,10 +171,9 @@ test("offers account deletion instead of policy acceptance", async ({
     await deleteButton.click();
 
     await expect(page).toHaveURL("/login");
-    const users = await queryPlaywrightDb(`
-        SELECT count(*) AS count
-        FROM users
-        WHERE username = '${username}';
-    `);
-    expect(Number(users[0]?.count)).toBe(0);
+    const [matchingUsers] = await db
+        .select({ count: count() })
+        .from(users)
+        .where(eq(users.username, username));
+    expect(matchingUsers?.count).toBe(0);
 });

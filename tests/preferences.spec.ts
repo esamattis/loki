@@ -1,13 +1,25 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
-import { expect, test, type Page } from "./fixtures";
+import { updatePlaywrightUserOptions } from "./core/helpers";
+import { expect, test, type Page, type PlaywrightDatabase } from "./fixtures";
 import {
-    executePlaywrightDb,
     logOut,
     openDangerZone,
     openMainMenu,
     openManageLogbook,
-    queryPlaywrightDb,
 } from "./helpers";
+import { and, count, eq, isNull } from "drizzle-orm";
+import {
+    aiUsage,
+    aircrafts,
+    gear,
+    jumps,
+    jumpsToAircrafts,
+    jumpsToGear,
+    jumpsToJumpTypes,
+    jumpTypes,
+    locations,
+    users,
+} from "@/app/schema";
 
 test("clearing the image prompt restores the default", async ({ page }) => {
     await registerUser(page, "preferences-default-prompt", "Default Prompt");
@@ -55,14 +67,16 @@ test("invalid logbook preferences show errors and retain values", async ({
     );
 });
 
-test("the stored OpenAI API key is masked and editable", async ({ page }) => {
+test("the stored OpenAI API key is masked and editable", async ({
+    page,
+    db,
+}) => {
     const username = "preferences-api-key";
     await registerUser(page, username, "API Key");
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(options, '$.openaiApiKey', 'stored-api-key')
-        WHERE username = '${username}';
-    `);
+    await updatePlaywrightUserOptions(db, {
+        username,
+        updates: { openaiApiKey: "stored-api-key" },
+    });
 
     await page.goto("/preferences");
     const apiKey = page.locator('input[name="openaiApiKey"]');
@@ -72,18 +86,16 @@ test("the stored OpenAI API key is masked and editable", async ({ page }) => {
     await expect(apiKey).toHaveValue("edited-api-key");
 });
 
-test("preference updates preserve unrelated options", async ({ page }) => {
+test("preference updates preserve unrelated options", async ({ page, db }) => {
     const username = "preferences-option-round-trip";
     await registerUser(page, username, "Option Round Trip");
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(
-            options,
-            '$.altitudeUnits', 'feet',
-            '$.jumpImagePrompt', 'Preserve app option'
-        )
-        WHERE username = '${username}';
-    `);
+    await updatePlaywrightUserOptions(db, {
+        username,
+        updates: {
+            altitudeUnits: "feet",
+            jumpImagePrompt: "Preserve app option",
+        },
+    });
 
     await page.goto("/preferences");
     await page
@@ -91,12 +103,11 @@ test("preference updates preserve unrelated options", async ({ page }) => {
         .selectOption("american");
     await page.getByRole("button", { name: "Save preferences" }).click();
 
-    const options = (
-        await queryPlaywrightDb(`
-            SELECT options FROM users WHERE username = '${username}';
-        `)
-    )[0]?.options;
-    expect(JSON.parse(String(options))).toMatchObject({
+    const [storedUser] = await db
+        .select({ options: users.options })
+        .from(users)
+        .where(eq(users.username, username));
+    expect(JSON.parse(storedUser?.options ?? "{}")).toMatchObject({
         altitudeUnits: "feet",
         jumpImagePrompt: "Preserve app option",
         dateTimeFormat: "american",
@@ -116,52 +127,66 @@ async function registerUser(page: Page, username: string, displayName: string) {
     await expect(page).toHaveURL("/logbook");
 }
 
-async function seedAccountData(username: string): Promise<string> {
+async function seedAccountData(
+    db: PlaywrightDatabase,
+    username: string,
+): Promise<string> {
     const locationUuid = `${username}-location`;
     const aircraftUuid = `${username}-aircraft`;
     const gearUuid = `${username}-gear`;
     const jumpTypeUuid = `${username}-jump-type`;
     const jumpUuid = `${username}-jump`;
     const usageUuid = `${username}-ai-usage`;
-    const results = await executePlaywrightDb(`
-        INSERT INTO locations (uuid, user_uuid, name, previous_jump_count, archived)
-        SELECT '${locationUuid}', uuid, 'Doomed DZ', 0, 0
-        FROM users WHERE username = '${username}';
-        INSERT INTO aircrafts (uuid, user_uuid, name, previous_jump_count, archived)
-        SELECT '${aircraftUuid}', uuid, 'Doomed Plane', 0, 0
-        FROM users WHERE username = '${username}';
-        INSERT INTO gear (uuid, user_uuid, name, previous_usage_count, archived)
-        SELECT '${gearUuid}', uuid, 'Doomed Canopy', 0, 0
-        FROM users WHERE username = '${username}';
-        INSERT INTO jump_types (uuid, user_uuid, name, previous_usage_count, archived)
-        SELECT '${jumpTypeUuid}', uuid, 'Doomed Type', 0, 0
-        FROM users WHERE username = '${username}';
-        INSERT INTO jumps (
-            uuid, user_uuid, location_uuid, jump_number, jump_date,
-            exit_altitude, opening_altitude, freefall_time, description
-        ) VALUES (
-            '${jumpUuid}', (SELECT uuid FROM users WHERE username = '${username}'),
-            '${locationUuid}', 1,
-            '2026-01-01', 4000, 1000, 55, 'Doomed jump'
-        );
-        INSERT INTO jumps_to_aircrafts (jump_uuid, aircraft_uuid)
-        VALUES ('${jumpUuid}', '${aircraftUuid}');
-        INSERT INTO jumps_to_gear (jump_uuid, gear_uuid)
-        VALUES ('${jumpUuid}', '${gearUuid}');
-        INSERT INTO jumps_to_jump_types (jump_uuid, jump_type_uuid)
-        VALUES ('${jumpUuid}', '${jumpTypeUuid}');
-        INSERT INTO ai_usage (
-            uuid, user_uuid, model, title, created_at, input_tokens, output_tokens,
-            total_tokens
-        ) VALUES (
-            '${usageUuid}',
-            (SELECT uuid FROM users WHERE username = '${username}'),
-            'gpt-4.1-mini', 'Doomed image read', 0, 1, 1, 2
-        );
-        SELECT uuid FROM users WHERE username = '${username}';
-    `);
-    const user = results.at(-1)?.results[0];
-    return String(user?.uuid);
+    const [user] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, username));
+    if (!user) throw new Error(`Expected user ${username}`);
+    await db.insert(locations).values({
+        uuid: locationUuid,
+        userUuid: user.uuid,
+        name: "Doomed DZ",
+    });
+    await db.insert(aircrafts).values({
+        uuid: aircraftUuid,
+        userUuid: user.uuid,
+        name: "Doomed Plane",
+    });
+    await db.insert(gear).values({
+        uuid: gearUuid,
+        userUuid: user.uuid,
+        name: "Doomed Canopy",
+    });
+    await db.insert(jumpTypes).values({
+        uuid: jumpTypeUuid,
+        userUuid: user.uuid,
+        name: "Doomed Type",
+    });
+    await db.insert(jumps).values({
+        uuid: jumpUuid,
+        userUuid: user.uuid,
+        locationUuid,
+        jumpNumber: 1,
+        jumpDate: "2026-01-01",
+        exitAltitude: 4000,
+        openingAltitude: 1000,
+        freefallTime: 55,
+        description: "Doomed jump",
+    });
+    await db.insert(jumpsToAircrafts).values({ jumpUuid, aircraftUuid });
+    await db.insert(jumpsToGear).values({ jumpUuid, gearUuid });
+    await db.insert(jumpsToJumpTypes).values({ jumpUuid, jumpTypeUuid });
+    await db.insert(aiUsage).values({
+        uuid: usageUuid,
+        userUuid: user.uuid,
+        model: "gpt-4.1-mini",
+        title: "Doomed image read",
+        createdAt: 0,
+        inputTokens: 1,
+        outputTokens: 1,
+        totalTokens: 2,
+    });
+    return user.uuid;
 }
 
 function deleteAccountButton(page: Page) {
@@ -325,7 +350,7 @@ test("a skydiver cannot use another account's username", async ({ page }) => {
     );
 });
 
-test("a skydiver cannot use another account's email", async ({ page }) => {
+test("a skydiver cannot use another account's email", async ({ page, db }) => {
     await registerUser(page, "existing-email", "Existing Email");
     await logOut(page);
     await registerUser(page, "preferences-email", "Preferences Email");
@@ -344,16 +369,20 @@ test("a skydiver cannot use another account's email", async ({ page }) => {
     await expect(page.locator('input[name="email"]')).toHaveValue(
         "existing-email@example.test",
     );
-    const usersWithEmail = await queryPlaywrightDb(`
-        SELECT uuid FROM users WHERE email = 'existing-email@example.test'
-    `);
+    const usersWithEmail = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.email, "existing-email@example.test"));
     expect(usersWithEmail).toHaveLength(1);
 });
 
-test("unit preferences apply throughout the logbook UI", async ({ page }) => {
+test("unit preferences apply throughout the logbook UI", async ({
+    page,
+    db,
+}) => {
     const username = "units-skydiver";
     await registerUser(page, username, "Units Skydiver");
-    await seedAccountData(username);
+    await seedAccountData(db, username);
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
@@ -407,10 +436,11 @@ test("unit preferences apply throughout the logbook UI", async ({ page }) => {
 
 test("a skydiver can delete all logbook data without deleting their account", async ({
     page,
+    db,
 }) => {
     const username = "delete-logbook-data-skydiver";
     await registerUser(page, username, "Delete Logbook Data Skydiver");
-    const userUuid = await seedAccountData(username);
+    const userUuid = await seedAccountData(db, username);
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
@@ -432,36 +462,58 @@ test("a skydiver can delete all logbook data without deleting their account", as
 
     await expect(page).toHaveURL("/logbook");
     await expect(page.getByRole("link", { name: /#1/ })).toHaveCount(0);
-    const counts = (
-        await queryPlaywrightDb(`
-            SELECT
-                (SELECT count(*) FROM users WHERE uuid = '${userUuid}') AS users,
-                (SELECT count(*) FROM jumps WHERE user_uuid = '${userUuid}') AS jumps,
-                (SELECT count(*) FROM gear WHERE user_uuid = '${userUuid}') AS gear,
-                (SELECT count(*) FROM jump_types WHERE user_uuid = '${userUuid}') AS jump_types,
-                (SELECT count(*) FROM aircrafts WHERE user_uuid = '${userUuid}') AS aircrafts,
-                (SELECT count(*) FROM locations WHERE user_uuid = '${userUuid}') AS locations,
-                (SELECT count(*) FROM ai_usage WHERE user_uuid = '${userUuid}') AS ai_usage;
-        `)
-    )[0];
-    expect(Number(counts?.users)).toBe(1);
-    expect(Number(counts?.jumps)).toBe(0);
-    expect(Number(counts?.gear)).toBe(0);
-    expect(Number(counts?.jump_types)).toBe(0);
-    expect(Number(counts?.aircrafts)).toBe(0);
-    expect(Number(counts?.locations)).toBe(0);
-    expect(Number(counts?.ai_usage)).toBe(1);
+    const [userCount, jumpCount, gearCount, jumpTypeCount, aircraftCount] =
+        await Promise.all([
+            db
+                .select({ count: count() })
+                .from(users)
+                .where(eq(users.uuid, userUuid)),
+            db
+                .select({ count: count() })
+                .from(jumps)
+                .where(eq(jumps.userUuid, userUuid)),
+            db
+                .select({ count: count() })
+                .from(gear)
+                .where(eq(gear.userUuid, userUuid)),
+            db
+                .select({ count: count() })
+                .from(jumpTypes)
+                .where(eq(jumpTypes.userUuid, userUuid)),
+            db
+                .select({ count: count() })
+                .from(aircrafts)
+                .where(eq(aircrafts.userUuid, userUuid)),
+        ]);
+    const [locationCount, usageCount] = await Promise.all([
+        db
+            .select({ count: count() })
+            .from(locations)
+            .where(eq(locations.userUuid, userUuid)),
+        db
+            .select({ count: count() })
+            .from(aiUsage)
+            .where(eq(aiUsage.userUuid, userUuid)),
+    ]);
+    expect(userCount[0]?.count).toBe(1);
+    expect(jumpCount[0]?.count).toBe(0);
+    expect(gearCount[0]?.count).toBe(0);
+    expect(jumpTypeCount[0]?.count).toBe(0);
+    expect(aircraftCount[0]?.count).toBe(0);
+    expect(locationCount[0]?.count).toBe(0);
+    expect(usageCount[0]?.count).toBe(1);
 });
 
 // eslint-disable-next-line max-lines-per-function
 test("a skydiver can permanently delete their account and all jump items", async ({
     page,
+    db,
 }) => {
     const username = "delete-account-skydiver";
     const displayName = "Delete Account Skydiver";
     await registerUser(page, username, displayName);
 
-    const userUuid = await seedAccountData(username);
+    const userUuid = await seedAccountData(db, username);
 
     await openMainMenu(page);
     await page.getByRole("link", { name: "Preferences", exact: true }).click();
@@ -481,25 +533,28 @@ test("a skydiver can permanently delete their account and all jump items", async
     await expect(page).toHaveURL("/login");
     await expect(page.getByText("Invalid username or password")).toBeVisible();
 
-    const usageAfter = (
-        await queryPlaywrightDb(`
-            SELECT
-                (SELECT count(*) FROM ai_usage) AS total_count,
-                (
-                    SELECT count(*) FROM ai_usage
-                    WHERE user_uuid IS NULL AND title = 'Deleted account'
-                ) AS scrubbed_count,
-                (
-                    SELECT count(*) FROM ai_usage WHERE user_uuid = '${userUuid}'
-                ) AS linked_count;
-        `)
-    )[0];
-    const totalUsageAfter = Number(usageAfter?.total_count);
+    const [totalUsage, scrubbedUsage, linkedUsage] = await Promise.all([
+        db.select({ count: count() }).from(aiUsage),
+        db
+            .select({ count: count() })
+            .from(aiUsage)
+            .where(
+                and(
+                    isNull(aiUsage.userUuid),
+                    eq(aiUsage.title, "Deleted account"),
+                ),
+            ),
+        db
+            .select({ count: count() })
+            .from(aiUsage)
+            .where(eq(aiUsage.userUuid, userUuid)),
+    ]);
+    const totalUsageAfter = totalUsage[0]?.count ?? 0;
     expect(totalUsageAfter).toBeGreaterThan(0);
 
-    expect(Number(usageAfter?.scrubbed_count)).toBeGreaterThanOrEqual(1);
+    expect(scrubbedUsage[0]?.count).toBeGreaterThanOrEqual(1);
 
-    const linkedToDeletedUser = Number(usageAfter?.linked_count);
+    const linkedToDeletedUser = linkedUsage[0]?.count;
     expect(linkedToDeletedUser).toBe(0);
 
     // Username is free again; a new account must not inherit deleted jump items.

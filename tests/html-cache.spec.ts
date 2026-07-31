@@ -1,6 +1,8 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
 import { expect, test, type Page } from "./fixtures";
-import { executePlaywrightDb, openMainMenu } from "./helpers";
+import { openMainMenu } from "./helpers";
+import { eq } from "drizzle-orm";
+import { users } from "@/app/schema";
 
 async function registerUser(page: Page, username: string, displayName: string) {
     await page.goto("/register");
@@ -17,6 +19,7 @@ async function registerUser(page: Page, username: string, displayName: string) {
 
 test("page caching invalidates on POST and can be disabled", async ({
     page,
+    db,
 }) => {
     const username = "html-cache-skydiver";
     const initialName = "Cached Skydiver";
@@ -34,10 +37,10 @@ test("page caching invalidates on POST and can be disabled", async ({
     expect(await cachedResponse.text()).toContain(initialName);
 
     const updatedName = "Invalidated Skydiver";
-    await executePlaywrightDb(`
-        UPDATE users SET display_name = '${updatedName}'
-        WHERE username = '${username}';
-    `);
+    await db
+        .update(users)
+        .set({ displayName: updatedName })
+        .where(eq(users.username, username));
     const staleResponse = await page.request.get("/logbook");
     expect(await staleResponse.text()).toContain(initialName);
 
@@ -60,10 +63,10 @@ test("page caching invalidates on POST and can be disabled", async ({
     await expect(page).toHaveURL("/logbook");
 
     const disabledName = "Uncached Skydiver";
-    await executePlaywrightDb(`
-        UPDATE users SET display_name = '${disabledName}'
-        WHERE username = '${username}';
-    `);
+    await db
+        .update(users)
+        .set({ displayName: disabledName })
+        .where(eq(users.username, username));
     const uncachedResponse = await page.request.get("/logbook");
     expect(uncachedResponse.headers()["x-loki-html-cache"]).toBe("DISABLED");
     expect(await uncachedResponse.text()).toContain(disabledName);
