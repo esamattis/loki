@@ -13,7 +13,7 @@ import {
 import { ErrorList } from "@/core/components/feedback";
 import { Link } from "@/core/components/link";
 import { CopyIcon, LogbookIcon } from "@/app/components/icons";
-import { SecondaryActionLink } from "@/app/components/secondary-action-link";
+import { SecondaryAction } from "@/app/components/secondary-action";
 import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
 import { DangerZone } from "@/core/components/ui/danger-zone";
 import { Dialog } from "@/core/components/ui/dialog";
@@ -774,20 +774,20 @@ export function JumpFormPage(props: {
             {(props.copyHref || props.viewHref) && (
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     {props.copyHref && (
-                        <SecondaryActionLink
+                        <SecondaryAction
                             href={props.copyHref}
                             icon={<CopyIcon className="h-3.5 w-3.5" />}
                         >
                             Copy to new
-                        </SecondaryActionLink>
+                        </SecondaryAction>
                     )}
                     {props.viewHref && (
-                        <SecondaryActionLink
+                        <SecondaryAction
                             href={props.viewHref}
                             icon={<LogbookIcon className="h-3.5 w-3.5" />}
                         >
                             View in logbook
-                        </SecondaryActionLink>
+                        </SecondaryAction>
                     )}
                 </div>
             )}
@@ -844,7 +844,7 @@ function JumpPrefillFromNotice(props: {
     const highest = source.highest;
     const clearButtonId = useId();
     return (
-        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="space-y-3">
             <p className="text-sm text-slate-600 dark:text-slate-300">
                 Fields prefilled from{" "}
                 <Link href={routes.logbook.jumps.edit({ uuid: source.uuid })}>
@@ -854,40 +854,33 @@ function JumpPrefillFromNotice(props: {
             </p>
             <div className="flex flex-wrap gap-2">
                 {lastAdded && (
-                    <ButtonLink
+                    <SecondaryAction
                         href={routes.logbook.jumps.new(
                             {},
                             { from: lastAdded.uuid },
                         )}
-                        variant="secondary"
-                        className="gap-1.5"
                         data-loki-tooltip={`Jump #${lastAdded.jumpNumber} was added more recently than jump #${source.jumpNumber}. Prefill from the most recently entered jump instead of the highest jump number.`}
                     >
                         Use last added #{lastAdded.jumpNumber}
-                    </ButtonLink>
+                    </SecondaryAction>
                 )}
                 {highest && (
-                    <ButtonLink
+                    <SecondaryAction
                         href={routes.logbook.jumps.new(
                             {},
                             { from: highest.uuid },
                         )}
-                        variant="secondary"
-                        className="gap-1.5"
                         data-loki-tooltip={`Jump #${highest.jumpNumber} has the highest jump number. Prefill from it instead of the most recently entered jump.`}
                     >
                         Use highest #{highest.jumpNumber}
-                    </ButtonLink>
+                    </SecondaryAction>
                 )}
-                <Button
-                    type="button"
+                <SecondaryAction
                     id={clearButtonId}
-                    variant="secondary"
-                    className="gap-1.5"
                     data-loki-tooltip="Clear prefilled fields and keep the next jump number"
                 >
                     Clear fields
-                </Button>
+                </SecondaryAction>
             </div>
             <Script
                 $deps={[$select]}

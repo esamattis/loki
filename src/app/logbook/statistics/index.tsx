@@ -11,7 +11,7 @@ import {
 import type { CalendarDuration } from "@/app/format";
 import { Script } from "@/core/components/script";
 import { CalendarIcon } from "@/app/components/icons";
-import { SecondaryActionLink } from "@/app/components/secondary-action-link";
+import { SecondaryAction } from "@/app/components/secondary-action";
 import { SingleNumberCard } from "@/app/components/single-number-card";
 import * as routes from "@/app/routes";
 import {
@@ -436,12 +436,12 @@ async function renderStatistics(c: HonoRequestContext) {
 
     return c.render(
         <AppPage title="Statistics">
-            <SecondaryActionLink
+            <SecondaryAction
                 href={routes.logbook.statistics.detailed({}, {})}
                 icon={<CalendarIcon className="h-3.5 w-3.5" />}
             >
                 View yearly statistics
-            </SecondaryActionLink>
+            </SecondaryAction>
             <dl className="grid gap-4 sm:grid-cols-2">
                 <SingleNumberCard
                     label="Total jumps"
