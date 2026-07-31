@@ -54,6 +54,7 @@ import { ScrollToTop } from "@/app/logbook/components/scroll-to-top";
 import { $select } from "@/core/utils";
 import { ExportLogbookButton } from "@/app/components/export-logbook-button";
 import { SecondaryAction } from "@/app/components/secondary-action";
+import { ChevronUpIcon, CloseIcon } from "@/app/components/icons";
 
 interface LogbookResource {
     uuid: string;
@@ -772,12 +773,14 @@ function LogbookOffsetControls(props: {
         <li className="col-span-full flex flex-wrap items-center justify-center gap-3 py-1">
             <SecondaryAction
                 href={previousHref}
+                icon={<ChevronUpIcon className="h-3.5 w-3.5" />}
                 data-loki-tooltip="Load more jumps from earlier in the logbook"
             >
                 Load earlier jumps
             </SecondaryAction>
             <SecondaryAction
                 href={buildLogbookUrl(props.filters)}
+                icon={<CloseIcon className="h-3.5 w-3.5" />}
                 data-loki-tooltip="Return to the start of the logbook"
             >
                 Clear offset

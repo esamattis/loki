@@ -12,7 +12,13 @@ import {
 } from "@/core/components/form";
 import { ErrorList } from "@/core/components/feedback";
 import { Link } from "@/core/components/link";
-import { CopyIcon, LogbookIcon } from "@/app/components/icons";
+import {
+    ChevronUpIcon,
+    ClipboardIcon,
+    CloseIcon,
+    CopyIcon,
+    LogbookIcon,
+} from "@/app/components/icons";
 import { SecondaryAction } from "@/app/components/secondary-action";
 import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
 import { DangerZone } from "@/core/components/ui/danger-zone";
@@ -859,6 +865,7 @@ function JumpPrefillFromNotice(props: {
                             {},
                             { from: lastAdded.uuid },
                         )}
+                        icon={<ClipboardIcon className="h-3.5 w-3.5" />}
                         data-loki-tooltip={`Jump #${lastAdded.jumpNumber} was added more recently than jump #${source.jumpNumber}. Prefill from the most recently entered jump instead of the highest jump number.`}
                     >
                         Use last added #{lastAdded.jumpNumber}
@@ -870,6 +877,7 @@ function JumpPrefillFromNotice(props: {
                             {},
                             { from: highest.uuid },
                         )}
+                        icon={<ChevronUpIcon className="h-3.5 w-3.5" />}
                         data-loki-tooltip={`Jump #${highest.jumpNumber} has the highest jump number. Prefill from it instead of the most recently entered jump.`}
                     >
                         Use highest #{highest.jumpNumber}
@@ -877,6 +885,7 @@ function JumpPrefillFromNotice(props: {
                 )}
                 <SecondaryAction
                     id={clearButtonId}
+                    icon={<CloseIcon className="h-3.5 w-3.5" />}
                     data-loki-tooltip="Clear prefilled fields and keep the next jump number"
                 >
                     Clear fields
