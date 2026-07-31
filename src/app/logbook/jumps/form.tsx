@@ -852,7 +852,7 @@ function JumpPrefillFromNotice(props: {
                 </Link>
                 .
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {lastAdded && (
                     <SecondaryAction
                         href={routes.logbook.jumps.new(
