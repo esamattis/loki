@@ -133,8 +133,8 @@ function AccountDangerZone() {
                     }
                 >
                     <p className="text-sm text-red-700/90 dark:text-red-300/90">
-                        Permanently delete your account and all logbook data.
-                        This cannot be undone.
+                        Permanently delete your account and all your data. This
+                        cannot be undone.
                     </p>
                     <ConfirmDeleteButton label="Delete account" />
                 </div>

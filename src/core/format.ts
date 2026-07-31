@@ -6,7 +6,7 @@ export type NumberFormatter = (
     value: number,
     options?: Intl.NumberFormatOptions,
 ) => string;
-/** Broken-down calendar duration used by jump/logbook UIs. */
+/** Broken-down calendar duration used by application interfaces. */
 export type CalendarDuration = { months: number; weeks: number; days: number };
 /** Formats a {@link CalendarDuration} as human-readable English units. */
 export type CalendarDurationFormatter = (duration: CalendarDuration) => string;
