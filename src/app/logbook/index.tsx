@@ -27,7 +27,7 @@ import {
     jumpsToJumpTypes,
     locations,
 } from "@/app/schema";
-import { Button, ButtonLink } from "@/core/components/form";
+import { Button } from "@/core/components/form";
 import { Link } from "@/core/components/link";
 import { Details } from "@/core/components/ui/details";
 import { AppPage } from "@/core/app-page";
@@ -53,6 +53,8 @@ import { Script } from "@/core/components/script";
 import { ScrollToTop } from "@/app/logbook/components/scroll-to-top";
 import { $select } from "@/core/utils";
 import { ExportLogbookButton } from "@/app/components/export-logbook-button";
+import { SecondaryAction } from "@/app/components/secondary-action";
+import { ChevronUpIcon, CloseIcon } from "@/app/components/icons";
 
 interface LogbookResource {
     uuid: string;
@@ -769,20 +771,20 @@ function LogbookOffsetControls(props: {
             : `${buildLogbookUrl(props.filters, { offset: previousOffset })}#${jumpAnchorId(props.topJumpNumber)}`;
     return (
         <li className="col-span-full flex flex-wrap items-center justify-center gap-3 py-1">
-            <ButtonLink
+            <SecondaryAction
                 href={previousHref}
-                variant="secondary"
+                icon={<ChevronUpIcon className="h-3.5 w-3.5" />}
                 data-loki-tooltip="Load more jumps from earlier in the logbook"
             >
                 Load earlier jumps
-            </ButtonLink>
-            <ButtonLink
+            </SecondaryAction>
+            <SecondaryAction
                 href={buildLogbookUrl(props.filters)}
-                variant="secondary"
+                icon={<CloseIcon className="h-3.5 w-3.5" />}
                 data-loki-tooltip="Return to the start of the logbook"
             >
                 Clear offset
-            </ButtonLink>
+            </SecondaryAction>
         </li>
     );
 }

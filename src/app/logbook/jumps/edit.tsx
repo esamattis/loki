@@ -89,6 +89,7 @@ export async function renderEditJump(c: HonoRequestContext) {
             }}
             resources={await getJumpFormResources(c)}
             copyHref={routes.logbook.jumps.new({}, { from: jump.uuid })}
+            viewHref={buildLogbookGoToJumpUrl(jump.jumpNumber)}
             jumpUuid={jump.uuid}
             excludeJumpUuid={jump.uuid}
             createdAt={jump.createdAt}
