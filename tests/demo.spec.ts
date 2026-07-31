@@ -1,16 +1,36 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
-import { expect, test } from "./fixtures";
-import {
-    executePlaywrightDb,
-    logOut,
-    openMainMenu,
-    queryPlaywrightDb,
-} from "./helpers";
+import { expect, test, type PlaywrightDatabase } from "./fixtures";
+import { logOut, openMainMenu, updatePlaywrightUserOptions } from "./helpers";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import { jumps, sessions, users } from "@/app/schema";
 
 async function tryDemo(page: import("./fixtures").Page) {
     await page.goto("/");
     await page.getByRole("button", { name: "Try demo" }).first().click();
     await expect(page).toHaveURL("/logbook");
+}
+
+async function setOtherUsersReadonly(
+    db: PlaywrightDatabase,
+    readonly: boolean,
+): Promise<void> {
+    const storedUsers = await db
+        .select({ uuid: users.uuid, options: users.options })
+        .from(users)
+        .where(ne(users.username, "demo"));
+    await Promise.all(
+        storedUsers.map((user) =>
+            db
+                .update(users)
+                .set({
+                    options: JSON.stringify({
+                        ...JSON.parse(user.options),
+                        readonly,
+                    }),
+                })
+                .where(eq(users.uuid, user.uuid)),
+        ),
+    );
 }
 
 test("try demo logs in with example data and blocks writes", async ({
@@ -101,6 +121,7 @@ test("read-only policy allows safe methods and rejects all mutation methods", as
 
 test("try demo skips re-import when example data checksum matches", async ({
     page,
+    db,
 }) => {
     await tryDemo(page);
     await expect(
@@ -110,15 +131,23 @@ test("try demo skips re-import when example data checksum matches", async ({
 
     // Mutate demo data while the stored CSV checksum still matches.
     // Bump the HTML cache generation so the UI reflects the DB change.
-    await executePlaywrightDb(`
-        UPDATE jumps
-        SET description = 'checksum-skip-marker'
-        WHERE jump_number = 622
-          AND user_uuid = (SELECT uuid FROM users WHERE username = 'demo');
-        UPDATE users
-        SET html_cache_generation = html_cache_generation + 1
-        WHERE username = 'demo';
-    `);
+    const [demoUser] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, "demo"));
+    if (!demoUser) throw new Error("Expected demo user");
+    await db
+        .update(jumps)
+        .set({ description: "checksum-skip-marker" })
+        .where(
+            and(eq(jumps.jumpNumber, 622), eq(jumps.userUuid, demoUser.uuid)),
+        );
+    await db
+        .update(users)
+        .set({
+            htmlCacheGeneration: sql`${users.htmlCacheGeneration} + 1`,
+        })
+        .where(eq(users.uuid, demoUser.uuid));
 
     await tryDemo(page);
     await page
@@ -132,30 +161,28 @@ test("try demo skips re-import when example data checksum matches", async ({
     ).toHaveCount(0);
 });
 
-test("try demo creates a non-admin read-only user", async ({ page }) => {
+test("try demo creates a non-admin read-only user", async ({ page, db }) => {
     await tryDemo(page);
 
-    const rows = await queryPlaywrightDb(`
-        SELECT admin, json_extract(options, '$.readonly') AS readonly
-        FROM users
-        WHERE username = 'demo'
-    `);
-    expect(rows).toEqual([{ admin: 0, readonly: 1 }]);
+    const rows = await db
+        .select({ admin: users.admin, options: users.options })
+        .from(users)
+        .where(eq(users.username, "demo"));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.admin).toBe(false);
+    expect(JSON.parse(rows[0]?.options ?? "{}").readonly).toBe(true);
 });
 
 test("first account is admin when only readonly users exist", async ({
     page,
+    db,
 }) => {
     await tryDemo(page);
     await logOut(page);
 
     // Treat every existing account as readonly so registration looks empty,
     // without deleting the shared bootstrap admin used by later tests.
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(options, '$.readonly', json('true'))
-        WHERE username != 'demo';
-    `);
+    await setOtherUsersReadonly(db, true);
 
     try {
         await page.goto("/register");
@@ -184,32 +211,33 @@ test("first account is admin when only readonly users exist", async ({
             page.getByRole("link", { name: "Admin", exact: true }),
         ).toBeVisible();
 
-        const rows = await queryPlaywrightDb(`
-            SELECT username, admin
-            FROM users
-            WHERE username IN ('demo', 'post-demo-admin')
-            ORDER BY username
-        `);
+        const rows = await db
+            .select({ username: users.username, admin: users.admin })
+            .from(users)
+            .where(inArray(users.username, ["demo", "post-demo-admin"]))
+            .orderBy(users.username);
         expect(rows).toEqual([
-            { username: "demo", admin: 0 },
-            { username: "post-demo-admin", admin: 1 },
+            { username: "demo", admin: false },
+            { username: "post-demo-admin", admin: true },
         ]);
     } finally {
-        await executePlaywrightDb(`
-            DELETE FROM sessions
-            WHERE user_uuid = (
-                SELECT uuid FROM users WHERE username = 'post-demo-admin'
-            );
-            DELETE FROM users WHERE username = 'post-demo-admin';
-            UPDATE users
-            SET options = json_set(options, '$.readonly', json('false'))
-            WHERE username != 'demo';
-        `);
+        const [postDemoAdmin] = await db
+            .select({ uuid: users.uuid })
+            .from(users)
+            .where(eq(users.username, "post-demo-admin"));
+        if (postDemoAdmin) {
+            await db
+                .delete(sessions)
+                .where(eq(sessions.userUuid, postDemoAdmin.uuid));
+            await db.delete(users).where(eq(users.uuid, postDemoAdmin.uuid));
+        }
+        await setOtherUsersReadonly(db, false);
     }
 });
 
 test("try demo re-imports when example data checksum changes", async ({
     page,
+    db,
 }) => {
     await tryDemo(page);
     await expect(
@@ -217,15 +245,21 @@ test("try demo re-imports when example data checksum changes", async ({
     ).toBeVisible();
     await logOut(page);
 
-    await executePlaywrightDb(`
-        UPDATE jumps
-        SET description = 'should-be-replaced-on-reimport'
-        WHERE jump_number = 622
-          AND user_uuid = (SELECT uuid FROM users WHERE username = 'demo');
-        UPDATE users
-        SET options = json_set(options, '$.exampleDataChecksum', 'stale-checksum')
-        WHERE username = 'demo';
-    `);
+    const [demoUser] = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(eq(users.username, "demo"));
+    if (!demoUser) throw new Error("Expected demo user");
+    await db
+        .update(jumps)
+        .set({ description: "should-be-replaced-on-reimport" })
+        .where(
+            and(eq(jumps.jumpNumber, 622), eq(jumps.userUuid, demoUser.uuid)),
+        );
+    await updatePlaywrightUserOptions(db, {
+        username: "demo",
+        updates: { exampleDataChecksum: "stale-checksum" },
+    });
 
     await tryDemo(page);
     await page

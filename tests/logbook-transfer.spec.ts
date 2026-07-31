@@ -3,12 +3,13 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import {
     acceptPrivacyPolicyIfRequired,
-    executePlaywrightDb,
     jumpItemSummary,
     logOut,
     openManageLogbook,
-    queryPlaywrightDb,
+    updatePlaywrightUserOptions,
 } from "./helpers";
+import { eq, max } from "drizzle-orm";
+import { jumps, users } from "@/app/schema";
 
 const fixturePath = path.join(import.meta.dirname, "fixtures/logbook.csv");
 const roundTripFixturePath = path.join(
@@ -504,6 +505,7 @@ test("a CSV jump can use zero for optional measurements", async ({ page }) => {
 
 test("the logbook reminds users to export changed data every month", async ({
     page,
+    db,
 }) => {
     const username = "backup-reminder-skydiver";
     const reminder = page.getByRole("heading", {
@@ -537,46 +539,42 @@ test("the logbook reminds users to export changed data every month", async ({
     await page.reload();
     await expect(reminder).toHaveCount(0);
 
-    const optionRows = await queryPlaywrightDb(`
-        SELECT json_extract(options, '$.lastCsvExportAt') AS lastCsvExportAt
-        FROM users
-        WHERE username = '${username}'
-    `);
-    expect(optionRows[0]?.lastCsvExportAt).toMatch(
+    const [storedUser] = await db
+        .select({ options: users.options })
+        .from(users)
+        .where(eq(users.username, username));
+    expect(JSON.parse(storedUser?.options ?? "{}").lastCsvExportAt).toMatch(
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
     );
-    const jumpRows = await queryPlaywrightDb(`
-        SELECT max(created_at) AS latestJumpCreatedAt
-        FROM jumps
-        WHERE user_uuid = (
-            SELECT uuid FROM users WHERE username = '${username}'
-        )
-    `);
-    expect(jumpRows[0]?.latestJumpCreatedAt).toBeGreaterThan(
+    const [latestJump] = await db
+        .select({ createdAt: max(jumps.createdAt) })
+        .from(jumps)
+        .innerJoin(users, eq(users.uuid, jumps.userUuid))
+        .where(eq(users.username, username));
+    expect(latestJump?.createdAt).toBeGreaterThan(
         Date.parse("2020-01-01T00:00:00.000Z") / 1_000,
     );
 
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(options, '$.lastCsvExportAt', '2020-01-01T00:00:00.000Z'),
-            html_cache_generation = html_cache_generation + 1
-        WHERE username = '${username}'
-    `);
+    await updatePlaywrightUserOptions(db, {
+        username,
+        updates: { lastCsvExportAt: "2020-01-01T00:00:00.000Z" },
+        invalidateHtmlCache: true,
+    });
     await page.reload();
     await expect(reminder).toBeVisible();
 
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(options, '$.lastCsvExportAt', '2099-01-01T00:00:00.000Z'),
-            html_cache_generation = html_cache_generation + 1
-        WHERE username = '${username}'
-    `);
+    await updatePlaywrightUserOptions(db, {
+        username,
+        updates: { lastCsvExportAt: "2099-01-01T00:00:00.000Z" },
+        invalidateHtmlCache: true,
+    });
     await page.reload();
     await expect(reminder).toHaveCount(0);
 });
 
 test("the logbook does not show the CSV backup reminder for read-only users", async ({
     page,
+    db,
 }) => {
     const username = "backup-reminder-readonly";
     const reminder = page.getByRole("heading", {
@@ -600,12 +598,11 @@ test("the logbook does not show the CSV backup reminder for read-only users", as
     }
     await expect(reminder).toBeVisible();
 
-    await executePlaywrightDb(`
-        UPDATE users
-        SET options = json_set(options, '$.readonly', json('true')),
-            html_cache_generation = html_cache_generation + 1
-        WHERE username = '${username}'
-    `);
+    await updatePlaywrightUserOptions(db, {
+        username,
+        updates: { readonly: true },
+        invalidateHtmlCache: true,
+    });
     await page.reload();
     await expect(reminder).toHaveCount(0);
 });

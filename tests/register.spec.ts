@@ -1,10 +1,8 @@
-import {
-    acceptPrivacyPolicyIfRequired,
-    logOut,
-    queryPlaywrightDb,
-} from "./helpers";
+import { acceptPrivacyPolicyIfRequired, logOut } from "./helpers";
 import { expect, test } from "./fixtures";
 import { openMainMenu } from "./helpers";
+import { inArray, or } from "drizzle-orm";
+import { users } from "@/app/schema";
 
 const localeCases = [
     {
@@ -76,6 +74,7 @@ async function submitRegistration(
 
 test("registration rejects an existing username and email", async ({
     page,
+    db,
 }) => {
     await submitRegistration(
         page,
@@ -104,14 +103,21 @@ test("registration rejects an existing username and email", async ({
         page.getByText("Email address is already in use"),
     ).toBeVisible();
 
-    const matchingUsers = await queryPlaywrightDb(`
-        SELECT uuid FROM users
-        WHERE username IN ('registration-existing', 'registration-other')
-           OR email IN (
-               'registration-existing@example.test',
-               'registration-other@example.test'
-           )
-    `);
+    const matchingUsers = await db
+        .select({ uuid: users.uuid })
+        .from(users)
+        .where(
+            or(
+                inArray(users.username, [
+                    "registration-existing",
+                    "registration-other",
+                ]),
+                inArray(users.email, [
+                    "registration-existing@example.test",
+                    "registration-other@example.test",
+                ]),
+            ),
+        );
     expect(matchingUsers).toHaveLength(1);
 });
 

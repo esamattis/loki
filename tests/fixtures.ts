@@ -4,9 +4,17 @@ import {
     type APIRequestContext,
     type Page,
 } from "@playwright/test";
+import {
+    createPlaywrightDatabase,
+    type PlaywrightDatabase,
+} from "./helpers/db";
 
 type BrowserErrorFixtures = {
     assertNoBrowserErrors: void;
+};
+
+type DatabaseWorkerFixtures = {
+    db: PlaywrightDatabase;
 };
 
 const THIRD_PARTY_ERROR_ORIGINS = ["https://www.youtube.com"];
@@ -24,7 +32,7 @@ function isThirdPartyPageError(error: Error): boolean {
     );
 }
 
-export const test = base.extend<BrowserErrorFixtures>({
+export const test = base.extend<BrowserErrorFixtures, DatabaseWorkerFixtures>({
     assertNoBrowserErrors: [
         async ({ context }, use) => {
             const errors: string[] = [];
@@ -61,6 +69,15 @@ export const test = base.extend<BrowserErrorFixtures>({
         },
         { auto: true },
     ],
+    db: [
+        // eslint-disable-next-line no-empty-pattern -- Playwright requires fixture dependency destructuring.
+        async ({}, use) => {
+            const database = await createPlaywrightDatabase();
+            await use(database.db);
+            await database.dispose();
+        },
+        { scope: "worker" },
+    ],
 });
 
-export { expect, type APIRequestContext, type Page };
+export { expect, type APIRequestContext, type Page, type PlaywrightDatabase };
