@@ -1,7 +1,7 @@
 import { getPlatformProxy } from "wrangler";
 import { createD1Database, type AppDatabase } from "@/core/db";
 import { eq, sql } from "drizzle-orm";
-import { users } from "@/app/schema";
+import { users } from "@/core/schema";
 
 export type PlaywrightDatabase = AppDatabase;
 

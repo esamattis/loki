@@ -1,6 +1,7 @@
 import { acceptPrivacyPolicyIfRequired } from "./helpers";
 import { expect, test, type PlaywrightDatabase } from "./fixtures";
-import { logOut, openMainMenu, updatePlaywrightUserOptions } from "./helpers";
+import { logOut, openMainMenu } from "./helpers";
+import { updatePlaywrightUserOptions } from "./core/helpers";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { jumps, sessions, users } from "@/app/schema";
 

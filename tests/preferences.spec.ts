@@ -1,7 +1,5 @@
-import {
-    acceptPrivacyPolicyIfRequired,
-    updatePlaywrightUserOptions,
-} from "./helpers";
+import { acceptPrivacyPolicyIfRequired } from "./helpers";
+import { updatePlaywrightUserOptions } from "./core/helpers";
 import { expect, test, type Page, type PlaywrightDatabase } from "./fixtures";
 import {
     logOut,

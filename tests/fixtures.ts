@@ -7,7 +7,7 @@ import {
 import {
     createPlaywrightDatabase,
     type PlaywrightDatabase,
-} from "./helpers/db";
+} from "./core/helpers";
 
 type BrowserErrorFixtures = {
     assertNoBrowserErrors: void;
