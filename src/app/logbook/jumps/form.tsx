@@ -13,6 +13,7 @@ import {
 import { ErrorList } from "@/core/components/feedback";
 import { Link } from "@/core/components/link";
 import { CopyIcon, LogbookIcon } from "@/app/components/icons";
+import { SecondaryActionLink } from "@/app/components/secondary-action-link";
 import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button";
 import { DangerZone } from "@/core/components/ui/danger-zone";
 import { Dialog } from "@/core/components/ui/dialog";
@@ -773,22 +774,20 @@ export function JumpFormPage(props: {
             {(props.copyHref || props.viewHref) && (
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     {props.copyHref && (
-                        <Link
+                        <SecondaryActionLink
                             href={props.copyHref}
-                            className="inline-flex items-center gap-1.5"
+                            icon={<CopyIcon className="h-3.5 w-3.5" />}
                         >
-                            <CopyIcon className="h-3.5 w-3.5" />
                             Copy to new
-                        </Link>
+                        </SecondaryActionLink>
                     )}
                     {props.viewHref && (
-                        <Link
+                        <SecondaryActionLink
                             href={props.viewHref}
-                            className="inline-flex items-center gap-1.5"
+                            icon={<LogbookIcon className="h-3.5 w-3.5" />}
                         >
-                            <LogbookIcon className="h-3.5 w-3.5" />
                             View in logbook
-                        </Link>
+                        </SecondaryActionLink>
                     )}
                 </div>
             )}

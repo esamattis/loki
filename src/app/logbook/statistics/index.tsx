@@ -8,9 +8,10 @@ import {
     type AppRouter,
     type HonoRequestContext,
 } from "@/core/create-app";
-import { ButtonLink } from "@/core/components/form";
 import type { CalendarDuration } from "@/app/format";
 import { Script } from "@/core/components/script";
+import { CalendarIcon } from "@/app/components/icons";
+import { SecondaryActionLink } from "@/app/components/secondary-action-link";
 import { SingleNumberCard } from "@/app/components/single-number-card";
 import * as routes from "@/app/routes";
 import {
@@ -435,13 +436,12 @@ async function renderStatistics(c: HonoRequestContext) {
 
     return c.render(
         <AppPage title="Statistics">
-            <ButtonLink
+            <SecondaryActionLink
                 href={routes.logbook.statistics.detailed({}, {})}
-                variant="secondary"
-                className="gap-1.5"
+                icon={<CalendarIcon className="h-3.5 w-3.5" />}
             >
                 View yearly statistics
-            </ButtonLink>
+            </SecondaryActionLink>
             <dl className="grid gap-4 sm:grid-cols-2">
                 <SingleNumberCard
                     label="Total jumps"
