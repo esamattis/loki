@@ -1,8 +1,5 @@
-import { readdir } from "node:fs/promises";
-import { join } from "node:path";
-import { DatabaseSync } from "node:sqlite";
-import type { AppDatabase } from "@/core/db";
-import { createSqliteDrizzleDatabase } from "@/core/db-sqlite";
+import { getPlatformProxy } from "wrangler";
+import { createD1Database, type AppDatabase } from "@/core/db";
 import { eq, sql } from "drizzle-orm";
 import { users } from "@/app/schema";
 
@@ -12,23 +9,13 @@ export async function createPlaywrightDatabase(): Promise<{
     db: PlaywrightDatabase;
     dispose: () => Promise<void>;
 }> {
-    const directory = ".playwright/state/v3/d1/miniflare-D1DatabaseObject";
-    const filenames = (await readdir(directory)).filter(
-        (filename) =>
-            filename.endsWith(".sqlite") && filename !== "metadata.sqlite",
-    );
-    const filename = filenames[0];
-    if (filenames.length !== 1 || !filename) {
-        throw new Error(
-            `Expected one Playwright D1 database, found ${filenames.length}`,
-        );
-    }
-    const sqlite = new DatabaseSync(join(directory, filename));
-    sqlite.exec("PRAGMA foreign_keys = ON");
-    sqlite.exec("PRAGMA busy_timeout = 5000");
+    const platform = await getPlatformProxy<CloudflareBindings>({
+        persist: { path: ".playwright/state/v3" },
+        remoteBindings: false,
+    });
     return {
-        db: createSqliteDrizzleDatabase(sqlite),
-        dispose: async () => sqlite.close(),
+        db: createD1Database(platform.env.DB),
+        dispose: platform.dispose,
     };
 }
 
