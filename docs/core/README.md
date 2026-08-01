@@ -38,8 +38,8 @@ that lets core reach back into the application.
   timing, assets, and executable support.
 
 For replacing Loki with another concrete product, see
-[Forking the application core](forking.md). That guide lists every
-application-owned file and the required replacement procedure.
+[Forking the application core](forking.md). That guide covers cleanup,
+replacement, repository integration, and deployment reset procedures.
 
 ## Composition at a glance
 

@@ -4,37 +4,30 @@ import {
     type APIRequestContext,
     type Page,
 } from "@playwright/test";
-import {
-    createPlaywrightDatabase,
-    type PlaywrightDatabase,
-} from "./core/helpers";
+import { createPlaywrightDatabase, type PlaywrightDatabase } from "./helpers";
 
 type BrowserErrorFixtures = {
     assertNoBrowserErrors: void;
+    ignoredBrowserErrorOrigins: string[];
 };
 
 type DatabaseWorkerFixtures = {
     db: PlaywrightDatabase;
 };
 
-const THIRD_PARTY_ERROR_ORIGINS = ["https://www.youtube.com"];
-
-function isThirdPartyErrorUrl(url: string): boolean {
-    return THIRD_PARTY_ERROR_ORIGINS.some((origin) =>
-        url.startsWith(`${origin}/`),
-    );
+function isIgnoredErrorUrl(url: string, origins: string[]): boolean {
+    return origins.some((origin) => url.startsWith(`${origin}/`));
 }
 
-function isThirdPartyPageError(error: Error): boolean {
+function isIgnoredPageError(error: Error, origins: string[]): boolean {
     const details = error.stack ?? error.message;
-    return THIRD_PARTY_ERROR_ORIGINS.some((origin) =>
-        details.includes(`${origin}/`),
-    );
+    return origins.some((origin) => details.includes(`${origin}/`));
 }
 
 export const test = base.extend<BrowserErrorFixtures, DatabaseWorkerFixtures>({
+    ignoredBrowserErrorOrigins: [[], { option: true }],
     assertNoBrowserErrors: [
-        async ({ context }, use) => {
+        async ({ context, ignoredBrowserErrorOrigins }, use) => {
             const errors: string[] = [];
 
             function observePage(page: Page) {
@@ -42,13 +35,18 @@ export const test = base.extend<BrowserErrorFixtures, DatabaseWorkerFixtures>({
                     if (
                         message.type() === "error" &&
                         message.args().length > 0 &&
-                        !isThirdPartyErrorUrl(message.location().url)
+                        !isIgnoredErrorUrl(
+                            message.location().url,
+                            ignoredBrowserErrorOrigins,
+                        )
                     ) {
                         errors.push(`Console error: ${message.text()}`);
                     }
                 });
                 page.on("pageerror", (error) => {
-                    if (isThirdPartyPageError(error)) return;
+                    if (isIgnoredPageError(error, ignoredBrowserErrorOrigins)) {
+                        return;
+                    }
                     errors.push(
                         `Uncaught error: ${error.stack ?? error.message}`,
                     );

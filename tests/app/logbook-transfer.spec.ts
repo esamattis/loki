@@ -7,7 +7,7 @@ import {
     logOut,
     openManageLogbook,
 } from "./helpers";
-import { updatePlaywrightUserOptions } from "./core/helpers";
+import { updatePlaywrightUserOptions } from "../core/helpers";
 import { eq, max } from "drizzle-orm";
 import { jumps, users } from "@/app/schema";
 

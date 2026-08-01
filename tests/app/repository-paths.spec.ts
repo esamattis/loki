@@ -8,16 +8,19 @@ import {
 import { extname, join, relative, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { expect, test } from "./fixtures";
-import localConfig from "../drizzle.config";
-import { drizzleOutputPath, drizzleSchemaPath } from "../drizzle.shared.config";
-import { listSqlFiles } from "../scripts/db-generate";
+import localConfig from "../../drizzle.config";
+import {
+    drizzleOutputPath,
+    drizzleSchemaPath,
+} from "../../drizzle.shared.config";
+import { listSqlFiles } from "../../scripts/db-generate";
 
 test("local and remote Drizzle configurations use the importable app schema", async () => {
     const previousAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const previousToken = process.env.CLOUDFLARE_API_TOKEN;
     process.env.CLOUDFLARE_ACCOUNT_ID = "test-account";
     process.env.CLOUDFLARE_API_TOKEN = "test-token";
-    const remoteConfig = (await import("../drizzle.remote.config")).default;
+    const remoteConfig = (await import("../../drizzle.remote.config")).default;
     if (previousAccountId === undefined)
         delete process.env.CLOUDFLARE_ACCOUNT_ID;
     else process.env.CLOUDFLARE_ACCOUNT_ID = previousAccountId;
@@ -29,7 +32,7 @@ test("local and remote Drizzle configurations use the importable app schema", as
     expect(localConfig.out).toBe(drizzleOutputPath);
     expect(remoteConfig.out).toBe(drizzleOutputPath);
     expect(existsSync(resolve(drizzleSchemaPath))).toBe(true);
-    await expect(import("../src/app/schema")).resolves.toBeTruthy();
+    await expect(import("../../src/app/schema")).resolves.toBeTruthy();
 });
 
 test("source and configuration files contain no deleted extraction paths", () => {

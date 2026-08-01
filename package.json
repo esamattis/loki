@@ -29,7 +29,7 @@
         "test:e2e": "playwright test",
         "test:executable": "$npm_execpath run build:executable && playwright test --config playwright.executable.config.ts",
         "test:tsc": "tsc",
-        "test:boundary": "node tests/core-boundary.ts && node scripts/check-core-boundary.ts",
+        "test:boundary": "node tests/core/core-boundary.ts && node scripts/check-core-boundary.ts",
         "prettier-write": "prettier --write .",
         "prettier-check": "prettier --check .",
         "lint": "oxlint",

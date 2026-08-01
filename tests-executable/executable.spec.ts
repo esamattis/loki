@@ -3,7 +3,7 @@ import { readMigrationFiles } from "drizzle-orm/migrator";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { logOut } from "../tests/helpers";
+import { logOut } from "../tests/app/helpers";
 
 const sqlitePath = resolve(".playwright/executable/sqlite/loki.sqlite");
 

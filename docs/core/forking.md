@@ -1,150 +1,183 @@
 # Forking the Application Core
 
-A fork replaces the concrete product without editing `src/core`. Follow this
-procedure to replace the application while preserving the boundary between the
-reusable core and concrete product.
-
-## Replacement procedure
-
-1. Replace all of `src/app`. The replacement must provide:
-    - `src/app/index.tsx`, exporting the configured `app`;
-    - `src/app/schema.ts`, exporting the complete Drizzle schema and
-      re-exporting `users`, `sessions`, and `invitations` from `@/core/schema`;
-    - `src/app/config.ts`, exporting the `appConfig` contract shown below; and
-    - its route helpers and handlers. Call `registerCoreRoutes(app)` once, then
-      attach each concrete handler with `registerRoute`. A route marked
-      `.public()` becomes public when that handler is registered; there is no
-      second public-route list.
-2. Replace the product-owned files under `public/`.
-3. Replace the concrete tests and fixtures listed below.
-4. Remove everything inside `drizzle/` (removing the directory itself is also
-   supported), then run `pn db:generate`. This creates the directory if needed
-   and generates the new product's baseline. Do this only for a new fork:
-   Loki's existing migration history remains unchanged for existing Loki
-   installations.
-5. Update the distribution and deployment files in the mapping below.
-6. Remove app-only dependencies such as `@ai-sdk/openai`, `ai`, and
-   `fast-xml-parser` if the replacement does not use them.
-7. Run `pn test`.
-
-`src/app/config.ts` is the application-to-repository-script contract:
-
-```ts
-export const appConfig = {
-    buildName: "Example",
-    defaultUserOptionsJson: JSON.stringify(CoreUserOptionsSchema.parse({})),
-    executableName: process.platform === "win32" ? "example.exe" : "example",
-    sqliteFilename: "example.sqlite",
-    storageDirectoryName(platform: NodeJS.Platform = process.platform) {
-        return platform === "win32" ? "Example" : "example";
-    },
-} as const;
-```
-
-The default options must be valid JSON for the complete concrete option schema.
-Repository scripts consume this contract; they do not import an app's internal
-`options.ts`.
-
-## Exact fork-owned file mapping
-
-| Concern                                                                                                                   | File or exported value to replace                                                               |
-| ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Request-time name, title, repository URL, navigation, authenticated subtitle, privacy content, registration hooks, routes | `src/app/index.tsx`                                                                             |
-| Build name, executable filename, default user options, SQLite filename and application data directory                     | `src/app/config.ts` (`appConfig`)                                                               |
-| Complete account and application schema                                                                                   | `src/app/schema.ts`                                                                             |
-| Concrete routes and registration                                                                                          | `src/app/routes.ts`, `src/app/register-routes.ts`, and concrete handler modules                 |
-| Browser manifest, service worker, icons, favicon, logo, social image and other static product files                       | `public/`                                                                                       |
-| npm package identity and remote D1 backup database name                                                                   | `package.json`                                                                                  |
-| Cloudflare Worker name, routes and D1 binding/database identity                                                           | `wrangler.jsonc`                                                                                |
-| Drizzle schema/output convention                                                                                          | `drizzle.shared.config.ts` (keep `src/app/schema.ts` unless deliberately changing the contract) |
-| Migration history                                                                                                         | contents of `drizzle/` for a new fork only                                                      |
-| Node CLI composition and startup behavior                                                                                 | `src/node.ts` (normally no edit is needed when `appConfig` is sufficient)                       |
-| SEA executable construction                                                                                               | `scripts/build-executable.ts` and `src/app/config.ts#appConfig.executableName`                  |
-| Release asset naming and repository release URLs                                                                          | `scripts/binary-release.ts`, `.github/workflows/binary-release.yml`                             |
-| Generated icon artwork and text                                                                                           | `scripts/generate-icons.ts`                                                                     |
-| Container repository, binary/user names, storage directory and service/volume names                                       | `docker/Dockerfile`, `docker/docker-compose.yml`                                                |
-| Package icons and release/deployment automation                                                                           | `.github/workflows/binary-release.yml` and any fork-added deployment workflows                  |
-
-The public folder is intentionally concrete because Vite, Node static serving,
-the executable asset bundle, and icon generation consume it directly.
-
-## Concrete Loki tests to replace
-
-Reusable infrastructure tests may remain in place. The following tests contain
-Loki routes, options, policy, logbook behavior, product assets, or bootstrap
-hooks and are the exact concrete test surface:
+A fork replaces the concrete product while preserving the reusable core. The
+architectural dependency remains one-way:
 
 ```text
-tests/about.spec.ts
-tests/asset-caching.spec.ts
-tests/csv.spec.ts
-tests/demo.spec.ts
-tests/example-logbook.spec.ts
-tests/gap-toggle.spec.ts
-tests/home.spec.ts
-tests/jump-aircraft.spec.ts
-tests/jump-archived-edit.spec.ts
-tests/jump-card.spec.ts
-tests/jump-delete.spec.ts
-tests/jump-from-image.spec.ts
-tests/jump-item-archive-edit.spec.ts
-tests/jump-item-delete.spec.ts
-tests/jump-item-merge.spec.ts
-tests/jump-number-gaps.spec.ts
-tests/jump-number-validation.spec.ts
-tests/jump-prefill.spec.ts
-tests/logbook/duplicate-jump-number.spec.ts
-tests/logbook-offset.spec.ts
-tests/logbook-sort.spec.ts
-tests/logbook-transfer.spec.ts
-tests/logbook.spec.ts
-tests/mobile-nav.spec.ts
-tests/preferences.spec.ts
-tests/privacy.spec.ts
-tests/register-bootstrap.setup.ts
-tests/register.spec.ts
-tests/repository-paths.spec.ts
-tests/skydiving-logbook-xml.spec.ts
-tests/speed-units.spec.ts
-tests/sqlite-defaults.spec.ts
-tests/helpers/app.ts
-tests/fixtures/jump-image.png
-tests/fixtures/logbook-round-trip.csv
-tests/fixtures/logbook.csv
-tests/fixtures/skydiving-logbook-cutaway-no-type.xml
-tests/fixtures/skydiving-logbook-cutaway-type.xml
-tests/fixtures/skydiving-logbook.xml
+src/app  --imports and configures-->  src/core
+src/core --must never import-------->  src/app
 ```
 
-The remaining tests cover reusable account, admin, cache, formatting,
-route-registration, SSR component, form, and browser infrastructure. A fork may
-of course add its own organization, but this repository does not claim a
-nonexistent `tests/app` directory.
+Do not delete all of `src/`: it also contains the reusable core and runtime
+entry points.
 
-## Boundary and route rules
+## Before cleaning
 
-The source boundary has four owners: `core` (`src/core`), `app` (`src/app`),
-`root` (`src/index.tsx` and `src/node.ts`), and `outside` (all other files).
-Root composition may import core and app, and app may import core. Core may
-traverse only core-owned dependencies, so direct or indirect imports from core
-to app, root, or outside fail.
+Work from the repository root and preserve anything that must be carried into
+the new product. The cleanup commands below permanently remove tracked product
+source, static assets, migration history, concrete tests, local databases,
+generated output, test state, local environment files, and backups.
 
-The boundary is checked transitively by `scripts/check-core-boundary.ts`, with
-fixture coverage in `tests/core-boundary.ts`. It uses TypeScript module
-resolution with the repository compiler options for JavaScript and TypeScript,
-including aliases and directory indexes. It resolves literal CSS, JSON, HTML,
-SVG, and text assets and traverses local CSS `@import` dependencies. Query
-suffixes do not affect ownership. Unresolved relative or configured-path
-imports are errors; bare packages are ignored.
+Deleting migration history is appropriate only for a new product with a new
+database. Do not do it when maintaining or upgrading an existing deployment.
 
-Static imports, type imports, re-exports, and literal dynamic imports all
-participate in the graph. Non-literal dynamic imports are rejected in core but
-allowed in app and root composition code.
+Remote Cloudflare data, globally stored Wrangler credentials, Docker volumes,
+and platform-specific SQLite data outside the repository are not removed by
+these commands. Inspect and remove those separately only after verifying the
+account, volume, or path.
 
-## Stable browser protocol names
+## Initial cleanup
 
-The `data-loki-*` attributes are intentionally retained as stable internal
-browser protocol names. Core and concrete components, embedded scripts, tests,
-and persisted browser state already coordinate through these names. They are
-not displayed product identity. A future protocol migration may rename them as
-a separate compatibility change; forks do not need to rename them.
+Confirm the working directory before running destructive commands:
+
+```sh
+pwd
+```
+
+Remove the existing product source, static assets, migration history, and
+concrete tests, then recreate their top-level directories for the replacement:
+
+```sh
+rm -rf -- src/app public drizzle tests/app tests-executable
+mkdir -p src/app public tests/app tests-executable
+```
+
+The reusable test suite remains under `tests/core`.
+
+Remove repository-local database state, build output, test output, backups,
+logs, and other generated state:
+
+```sh
+rm -rf -- \
+  .wrangler \
+  .playwright \
+  dist \
+  dist-server \
+  dist-executable \
+  playwright-report \
+  test-results \
+  blob-report \
+  backups \
+  data \
+  logs
+```
+
+Remove local secrets if they must not carry into the fork:
+
+```sh
+rm -f -- .env .env.production .dev.vars
+```
+
+For a completely fresh dependency installation, also remove installed
+packages. Keep the lockfile and update it through pnpm rather than deleting it.
+
+```sh
+rm -rf -- node_modules
+pn install
+```
+
+## Replace the product
+
+1. Implement the replacement under `src/app`. It remains the concrete
+   composition root: create and configure the core router, register core routes
+   once, and then register the concrete routes explicitly. Route modules must
+   not register themselves through import side effects.
+2. Add the replacement static assets under `public`.
+3. Ensure the complete Drizzle schema includes the reusable account tables and
+   add the replacement product's tables.
+4. Provide the repository-script configuration values for the build name,
+   executable name, default complete user options, SQLite filename, and
+   platform storage directory. The default options must be valid JSON for the
+   replacement's complete option schema.
+5. Replace product-dependent tests and fixtures while retaining verified core
+   infrastructure coverage.
+6. Remove dependencies the replacement does not use and add its required
+   dependencies with pnpm so the lockfile remains synchronized.
+
+Use the other core guides for the current router, schema, request-context,
+policy, SSR, and runtime contracts. TypeScript and the boundary check provide
+the authoritative validation when those contracts evolve.
+
+## Audit repository integration
+
+Product identity and behavior also appear outside `src/app`. Review these
+stable integration surfaces instead of relying on a file-by-file product list,
+which becomes stale as the application changes:
+
+- package metadata, scripts, lockfile, project README, installer, and license
+  notices;
+- Worker, D1, Drizzle, generated binding, Vite, and Playwright configuration;
+- remote backup, import, release, executable, and icon-generation scripts;
+- static assets, migration history, tests, fixtures, and product documentation;
+- Docker definitions, service and volume names, and release or deployment
+  workflows;
+- repository URLs, download URLs, executable and archive names, domains,
+  product names, user-facing copy, and contributor instructions.
+
+Search for the old identity across the repository after replacement. Substitute
+the old fork's actual values in this command:
+
+```sh
+rg -n -i \
+  '<old product name>|<old package name>|<old repository owner>|<old worker name>|<old database name>|<old database id>|<old domain>' \
+  --glob '!node_modules/**' \
+  --glob '!pnpm-lock.yaml' \
+  --glob '!src/core/**' \
+  --glob '!docs/core/**'
+```
+
+Review excluded core matches separately rather than replacing them globally.
+Some old-product-prefixed browser attributes, storage keys, and cache headers
+are stable internal protocols, not displayed branding. Rename them only as a
+deliberate compatibility migration.
+
+## Reset deployment identity
+
+Remove every old remote database name and ID. The Worker configuration, remote
+Drizzle configuration, backup scripts, and deploy scripts can each contain
+deployment identity. Clearing only the Worker configuration is not sufficient.
+
+Also remove the old Worker name and routes. Leave remote deployment and
+database commands unusable until the new product is deliberately configured to
+target its own resources. Separately replace repository and release URLs,
+package and binary names, container identity, and generated Cloudflare
+bindings.
+
+Do not run `pn deploy`, `pn db:migrate:remote`, `pn db:export:remote`, or
+`pn db:import:remote` until this audit is complete. These commands can read,
+overwrite, or deploy against the original project's remote resources. Remote
+import is destructive because it replaces database tables.
+
+## Rebuild local state
+
+After the replacement source, configuration, and assets are in place:
+
+```sh
+mise install
+pn install
+pn db:generate
+pn cf-typegen
+pn db:migrate
+pn test
+```
+
+`pn db:generate` creates `drizzle/` and generates the new baseline migration.
+`pn db:migrate` recreates local D1 state under `.wrangler/`. The test suite
+formats the repository, checks the core boundary and types, and exercises the
+browser and executable runtimes.
+
+Before publishing, also build and run every distribution form the fork keeps,
+such as the Worker, Node server, executable, installer, and container. Remove
+unused distribution paths rather than leaving them configured for the old
+product.
+
+## Preserve reusable infrastructure
+
+Core must not directly or indirectly import application, root, or outside
+modules. The boundary check follows static imports, type imports, re-exports,
+literal dynamic imports, configured aliases, directory indexes, and supported
+local assets. Non-literal dynamic imports are rejected in core.
+
+Keep dependency patches and their `PATCHES.md` documentation while the patched
+dependency remains in use. Preserve applicable license and copyright notices;
+rebranding a fork does not remove the original license obligations.
