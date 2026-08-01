@@ -12,7 +12,7 @@ import { registerAppRoutes } from "@/app/register-routes";
 import * as lokiRoutes from "@/app/routes";
 import { LogbookActions } from "@/app/navigation-actions";
 import { MenuDivider, MenuLink } from "@/core/components/ui/dropdown-menu";
-import { Link } from "@/core/components/link";
+import { ExternalLink, Link } from "@/core/components/link";
 import { createDefaultJumpItems } from "@/app/default-jump-items";
 import { aiUsage } from "@/app/schema";
 import { LokiUserOptionsSchema } from "@/app/options";
@@ -100,7 +100,12 @@ function LokiMenuItems() {
 }
 
 function LokiFooterLinks() {
-    return <Link href={lokiRoutes.about({})}>About</Link>;
+    return (
+        <>
+            <Link href={lokiRoutes.about({})}>About</Link>
+            <ExternalLink href={repositoryUrl}>GitHub</ExternalLink>
+        </>
+    );
 }
 
 async function initializeLokiUser(

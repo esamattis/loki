@@ -14,10 +14,12 @@ test("shows open source and self-hosting information", async ({ page }) => {
     await expect(
         page.getByText("GNU Affero General Public License"),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "GitHub" })).toHaveAttribute(
-        "href",
-        "https://github.com/esamattis/loki",
-    );
+    await expect(
+        page.getByRole("article").getByRole("link", { name: "GitHub" }),
+    ).toHaveAttribute("href", "https://github.com/esamattis/loki");
+    await expect(
+        page.getByLabel("Footer").getByRole("link", { name: "GitHub" }),
+    ).toHaveAttribute("href", "https://github.com/esamattis/loki");
     await expect(
         page.getByRole("link", { name: "releases page" }),
     ).toHaveAttribute("href", "https://github.com/esamattis/loki/releases");
