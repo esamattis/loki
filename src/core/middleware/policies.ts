@@ -1,6 +1,7 @@
 import type { AppRouter, HonoRequestContext } from "@/core/create-app";
 import { getRequestContext } from "@/core/create-app";
 import { htmlCacheMiddleware } from "@/core/html-cache";
+import { isSafeHttpMethod } from "@/core/http-methods";
 import { isPublicAssetPath } from "@/core/middleware/public-assets";
 import { isRegisteredPrivacyPolicyExemptRoute } from "@/core/register-route";
 import * as routes from "@/core/routes";
@@ -19,10 +20,6 @@ const READONLY_ALLOWED_MUTATIONS = new Set<string>([
     // Privacy acceptance and account deletion remain available to every user.
     routes.privacy.route,
 ]);
-
-// All unlisted methods are mutation-capable and therefore denied by default.
-/** Stores the safe methods used by this module. */
-const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 /** Requires authenticated users to accept the current privacy policy. */
 async function privacyPolicyMiddleware(
@@ -51,7 +48,7 @@ async function readonlyMiddleware(
     c: HonoRequestContext,
     next: () => Promise<void>,
 ) {
-    if (SAFE_METHODS.has(c.req.method.toUpperCase())) {
+    if (isSafeHttpMethod(c.req.method.toUpperCase())) {
         return next();
     }
     const user = getRequestContext(c).user;

@@ -22,7 +22,9 @@ may provide a mobile form action.
 
 Requests whose path contains `__` render only their JSX fragment. This is the
 convention used by HTMX fragment endpoints; not-found responses for these paths
-are plain text rather than a full document.
+are plain text rather than a full document. Applications must therefore reserve
+`__` for fragment routes and avoid it in routes that should render the full
+document shell.
 
 ## Shared UI components
 

@@ -14,7 +14,7 @@ import { ConfirmDeleteButton } from "@/core/components/ui/confirm-delete-button"
 import { Password } from "@/core/route-handlers/auth/components";
 import { $select } from "@/core/utils";
 import { DEFAULT_JUMP_IMAGE_PROMPT } from "@/app/jump-image";
-import { LokiUserOptionsSchema, updateLokiOptions } from "@/app/options";
+import { LokiUserOptionsSchema, type UserOptions } from "@/app/options";
 import { aircrafts, gear, jumps, jumpTypes, locations } from "@/app/schema";
 import * as routes from "@/app/routes";
 import {
@@ -205,18 +205,20 @@ export function validateLokiPreferencesForm(
     return result.error.issues.map((issue) => issue.message);
 }
 
-export async function saveLokiPreferencesForm(
-    context: RequestContext,
+export async function prepareLokiPreferencesSave(
+    _context: RequestContext,
     formValues: Readonly<Record<string, string>>,
-): Promise<void> {
+): Promise<{ options: Partial<UserOptions> }> {
     const result = LokiPreferencesSchema.parse(formValues);
-    await updateLokiOptions(context.getUser(), {
-        altitudeUnits: result.altitudeUnits,
-        speedUnits: result.speedUnits,
-        openaiApiKey: result.openaiApiKey.trim(),
-        jumpImagePrompt:
-            result.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
-    });
+    return {
+        options: {
+            altitudeUnits: result.altitudeUnits,
+            speedUnits: result.speedUnits,
+            openaiApiKey: result.openaiApiKey.trim(),
+            jumpImagePrompt:
+                result.jumpImagePrompt.trim() || DEFAULT_JUMP_IMAGE_PROMPT,
+        },
+    };
 }
 
 async function handleDeleteLogbookData(c: HonoRequestContext) {

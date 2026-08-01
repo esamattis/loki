@@ -53,8 +53,8 @@ The account hooks are:
 
 - `afterUserCreated(context, userUuid, appFormValues)`, used to initialize
   product options or related records after core creates an account; and
-- `beforeUserDeleted(context, userUuid)`, used to scrub or remove product data
-  before core deletes the account.
+- `prepareUserDeletion(context, userUuid)`, used to return product cleanup or
+  anonymization statements. Core batches them atomically with account deletion.
 
 Providing `privacyPolicyContent` opts the application into the hosted privacy
 policy capability. Core then registers the privacy route, links to it from

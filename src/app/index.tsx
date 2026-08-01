@@ -22,7 +22,7 @@ import {
     LokiJumpFromImageSection,
     LokiPreferencesDangerContent,
     LokiUnitsSection,
-    saveLokiPreferencesForm,
+    prepareLokiPreferencesSave,
     validateLokiPreferencesForm,
 } from "@/app/preferences";
 import { LokiPrivacyPolicyContent } from "@/app/privacy-policy-content";
@@ -126,14 +126,16 @@ async function initializeLokiUser(
     await createDefaultJumpItems(context.db, userUuid);
 }
 
-async function scrubAiUsageBeforeAccountDeletion(
+async function prepareAiUsageAccountDeletion(
     context: RequestContext,
     userUuid: string,
-): Promise<void> {
-    await context.db
-        .update(aiUsage)
-        .set({ title: "Deleted account" })
-        .where(eq(aiUsage.userUuid, userUuid));
+) {
+    return [
+        context.db
+            .update(aiUsage)
+            .set({ title: "Deleted account" })
+            .where(eq(aiUsage.userUuid, userUuid)),
+    ];
 }
 
 function renderApp(props: AppRouterRenderProps) {
@@ -172,9 +174,9 @@ export const appRouter = createAppRouter({
     render: renderApp,
     privacyPolicyContent: LokiPrivacyPolicyContent,
     afterUserCreated: initializeLokiUser,
-    beforeUserDeleted: scrubAiUsageBeforeAccountDeletion,
+    prepareUserDeletion: prepareAiUsageAccountDeletion,
     validatePreferencesForm: validateLokiPreferencesForm,
-    savePreferencesForm: saveLokiPreferencesForm,
+    preparePreferencesSave: prepareLokiPreferencesSave,
 });
 
 registerCoreRoutes(appRouter);

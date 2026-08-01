@@ -76,8 +76,10 @@ inserted into that same form through `CoreLayout`:
 - `preferencesDangerContent` inside the shared Danger Zone
 
 When those slots are used, `CreateAppRouterOptions` must also provide
-`validatePreferencesForm` and `savePreferencesForm` so one Save preferences
-action validates and persists core and product options together.
+`validatePreferencesForm` and `preparePreferencesSave`. The preparation hook
+returns application-owned option values and optional unexecuted statements;
+core batches them atomically with its account and option updates. The hook must
+not execute writes itself.
 
 Saveable edit forms can participate in unsaved-change tracking and return
 navigation. Destructive forms should remain separate and confirmation-gated.
@@ -102,11 +104,12 @@ when they expose privileged behavior.
 
 ## Account deletion hooks
 
-Before deleting a user, core calls the optional `beforeUserDeleted` hook. Use
-it when application rows need anonymization or cleanup that cannot be expressed
-through foreign-key cascades. After the hook succeeds, core removes the user;
-session and product records configured with cascading foreign keys are removed
-with it.
+Before deleting a user, core calls the optional `prepareUserDeletion` hook. Use
+it to return unexecuted anonymization or cleanup statements that cannot be
+expressed through foreign-key cascades. Core executes those statements and the
+user deletion in one atomic database batch. The hook must not execute writes
+itself. Session and product records configured with cascading foreign keys are
+removed with the user.
 
 Deletion is intentionally available even to a read-only user. It is a
 confirmation-gated account action, not a normal saveable edit form.

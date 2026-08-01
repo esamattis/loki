@@ -1,8 +1,12 @@
 import { drizzle as drizzleD1 } from "drizzle-orm/d1";
+import type { BatchItem } from "drizzle-orm/batch";
 import { measureSql, type ServerTimings } from "@/core/server-timing";
 
 /** App DB client. D1-shaped so existing `.batch` / query typings keep working. */
 export type AppDatabase = ReturnType<typeof drizzleD1>;
+
+/** A SQLite statement that can participate in an atomic application batch. */
+export type AppDatabaseBatchItem = BatchItem<"sqlite">;
 
 /** Provides timed d1 prepared statement behavior. */
 class TimedD1PreparedStatement {

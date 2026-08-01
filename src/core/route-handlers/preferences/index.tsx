@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { useId } from "hono/jsx";
 import {
@@ -241,25 +241,44 @@ async function handle(c: HonoRequestContext) {
     if (duplicateEmail)
         return render(c, ["Email address is already in use"], values);
     try {
-        await context.db
-            .update(users)
-            .set({
-                username: result.data.username,
-                displayName: result.data.displayName || null,
-                email: result.data.email,
-                ...(result.data.password
-                    ? { password: await hashPassword(result.data.password) }
-                    : {}),
-            })
-            .where(eq(users.uuid, user.uuid));
-        await user.updateCoreOptions({
+        const coreOptions = CoreUserOptionsSchema.parse({
+            ...user.options,
             dateTimeFormat: result.data.dateTimeFormat,
             numberFormat: result.data.numberFormat,
             htmlCacheEnabled: context.isSelfHosted()
                 ? user.options.htmlCacheEnabled
                 : result.data.htmlCacheEnabled === "true",
         });
-        await context.appOptions.savePreferencesForm?.(context, values);
+        const prepared = await context.appOptions.preparePreferencesSave?.(
+            context,
+            values,
+            coreOptions,
+        );
+        const options = CoreUserOptionsSchema.parse({
+            ...coreOptions,
+            ...prepared?.options,
+        });
+        await context.db.batch([
+            context.db
+                .update(users)
+                .set({
+                    username: result.data.username,
+                    displayName: result.data.displayName || null,
+                    email: result.data.email,
+                    ...(result.data.password
+                        ? { password: await hashPassword(result.data.password) }
+                        : {}),
+                })
+                .where(eq(users.uuid, user.uuid)),
+            context.db
+                .update(users)
+                .set({
+                    options: JSON.stringify(options),
+                    htmlCacheGeneration: sql`${users.htmlCacheGeneration} + 1`,
+                })
+                .where(eq(users.uuid, user.uuid)),
+            ...(prepared?.queries ?? []),
+        ]);
     } catch (error) {
         const field = uniqueAccountField(error);
         if (!field) throw error;

@@ -2,7 +2,8 @@ import { Context, Hono, type Handler } from "hono";
 import { TrieRouter } from "hono/router/trie-router";
 import { useRequestContext as useHonoRequestContext } from "hono/jsx-renderer";
 import type { Child, FC } from "hono/jsx";
-import type { AppDatabase } from "@/core/db";
+import type { AppDatabase, AppDatabaseBatchItem } from "@/core/db";
+import type { CoreUserOptions } from "@/core/options";
 import { User } from "@/core/user";
 import type { ServerTimings } from "@/core/server-timing";
 import {
@@ -27,6 +28,14 @@ import {
 
 export { User } from "@/core/user";
 
+/** Describes application work prepared for an atomic preferences save. */
+export interface PreparedPreferencesSave {
+    /** Application-owned values to merge into the shared user options JSON. */
+    options?: Readonly<Record<string, unknown>>;
+    /** Related application statements to execute in the same database batch. */
+    queries?: readonly AppDatabaseBatchItem[];
+}
+
 /** Describes create app router options. */
 export interface CreateAppRouterOptions {
     name: string;
@@ -47,17 +56,18 @@ export interface CreateAppRouterOptions {
         userUuid: string,
         appFormValues: Readonly<Record<string, string>>,
     ) => Promise<void>;
-    beforeUserDeleted?: (
+    prepareUserDeletion?: (
         context: RequestContext,
         userUuid: string,
-    ) => Promise<void>;
+    ) => Promise<readonly AppDatabaseBatchItem[]>;
     validatePreferencesForm?: (
         formValues: Readonly<Record<string, string>>,
     ) => string[];
-    savePreferencesForm?: (
+    preparePreferencesSave?: (
         context: RequestContext,
         formValues: Readonly<Record<string, string>>,
-    ) => Promise<void>;
+        coreOptions: CoreUserOptions,
+    ) => Promise<PreparedPreferencesSave>;
 }
 
 /** Describes app router render props. */

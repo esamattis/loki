@@ -3,6 +3,7 @@ import { getRequestContext } from "@/core/create-app";
 
 /** Renders unexpected errors while preserving Hono HTTP exceptions. */
 function errorHandler(err: Error, c: HonoRequestContext) {
+    c.status(500);
     return c.render(
         <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm ring-1 ring-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:ring-red-900/40">
             <div className="flex items-start gap-4">

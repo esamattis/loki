@@ -7,7 +7,14 @@ import { users } from "@/core/schema";
 export async function deleteAccount(c: HonoRequestContext) {
     const ctx = getRequestContext(c);
     const user = ctx.getUser();
-    await ctx.appOptions.beforeUserDeleted?.(ctx, user.uuid);
-    await ctx.db.delete(users).where(eq(users.uuid, user.uuid));
+    const appQueries =
+        (await ctx.appOptions.prepareUserDeletion?.(ctx, user.uuid)) ?? [];
+    const deleteUser = ctx.db.delete(users).where(eq(users.uuid, user.uuid));
+    const [firstAppQuery, ...remainingAppQueries] = appQueries;
+    await ctx.db.batch(
+        firstAppQuery
+            ? [firstAppQuery, ...remainingAppQueries, deleteUser]
+            : [deleteUser],
+    );
     await destroySession(c);
 }

@@ -7,6 +7,7 @@ import {
 } from "@/core/create-app";
 import * as routes from "@/core/routes";
 import { users } from "@/core/schema";
+import { isSafeHttpMethod } from "@/core/http-methods";
 
 /** Stores the cache name used by this module. */
 const CACHE_NAME = "loki-html-v1";
@@ -114,8 +115,8 @@ async function invalidateUserCache(c: HonoRequestContext, userUuid: string) {
         .run();
 }
 
-/** Handles post. */
-async function handlePost(
+/** Handles a request that may mutate user-visible state. */
+async function handleMutation(
     c: HonoRequestContext,
     next: () => Promise<void>,
     user: User,
@@ -145,8 +146,8 @@ export async function htmlCacheMiddleware(
     if (!user) {
         return bypassCache(c, next, "BYPASS");
     }
-    if (c.req.method === "POST") {
-        await handlePost(c, next, user);
+    if (!isSafeHttpMethod(c.req.method.toUpperCase())) {
+        await handleMutation(c, next, user);
         c.header(CACHE_STATUS_HEADER, "BYPASS");
         return;
     }

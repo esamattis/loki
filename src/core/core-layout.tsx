@@ -59,10 +59,10 @@ export function CoreLayout(props: CoreLayoutProps) {
     if (
         (props.preferencesContent || props.preferencesAfterFormatting) &&
         (!requestContext.appOptions.validatePreferencesForm ||
-            !requestContext.appOptions.savePreferencesForm)
+            !requestContext.appOptions.preparePreferencesSave)
     ) {
         throw new Error(
-            "preferences content requires validatePreferencesForm and savePreferencesForm",
+            "preferences content requires validatePreferencesForm and preparePreferencesSave",
         );
     }
 
