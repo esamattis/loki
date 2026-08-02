@@ -11,11 +11,13 @@ import { type Child } from "hono/jsx";
  * bar, and bottom navigation (or menu) on small screens.
  *
  * @param props.title - Optional page `<h1>`.
+ * @param props.wide - Whether desktop content uses the wider page layout.
  * @param props.mobileAction - Fixed bar above bottom nav (e.g. form submit).
  * @param props.children - Main page body.
  */
 export function AppPage(props: {
     title?: string;
+    wide?: boolean;
     mobileAction?: Child;
     children: any;
 }) {
@@ -38,7 +40,8 @@ export function AppPage(props: {
             <AppHeader />
             <main
                 className={clsx(
-                    "mx-auto max-w-3xl space-y-6 px-4 py-6 sm:py-8 sm:pb-8",
+                    "mx-auto space-y-6 px-4 py-6 sm:py-8 sm:pb-8",
+                    props.wide ? "max-w-6xl" : "max-w-3xl",
                     props.mobileAction ? "pb-40" : "pb-24",
                 )}
             >

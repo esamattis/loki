@@ -106,6 +106,7 @@ function DateInputScript(props: {
  * @param props.name - Name of the hidden ISO date input submitted with the form.
  * @param props.value - Current ISO date (`YYYY-MM-DD`) for SSR.
  * @param props.required - Marks the visible input required.
+ * @param props.autofocus - Focuses the visible text input on load when true.
  * @param props.showToday - When true, shows a Today shortcut button.
  * @param props.inputDataAttributes - Extra `data-*` attrs on the text input.
  * @param props.pickerDataAttributes - Extra `data-*` attrs on the native picker.
@@ -115,6 +116,7 @@ export function DateInput(props: {
     name: string;
     value: string;
     required?: boolean;
+    autofocus?: boolean;
     showToday?: boolean;
     inputDataAttributes?: Record<`data-${string}`, string>;
     pickerDataAttributes?: Record<`data-${string}`, string>;
@@ -148,6 +150,7 @@ export function DateInput(props: {
                     {...props.inputDataAttributes}
                     placeholder={placeholder}
                     required={props.required}
+                    autofocus={props.autofocus}
                     value={formatCalendarDate(props.value, dateTimeFormat)}
                     className={controlClassName}
                 />

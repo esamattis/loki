@@ -5,6 +5,7 @@ import {
     BurgerMenuIcon,
     LogoutIcon,
     PreferencesIcon,
+    menuIconClassName,
 } from "@/core/components/icons";
 import {
     DropdownMenu,
@@ -14,10 +15,6 @@ import {
 } from "@/core/components/ui/dropdown-menu";
 import { useCoreLayoutUi } from "@/core/core-layout-context";
 import * as routes from "@/core/routes";
-
-/** Stores the menu icon class name used by this module. */
-const menuIconClassName =
-    "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
 
 /**
  * Account dropdown: build info, app menu items, optional Admin, Preferences,

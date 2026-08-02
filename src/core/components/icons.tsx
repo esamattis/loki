@@ -174,6 +174,12 @@ export function SystemThemeIcon(props: IconProps) {
     );
 }
 
+/**
+ * Shared Tailwind classes for icons beside account-menu labels.
+ */
+export const menuIconClassName =
+    "h-4 w-4 flex-none text-slate-400 dark:text-slate-500";
+
 /** Single-path menu icon used by admin/preferences/logout glyphs. */
 function MenuIcon(props: { className: string; path: string }) {
     return (
@@ -232,6 +238,48 @@ export function LogoutIcon(props: { className: string }) {
         <MenuIcon
             className={props.className}
             path="M10 5H5a2 2 0 00-2 2v10a2 2 0 002 2h5m4-4l4-3-4-3m4 3H8"
+        />
+    );
+}
+
+/**
+ * Document icon for printable report navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
+export function PrintableReportIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+    );
+}
+
+/**
+ * Download icon for import navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
+export function ImportIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4V4"
+        />
+    );
+}
+
+/**
+ * Calendar icon for holidays navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
+export function HolidaysIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M8 3v4m8-4v4M4 9h16M6 5h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2zm3 8h.01M12 13h.01M15 13h.01M9 17h.01M12 17h.01M15 17h.01"
         />
     );
 }

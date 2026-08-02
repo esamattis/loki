@@ -4,7 +4,8 @@ import { $renderTemplate, $select } from "@/core/utils";
 
 /**
  * Mounts a single popover tooltip and shows it for elements with
- * `data-loki-tooltip` on pointer/focus, positioning above or below the target.
+ * `data-loki-tooltip` on pointer/focus/touch, positioning above or below the
+ * target. Touch tooltips stay open until the next touch starts.
  */
 function $initTooltips(templateId: string) {
     const EDGE_MARGIN = 8;
@@ -33,6 +34,7 @@ function $initTooltips(templateId: string) {
     const tooltipText: HTMLSpanElement = tooltipTextNode;
     const tooltipArrow: HTMLSpanElement = tooltipArrowNode;
     let activeTarget: HTMLElement | null = null;
+    let touchTarget: HTMLElement | null = null;
     function getTooltipTarget(target: EventTarget | null): HTMLElement | null {
         if (!(target instanceof Element)) return null;
         const tooltipTarget = target.closest("[data-loki-tooltip]");
@@ -65,6 +67,7 @@ function $initTooltips(templateId: string) {
         tooltipArrow.style.left = `${targetRect.left + targetRect.width / 2 - left}px`;
     }
     function showTooltip(target: HTMLElement) {
+        if (touchTarget && target !== touchTarget) return;
         activeTarget = target;
         tooltipText.textContent = target.dataset.lokiTooltip!;
         tooltip.hidden = false;
@@ -72,11 +75,27 @@ function $initTooltips(templateId: string) {
         positionTooltip(target);
     }
     function hideTooltip(target?: HTMLElement | null) {
+        if (touchTarget) return;
         if (target && target !== activeTarget) return;
         activeTarget = null;
         if (tooltip.matches(":popover-open")) tooltip.hidePopover();
         tooltip.hidden = true;
     }
+    document.addEventListener(
+        "touchstart",
+        (event) => {
+            if (touchTarget) {
+                touchTarget = null;
+                hideTooltip();
+                return;
+            }
+            const target = getTooltipTarget(event.target);
+            if (!target) return;
+            showTooltip(target);
+            touchTarget = target;
+        },
+        { passive: true },
+    );
     document.addEventListener(
         "pointerover",
         (event) => {
