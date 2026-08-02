@@ -110,6 +110,13 @@ component doc comments.
 
 Never use git commands unless explicitly instructed.
 
+Always run Node, pnpm, and other project tools via `mise exec --`:
+
+```
+mise exec -- pn test
+mise exec -- node scripts/systemd-restart.mts
+```
+
 # Dependency Patches
 
 Document every pnpm dependency patch in `PATCHES.md`. Include the package and
@@ -124,7 +131,7 @@ or is removed.
 After every change, run:
 
 ```
-pn test
+mise exec -- pn test
 ```
 
 Comment-only changes do not require rerunning tests.

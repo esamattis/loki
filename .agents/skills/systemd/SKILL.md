@@ -1,78 +1,73 @@
 ---
 name: systemd
-description: Manage the Loki systemd user service. Use when starting, stopping, restarting, enabling, inspecting, troubleshooting, or changing the Loki service.
+description: Manage this project's systemd user service. Use when starting, stopping, restarting, enabling, inspecting, troubleshooting, or changing the user service. Service unit name is package.json name + .service.
 ---
 
-# Loki systemd service
+# systemd user service
 
-Manage Loki as a systemd user service. Never use `sudo` or the system-level
-`systemctl` commands for this service.
+Manage this project as a systemd **user** service. Never use `sudo` or
+system-level `systemctl` (without `--user`) for this service.
 
-## Service configuration
+## Service name
 
-- Unit: `~/.config/systemd/user/loki.service`
-- Executable: `/home/esamatti/code/loki/dist-executable/loki`
-- Address: `http://0.0.0.0:4832`
+The unit name is `{package.json name}.service` (for example, package name
+`loki` → `loki.service`).
+
+- Unit file: `~/.config/systemd/user/{name}.service`
 - Boot target: `default.target`
 - User lingering must remain enabled so the service starts at boot without a
   login session.
 
+Resolve `{name}` from the project root `package.json` `"name"` field. Do not
+hardcode a project-specific unit name.
+
 ## Lifecycle commands
 
-Always rebuild the self-contained executable before starting or restarting the
-service. Run the build from `/home/esamatti/code/loki` as the current user:
+Prefer the project script for restart-or-start:
 
 ```sh
-pn build:executable
-systemctl --user start loki.service
+mise exec -- node scripts/systemd-restart.mts
 ```
 
+That script reads the unit name from `package.json`, errors if the matching
+user unit is not installed, runs `pnpm run build:executable`, then
+`systemctl --user restart` (starts the unit when it is not already running).
+
+Use `--missing-ok` to exit successfully when the unit is not installed:
+
 ```sh
-pn build:executable
-systemctl --user restart loki.service
+mise exec -- node scripts/systemd-restart.mts --missing-ok
 ```
 
-Stopping and inspecting the service do not require a rebuild:
+Manual equivalents (replace `{name}` with the package name):
 
 ```sh
-systemctl --user stop loki.service
-systemctl --user status loki.service --no-pager
+systemctl --user start {name}.service
+systemctl --user restart {name}.service
+systemctl --user stop {name}.service
+systemctl --user status {name}.service --no-pager
 ```
 
-Enabling with `--now` also starts the service, so rebuild first:
+Enabling with `--now` also starts the service (rebuild first when needed):
 
 ```sh
-pn build:executable
-systemctl --user enable --now loki.service
+systemctl --user enable --now {name}.service
 ```
 
-Disabling and stopping the service does not require a rebuild:
+Disabling and stopping does not require a rebuild:
 
 ```sh
-systemctl --user disable --now loki.service
+systemctl --user disable --now {name}.service
 ```
 
 ## Logs and diagnostics
 
-Follow logs:
-
 ```sh
-journalctl --user -u loki.service -f
-```
-
-Inspect logs from the current boot:
-
-```sh
-journalctl --user -u loki.service -b --no-pager
-```
-
-Check service and boot configuration:
-
-```sh
-systemctl --user is-active loki.service
-systemctl --user is-enabled loki.service
+journalctl --user -u {name}.service -f
+journalctl --user -u {name}.service -b --no-pager
+systemctl --user is-active {name}.service
+systemctl --user is-enabled {name}.service
 loginctl show-user "$USER" -p Linger
-curl --fail http://127.0.0.1:4832
 ```
 
 If lingering is disabled, enable it as the current user:
@@ -81,16 +76,18 @@ If lingering is disabled, enable it as the current user:
 loginctl enable-linger "$USER"
 ```
 
-## Applying changes
+## Applying unit changes
 
-After changing the unit, verify it, reload the user manager, and restart Loki:
+After changing the unit file, verify it, reload the user manager, and restart:
 
 ```sh
-systemd-analyze --user verify ~/.config/systemd/user/loki.service
+systemd-analyze --user verify ~/.config/systemd/user/{name}.service
 systemctl --user daemon-reload
-pn build:executable
-systemctl --user restart loki.service
+mise exec -- node scripts/systemd-restart.mts
 ```
 
-Confirm both that the service remains active and that its HTTP endpoint
-responds after every start or restart.
+Confirm the service is active after every start or restart:
+
+```sh
+systemctl --user status {name}.service --no-pager
+```
