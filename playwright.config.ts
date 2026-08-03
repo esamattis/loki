@@ -28,7 +28,7 @@ export default defineConfig({
     ],
     webServer: {
         command:
-            "PLAYWRIGHT_TEST=1 node scripts/reset-playwright-state.ts && PLAYWRIGHT_TEST=1 node scripts/migrate-playwright.ts && PLAYWRIGHT_TEST=1 vite --host 127.0.0.1 --port 8788 --strictPort",
+            "PLAYWRIGHT_TEST=1 node scripts/core/reset-playwright-state.mts && PLAYWRIGHT_TEST=1 node scripts/core/migrate-playwright.mts && PLAYWRIGHT_TEST=1 vite --host 127.0.0.1 --port 8788 --strictPort",
         url: "http://127.0.0.1:8788",
         reuseExistingServer: false,
     },

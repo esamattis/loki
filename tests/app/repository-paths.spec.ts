@@ -13,7 +13,7 @@ import {
     drizzleOutputPath,
     drizzleSchemaPath,
 } from "../../drizzle.shared.config";
-import { listSqlFiles } from "../../scripts/db-generate";
+import { listSqlFiles } from "../../scripts/core/db-generate.mts";
 
 test("local and remote Drizzle configurations use the importable app schema", async () => {
     const previousAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;

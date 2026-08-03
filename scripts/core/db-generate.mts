@@ -11,7 +11,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { $ } from "zx";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
+const root = fileURLToPath(new URL("../..", import.meta.url));
 const migrationsDir = join(root, "drizzle");
 const $$ = $({ cwd: root, stdio: "inherit" });
 

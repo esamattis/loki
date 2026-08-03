@@ -8,7 +8,7 @@
  * Requires on PATH: `gm` and `rsvg-convert`.
  * Logo fill should match app brand indigo (#4f46e5).
  *
- * Usage: node scripts/generate-icons.ts
+ * Usage: node scripts/generate-icons.mts
  */
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";

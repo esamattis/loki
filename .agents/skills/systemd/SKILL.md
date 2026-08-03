@@ -26,17 +26,17 @@ hardcode a project-specific unit name.
 Prefer the project script for restart-or-start:
 
 ```sh
-mise exec -- node scripts/systemd-restart.mts
+mise exec -- node scripts/core/systemd-restart.mts
 ```
 
-That script reads the unit name from `package.json`, errors if the matching
-user unit is not installed, runs `pnpm run build:executable`, then
+That script reads the unit name from `package.json`, logs each action, errors
+if the matching user unit is not installed, runs `pnpm run build:binary`, then
 `systemctl --user restart` (starts the unit when it is not already running).
 
 Use `--missing-ok` to exit successfully when the unit is not installed:
 
 ```sh
-mise exec -- node scripts/systemd-restart.mts --missing-ok
+mise exec -- node scripts/core/systemd-restart.mts --missing-ok
 ```
 
 Manual equivalents (replace `{name}` with the package name):
@@ -83,7 +83,7 @@ After changing the unit file, verify it, reload the user manager, and restart:
 ```sh
 systemd-analyze --user verify ~/.config/systemd/user/{name}.service
 systemctl --user daemon-reload
-mise exec -- node scripts/systemd-restart.mts
+mise exec -- node scripts/core/systemd-restart.mts
 ```
 
 Confirm the service is active after every start or restart:

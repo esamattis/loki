@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { checkCoreBoundary } from "../../scripts/core-boundary.ts";
+import { checkCoreBoundary } from "../../scripts/core/core-boundary.mts";
 
 type Fixture = {
     name: string;

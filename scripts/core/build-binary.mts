@@ -2,9 +2,9 @@ import { readMigrationFiles } from "drizzle-orm/migrator";
 import { join, relative, resolve, sep } from "node:path";
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { $ } from "zx";
-import { appConfig } from "../src/app/config.ts";
+import { appConfig } from "../../src/app/config.ts";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "../..");
 const outputDirectory = join(root, "dist-executable");
 const executableName = appConfig.executableName;
 const executablePath = join(outputDirectory, executableName);

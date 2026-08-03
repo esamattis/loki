@@ -1,13 +1,13 @@
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { $ } from "zx";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "../..");
 const $$ = $({ cwd: root, stdio: "inherit" });
 
-function readPackageName(packageJsonPath: string): string {
+async function readPackageName(packageJsonPath: string): Promise<string> {
     const packageJson: unknown = JSON.parse(
-        readFileSync(packageJsonPath, "utf8"),
+        await readFile(packageJsonPath, "utf8"),
     );
     if (
         typeof packageJson !== "object" ||
@@ -28,7 +28,7 @@ function readPackageName(packageJsonPath: string): string {
     return name;
 }
 
-function packageName(): string {
+async function packageName(): Promise<string> {
     return readPackageName(resolve(root, "package.json"));
 }
 
@@ -46,8 +46,9 @@ function parseArgs(argv: string[]): { missingOk: boolean } {
 
 async function main(): Promise<void> {
     const { missingOk } = parseArgs(process.argv.slice(2));
-    const name = packageName();
+    const name = await packageName();
     const unit = `${name}.service`;
+    console.info(`Checking user systemd unit: ${unit}`);
     const loadState = (
         await $`systemctl --user show ${unit} -p LoadState --value`
     ).stdout.trim();
@@ -61,8 +62,11 @@ async function main(): Promise<void> {
         process.exit(1);
     }
 
-    await $$`pnpm run build:executable`;
+    console.info("Building binary before restarting service");
+    await $$`pnpm run build:binary`;
+    console.info(`Restarting user systemd unit: ${unit}`);
     await $$`systemctl --user restart ${unit}`;
+    console.info(`Restarted user systemd unit: ${unit}`);
 }
 
 await main();

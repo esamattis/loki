@@ -147,7 +147,7 @@ Then open http://127.0.0.1:8787
 To build a self-contained executable for the current platform:
 
 ```sh
-pn build:executable
+pn build:binary
 ./dist-executable/loki
 ```
 

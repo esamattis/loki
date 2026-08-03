@@ -2,8 +2,8 @@ import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "zx";
-import { orderTableNamesByFk, rewriteDumpForImport } from "./sql-dump.ts";
-import { wranglerBin } from "./wrangler-bin.ts";
+import { orderTableNamesByFk, rewriteDumpForImport } from "./sql-dump.mts";
+import { wranglerBin } from "./wrangler-bin.mts";
 
 const DB_BINDING = "DB";
 
@@ -97,7 +97,9 @@ async function dropAllTables(): Promise<void> {
 async function main(): Promise<void> {
     const filePath = process.argv[2];
     if (!filePath) {
-        console.error("Usage: node scripts/import-remote.ts <backup.sql>");
+        console.error(
+            "Usage: node scripts/core/import-remote.mts <backup.sql>",
+        );
         process.exit(1);
     }
 

@@ -13,7 +13,7 @@ src/app  ──imports and configures──>  src/core
 src/core ──must never import────────>  src/app
 ```
 
-The boundary is checked transitively by `scripts/check-core-boundary.ts` as part
+The boundary is checked transitively by `scripts/core/check-core-boundary.mts` as part
 of the test suite. When core needs product-specific behavior, add the smallest
 direct option or callback to the core API and provide it from
 `src/app/index.tsx`. Do not introduce a feature registry or dependency lookup

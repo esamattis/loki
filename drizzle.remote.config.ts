@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 import { $ } from "zx";
-import { wranglerBin } from "./scripts/wrangler-bin.ts";
+import { wranglerBin } from "./scripts/core/wrangler-bin.mts";
 import {
     drizzleOutputPath,
     drizzleSchemaPath,

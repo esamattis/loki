@@ -1,6 +1,6 @@
 import { readMigrationFiles } from "drizzle-orm/migrator";
 import { $ } from "zx";
-import { wranglerBin } from "./wrangler-bin.ts";
+import { wranglerBin } from "./wrangler-bin.mts";
 
 async function main(): Promise<void> {
     const migrations = readMigrationFiles({ migrationsFolder: "drizzle" });

@@ -2,8 +2,8 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { migrate } from "drizzle-orm/d1/migrator";
 import { getPlatformProxy } from "wrangler";
-import { hashPassword } from "../src/core/password.ts";
-import { users } from "../src/core/schema.ts";
+import { hashPassword } from "../../src/core/password.ts";
+import { users } from "../../src/core/schema.ts";
 
 function readArguments(): { username: string; password: string } {
     const [username, password, ...extra] = process.argv.slice(2);
