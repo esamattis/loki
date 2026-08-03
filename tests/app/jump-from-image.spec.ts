@@ -482,7 +482,8 @@ test("from image form saves model and additional context to user options", async
     await page.getByRole("button", { name: "Save preferences" }).click();
 
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
-    await page.locator('select[name="model"]').selectOption("gpt-4o-mini");
+    await page.locator('select[name="model"]').selectOption("gpt-5.6-terra");
+    await page.locator('select[name="reasoning"]').selectOption("high");
     await page
         .locator('textarea[name="additionalContext"]')
         .fill("Remember this context on the server");
@@ -509,8 +510,9 @@ test("from image form saves model and additional context to user options", async
 
     await page.goto("/logbook/jumps/new/from-image");
     await expect(page.locator('select[name="model"]')).toHaveValue(
-        "gpt-4o-mini",
+        "gpt-5.6-terra",
     );
+    await expect(page.locator('select[name="reasoning"]')).toHaveValue("high");
     await expect(
         page.locator('textarea[name="additionalContext"]'),
     ).toHaveValue("Remember this context on the server");

@@ -10,11 +10,21 @@ export const JUMP_IMAGE_MODEL_IDS = [
     "gpt-5.6",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
-    "gpt-4o",
-    "gpt-4o-mini",
 ] as const;
 
 export type JumpImageModelId = (typeof JUMP_IMAGE_MODEL_IDS)[number];
+
+/** Portable AI SDK reasoning effort levels for jump image extraction. */
+export const JUMP_IMAGE_REASONING_IDS = [
+    "none",
+    "minimal",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+] as const;
+
+export type JumpImageReasoningId = (typeof JUMP_IMAGE_REASONING_IDS)[number];
 
 export const JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX = 500;
 
@@ -38,19 +48,48 @@ export const JUMP_IMAGE_MODELS: {
         label: "GPT-5.6 Luna",
         description: "Faster and cheaper",
     },
+];
+
+export const JUMP_IMAGE_REASONING_LEVELS: {
+    id: JumpImageReasoningId;
+    label: string;
+    description: string;
+}[] = [
     {
-        id: "gpt-4o",
-        label: "GPT-4o",
-        description: "Previous generation, strong vision",
+        id: "none",
+        label: "None",
+        description: "No reasoning",
     },
     {
-        id: "gpt-4o-mini",
-        label: "GPT-4o mini",
-        description: "Low-cost previous generation",
+        id: "minimal",
+        label: "Minimal",
+        description: "Bare-minimum reasoning",
+    },
+    {
+        id: "low",
+        label: "Low",
+        description: "Fast, concise reasoning",
+    },
+    {
+        id: "medium",
+        label: "Medium",
+        description: "Balanced reasoning",
+    },
+    {
+        id: "high",
+        label: "High",
+        description: "Thorough reasoning",
+    },
+    {
+        id: "xhigh",
+        label: "Extra high",
+        description: "Maximum reasoning",
     },
 ];
 
 export const DEFAULT_JUMP_IMAGE_MODEL: JumpImageModelId = "gpt-5.6-luna";
+
+export const DEFAULT_JUMP_IMAGE_REASONING: JumpImageReasoningId = "low";
 
 export function resolveJumpImageModel(
     value: unknown,
@@ -67,6 +106,21 @@ export function resolveJumpImageModel(
     return fallback;
 }
 
+export function resolveJumpImageReasoning(
+    value: unknown,
+    fallback: JumpImageReasoningId = DEFAULT_JUMP_IMAGE_REASONING,
+): JumpImageReasoningId {
+    if (typeof value !== "string") {
+        return fallback;
+    }
+    for (const id of JUMP_IMAGE_REASONING_IDS) {
+        if (id === value) {
+            return id;
+        }
+    }
+    return fallback;
+}
+
 export const LokiUserOptionsSchema = CoreUserOptionsSchema.extend({
     altitudeUnits: z.enum(["meters", "feet"]).default("meters"),
     speedUnits: z
@@ -74,9 +128,14 @@ export const LokiUserOptionsSchema = CoreUserOptionsSchema.extend({
         .default("kilometers-per-hour"),
     openaiApiKey: z.string().default(""),
     jumpImagePrompt: z.string().default(DEFAULT_JUMP_IMAGE_PROMPT),
-    jumpImageModel: z
-        .enum(JUMP_IMAGE_MODEL_IDS)
-        .default(DEFAULT_JUMP_IMAGE_MODEL),
+    jumpImageModel: z.preprocess(
+        (value) => resolveJumpImageModel(value),
+        z.enum(JUMP_IMAGE_MODEL_IDS),
+    ),
+    jumpImageReasoning: z.preprocess(
+        (value) => resolveJumpImageReasoning(value),
+        z.enum(JUMP_IMAGE_REASONING_IDS),
+    ),
     jumpImageAdditionalContext: z
         .string()
         .max(

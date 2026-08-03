@@ -19,11 +19,14 @@ import {
 import { Link } from "@/core/components/link";
 import {
     DEFAULT_JUMP_IMAGE_MODEL,
+    DEFAULT_JUMP_IMAGE_REASONING,
     JUMP_IMAGE_ADDITIONAL_CONTEXT_MAX,
     JUMP_IMAGE_MODELS,
+    JUMP_IMAGE_REASONING_LEVELS,
     altitudeInputValue,
     getLokiUserOptions,
     resolveJumpImageModel,
+    resolveJumpImageReasoning,
     updateLokiOptions,
     type UserOptions,
 } from "@/app/options";
@@ -292,6 +295,7 @@ function JumpFromImagePage(props: {
     hasApiKey: boolean;
     additionalContext: string;
     model: UserOptions["jumpImageModel"];
+    reasoning: UserOptions["jumpImageReasoning"];
     usageTotals: AiUsageTotals;
     usageRows: AiUsageRow[];
 }) {
@@ -360,6 +364,22 @@ function JumpFromImagePage(props: {
                                 image.
                             </p>
                         </div>
+                        <div className="space-y-1.5">
+                            <Select name="reasoning" label="Reasoning effort">
+                                {JUMP_IMAGE_REASONING_LEVELS.map((level) => (
+                                    <option
+                                        value={level.id}
+                                        selected={level.id === props.reasoning}
+                                    >
+                                        {level.label} — {level.description}
+                                    </option>
+                                ))}
+                            </Select>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Higher effort can improve hard reads and costs
+                                more. Remembers your last choice.
+                            </p>
+                        </div>
                         <div className="hidden sm:block">
                             <Button type="submit" variant="primary">
                                 Read image
@@ -380,11 +400,13 @@ async function saveJumpImageReadOptions(
     c: HonoRequestContext,
     options: {
         model: UserOptions["jumpImageModel"];
+        reasoning: UserOptions["jumpImageReasoning"];
         additionalContext: string;
     },
 ) {
     await updateLokiOptions(getRequestContext(c).getUser(), {
         jumpImageModel: options.model,
+        jumpImageReasoning: options.reasoning,
         jumpImageAdditionalContext: options.additionalContext,
     });
 }
@@ -395,6 +417,7 @@ async function renderJumpFromImage(
         errors?: string[];
         additionalContext?: string;
         model?: UserOptions["jumpImageModel"];
+        reasoning?: UserOptions["jumpImageReasoning"];
     },
 ) {
     const userOptions = getLokiUserOptions(getRequestContext(c).getUser());
@@ -403,6 +426,10 @@ async function renderJumpFromImage(
         options?.model ??
         userOptions.jumpImageModel ??
         DEFAULT_JUMP_IMAGE_MODEL;
+    const reasoning =
+        options?.reasoning ??
+        userOptions.jumpImageReasoning ??
+        DEFAULT_JUMP_IMAGE_REASONING;
     const additionalContext =
         options?.additionalContext ??
         userOptions.jumpImageAdditionalContext ??
@@ -414,6 +441,7 @@ async function renderJumpFromImage(
             hasApiKey={hasApiKey}
             additionalContext={additionalContext}
             model={model}
+            reasoning={reasoning}
             usageTotals={usage.totals}
             usageRows={usage.rows}
         />,
@@ -518,6 +546,7 @@ function getPlaywrightMockJumpData(additionalContext: string): JumpImageInput {
 async function extractJumpDataFromImage(options: {
     apiKey: string;
     model: UserOptions["jumpImageModel"];
+    reasoning: UserOptions["jumpImageReasoning"];
     prompt: string;
     additionalContext: string;
     altitudeUnits: UserOptions["altitudeUnits"];
@@ -556,7 +585,7 @@ async function extractJumpDataFromImage(options: {
 
     const { output, usage } = await generateText({
         model: openai(options.model),
-        reasoning: "low",
+        reasoning: options.reasoning,
         output: Output.object({
             schema: JumpImageDataSchema,
             name: "jumpData",
@@ -686,7 +715,11 @@ async function handleJumpFromImage(c: HonoRequestContext) {
         formData.get("model"),
         options.jumpImageModel ?? DEFAULT_JUMP_IMAGE_MODEL,
     );
-    await saveJumpImageReadOptions(c, { model, additionalContext });
+    const reasoning = resolveJumpImageReasoning(
+        formData.get("reasoning"),
+        options.jumpImageReasoning ?? DEFAULT_JUMP_IMAGE_REASONING,
+    );
+    await saveJumpImageReadOptions(c, { model, reasoning, additionalContext });
 
     if (!apiKey) {
         return renderJumpFromImage(c, {
@@ -695,6 +728,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
             ],
             additionalContext,
             model,
+            reasoning,
         });
     }
 
@@ -709,6 +743,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
             errors: ["Choose an image to upload."],
             additionalContext,
             model,
+            reasoning,
         });
     }
     if (image.size > MAX_IMAGE_BYTES) {
@@ -716,6 +751,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
             errors: ["Image is too large. Maximum size is 8 MB."],
             additionalContext,
             model,
+            reasoning,
         });
     }
     const mediaType = image.type || "image/jpeg";
@@ -724,6 +760,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
             errors: ["Unsupported image type. Use JPEG, PNG, WebP, or GIF."],
             additionalContext,
             model,
+            reasoning,
         });
     }
 
@@ -733,6 +770,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
         const { data, usage } = await extractJumpDataFromImage({
             apiKey,
             model,
+            reasoning,
             prompt,
             additionalContext,
             altitudeUnits: options.altitudeUnits,
@@ -751,6 +789,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
                 errors: [data.error],
                 additionalContext,
                 model,
+                reasoning,
             });
         }
         return c.redirect(
@@ -772,6 +811,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
             errors: [message],
             additionalContext,
             model,
+            reasoning,
         });
     }
 }
