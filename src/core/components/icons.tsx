@@ -283,3 +283,31 @@ export function HolidaysIcon(props: { className: string }) {
         />
     );
 }
+
+/**
+ * Scale icon for balance navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
+export function BalanceIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M12 3v18M5 7h14M5 7l-3 6h6L5 7zm14 0l-3 6h6l-3-6zM8 21h8"
+        />
+    );
+}
+
+/**
+ * Bar chart icon for chart navigation.
+ *
+ * @param props.className - Tailwind classes for the SVG.
+ */
+export function ChartIcon(props: { className: string }) {
+    return (
+        <MenuIcon
+            className={props.className}
+            path="M4 20V10h4v10H4zm6 0V4h4v16h-4zm6 0v-7h4v7h-4z"
+        />
+    );
+}
