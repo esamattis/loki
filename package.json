@@ -34,7 +34,7 @@
         "prettier-check": "prettier --check .",
         "lint": "oxlint",
         "lint:fix": "oxlint --fix",
-        "test": "$npm_execpath run prettier-write && $npm_execpath run prettier-check && $npm_execpath run lint && $npm_execpath run test:boundary && $npm_execpath run test:tsc && $npm_execpath run test:e2e && $npm_execpath run test:executable && node scripts/core/systemd-restart.mts --missing-ok"
+        "test": "$npm_execpath run test:tsc && node scripts/core/systemd-restart.mts --missing-ok && $npm_execpath run lint && $npm_execpath run prettier-write && $npm_execpath run prettier-check && $npm_execpath run test:boundary && $npm_execpath run test:e2e && $npm_execpath run test:executable"
     },
     "dependencies": {
         "@ai-sdk/openai": "^4.0.11",
