@@ -57,8 +57,9 @@ mise exec -- pn test
 mise exec -- node scripts/core/systemd-restart.mts
 ```
 
-`mise exec -- pn test` runs the full browser and executable suites. Allow at
-least ten minutes for it to finish.
+After making changes, always run `mise exec -- pn test` unless explicitly asked
+not to. It runs the full browser and executable suites, so allow at least ten
+minutes for it to finish.
 
 # Lints
 
