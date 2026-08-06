@@ -85,6 +85,7 @@ export const logbook = {
             excludeJumpUuid?: string;
         }>(),
         fromImage: route("/logbook/jumps/new/from-image"),
+        aiUsage: route("/logbook/jumps/new/from-image/usage"),
         imageGalleryFragment: route(
             "/logbook/jumps/new/from-image/__gallery",
         ).query<{

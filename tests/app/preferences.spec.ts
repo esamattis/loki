@@ -594,5 +594,6 @@ test("a skydiver can permanently delete their account and all jump items", async
 
     await page.getByRole("link", { name: `${displayName}'s logbook` }).click();
     await page.getByRole("link", { name: "AI Vision", exact: true }).click();
+    await page.getByRole("link", { name: "View AI usage" }).click();
     await expect(page.getByText("No image reads yet.")).toBeVisible();
 });
