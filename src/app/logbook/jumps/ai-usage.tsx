@@ -4,12 +4,15 @@ import {
     getRequestContext,
     useDateFormatter,
     useNumberFormatter,
+    type AppRouter,
     type HonoRequestContext,
 } from "@/core/create-app";
+import { AppPage } from "@/core/app-page";
 import { JUMP_IMAGE_MODELS } from "@/app/options";
+import * as routes from "@/app/routes";
 import { aiUsage } from "@/app/schema";
 
-export type AiUsageRow = {
+type AiUsageRow = {
     uuid: string;
     model: string;
     title: string;
@@ -19,7 +22,7 @@ export type AiUsageRow = {
     totalTokens: number | null;
 };
 
-export type AiUsageTotals = {
+type AiUsageTotals = {
     reads: number;
     inputTokens: number;
     outputTokens: number;
@@ -64,21 +67,13 @@ function UsageCard(props: { label: string; value: number }) {
     );
 }
 
-export function AiUsageSummary(props: {
-    totals: AiUsageTotals;
-    rows: AiUsageRow[];
-}) {
+function AiUsageSummary(props: { totals: AiUsageTotals; rows: AiUsageRow[] }) {
     const formatDate = useDateFormatter();
     return (
         <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    AI usage
-                </h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Token usage from jump image reads for your account.
-                </p>
-            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+                Token usage from jump image reads for your account.
+            </p>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <UsageCard label="Reads" value={props.totals.reads} />
                 <UsageCard
@@ -178,7 +173,7 @@ export function AiUsageSummary(props: {
     );
 }
 
-export async function getAiUsageForUser(c: HonoRequestContext): Promise<{
+async function getAiUsageForUser(c: HonoRequestContext): Promise<{
     totals: AiUsageTotals;
     rows: AiUsageRow[];
 }> {
@@ -267,4 +262,23 @@ export async function recordAiUsage(options: {
         outputTokens: options.usage.outputTokens ?? null,
         totalTokens: options.usage.totalTokens ?? null,
     });
+}
+
+async function renderAiUsage(c: HonoRequestContext) {
+    const usage = await getAiUsageForUser(c);
+    return c.render(
+        <AppPage title="AI usage">
+            <a
+                href={routes.logbook.jumps.fromImage({})}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+            >
+                ← Back to AI Vision
+            </a>
+            <AiUsageSummary totals={usage.totals} rows={usage.rows} />
+        </AppPage>,
+    );
+}
+
+export function register(app: AppRouter) {
+    app.get(routes.logbook.jumps.aiUsage, async (c) => renderAiUsage(c));
 }

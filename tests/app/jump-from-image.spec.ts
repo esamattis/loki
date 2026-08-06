@@ -185,13 +185,10 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
         "href",
         /\/logbook\/jumps\/[0-9a-f-]+/,
     );
-    const usageSection = page
-        .locator("section")
-        .filter({ has: page.getByRole("heading", { name: "AI usage" }) });
-    await expect(
-        usageSection.getByRole("heading", { name: "AI usage" }),
-    ).toBeVisible();
-    const usageRow = usageSection
+    await page.getByRole("link", { name: "View AI usage" }).click();
+    await expect(page).toHaveURL("/logbook/jumps/new/from-image/usage");
+    await expect(page.getByRole("heading", { name: "AI usage" })).toBeVisible();
+    const usageRow = page
         .locator("table tbody tr")
         .filter({ hasText: "#42 · 2024-06-15 · Image Drop Zone · FS" });
     await expect(usageRow).toHaveCount(1);
@@ -202,13 +199,15 @@ test("a skydiver can create a jump from an image", async ({ page }) => {
     await expect(usageRow.getByRole("cell", { name: "180" })).toBeVisible();
     await expect(usageRow.getByRole("cell", { name: /1\s380/ })).toBeVisible();
     await expect(
-        usageSection
+        page
             .locator("p")
             .filter({ hasText: "Input tokens" })
             .locator("..")
             .getByText(/1\s200/),
     ).toBeVisible();
 
+    await page.getByRole("link", { name: "Back to AI Vision" }).click();
+    await expect(page).toHaveURL("/logbook/jumps/new/from-image");
     await page.getByRole("link", { name: "Jump #42" }).click();
     await page.locator('input[name="jumpNumber"]').fill("43");
     await page.getByRole("button", { name: "Save jump" }).click();

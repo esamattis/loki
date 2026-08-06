@@ -39,14 +39,8 @@ import {
 } from "@/app/jump-image";
 import * as routes from "@/app/routes";
 import { aircrafts, gear, jumpTypes, locations } from "@/app/schema";
-import {
-    AiUsageSummary,
-    buildAiUsageTitle,
-    getAiUsageForUser,
-    recordAiUsage,
-    type AiUsageRow,
-    type AiUsageTotals,
-} from "@/app/logbook/components/ai-usage";
+import { buildAiUsageTitle, recordAiUsage } from "@/app/logbook/jumps/ai-usage";
+import { SecondaryAction } from "@/app/components/secondary-action";
 import { ImageGallery } from "@/app/logbook/jumps/image-client";
 import { AppPage } from "@/core/app-page";
 import { ClearReturnRoute } from "@/core/components/return-after-form-post";
@@ -296,8 +290,6 @@ function JumpFromImagePage(props: {
     additionalContext: string;
     model: UserOptions["jumpImageModel"];
     reasoning: UserOptions["jumpImageReasoning"];
-    usageTotals: AiUsageTotals;
-    usageRows: AiUsageRow[];
 }) {
     const formId = useId();
 
@@ -318,80 +310,73 @@ function JumpFromImagePage(props: {
             {/* Edits opened from the image reader intentionally return to the
             logbook rather than treating the reader as a form return route. */}
             <ClearReturnRoute />
-            <div className="space-y-6">
-                <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Upload a photo of a logbook page, altimeter, or freefall
-                        computer. Review the extracted values on the add jump
-                        form before saving.
-                    </p>
-                    <ErrorList
-                        errors={props.errors ?? []}
-                        className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
-                    />
-                    {!props.hasApiKey && (
-                        <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
-                            Add an OpenAI API key in{" "}
-                            <Link href={`${routes.preferences({})}#openai`}>
-                                Preferences
-                            </Link>{" "}
-                            before using this feature.
-                        </p>
-                    )}
-                    <form
-                        id={formId}
-                        method="post"
-                        encType="multipart/form-data"
-                        className="space-y-5"
-                    >
-                        <JumpImageField formId={formId} />
-                        <AdditionalContextField
-                            value={props.additionalContext}
-                        />
-                        <div className="space-y-1.5">
-                            <Select name="model" label="AI model">
-                                {JUMP_IMAGE_MODELS.map((model) => (
-                                    <option
-                                        value={model.id}
-                                        selected={model.id === props.model}
-                                    >
-                                        {model.label} — {model.description}
-                                    </option>
-                                ))}
-                            </Select>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Remembers the model you last used to read an
-                                image.
-                            </p>
-                        </div>
-                        <div className="space-y-1.5">
-                            <Select name="reasoning" label="Reasoning effort">
-                                {JUMP_IMAGE_REASONING_LEVELS.map((level) => (
-                                    <option
-                                        value={level.id}
-                                        selected={level.id === props.reasoning}
-                                    >
-                                        {level.label} — {level.description}
-                                    </option>
-                                ))}
-                            </Select>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Higher effort can improve hard reads and costs
-                                more. Remembers your last choice.
-                            </p>
-                        </div>
-                        <div className="hidden sm:block">
-                            <Button type="submit" variant="primary">
-                                Read image
-                            </Button>
-                        </div>
-                    </form>
-                </section>
-                <AiUsageSummary
-                    totals={props.usageTotals}
-                    rows={props.usageRows}
+            <SecondaryAction href={routes.logbook.jumps.aiUsage({})}>
+                View AI usage
+            </SecondaryAction>
+            <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Upload a photo of a logbook page, altimeter, or freefall
+                    computer. Review the extracted values on the add jump form
+                    before saving.
+                </p>
+                <ErrorList
+                    errors={props.errors ?? []}
+                    className="border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
                 />
-            </div>
+                {!props.hasApiKey && (
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+                        Add an OpenAI API key in{" "}
+                        <Link href={`${routes.preferences({})}#openai`}>
+                            Preferences
+                        </Link>{" "}
+                        before using this feature.
+                    </p>
+                )}
+                <form
+                    id={formId}
+                    method="post"
+                    encType="multipart/form-data"
+                    className="space-y-5"
+                >
+                    <JumpImageField formId={formId} />
+                    <AdditionalContextField value={props.additionalContext} />
+                    <div className="space-y-1.5">
+                        <Select name="model" label="AI model">
+                            {JUMP_IMAGE_MODELS.map((model) => (
+                                <option
+                                    value={model.id}
+                                    selected={model.id === props.model}
+                                >
+                                    {model.label} — {model.description}
+                                </option>
+                            ))}
+                        </Select>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Remembers the model you last used to read an image.
+                        </p>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Select name="reasoning" label="Reasoning effort">
+                            {JUMP_IMAGE_REASONING_LEVELS.map((level) => (
+                                <option
+                                    value={level.id}
+                                    selected={level.id === props.reasoning}
+                                >
+                                    {level.label} — {level.description}
+                                </option>
+                            ))}
+                        </Select>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Higher effort can improve hard reads and costs more.
+                        </p>
+                    </div>
+                    <div className="hidden sm:block">
+                        <Button type="submit" variant="primary">
+                            Read image
+                        </Button>
+                    </div>
+                </form>
+            </section>
         </AppPage>
     );
 }
@@ -434,7 +419,6 @@ async function renderJumpFromImage(
         options?.additionalContext ??
         userOptions.jumpImageAdditionalContext ??
         "";
-    const usage = await getAiUsageForUser(c);
     return c.render(
         <JumpFromImagePage
             errors={options?.errors}
@@ -442,8 +426,6 @@ async function renderJumpFromImage(
             additionalContext={additionalContext}
             model={model}
             reasoning={reasoning}
-            usageTotals={usage.totals}
-            usageRows={usage.rows}
         />,
     );
 }
