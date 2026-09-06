@@ -320,8 +320,8 @@ test("statistics show total and recorded jump counts for every item", async ({
         page.getByText("Jumps in the last 12 months").locator(".."),
     ).toContainText("This count is already below 10.");
     await expect(
-        page.getByText("Jumps last month").locator(".."),
-    ).toContainText("0");
+        page.getByText("Jumps in the last 30 days").locator(".."),
+    ).toContainText("2");
     await page.getByRole("link", { name: "View yearly statistics" }).click();
 
     await expect(page).toHaveURL("/logbook/statistics/detailed");
