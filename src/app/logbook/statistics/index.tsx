@@ -33,16 +33,9 @@ function getStartOfCurrentYear(): string {
     return `${today.getUTCFullYear()}-01-01`;
 }
 
-function getStartOfCurrentMonth(): string {
+function getThirtyDaysAgo(): string {
     const date = new Date();
-    date.setUTCDate(1);
-    return formatDate(date);
-}
-
-function getStartOfPreviousMonth(): string {
-    const date = new Date();
-    date.setUTCDate(1);
-    date.setUTCMonth(date.getUTCMonth() - 1);
+    date.setUTCDate(date.getUTCDate() - 30);
     return formatDate(date);
 }
 
@@ -357,8 +350,7 @@ async function renderStatistics(c: HonoRequestContext) {
     const user = requestContext.getUser();
     const userUuid = user.uuid;
     const startOfCurrentYear = getStartOfCurrentYear();
-    const startOfCurrentMonth = getStartOfCurrentMonth();
-    const startOfPreviousMonth = getStartOfPreviousMonth();
+    const thirtyDaysAgo = getThirtyDaysAgo();
     const twelveMonthsAgo = getTwelveMonthsAgo();
     const insufficientDataCondition = insufficientJumpDataCondition();
     const [[stats], yearlyRows, jumpNumberRows, insufficientDataJumps] =
@@ -370,7 +362,7 @@ async function renderStatistics(c: HonoRequestContext) {
                     currentYearJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfCurrentYear} then 1 else 0 end), 0)`,
                     lastTwelveMonthsJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${twelveMonthsAgo} then 1 else 0 end), 0)`,
                     latestJumpDate: sql<string | null>`max(${jumps.jumpDate})`,
-                    lastMonthJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${startOfPreviousMonth} and ${jumps.jumpDate} < ${startOfCurrentMonth} then 1 else 0 end), 0)`,
+                    lastThirtyDaysJumps: sql<number>`coalesce(sum(case when ${jumps.jumpDate} >= ${thirtyDaysAgo} then 1 else 0 end), 0)`,
                 })
                 .from(jumps)
                 .where(eq(jumps.userUuid, userUuid)),
@@ -412,7 +404,7 @@ async function renderStatistics(c: HonoRequestContext) {
         currentYearJumps: 0,
         lastTwelveMonthsJumps: 0,
         latestJumpDate: null,
-        lastMonthJumps: 0,
+        lastThirtyDaysJumps: 0,
     };
     const formatNumber = requestContext.numberFormatter();
 
@@ -463,8 +455,8 @@ async function renderStatistics(c: HonoRequestContext) {
                     }
                 />
                 <SingleNumberCard
-                    label="Jumps last month"
-                    value={formatNumber(values.lastMonthJumps)}
+                    label="Jumps in the last 30 days"
+                    value={formatNumber(values.lastThirtyDaysJumps)}
                 />
                 <SingleNumberCard
                     label="Years since first jump"
