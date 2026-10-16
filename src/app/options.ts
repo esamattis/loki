@@ -7,6 +7,8 @@ export { altitudeToMeters } from "./altitude.ts";
 
 /** Vision-capable OpenAI models suited to structured logbook image extraction. */
 export const JUMP_IMAGE_MODEL_IDS = [
+    "gpt-6.1-sol",
+    "gpt-6.1-luna",
     "gpt-5.6",
     "gpt-5.6-terra",
     "gpt-5.6-luna",
@@ -33,6 +35,16 @@ export const JUMP_IMAGE_MODELS: {
     label: string;
     description: string;
 }[] = [
+    {
+        id: "gpt-6.1-sol",
+        label: "GPT-6.1 Sol",
+        description: "Advanced image reading; uses at least low reasoning",
+    },
+    {
+        id: "gpt-6.1-luna",
+        label: "GPT-6.1 Luna",
+        description: "Luna model in the GPT-6.1 series",
+    },
     {
         id: "gpt-5.6",
         label: "GPT-5.6 Sol",
@@ -109,7 +121,14 @@ export function resolveJumpImageModel(
 export function resolveJumpImageReasoning(
     value: unknown,
     fallback: JumpImageReasoningId = DEFAULT_JUMP_IMAGE_REASONING,
+    model?: JumpImageModelId,
 ): JumpImageReasoningId {
+    if (model === "gpt-6.1-sol") {
+        const reasoning = resolveJumpImageReasoning(value, fallback);
+        return reasoning === "none" || reasoning === "minimal"
+            ? "low"
+            : reasoning;
+    }
     if (typeof value !== "string") {
         return fallback;
     }
