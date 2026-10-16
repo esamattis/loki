@@ -457,65 +457,89 @@ test("from image form lists latest images first and can clear them", async ({
     ).toBeHidden();
 });
 
-test("from image form saves model and additional context to user options", async ({
-    page,
-}) => {
-    await page.goto("/register");
-    await page.locator('input[name="invitationCode"]').fill("test-invite");
-    await page.locator('input[name="username"]').fill("options-image-skydiver");
-    await page
-        .locator('input[name="displayName"]')
-        .fill("Options Image Skydiver");
-    await page
-        .locator('input[name="email"]')
-        .fill("options-image@example.test");
-    await page.locator('input[name="password"]').fill("parachute");
-    await page.locator('input[name="confirmPassword"]').fill("parachute");
-    await page.getByRole("button", { name: "Create account" }).click();
-    await acceptPrivacyPolicyIfRequired(page);
+for (const selection of [
+    { model: "gpt-5.6-terra", reasoning: "high", expectedReasoning: "high" },
+    { model: "gpt-6.1-sol", reasoning: "high", expectedReasoning: "high" },
+    { model: "gpt-6.1-luna", reasoning: "high", expectedReasoning: "high" },
+    { model: "gpt-6.1-sol", reasoning: "none", expectedReasoning: "low" },
+    { model: "gpt-6.1-sol", reasoning: "minimal", expectedReasoning: "low" },
+]) {
+    test(`from image form saves ${selection.model} with ${selection.reasoning} reasoning and additional context`, async ({
+        page,
+    }) => {
+        await page.goto("/register");
+        await page.locator('input[name="invitationCode"]').fill("test-invite");
+        await page
+            .locator('input[name="username"]')
+            .fill(
+                `options-image-${selection.model.replaceAll(".", "-")}-${selection.reasoning}`,
+            );
+        await page
+            .locator('input[name="displayName"]')
+            .fill("Options Image Skydiver");
+        await page
+            .locator('input[name="email"]')
+            .fill(
+                `options-image-${selection.model}-${selection.reasoning}@example.test`,
+            );
+        await page.locator('input[name="password"]').fill("parachute");
+        await page.locator('input[name="confirmPassword"]').fill("parachute");
+        await page.getByRole("button", { name: "Create account" }).click();
+        await acceptPrivacyPolicyIfRequired(page);
 
-    await openMainMenu(page);
-    await page.getByRole("link", { name: "Preferences", exact: true }).click();
-    await expect(page.getByLabel("Default AI model")).toHaveCount(0);
-    await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
-    await page.getByRole("button", { name: "Save preferences" }).click();
+        await openMainMenu(page);
+        await page
+            .getByRole("link", { name: "Preferences", exact: true })
+            .click();
+        await expect(page.getByLabel("Default AI model")).toHaveCount(0);
+        await page.locator('input[name="openaiApiKey"]').fill("sk-test-key");
+        await page.getByRole("button", { name: "Save preferences" }).click();
 
-    await page.getByRole("link", { name: "AI Vision", exact: true }).click();
-    await page.locator('select[name="model"]').selectOption("gpt-5.6-terra");
-    await page.locator('select[name="reasoning"]').selectOption("high");
-    await page
-        .locator('textarea[name="additionalContext"]')
-        .fill("Remember this context on the server");
-    await expect(
-        page.getByRole("button", { name: "Clear additional context" }),
-    ).toBeVisible();
-    await page
-        .getByRole("button", { name: "Clear additional context" })
-        .click();
-    await expect(
-        page.locator('textarea[name="additionalContext"]'),
-    ).toHaveValue("");
-    await expect(
-        page.getByRole("button", { name: "Clear additional context" }),
-    ).toBeHidden();
-    await page
-        .locator('textarea[name="additionalContext"]')
-        .fill("Remember this context on the server");
-    await page
-        .locator("input[multiple]")
-        .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
-    await page.getByRole("button", { name: "Read image" }).click();
-    await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
+        await page
+            .getByRole("link", { name: "AI Vision", exact: true })
+            .click();
+        await page
+            .locator('select[name="model"]')
+            .selectOption(selection.model);
+        await page
+            .locator('select[name="reasoning"]')
+            .selectOption(selection.reasoning);
+        await page
+            .locator('textarea[name="additionalContext"]')
+            .fill("Remember this context on the server");
+        await expect(
+            page.getByRole("button", { name: "Clear additional context" }),
+        ).toBeVisible();
+        await page
+            .getByRole("button", { name: "Clear additional context" })
+            .click();
+        await expect(
+            page.locator('textarea[name="additionalContext"]'),
+        ).toHaveValue("");
+        await expect(
+            page.getByRole("button", { name: "Clear additional context" }),
+        ).toBeHidden();
+        await page
+            .locator('textarea[name="additionalContext"]')
+            .fill("Remember this context on the server");
+        await page
+            .locator("input[multiple]")
+            .setInputFiles(path.join(__dirname, "fixtures/jump-image.png"));
+        await page.getByRole("button", { name: "Read image" }).click();
+        await expect(page).toHaveURL(/\/logbook\/jumps\/new\?/);
 
-    await page.goto("/logbook/jumps/new/from-image");
-    await expect(page.locator('select[name="model"]')).toHaveValue(
-        "gpt-5.6-terra",
-    );
-    await expect(page.locator('select[name="reasoning"]')).toHaveValue("high");
-    await expect(
-        page.locator('textarea[name="additionalContext"]'),
-    ).toHaveValue("Remember this context on the server");
-});
+        await page.goto("/logbook/jumps/new/from-image");
+        await expect(page.locator('select[name="model"]')).toHaveValue(
+            selection.model,
+        );
+        await expect(page.locator('select[name="reasoning"]')).toHaveValue(
+            selection.expectedReasoning,
+        );
+        await expect(
+            page.locator('textarea[name="additionalContext"]'),
+        ).toHaveValue("Remember this context on the server");
+    });
+}
 
 test("from image form describes resized images", async ({ page }) => {
     await page.goto("/register");

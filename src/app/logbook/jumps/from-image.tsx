@@ -567,6 +567,11 @@ async function extractJumpDataFromImage(options: {
 
     const { output, usage } = await generateText({
         model: openai(options.model),
+        providerOptions: {
+            openai: options.model.startsWith("gpt-6.1-")
+                ? { forceReasoning: true }
+                : {},
+        },
         reasoning: options.reasoning,
         output: Output.object({
             schema: JumpImageDataSchema,
@@ -700,6 +705,7 @@ async function handleJumpFromImage(c: HonoRequestContext) {
     const reasoning = resolveJumpImageReasoning(
         formData.get("reasoning"),
         options.jumpImageReasoning ?? DEFAULT_JUMP_IMAGE_REASONING,
+        model,
     );
     await saveJumpImageReadOptions(c, { model, reasoning, additionalContext });
 
